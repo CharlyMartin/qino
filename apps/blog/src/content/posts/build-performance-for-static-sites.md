@@ -4,6 +4,9 @@ created-on: "2026-01-19T11:00:00Z"
 updated-on: "2026-01-26T15:30:00Z"
 image: "https://picsum.photos/seed/build-performance-for-static-sites/1200/630"
 author: "authors/jane-doe.json"
+categories:
+  - "categories/performance.json"
+  - "categories/tooling.json"
 ---
 
 A static site's superpower is that builds happen *before* requests. The corollary: a slow build is the one performance problem your users don't see — but you do, every time you deploy.

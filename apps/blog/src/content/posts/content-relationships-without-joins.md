@@ -4,6 +4,9 @@ created-on: "2025-09-05T09:30:00Z"
 updated-on: "2025-09-10T13:00:00Z"
 image: "https://picsum.photos/seed/content-relationships-without-joins/1200/630"
 author: "authors/camille-laurent.json"
+categories:
+  - "categories/content-modeling.json"
+  - "categories/architecture.json"
 ---
 
 Without a database, "join" doesn't really apply. But content has relationships — posts have authors, posts have tags, tags have parent categories. You still need to model them.

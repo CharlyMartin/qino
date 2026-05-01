@@ -4,6 +4,10 @@ created-on: "2026-02-08T09:00:00Z"
 updated-on: "2026-02-14T13:30:00Z"
 image: "https://picsum.photos/seed/the-markdown-linter-you-should-be-using/1200/630"
 author: "authors/felix-berger.json"
+categories:
+  - "categories/tooling.json"
+  - "categories/markdown.json"
+  - "categories/type-safety.json"
 ---
 
 Linting Markdown sounds excessive until you've spent an hour debugging why a heading isn't rendering. Then it sounds like the bare minimum.

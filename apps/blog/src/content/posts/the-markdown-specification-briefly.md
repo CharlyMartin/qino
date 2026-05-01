@@ -4,6 +4,9 @@ created-on: "2025-10-08T14:00:00Z"
 updated-on: "2025-10-08T14:00:00Z"
 image: "https://picsum.photos/seed/the-markdown-specification-briefly/1200/630"
 author: "authors/felix-berger.json"
+categories:
+  - "categories/markdown.json"
+  - "categories/philosophy.json"
 ---
 
 There's no single Markdown spec. There are several, and they disagree in small but real ways.

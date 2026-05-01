@@ -4,6 +4,9 @@ created-on: "2024-11-05T09:23:00Z"
 updated-on: "2024-11-12T14:10:00Z"
 image: "https://picsum.photos/seed/the-quiet-power-of-flat-files/1200/630"
 author: "authors/diego-moreno.json"
+categories:
+  - "categories/philosophy.json"
+  - "categories/architecture.json"
 ---
 
 Flat files have a way of outlasting the tools that produced them. A `.md` file written today will still open in any editor in twenty years, while the SaaS platform you wrote it in may have shut down by then.

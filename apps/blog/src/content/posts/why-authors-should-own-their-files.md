@@ -4,6 +4,9 @@ created-on: "2025-12-19T11:00:00Z"
 updated-on: "2025-12-19T11:00:00Z"
 image: "https://picsum.photos/seed/why-authors-should-own-their-files/1200/630"
 author: "authors/hanna-voss.json"
+categories:
+  - "categories/philosophy.json"
+  - "categories/editorial.json"
 ---
 
 The contract between an author and a publication should be simple: *the author owns their words*. The publication owns the venue.

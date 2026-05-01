@@ -4,6 +4,10 @@ created-on: "2026-03-02T11:00:00Z"
 updated-on: "2026-03-02T11:00:00Z"
 image: "https://picsum.photos/seed/image-alt-text-as-a-discipline/1200/630"
 author: "authors/amara-okonkwo.json"
+categories:
+  - "categories/editorial.json"
+  - "categories/content-modeling.json"
+  - "categories/seo.json"
 ---
 
 Alt text is the most-skipped accessibility feature in the world. It's also the easiest one to fix, and the one with the highest payoff per minute spent.

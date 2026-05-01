@@ -4,6 +4,9 @@ created-on: "2026-01-30T10:00:00Z"
 updated-on: "2026-01-30T10:00:00Z"
 image: "https://picsum.photos/seed/reading-time-and-why-it-matters/1200/630"
 author: "authors/hanna-voss.json"
+categories:
+  - "categories/tooling.json"
+  - "categories/editorial.json"
 ---
 
 "5 min read" is a tiny piece of UI that makes a surprising difference. It tells the reader, *before they commit*, what they're getting into.

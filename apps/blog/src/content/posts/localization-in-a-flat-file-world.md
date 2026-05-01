@@ -4,6 +4,9 @@ created-on: "2025-05-21T09:00:00Z"
 updated-on: "2025-05-30T11:30:00Z"
 image: "https://picsum.photos/seed/localization-in-a-flat-file-world/1200/630"
 author: "authors/camille-laurent.json"
+categories:
+  - "categories/content-modeling.json"
+  - "categories/architecture.json"
 ---
 
 Localization is the part where flat-file CMSes start to feel their limits. There's no single right answer, but there are two patterns that work.

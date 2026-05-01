@@ -4,6 +4,9 @@ created-on: "2025-11-08T09:00:00Z"
 updated-on: "2025-11-12T14:00:00Z"
 image: "https://picsum.photos/seed/tags-categories-and-taxonomies/1200/630"
 author: "authors/hanna-voss.json"
+categories:
+  - "categories/content-modeling.json"
+  - "categories/editorial.json"
 ---
 
 Tags, categories, taxonomies — three words for "how do we group content" that mostly mean the same thing in practice but feel different to editors.

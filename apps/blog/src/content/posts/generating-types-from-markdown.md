@@ -4,6 +4,9 @@ created-on: "2025-09-26T09:00:00Z"
 updated-on: "2025-10-02T11:30:00Z"
 image: "https://picsum.photos/seed/generating-types-from-markdown/1200/630"
 author: "authors/lars-eriksson.json"
+categories:
+  - "categories/type-safety.json"
+  - "categories/tooling.json"
 ---
 
 The endgame for a flat-file CMS is *the editor knowing what your content looks like* — not at runtime, but as you type.

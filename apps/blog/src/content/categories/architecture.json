@@ -1,0 +1,4 @@
+{
+  "name": "Architecture",
+  "description": "System design and data modeling for CMSes that don't need a database."
+}

@@ -4,6 +4,9 @@ created-on: "2025-08-15T10:30:00Z"
 updated-on: "2025-08-15T10:30:00Z"
 image: "https://picsum.photos/seed/editorial-ux-for-developer-tools/1200/630"
 author: "authors/mei-tanaka.json"
+categories:
+  - "categories/editorial.json"
+  - "categories/philosophy.json"
 ---
 
 Developer tools tend to optimize for developers — that's the whole point. But content tools sit at a strange intersection: developers build them, *non-developers* use them daily.

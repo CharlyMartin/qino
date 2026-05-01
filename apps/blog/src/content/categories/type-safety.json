@@ -1,0 +1,4 @@
+{
+  "name": "Type Safety",
+  "description": "Schemas, validation, and generated types that turn frontmatter into a typed contract."
+}

@@ -4,6 +4,9 @@ created-on: "2025-10-17T10:00:00Z"
 updated-on: "2025-10-22T13:00:00Z"
 image: "https://picsum.photos/seed/pagination-without-a-database/1200/630"
 author: "authors/yuki-sato.json"
+categories:
+  - "categories/architecture.json"
+  - "categories/performance.json"
 ---
 
 Pagination on a static site sounds like a contradiction — there's nothing to query — but it's actually one of the easiest things to get right.

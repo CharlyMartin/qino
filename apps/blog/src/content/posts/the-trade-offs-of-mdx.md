@@ -4,6 +4,9 @@ created-on: "2025-07-14T09:00:00Z"
 updated-on: "2025-07-22T13:30:00Z"
 image: "https://picsum.photos/seed/the-trade-offs-of-mdx/1200/630"
 author: "authors/felix-berger.json"
+categories:
+  - "categories/markdown.json"
+  - "categories/architecture.json"
 ---
 
 MDX lets you embed React components in Markdown. That's powerful, and it's also where Markdown stops being portable.

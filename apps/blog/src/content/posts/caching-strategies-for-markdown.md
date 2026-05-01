@@ -4,6 +4,9 @@ created-on: "2025-07-04T12:00:00Z"
 updated-on: "2025-07-04T12:00:00Z"
 image: "https://picsum.photos/seed/caching-strategies-for-markdown/1200/630"
 author: "authors/jane-doe.json"
+categories:
+  - "categories/performance.json"
+  - "categories/architecture.json"
 ---
 
 Markdown parsing isn't free. Run it on every request and you'll feel it; run it once and cache the result and you won't.

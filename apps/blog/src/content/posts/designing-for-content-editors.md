@@ -4,6 +4,9 @@ created-on: "2025-04-19T09:00:00Z"
 updated-on: "2025-04-22T13:30:00Z"
 image: "https://picsum.photos/seed/designing-for-content-editors/1200/630"
 author: "authors/amara-okonkwo.json"
+categories:
+  - "categories/editorial.json"
+  - "categories/philosophy.json"
 ---
 
 The biggest mistake developers make when building a CMS is treating the editor as a power user. They aren't. They're someone with a deadline who needs to ship a post by 4pm and would rather not think about your data model.

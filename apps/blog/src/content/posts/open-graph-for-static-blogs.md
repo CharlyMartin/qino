@@ -4,6 +4,9 @@ created-on: "2026-04-05T11:00:00Z"
 updated-on: "2026-04-05T11:00:00Z"
 image: "https://picsum.photos/seed/open-graph-for-static-blogs/1200/630"
 author: "authors/raj-patel.json"
+categories:
+  - "categories/seo.json"
+  - "categories/content-modeling.json"
 ---
 
 Open Graph metadata is the difference between a link that previews beautifully on social media and one that shows a default favicon and a truncated URL.
