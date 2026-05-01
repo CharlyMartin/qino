@@ -3,6 +3,7 @@ title: "Markdown's Underrated Features"
 created-on: "2025-01-26T10:00:00Z"
 updated-on: "2025-01-26T10:00:00Z"
 image: "https://picsum.photos/seed/markdowns-underrated-features/1200/630"
+author: "authors/felix-berger.json"
 ---
 
 Most people learn Markdown's headings and lists, then stop. The format has more to offer.

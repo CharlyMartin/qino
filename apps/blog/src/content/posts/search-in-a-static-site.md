@@ -3,6 +3,7 @@ title: "Search in a Static Site"
 created-on: "2025-10-28T11:00:00Z"
 updated-on: "2025-11-04T15:30:00Z"
 image: "https://picsum.photos/seed/search-in-a-static-site/1200/630"
+author: "authors/raj-patel.json"
 ---
 
 "How do you do search without a server?" comes up every time someone considers a static site for a content-heavy project. The answer in 2026 is: easier than you think.

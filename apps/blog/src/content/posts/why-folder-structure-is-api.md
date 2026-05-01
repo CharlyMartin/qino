@@ -3,6 +3,7 @@ title: "Why Folder Structure Is API"
 created-on: "2025-09-17T10:00:00Z"
 updated-on: "2025-09-17T10:00:00Z"
 image: "https://picsum.photos/seed/why-folder-structure-is-api/1200/630"
+author: "authors/camille-laurent.json"
 ---
 
 In a flat-file CMS, the folder structure *is* your data model. Renaming a folder is a breaking change.

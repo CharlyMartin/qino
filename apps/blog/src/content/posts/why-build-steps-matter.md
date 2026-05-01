@@ -3,6 +3,7 @@ title: "Why Build Steps Matter"
 created-on: "2025-06-12T08:30:00Z"
 updated-on: "2025-06-15T14:00:00Z"
 image: "https://picsum.photos/seed/why-build-steps-matter/1200/630"
+author: "authors/jane-doe.json"
 ---
 
 A flat-file CMS without a build step is just a folder. The build step is where it earns the *CMS* part of the name.

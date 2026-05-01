@@ -3,6 +3,7 @@ title: "The Lock File Pattern for Content"
 created-on: "2025-02-14T12:00:00Z"
 updated-on: "2025-02-14T12:00:00Z"
 image: "https://picsum.photos/seed/the-lock-file-pattern-for-content/1200/630"
+author: "authors/tomas-silva.json"
 ---
 
 Package managers solved a hard problem: how do you describe the *exact* state of a dependency tree, in a file, in a way that's both human-readable and machine-stable? The answer is the lock file.

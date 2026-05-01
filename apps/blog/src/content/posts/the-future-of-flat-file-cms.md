@@ -3,6 +3,7 @@ title: "The Future of Flat-File CMS"
 created-on: "2026-04-18T10:00:00Z"
 updated-on: "2026-04-25T14:30:00Z"
 image: "https://picsum.photos/seed/the-future-of-flat-file-cms/1200/630"
+author: "authors/diego-moreno.json"
 ---
 
 Flat-file CMSes have been around forever — but the version we've had until now was *for developers*. The next version has to be for everyone else, too.

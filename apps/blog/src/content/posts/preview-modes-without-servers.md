@@ -3,6 +3,7 @@ title: "Preview Modes Without Servers"
 created-on: "2026-03-23T10:00:00Z"
 updated-on: "2026-03-28T15:00:00Z"
 image: "https://picsum.photos/seed/preview-modes-without-servers/1200/630"
+author: "authors/mei-tanaka.json"
 ---
 
 "Preview before publish" is one of the features people miss most when moving to a static site. The good news: you can have it, without giving up static.

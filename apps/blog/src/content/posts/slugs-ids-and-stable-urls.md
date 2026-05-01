@@ -3,6 +3,7 @@ title: "Slugs, IDs, and Stable URLs"
 created-on: "2025-03-08T11:00:00Z"
 updated-on: "2025-03-15T09:15:00Z"
 image: "https://picsum.photos/seed/slugs-ids-and-stable-urls/1200/630"
+author: "authors/camille-laurent.json"
 ---
 
 A URL is a promise. Once it's published, breaking it costs you backlinks, search ranking, and the trust of anyone who bookmarked it. Slugs are the load-bearing part of that promise.

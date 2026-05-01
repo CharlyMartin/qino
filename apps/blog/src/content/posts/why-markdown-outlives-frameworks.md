@@ -3,6 +3,7 @@ title: "Why Markdown Outlives Frameworks"
 created-on: "2024-11-18T11:00:00Z"
 updated-on: "2024-11-18T11:00:00Z"
 image: "https://picsum.photos/seed/why-markdown-outlives-frameworks/1200/630"
+author: "authors/diego-moreno.json"
 ---
 
 Frameworks come and go on a roughly five-year cycle. The Markdown you wrote in 2014 still renders today — the framework you wrote *around* it probably doesn't.

@@ -3,6 +3,7 @@ title: "Building a CMS Without a Database"
 created-on: "2024-12-10T13:15:00Z"
 updated-on: "2024-12-15T10:00:00Z"
 image: "https://picsum.photos/seed/building-a-cms-without-a-database/1200/630"
+author: "authors/tomas-silva.json"
 ---
 
 A database is a useful default, but for content it's often the wrong abstraction. Content is read-heavy, change-rarely, and benefits enormously from being diffable. Files do all of this for free.

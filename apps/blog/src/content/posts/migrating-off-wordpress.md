@@ -3,6 +3,7 @@ title: "Migrating Off WordPress"
 created-on: "2025-12-28T09:00:00Z"
 updated-on: "2026-01-05T13:30:00Z"
 image: "https://picsum.photos/seed/migrating-off-wordpress/1200/630"
+author: "authors/priya-krishnan.json"
 ---
 
 WordPress runs ~40% of the web for good reasons. It's also the CMS people most often want to leave, for reasons just as good.

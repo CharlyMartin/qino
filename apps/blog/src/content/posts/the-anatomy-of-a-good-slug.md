@@ -3,6 +3,7 @@ title: "The Anatomy of a Good Slug"
 created-on: "2025-06-02T11:00:00Z"
 updated-on: "2025-06-02T11:00:00Z"
 image: "https://picsum.photos/seed/the-anatomy-of-a-good-slug/1200/630"
+author: "authors/camille-laurent.json"
 ---
 
 A good slug is short, descriptive, and stable. Two of those are easy. Stability is where most slugs fail.

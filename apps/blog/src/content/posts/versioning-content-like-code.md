@@ -3,6 +3,7 @@ title: "Versioning Content Like Code"
 created-on: "2025-04-30T12:00:00Z"
 updated-on: "2025-04-30T12:00:00Z"
 image: "https://picsum.photos/seed/versioning-content-like-code/1200/630"
+author: "authors/yuki-sato.json"
 ---
 
 `git log` is the most underrated CMS feature in the world.

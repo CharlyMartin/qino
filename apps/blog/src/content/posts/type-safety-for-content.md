@@ -3,6 +3,7 @@ title: "Type Safety for Content"
 created-on: "2025-07-25T11:00:00Z"
 updated-on: "2025-07-30T15:30:00Z"
 image: "https://picsum.photos/seed/type-safety-for-content/1200/630"
+author: "authors/lars-eriksson.json"
 ---
 
 Type-safe content is one of those things you didn't know you needed until you had it for a week.

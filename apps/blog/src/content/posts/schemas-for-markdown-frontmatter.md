@@ -3,6 +3,7 @@ title: "Schemas for Markdown Frontmatter"
 created-on: "2025-03-29T10:00:00Z"
 updated-on: "2025-03-29T10:00:00Z"
 image: "https://picsum.photos/seed/schemas-for-markdown-frontmatter/1200/630"
+author: "authors/lars-eriksson.json"
 ---
 
 Frontmatter without a schema is a JSON blob. Frontmatter *with* a schema is a typed contract — and that's what makes a flat-file CMS feel like a CMS, not a folder.

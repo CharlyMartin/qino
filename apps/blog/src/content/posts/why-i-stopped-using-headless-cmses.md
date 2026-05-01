@@ -3,6 +3,7 @@ title: "Why I Stopped Using Headless CMSes"
 created-on: "2025-03-19T13:00:00Z"
 updated-on: "2025-03-25T16:30:00Z"
 image: "https://picsum.photos/seed/why-i-stopped-using-headless-cmses/1200/630"
+author: "authors/priya-krishnan.json"
 ---
 
 I used a popular headless CMS for three years. The product was good. The vendor lock-in was the problem.

@@ -3,6 +3,7 @@ title: "Image Pipelines for Static Sites"
 created-on: "2025-05-09T10:30:00Z"
 updated-on: "2025-05-16T15:00:00Z"
 image: "https://picsum.photos/seed/image-pipelines-for-static-sites/1200/630"
+author: "authors/yuki-sato.json"
 ---
 
 Images are the single biggest performance lever on most blogs. Get the pipeline right and you get fast pages, low bandwidth bills, and good Core Web Vitals — all without thinking about it again.

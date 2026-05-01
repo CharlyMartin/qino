@@ -3,6 +3,7 @@ title: "From WYSIWYG to Plain Text"
 created-on: "2024-11-29T08:45:00Z"
 updated-on: "2024-12-04T16:20:00Z"
 image: "https://picsum.photos/seed/from-wysiwyg-to-plain-text/1200/630"
+author: "authors/priya-krishnan.json"
 ---
 
 The first time you switch a writer from a WYSIWYG editor to Markdown, they panic. The second time, they ask why nobody told them sooner.

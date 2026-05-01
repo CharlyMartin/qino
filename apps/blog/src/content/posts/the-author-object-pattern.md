@@ -3,6 +3,7 @@ title: "The Author Object Pattern"
 created-on: "2026-03-12T09:30:00Z"
 updated-on: "2026-03-19T14:00:00Z"
 image: "https://picsum.photos/seed/the-author-object-pattern/1200/630"
+author: "authors/hanna-voss.json"
 ---
 
 Most blogs start with `author: "Jane Doe"` in their frontmatter. Six months later, "Jane Doe" needs a bio, an avatar, and a Twitter link — in five hundred posts. That's when the author object pattern earns its keep.

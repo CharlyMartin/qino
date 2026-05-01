@@ -3,6 +3,7 @@ title: "Frontmatter Conventions That Scale"
 created-on: "2025-01-03T09:00:00Z"
 updated-on: "2025-01-08T11:45:00Z"
 image: "https://picsum.photos/seed/frontmatter-conventions-that-scale/1200/630"
+author: "authors/hanna-voss.json"
 ---
 
 Frontmatter is the load-bearing wall of a flat-file CMS. Get the conventions right early or pay for them every time you add a new field.
