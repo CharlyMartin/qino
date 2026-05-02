@@ -1,0 +1,37 @@
+{
+  "name": "qino",
+  "version": "0.0.0",
+  "description": "Flat-file Markdown CMS",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "check-types": "tsc --noEmit",
+    "lint": "echo \"no lint configured yet\""
+  },
+  "publishConfig": {
+    "access": "public",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.mts",
+        "import": "./dist/index.mjs"
+      }
+    }
+  },
+  "devDependencies": {
+    "tsdown": "0.21.10",
+    "typescript": "5.9.2"
+  }
+}
