@@ -1,0 +1,7 @@
+{
+  "qinoVersion": "0.0.0",
+  "config": {
+    "contentFolder": "src/content",
+    "mediaFolder": "public"
+  }
+}

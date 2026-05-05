@@ -1,1 +1,2 @@
-export const VERSION = "0.0.0";
+export { createConfig } from "./runtime/create-config";
+export type { Config } from "./runtime/create-config";
