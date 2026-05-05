@@ -17,40 +17,53 @@ export function createCollection<Schema extends ZodObject>({
   schema,
   extention,
 }: Collection<Schema>) {
+  function buildMeta(relPath: string) {
+    return {
+      slug: relPath.slice(0, -extention.length),
+      filename: nodePath.basename(relPath),
+      path: nodePath.join(path, relPath),
+    };
+  }
+
   async function getAll() {
     const relPaths = await fg(`**/*${extention}`, { cwd: path });
-    const dataList = await Promise.all(
-      relPaths.map((relPath) =>
-        fs.readFile(nodePath.join(path, relPath), "utf-8"),
-      ),
+    const entries = await Promise.all(
+      relPaths.map(async (relPath) => ({
+        _meta: buildMeta(relPath),
+        raw: await fs.readFile(nodePath.join(path, relPath), "utf-8"),
+      })),
     );
 
     if (extention == ".json") {
-      return dataList.map((data) => {
-        const parsed = JSON.parse(data);
-        return schema.parse(parsed);
-      });
+      return entries.map(({ _meta, raw }) => ({
+        _meta,
+        ...schema.parse(JSON.parse(raw)),
+      }));
     }
 
-    return dataList.map((data) => {
-      const parsed = matter(data);
-      return schema.parse({ markdown: parsed.content, ...parsed.data });
+    return entries.map(({ _meta, raw }) => {
+      const parsed = matter(raw);
+      return {
+        _meta,
+        ...schema.parse({ markdown: parsed.content, ...parsed.data }),
+      };
     });
   }
 
   async function getOne(slug: string) {
-    const data = await fs.readFile(
-      nodePath.join(path, `${slug}${extention}`),
-      "utf-8",
-    );
+    const _meta = buildMeta(`${slug}${extention}`);
+    const data = await fs.readFile(_meta.path, "utf-8");
 
     if (extention == ".json") {
       const parsed = JSON.parse(data);
-      return schema.parse(parsed);
+      return { _meta, ...schema.parse(parsed) };
     }
 
     const parsed = matter(data);
-    return schema.parse({ markdown: parsed.content, ...parsed.data });
+    return {
+      _meta,
+      ...schema.parse({ markdown: parsed.content, ...parsed.data }),
+    };
   }
 
   return {
