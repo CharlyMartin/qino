@@ -18,24 +18,25 @@ export function createCollection<Schema extends ZodObject>({
   schema,
   extention,
 }: Collection<Schema>) {
-  function resolveDir() {
-    return nodePath.join(getConfig().contentFolder, path);
+  async function resolveDir() {
+    const config = await getConfig();
+    return nodePath.join(config.contentFolder, path);
   }
 
-  function buildMeta(relPath: string) {
+  function buildMeta(dir: string, relPath: string) {
     return {
       slug: relPath.slice(0, -extention.length),
-      filename: nodePath.basename(relPath),
-      path: nodePath.join(resolveDir(), relPath),
+      fileName: nodePath.basename(relPath),
+      filePath: nodePath.join(dir, relPath),
     };
   }
 
   async function getAll() {
-    const dir = resolveDir();
+    const dir = await resolveDir();
     const relPaths = await fg(`**/*${extention}`, { cwd: dir });
     const entries = await Promise.all(
       relPaths.map(async (relPath) => ({
-        _meta: buildMeta(relPath),
+        _meta: buildMeta(dir, relPath),
         raw: await fs.readFile(nodePath.join(dir, relPath), "utf-8"),
       })),
     );
@@ -57,8 +58,9 @@ export function createCollection<Schema extends ZodObject>({
   }
 
   async function getOne(slug: string) {
-    const _meta = buildMeta(`${slug}${extention}`);
-    const data = await fs.readFile(_meta.path, "utf-8");
+    const dir = await resolveDir();
+    const _meta = buildMeta(dir, `${slug}${extention}`);
+    const data = await fs.readFile(_meta.filePath, "utf-8");
 
     if (extention == ".json") {
       const parsed = JSON.parse(data);
