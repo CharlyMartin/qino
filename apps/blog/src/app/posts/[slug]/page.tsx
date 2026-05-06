@@ -17,7 +17,7 @@ export default async function PostPage({ params }: PostPageProps) {
         href="/posts"
         className="mb-8 inline-block text-sm text-zinc-500 hover:underline dark:text-zinc-400"
       >
-        ← All posts
+        {"< All posts"}
       </Link>
       <div className="relative mb-8 aspect-1200/630 w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-900">
         <Image

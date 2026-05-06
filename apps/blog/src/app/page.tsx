@@ -13,7 +13,7 @@ export default function Home() {
         href="/posts"
         className="text-base font-medium text-zinc-950 underline underline-offset-4 hover:no-underline dark:text-zinc-50"
       >
-        Read the posts →
+        {"Read the posts >"}
       </Link>
     </main>
   );
