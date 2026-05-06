@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import nodePath from "node:path";
 import fg from "fast-glob";
 import matter from "gray-matter";
+import { getConfig } from "./load-config";
 
 export type Collection<Schema extends ZodObject> = {
   path: string;
@@ -17,20 +18,25 @@ export function createCollection<Schema extends ZodObject>({
   schema,
   extention,
 }: Collection<Schema>) {
+  function resolveDir() {
+    return nodePath.join(getConfig().contentFolder, path);
+  }
+
   function buildMeta(relPath: string) {
     return {
       slug: relPath.slice(0, -extention.length),
       filename: nodePath.basename(relPath),
-      path: nodePath.join(path, relPath),
+      path: nodePath.join(resolveDir(), relPath),
     };
   }
 
   async function getAll() {
-    const relPaths = await fg(`**/*${extention}`, { cwd: path });
+    const dir = resolveDir();
+    const relPaths = await fg(`**/*${extention}`, { cwd: dir });
     const entries = await Promise.all(
       relPaths.map(async (relPath) => ({
         _meta: buildMeta(relPath),
-        raw: await fs.readFile(nodePath.join(path, relPath), "utf-8"),
+        raw: await fs.readFile(nodePath.join(dir, relPath), "utf-8"),
       })),
     );
 

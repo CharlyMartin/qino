@@ -14,7 +14,7 @@ const PostSchema = z
   .strict();
 
 export const { getAll: getAllPosts, getOne: getPost } = createCollection({
-  path: "src/content/posts",
+  path: "posts",
   schema: PostSchema,
   extention: ".md",
 });

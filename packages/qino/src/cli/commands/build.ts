@@ -1,7 +1,9 @@
 import { stat, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { createJiti } from "jiti";
-import type { Config } from "../../runtime/create-config";
+import { z } from "zod";
+import { ConfigSchema, type Config } from "../../runtime/create-config";
+import { LockFileSchema } from "../../lib/lock-file";
 
 declare const __QINO_VERSION__: string;
 
@@ -28,13 +30,13 @@ export async function runBuild() {
     `mediaFolder "${config.mediaFolder}" is not a directory (resolved to ${mediaFolderAbs})`,
   );
 
-  const lock = {
+  const lock = LockFileSchema.parse({
     qinoVersion: __QINO_VERSION__,
     config: {
       contentFolder: config.contentFolder,
       mediaFolder: config.mediaFolder,
     },
-  };
+  });
 
   const lockPath = join(qinoDir, "qino-lock.json");
   await writeFile(lockPath, JSON.stringify(lock, null, 2) + "\n", "utf8");
@@ -59,13 +61,13 @@ async function assertFile(path: string, message: string) {
 
 async function loadConfig(configPath: string): Promise<Config> {
   const jiti = createJiti(import.meta.url);
-  const mod = (await jiti.import(configPath)) as { default?: Config };
+  const mod = (await jiti.import(configPath)) as { default?: unknown };
   if (!mod || typeof mod != "object" || !mod.default) {
     throw new Error("qino/config.ts must default-export createConfig({...})");
   }
-  const cfg = mod.default;
-  if (typeof cfg.contentFolder != "string" || typeof cfg.mediaFolder != "string") {
-    throw new Error("Invalid config: contentFolder and mediaFolder must be strings");
+  const result = ConfigSchema.safeParse(mod.default);
+  if (!result.success) {
+    throw new Error(`Invalid config in ${configPath}.\n${z.prettifyError(result.error)}`);
   }
-  return cfg;
+  return result.data;
 }
