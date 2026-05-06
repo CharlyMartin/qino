@@ -1,5 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import ReactMarkdown from "react-markdown";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypeHighlight from "rehype-highlight";
+import rehypeSlug from "rehype-slug";
+import remarkGfm from "remark-gfm";
 import { getPost } from "../../../../qino/collections/posts";
 
 type PostPageProps = {
@@ -41,9 +46,29 @@ export default async function PostPage({ params }: PostPageProps) {
           {post.title}
         </h1>
       </header>
-      <pre className="whitespace-pre-wrap font-sans text-base leading-7 text-zinc-800 dark:text-zinc-200">
-        {post.markdown}
-      </pre>
+      <div className="prose prose-zinc max-w-none dark:prose-invert">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[
+            rehypeSlug,
+            [rehypeAutolinkHeadings, { behavior: "wrap" }],
+            rehypeHighlight,
+          ]}
+          components={{
+            img: ({ src, alt }) => (
+              <Image
+                src={typeof src == "string" ? src : ""}
+                alt={alt ?? ""}
+                width={1200}
+                height={630}
+                className="h-auto w-full rounded-lg"
+              />
+            ),
+          }}
+        >
+          {post.markdown}
+        </ReactMarkdown>
+      </div>
     </article>
   );
 }
