@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm build *)",
+      "Bash(pnpm check-types *)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(rm qino/qino-lock.json)",
+      "Bash(pnpm exec *)",
+      "Bash(pnpm *)"
+    ]
+  }
+}
