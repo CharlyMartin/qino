@@ -3,5 +3,33 @@
   "config": {
     "contentFolder": "src/content",
     "mediaFolder": "public"
+  },
+  "collections": {
+    "authors": {
+      "path": "authors",
+      "extension": ".json",
+      "relations": []
+    },
+    "categories": {
+      "path": "categories",
+      "extension": ".json",
+      "relations": []
+    },
+    "posts": {
+      "path": "posts",
+      "extension": ".md",
+      "relations": [
+        {
+          "field": "categories[]",
+          "target": "categories",
+          "cardinality": "many"
+        },
+        {
+          "field": "author",
+          "target": "authors",
+          "cardinality": "one"
+        }
+      ]
+    }
   }
 }
