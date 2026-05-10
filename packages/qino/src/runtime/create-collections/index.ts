@@ -4,8 +4,8 @@ import fs from "fs/promises";
 import nodePath from "node:path";
 import fg from "fast-glob";
 import matter from "gray-matter";
-import { getConfig } from "../load-config";
 import { buildMeta } from "./build-meta";
+import { resolveCollectionDirectory } from "./resolve-collection-directory";
 
 export type Collection<Schema extends ZodObject> = {
   path: string;
@@ -18,26 +18,25 @@ export function createCollection<Schema extends ZodObject>({
   schema,
   extension,
 }: Collection<Schema>) {
-  async function resolveDir() {
-    const config = await getConfig();
-    return nodePath.join(config.contentFolder, path);
-  }
-
   async function getAll() {
-    const dir = await resolveDir();
-    const relPaths = await fg(`**/*${extension}`, { cwd: dir });
+    const collectionDirectory = await resolveCollectionDirectory(path);
+
+    const relPaths = await fg(`**/*${extension}`, { cwd: collectionDirectory });
 
     const entries = await Promise.all(
       relPaths.map(async (relPath) => {
         const meta = buildMeta({
-          directory: dir,
+          directory: collectionDirectory,
           relativePath: relPath,
           extension,
         });
 
         return {
           _meta: meta,
-          raw: await fs.readFile(nodePath.join(dir, relPath), "utf-8"),
+          raw: await fs.readFile(
+            nodePath.join(collectionDirectory, relPath),
+            "utf-8",
+          ),
         };
       }),
     );
@@ -59,9 +58,10 @@ export function createCollection<Schema extends ZodObject>({
   }
 
   async function getOne(slug: string) {
-    const dir = await resolveDir();
+    const collectionDirectory = await resolveCollectionDirectory(path);
+
     const meta = buildMeta({
-      directory: dir,
+      directory: collectionDirectory,
       relativePath: `${slug}${extension}`,
       extension,
     });
