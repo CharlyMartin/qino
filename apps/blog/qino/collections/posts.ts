@@ -1,5 +1,7 @@
 import { createCollection } from "qino";
 import z from "zod";
+import { authorCollection } from "./authors";
+import { categoryCollection } from "./categories";
 
 const PostSchema = z
   .object({
@@ -13,8 +15,12 @@ const PostSchema = z
   })
   .strict();
 
-export const { getAll: getAllPosts, getOne: getPost } = createCollection({
-  path: "posts",
+export const postCollection = createCollection({
+  relativePath: "/posts",
   schema: PostSchema,
   extension: ".md",
+  relations: {
+    author: authorCollection,
+    categories: categoryCollection,
+  },
 });

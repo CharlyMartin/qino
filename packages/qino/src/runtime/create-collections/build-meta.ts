@@ -1,19 +1,20 @@
 import nodePath from "node:path";
+import type { SupportedFileExtension, EntryMeta } from "../../types";
 
-type BuildMetaParams = {
+type BuildMetaParams<Ext extends SupportedFileExtension> = {
   directory: string;
   relativePath: string;
-  extension: string;
+  extension: Ext;
 };
 
-export function buildMeta({
+export function buildMeta<Ext extends SupportedFileExtension>({
   directory,
   relativePath,
   extension,
-}: BuildMetaParams) {
+}: BuildMetaParams<Ext>) {
   return {
     slug: relativePath.slice(0, -extension.length),
-    fileName: nodePath.basename(relativePath),
-    filePath: nodePath.join(directory, relativePath),
-  };
+    fileName: nodePath.basename(relativePath) as `${string}${Ext}`,
+    filePath: nodePath.join(directory, relativePath) as `${string}${Ext}`,
+  } satisfies EntryMeta<Ext>;
 }

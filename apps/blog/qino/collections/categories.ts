@@ -8,10 +8,8 @@ const CategorySchema = z
   })
   .strict();
 
-export const categories = createCollection({
-  path: "categories",
+export const categoryCollection = createCollection({
+  relativePath: "/categories",
   schema: CategorySchema,
   extension: ".json",
 });
-
-export const { getAll: getAllCategories, getOne: getCategory } = categories;

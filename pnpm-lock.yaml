@@ -87,28 +87,31 @@ importers:
 
   packages/qino:
     dependencies:
-      jiti:
-        specifier: 2.6.1
-        version: 2.6.1
-    devDependencies:
-      '@types/node':
-        specifier: 22.10.5
-        version: 22.10.5
+      '@standard-schema/spec':
+        specifier: 1.1.0
+        version: 1.1.0
       fast-glob:
         specifier: 3.3.3
         version: 3.3.3
       gray-matter:
         specifier: 4.0.3
         version: 4.0.3
+      jiti:
+        specifier: 2.6.1
+        version: 2.6.1
+      zod:
+        specifier: 4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@types/node':
+        specifier: 22.10.5
+        version: 22.10.5
       tsdown:
         specifier: 0.21.10
         version: 0.21.10(typescript@5.9.2)
       typescript:
         specifier: 5.9.2
         version: 5.9.2
-      zod:
-        specifier: 4.4.3
-        version: 4.4.3
 
 packages:
 
@@ -676,6 +679,9 @@ packages:
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
+
+  '@standard-schema/spec@1.1.0':
+    resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
@@ -3524,6 +3530,8 @@ snapshots:
   '@rolldown/pluginutils@1.0.0-rc.17': {}
 
   '@rtsao/scc@1.1.0': {}
+
+  '@standard-schema/spec@1.1.0': {}
 
   '@swc/helpers@0.5.15':
     dependencies:

@@ -5,7 +5,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
-import { getPost } from "../../../../qino/collections/posts";
+import { postCollection } from "../../../../qino/collections/posts";
 
 type PostPageProps = {
   params: Promise<{ slug: string }>;
@@ -14,7 +14,7 @@ type PostPageProps = {
 export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params;
 
-  const post = await getPost(slug);
+  const post = await postCollection.getOne(slug);
 
   return (
     <article className="mx-auto w-full max-w-3xl px-6 py-16">

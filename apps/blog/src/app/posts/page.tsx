@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getAllPosts } from "../../../qino/collections/posts";
+import { postCollection } from "../../../qino/collections/posts";
 
 export default async function PostsIndex() {
-  const posts = await getAllPosts();
+  const posts = await postCollection.getAll();
+
   const sorted = [...posts].sort((a, b) =>
     b["created-on"].localeCompare(a["created-on"]),
   );
