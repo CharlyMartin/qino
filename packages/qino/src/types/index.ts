@@ -7,30 +7,31 @@ export type SupportedFileExtension = z.infer<typeof ExtensionSchema>;
 
 export type ObjectSchema = StandardSchemaV1<unknown, Record<string, unknown>>;
 
-export type Out<S extends ObjectSchema> = StandardSchemaV1.InferOutput<S>;
+export type Out<Schema extends ObjectSchema> =
+  StandardSchemaV1.InferOutput<Schema>;
 
-export type RelationFieldKey<S extends ObjectSchema> = {
-  [K in keyof Out<S>]-?: NonNullable<Out<S>[K]> extends string
+export type RelationFieldKey<Schema extends ObjectSchema> = {
+  [K in keyof Out<Schema>]-?: NonNullable<Out<Schema>[K]> extends string
     ? K
-    : NonNullable<Out<S>[K]> extends Array<string>
+    : NonNullable<Out<Schema>[K]> extends Array<string>
       ? K
       : never;
-}[keyof Out<S>];
+}[keyof Out<Schema>];
 
 export type RelationTarget = AnyCollection | (() => AnyCollection);
 
-export type Relations<S extends ObjectSchema> = {
-  [K in RelationFieldKey<S>]?: RelationTarget;
+export type Relations<Schema extends ObjectSchema> = {
+  [K in RelationFieldKey<Schema>]?: RelationTarget;
 };
 
 export type CollectionMeta<
-  S extends ObjectSchema,
+  Schema extends ObjectSchema,
   Ext extends SupportedFileExtension = SupportedFileExtension,
 > = {
-  readonly schema: S;
+  readonly schema: Schema;
   readonly path: string;
   readonly extension: Ext;
-  readonly relations: Relations<S>;
+  readonly relations: Relations<Schema>;
 };
 
 export type AnyCollection = {
@@ -44,20 +45,20 @@ export type EntryMeta<Ext extends SupportedFileExtension> = {
 };
 
 export type Collection<
-  S extends ObjectSchema,
+  Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
 > = {
-  readonly [QinoMeta]: CollectionMeta<S, Ext>;
-  getAll(): Promise<Array<{ _meta: EntryMeta<Ext> } & Out<S>>>;
-  getOne(slug: string): Promise<{ _meta: EntryMeta<Ext> } & Out<S>>;
+  readonly [QinoMeta]: CollectionMeta<Schema, Ext>;
+  getAll(): Promise<Array<{ _meta: EntryMeta<Ext> } & Out<Schema>>>;
+  getOne(slug: string): Promise<{ _meta: EntryMeta<Ext> } & Out<Schema>>;
 };
 
 export type CreateCollectionParams<
-  S extends ObjectSchema,
+  Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
 > = {
   relativePath: `/${string}`;
-  schema: S;
+  schema: Schema;
   extension: Ext;
-  relations?: Relations<S>;
+  relations?: Relations<Schema>;
 };
