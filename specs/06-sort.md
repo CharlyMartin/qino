@@ -22,7 +22,7 @@ Qino should support both with the same field.
 createCollection({
   sort: function sortByDate(a, b) {
     if (a["created-on"] < b["created-on"]) return -1;
-    if (a["created-on"] > b["created-on"]) return  1;
+    if (a["created-on"] > b["created-on"]) return 1;
     return 0;
   },
 });
@@ -41,6 +41,8 @@ createCollection({
 `compareAsc` / `compareDesc` infer the comparator from the field type (string, number, ISO date).
 
 ### Manual — JSON order file
+
+_Maybe this should not be possible -> collections can be ordered by the getter. If the user needs arbitrary ordering, use a tree_
 
 For order that can't be programmatic — a list of slugs in the desired order:
 
@@ -61,7 +63,7 @@ JSON (not TS) so the cloud UI can read and edit it from GitHub.
 ## Behaviour
 
 - `sort` runs after schema validation, before `first`/`last` slicing.
-- Manual order: entries not listed in the JSON file go *after* listed entries, in stable filesystem order. (Decision: append vs error vs hide — append by default.)
+- Manual order: entries not listed in the JSON file go _after_ listed entries, in stable filesystem order. (Decision: append vs error vs hide — append by default.)
 - Per-call `getAll({ sort })` overrides the collection-level default.
 
 ## Open questions

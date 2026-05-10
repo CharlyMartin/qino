@@ -106,3 +106,8 @@ Used in every file in `specs/`:
 - [13-cloud-ui.md](13-cloud-ui.md) — editor UI (v2-deferred)
 - [decisions.md](decisions.md) — decision log
 - [ideas.md](ideas.md) — running brainstorm
+
+## Brain Dump
+
+- it looks like `qino-lock.json` is automatically generated from `qino/config.ts` + `qino/collections/*.ts`, so maybe we don't need to commit it? It can be rebuilt by the build step.
+- It's a little bit annoying that `qino dev` or `qino watch` are needed in development to make everything work. For now it's fine, but in the future it might be nice to eliminate that step? Not sure it's possible.
