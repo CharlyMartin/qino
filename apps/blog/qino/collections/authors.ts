@@ -10,10 +10,8 @@ const AuthorSchema = z
   })
   .strict();
 
-export const authors = createCollection({
-  path: "authors",
+export const authorCollection = createCollection({
+  relativePath: "/authors",
   schema: AuthorSchema,
   extension: ".json",
 });
-
-export const { getAll: getAllAuthors, getOne: getAuthor } = authors;

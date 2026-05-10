@@ -1,5 +1,3 @@
 export { createConfig, type Config } from "./runtime/create-config";
-export {
-  createCollection,
-  type Collection,
-} from "./runtime/create-collections";
+export { createCollection } from "./runtime/create-collections";
+export type { Collection } from "./types";
