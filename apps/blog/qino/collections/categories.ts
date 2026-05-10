@@ -11,7 +11,7 @@ const CategorySchema = z
 export const categories = createCollection({
   path: "categories",
   schema: CategorySchema,
-  extention: ".json",
+  extension: ".json",
 });
 
 export const { getAll: getAllCategories, getOne: getCategory } = categories;

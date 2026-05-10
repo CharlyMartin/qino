@@ -27,24 +27,19 @@ const PostSchema = z
   .strict();
 
 export const { getAll: getAllPosts, getOne: getPost } = createCollection({
-  path: "posts",         // relative to config.contentFolder
+  path: "posts", // relative to config.contentFolder
   schema: PostSchema,
-  extention: ".md",      // ".md" | ".mdx" | ".json"
+  extension: ".md", // ".md" | ".mdx" | ".json"
 });
 ```
 
 Source of truth: `packages/qino/src/runtime/create-collection.ts`.
 
-> Spelling note: the field is currently `extention` in the codebase (typo). To be renamed to `extension` to match `qino-lock.json` and the spec — see `specs/decisions.md` once that lands.
-
 ## Behaviour
 
 ### Slug
 
-Slug = relative path inside `path`, minus the file extension.
-
-- `posts/hello.md` → slug `hello`
-- `posts/2026/launch.md` → slug `2026/launch`
+Slug = relative path inside `path`, minus the file extension: `posts/hello.md` → slug `hello`
 
 ### Returned shape
 
@@ -94,7 +89,6 @@ None of these are implemented yet. `getAll()` today takes no arguments.
 
 ## Open questions
 
-- `extention` → `extension` rename in code.
 - Filter signature: single fn, array of fns, predicate object?
 - Default sort if none provided — file order? Creation date? Stable but undefined?
 

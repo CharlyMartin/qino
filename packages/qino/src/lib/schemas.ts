@@ -1,7 +1,7 @@
 import { z } from "zod";
-import type { SupportedFileExtention } from "../types";
+import type { SupportedFileExtension } from "../types";
 
-export function FilePath<E extends SupportedFileExtention>(extension: E) {
+export function FilePath<E extends SupportedFileExtension>(extension: E) {
   return z
     .string()
     .endsWith(extension)

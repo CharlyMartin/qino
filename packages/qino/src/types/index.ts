@@ -1,1 +1,1 @@
-export type SupportedFileExtention = ".md" | ".mdx" | ".json";
+export type SupportedFileExtension = ".md" | ".mdx" | ".json";

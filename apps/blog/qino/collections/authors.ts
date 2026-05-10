@@ -13,7 +13,7 @@ const AuthorSchema = z
 export const authors = createCollection({
   path: "authors",
   schema: AuthorSchema,
-  extention: ".json",
+  extension: ".json",
 });
 
 export const { getAll: getAllAuthors, getOne: getAuthor } = authors;
