@@ -1,4 +1,4 @@
-import { getConfig } from "../load-config";
+import { getConfig } from "../config";
 import nodePath from "node:path";
 
 export async function resolveCollectionDirectory(relativePath: string) {
