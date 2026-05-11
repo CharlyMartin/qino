@@ -1,25 +1,13 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { z } from "zod";
-import type { Config } from "./config";
-import { LockFileSchema } from "../lib/lock-file";
-
-let cached: Promise<Config> | undefined;
+import type { Config } from "./create-config";
+import { LockFileSchema } from "../../lib/lock-file";
 
 const FOLDER_NAME = "qino";
 const LOCK_FILE_NAME = "qino-lock.json";
 
-export function getConfig() {
-  if (!cached) {
-    cached = load().catch((err) => {
-      cached = undefined;
-      throw err;
-    });
-  }
-  return cached;
-}
-
-async function load(): Promise<Config> {
+export async function loadConfig(): Promise<Config> {
   const lockPath = join(process.cwd(), FOLDER_NAME, LOCK_FILE_NAME);
 
   let raw: string;
