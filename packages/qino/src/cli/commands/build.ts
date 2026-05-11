@@ -7,7 +7,7 @@ import { z } from "zod";
 import { ConfigSchema, type Config } from "../../runtime/create-config";
 import { LockFileSchema, type LockFile } from "../../lib/lock-file";
 import { getRegistry, clearRegistry } from "../../runtime/registry";
-import { QinoMeta } from "../../runtime/symbols";
+import { JSON_PATH_ARRAY, QinoMeta } from "../../runtime/globals";
 import type { AnyCollection } from "../../types";
 import { validate } from "../../lib/standard-schema";
 
@@ -178,7 +178,7 @@ function deriveRelations(
     out.push({
       field,
       target: target[QinoMeta].path,
-      cardinality: field.includes("[*]") ? "many" : "one",
+      cardinality: field.includes(JSON_PATH_ARRAY) ? "many" : "one",
     });
   }
 

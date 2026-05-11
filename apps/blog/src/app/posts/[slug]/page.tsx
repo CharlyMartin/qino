@@ -34,7 +34,7 @@ export default async function PostPage({ params }: PostPageProps) {
           priority
         />
       </div>
-      <header className="mb-8 flex flex-col gap-3">
+      <header className="mb-8 flex flex-col gap-4">
         <time className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
           {new Date(post["created-on"]).toLocaleDateString(undefined, {
             year: "numeric",
@@ -45,6 +45,27 @@ export default async function PostPage({ params }: PostPageProps) {
         <h1 className="text-4xl font-semibold leading-tight tracking-tight text-zinc-950 dark:text-zinc-50">
           {post.title}
         </h1>
+        <div className="flex flex-col gap-1 text-sm">
+          <span className="text-zinc-950 dark:text-zinc-50">
+            {post.author.firstName} {post.author.lastName}
+          </span>
+          <span className="text-zinc-500 dark:text-zinc-400">
+            {post.author.title} @ {post.author.company}
+          </span>
+        </div>
+        {post.categories.length > 0 && (
+          <ul className="flex flex-wrap gap-2">
+            {post.categories.map((category) => (
+              <li
+                key={category._meta.slug}
+                title={category.description}
+                className="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+              >
+                {category.name}
+              </li>
+            ))}
+          </ul>
+        )}
       </header>
       <div className="prose prose-zinc max-w-none dark:prose-invert">
         <ReactMarkdown
