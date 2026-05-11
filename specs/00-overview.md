@@ -104,6 +104,7 @@ Used in every file in `specs/`:
 - [11-lock-file.md](11-lock-file.md) — `qino-lock.json`
 - [12-i18n.md](12-i18n.md) — locales (v2-deferred)
 - [13-cloud-ui.md](13-cloud-ui.md) — editor UI (v2-deferred)
+- [14-upstream-resolution.md](14-upstream-resolution.md) — reverse traversal, `inverse:` collision rule (v2-deferred)
 - [decisions.md](decisions.md) — decision log
 - [ideas.md](ideas.md) — running brainstorm
 
