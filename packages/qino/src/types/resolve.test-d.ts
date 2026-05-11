@@ -26,19 +26,19 @@ const PostSchema = z
 clearRegistry();
 
 const authorCollection = createCollection({
-  relativePath: "/authors",
+  directory: "/authors",
   schema: AuthorSchema,
   extension: ".json",
 });
 
 const categoryCollection = createCollection({
-  relativePath: "/categories",
+  directory: "/categories",
   schema: CategorySchema,
   extension: ".json",
 });
 
 const postCollection = createCollection({
-  relativePath: "/posts",
+  directory: "/posts",
   schema: PostSchema,
   extension: ".md",
   relations: {
@@ -86,7 +86,7 @@ describe("resolveRelations type behaviour", () => {
 
 describe("collection-level default", () => {
   const postCollectionDefaultFalse = createCollection({
-    relativePath: "/posts-raw",
+    directory: "/posts-raw",
     schema: PostSchema,
     extension: ".md",
     relations: {
@@ -121,18 +121,18 @@ describe("transitive depth (chained collections)", () => {
     .strict();
 
   const seniorCollection = createCollection({
-    relativePath: "/seniors",
+    directory: "/seniors",
     schema: SeniorSchema,
     extension: ".json",
   });
   const editorCollection = createCollection({
-    relativePath: "/editors",
+    directory: "/editors",
     schema: EditorSchema,
     extension: ".json",
     relations: { lead: seniorCollection },
   });
   const chainedPostCollection = createCollection({
-    relativePath: "/chained-posts",
+    directory: "/chained-posts",
     schema: ChainedPostSchema,
     extension: ".md",
     relations: { editor: editorCollection },

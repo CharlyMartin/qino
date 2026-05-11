@@ -20,7 +20,7 @@ const authors = await authorCollection.getAll({ resolveAncestors: true });
 
 ### Inbound field naming default
 
-The inbound field defaults to the source collection's `relativePath` with the leading `/` stripped. So `relativePath: "/posts"` → inbound key `posts` on every author entry.
+The inbound field defaults to the source collection's `directory` with the leading `/` stripped. So `directory: "/posts"` → inbound key `posts` on every author entry.
 
 ### `inverse` collision rule
 

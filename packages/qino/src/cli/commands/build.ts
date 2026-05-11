@@ -111,7 +111,7 @@ async function loadCollections(qinoDir: string) {
 }
 
 type CollectionLockEntry = {
-  path: string;
+  directory: string;
   extension: ".md" | ".mdx" | ".json";
   relations: Array<{
     field: string;
@@ -134,12 +134,12 @@ async function buildCollectionsLock(
 
   for (const [collectionPath, collection] of registry.entries()) {
     const meta = collection[QinoMeta];
-    const collectionDir = join(contentFolderAbs, meta.path);
+    const collectionDir = join(contentFolderAbs, meta.directory);
 
     const relPaths = await fg(`**/*${meta.extension}`, { cwd: collectionDir });
     if (relPaths.length == 0) {
       throw new Error(
-        `Collection "${collectionPath}" (path: ${meta.path}) has no entries. A collection must have at least one entry.`,
+        `Collection "${collectionPath}" (directory: ${meta.directory}) has no entries. A collection must have at least one entry.`,
       );
     }
 
@@ -157,7 +157,7 @@ async function buildCollectionsLock(
     }
 
     out[collectionPath] = {
-      path: meta.path,
+      directory: meta.directory,
       extension: meta.extension,
       relations: deriveRelations(meta.relations),
     };
@@ -177,7 +177,7 @@ function deriveRelations(
       typeof declaration == "function" ? declaration() : declaration;
     out.push({
       field,
-      target: target[QinoMeta].path,
+      target: target[QinoMeta].directory,
       cardinality: field.includes(JSON_PATH_ARRAY) ? "many" : "one",
     });
   }

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Qino is a flat-file Markdown CMS. See `SPECS.md` for the design intent (config/collection/page APIs, `qino-lock.json`, CLI commands `qino build` / `qino watch`, generated `.d.ts` types). The repo is in early scaffolding — `apps/` and `packages/` are empty workspaces awaiting the first packages.
+Qino is a flat-file Markdown CMS. See `SPECS.md` and `specs/**.md` for the design intent (config/collection/page APIs, `qino-lock.json`, CLI commands `qino build` / `qino watch`, generated `.d.ts` types). The repo is in early scaffolding — `apps/` and `packages/` are empty workspaces awaiting the first packages.
 
 ## Monorepo layout
 
@@ -34,3 +34,8 @@ No test runner is configured yet — pick one when introducing the first package
 - Turbo `build` task expects outputs in `.next/**` (excluding cache) or none — adjust `turbo.json` `outputs` if a package emits to `dist/` instead.
 - `.env*` files are declared as build inputs in `turbo.json`; don't rely on env vars outside that pattern without updating it.
 - When installing packages via `npm`, also use the exact version, so ~ or carret.
+
+## Coding principles
+
+1. Stick to one function per file, and name if after it: `create-collection.ts` should export a single `createCollection` function. Important functions shoudld also have a test file with the same name: `create-collection.test.ts`.
+2. Avoid return types unless necessary. Let TypeScript infer them where possible, to keep code DRY and maintainable.

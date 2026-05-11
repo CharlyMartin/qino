@@ -30,7 +30,7 @@ const PostSchema = z.object({
 });
 
 export const postCollection = createCollection({
-  relativePath: "/posts",
+  directory: "/posts",
   schema: PostSchema,
   extension: ".md",
   relations: {
@@ -77,7 +77,7 @@ categories:
 
 At resolve time the resolver:
 
-1. Asserts the value is under the target collection's `relativePath` (leading `/` is tolerated on the value).
+1. Asserts the value is under the target collection's `directory` (leading `/` is tolerated on the value).
 2. Asserts the value ends with the target collection's `extension`.
 3. Strips both and passes the remaining slug to `targetCollection.getOne(slug)`.
 

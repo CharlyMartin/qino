@@ -29,7 +29,7 @@ const PostSchema = z
   .strict();
 
 export const postCollection = createCollection({
-  relativePath: "/posts", // relative to config.contentFolder; must start with "/"
+  directory: "/posts", // relative to config.contentFolder; must start with "/"
   schema: PostSchema,
   extension: ".md", // ".md" | ".mdx" | ".json"
   relations: {
@@ -47,7 +47,7 @@ Source of truth: `packages/qino/src/runtime/create-collections/index.ts`.
 
 ### Slug
 
-Slug = relative path inside `relativePath`, minus the file extension: `/posts/hello.md` → slug `hello`
+Slug = relative path inside `directory`, minus the file extension: `/posts/hello.md` → slug `hello`
 
 ### Returned shape
 

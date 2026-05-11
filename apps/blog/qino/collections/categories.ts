@@ -9,7 +9,7 @@ const CategorySchema = z
   .strict();
 
 export const categoryCollection = createCollection({
-  relativePath: "/categories",
+  directory: "/categories",
   schema: CategorySchema,
   extension: ".json",
 });

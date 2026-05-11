@@ -18,8 +18,8 @@ A page is a single, well-known content file with its own role in the consumer ap
 import { createPage } from "qino";
 import z from "zod";
 
-export const getHomePage = createPage({
-  file: "pages/home.md",   // relative to config.contentFolder
+export const homePage = createPage({
+  file: "pages/home.md", // relative to config.contentFolder
   schema: z.object({
     hero: z.object({
       title: z.string(),
@@ -33,7 +33,7 @@ export const getHomePage = createPage({
 The returned getter is parameterless:
 
 ```ts
-const home = await getHomePage();
+const home = await homePage.getData();
 ```
 
 ## Behaviour

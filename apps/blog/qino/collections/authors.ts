@@ -11,7 +11,7 @@ const AuthorSchema = z
   .strict();
 
 export const authorCollection = createCollection({
-  relativePath: "/authors",
+  directory: "/authors",
   schema: AuthorSchema,
   extension: ".json",
 });

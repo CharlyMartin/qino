@@ -40,7 +40,7 @@ export type CollectionMeta<
   Rels extends Relations<Schema> = Relations<Schema>,
 > = {
   readonly schema: Schema;
-  readonly path: string;
+  readonly directory: `/${string}`;
   readonly extension: Ext;
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
@@ -104,7 +104,7 @@ export type CreateCollectionParams<
   Rels extends Relations<Schema> = {},
   DefaultR extends ResolveOption = true,
 > = {
-  relativePath: `/${string}`;
+  directory: `/${string}`;
   schema: Schema;
   extension: Ext;
   relations?: Rels;
