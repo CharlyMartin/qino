@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { z } from "zod";
-import type { Config } from "./create-config";
+import type { Config } from "./config";
 import { LockFileSchema } from "../lib/lock-file";
 
 let cached: Promise<Config> | undefined;

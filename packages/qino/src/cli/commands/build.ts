@@ -4,7 +4,7 @@ import { createJiti } from "jiti";
 import fg from "fast-glob";
 import matter from "gray-matter";
 import { z } from "zod";
-import { ConfigSchema, type Config } from "../../runtime/create-config";
+import { ConfigSchema, type Config } from "../../runtime/config";
 import { LockFileSchema, type LockFile } from "../../lib/lock-file";
 import { getRegistry, clearRegistry } from "../../runtime/registry";
 import { JSON_PATH_ARRAY, QinoMeta } from "../../runtime/globals";

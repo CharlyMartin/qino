@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ConfigSchema } from "../runtime/create-config";
+import { ConfigSchema } from "../runtime/config";
 
 export const ExtensionSchema = z.enum([".md", ".mdx", ".json"]);
 
