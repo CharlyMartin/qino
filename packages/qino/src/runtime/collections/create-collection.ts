@@ -12,7 +12,7 @@ import type {
   SupportedFileExtension,
 } from "../../types";
 import type { ResolveOption } from "../../types/resolve";
-import { validate } from "../../schemas/standard-schema";
+import { validate } from "../../lib";
 import { QinoMeta } from "../globals";
 import { register } from "../registry";
 import { buildMeta } from "./build-meta";

@@ -9,7 +9,7 @@ import { LockFileSchema, type LockFile } from "../../schemas/lock-file";
 import { getRegistry, clearRegistry } from "../../runtime/registry";
 import { JSON_PATH_ARRAY, QinoMeta } from "../../runtime/globals";
 import type { AnyCollection } from "../../types";
-import { validate } from "../../schemas/standard-schema";
+import { validate } from "../../lib";
 
 declare const __QINO_VERSION__: string;
 
