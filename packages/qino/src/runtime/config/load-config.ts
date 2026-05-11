@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { z } from "zod";
 import type { Config } from "./create-config";
-import { LockFileSchema } from "../../lib/lock-file";
+import { LockFileSchema } from "../../schemas/lock-file";
 
 const FOLDER_NAME = "qino";
 const LOCK_FILE_NAME = "qino-lock.json";

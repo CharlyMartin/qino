@@ -1,7 +1,7 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import type { Simplify } from "type-fest";
 import { z } from "zod";
-import { ExtensionSchema } from "../lib/lock-file";
+import { ExtensionSchema } from "../schemas/lock-file";
 import { JSON_PATH_ARRAY, QinoMeta } from "../runtime/globals";
 import type { ResolveEntry, ResolveOption, NormalizeDepth } from "./resolve";
 

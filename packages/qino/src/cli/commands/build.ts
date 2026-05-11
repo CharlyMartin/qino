@@ -5,11 +5,11 @@ import fg from "fast-glob";
 import matter from "gray-matter";
 import { z } from "zod";
 import { ConfigSchema, type Config } from "../../runtime/config";
-import { LockFileSchema, type LockFile } from "../../lib/lock-file";
+import { LockFileSchema, type LockFile } from "../../schemas/lock-file";
 import { getRegistry, clearRegistry } from "../../runtime/registry";
 import { JSON_PATH_ARRAY, QinoMeta } from "../../runtime/globals";
 import type { AnyCollection } from "../../types";
-import { validate } from "../../lib/standard-schema";
+import { validate } from "../../schemas/standard-schema";
 
 declare const __QINO_VERSION__: string;
 
