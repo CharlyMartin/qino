@@ -143,7 +143,6 @@ async function buildCollectionsLock(
       );
     }
 
-    const validatedEntries: Array<Record<string, unknown>> = [];
     for (const relPath of relPaths) {
       const filePath = join(collectionDir, relPath);
       const raw = await readFile(filePath, "utf-8");
@@ -154,23 +153,13 @@ async function buildCollectionsLock(
               const parsed = matter(raw);
               return { markdown: parsed.content, ...parsed.data };
             })();
-      const validated = validate(meta.schema, data, filePath) as Record<
-        string,
-        unknown
-      >;
-      validatedEntries.push(validated);
+      validate(meta.schema, data, filePath);
     }
-
-    const relations = deriveRelations(
-      collectionPath,
-      meta.relations,
-      validatedEntries,
-    );
 
     out[collectionPath] = {
       path: meta.path,
       extension: meta.extension,
-      relations,
+      relations: deriveRelations(meta.relations),
     };
   }
 
@@ -178,9 +167,7 @@ async function buildCollectionsLock(
 }
 
 function deriveRelations(
-  collectionPath: string,
   relations: AnyCollection[typeof QinoMeta]["relations"],
-  entries: Array<Record<string, unknown>>,
 ): CollectionLockEntry["relations"] {
   const out: CollectionLockEntry["relations"] = [];
 
@@ -188,23 +175,11 @@ function deriveRelations(
     if (!declaration) continue;
     const target =
       typeof declaration == "function" ? declaration() : declaration;
-    const targetPath = target[QinoMeta].path;
-
-    let cardinality: "one" | "many" | undefined;
-    for (const entry of entries) {
-      const value = entry[field];
-      if (value == undefined) continue;
-      cardinality = Array.isArray(value) ? "many" : "one";
-      break;
-    }
-
-    if (!cardinality) {
-      throw new Error(
-        `${collectionPath}.${field} is declared as a relation but no entry sets it — add a sample entry that exercises this field, or remove the relation declaration.`,
-      );
-    }
-
-    out.push({ field, target: targetPath, cardinality });
+    out.push({
+      field,
+      target: target[QinoMeta].path,
+      cardinality: field.includes("[*]") ? "many" : "one",
+    });
   }
 
   return out;

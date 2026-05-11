@@ -21,6 +21,6 @@ export const postCollection = createCollection({
   extension: ".md",
   relations: {
     author: authorCollection,
-    categories: categoryCollection,
+    "categories[*]": categoryCollection,
   },
 });
