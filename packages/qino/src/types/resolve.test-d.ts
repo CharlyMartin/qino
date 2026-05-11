@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, test } from "vitest";
 import { z } from "zod";
-import { createCollection } from "../runtime/create-collections";
+import { createCollection } from "../runtime/collections";
 import { clearRegistry } from "../runtime/registry";
 
 const AuthorSchema = z

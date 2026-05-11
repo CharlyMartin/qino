@@ -129,6 +129,7 @@ export function createCollection<
 
     const effectiveResolve: ResolveOption =
       options?.resolveRelations ?? defaultResolve;
+
     if (effectiveResolve === false) {
       return validated as ResolvedView<S, Ext, Rels, R>;
     }
