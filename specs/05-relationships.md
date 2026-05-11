@@ -25,17 +25,17 @@ import { categories } from "./categories";
 
 const PostSchema = z.object({
   title: z.string(),
-  author: z.string(),                    // 1:1
-  categories: z.array(z.string()),       // 1:n
+  author: z.string(), // 1:1
+  categories: z.array(z.string()), // 1:n
 });
 
 export const posts = createCollection({
-  path: "posts",
+  relativePath: "/posts",
   schema: PostSchema,
   extension: ".md",
   relations: {
     author: authors,
-    categories: categories,
+    "categories[*]": categories,
     // Forward refs / cycles use thunks:
     // featured: () => posts,
   },
@@ -46,12 +46,9 @@ export const posts = createCollection({
 
 1. **String → another collection.** The value at the relation key (`author: authors`) is the target collection. Its path and extension live on the target — Qino reads them at build time.
 2. **Target extension.** Carried by the referenced collection's `extension` field; not redeclared.
-3. **Cardinality.** Inferred from the schema's output type:
-   - `string` field → `"one"`
-   - `Array<string>` field → `"many"`
-   - Confirmed at build time by inspecting validated data.
+3. **Cardinality.** Derived purely from the relation key (the JSON path). Any `[*]` anywhere in the key → `"many"`; otherwise `"one"`. `[*]` is transitive — `articles[*].author` is `"many"` even though the leaf is a single field. No build-time data scan is needed.
 
-The TypeScript type system enforces that only `string` or `Array<string>` fields can be relations; anything else is a compile error.
+The TypeScript type system enforces that the path's leaf is `string` after walking object descents (`a.b`) and array descents (`field[*]`); anything else is a compile error.
 
 ## Lock-file representation
 
@@ -59,22 +56,19 @@ The TypeScript type system enforces that only `string` or `Array<string>` fields
 
 ```json
 "relations": [
-  { "field": "categories", "target": "categories", "cardinality": "many" },
-  { "field": "author",     "target": "authors",    "cardinality": "one"  }
+  { "field": "categories[*]", "target": "/categories", "cardinality": "many" },
+  { "field": "author",        "target": "/authors",    "cardinality": "one"  }
 ]
 ```
 
-`field` is the schema key verbatim (no `[]` suffix). The CLI derives `cardinality` from a sample validated entry; the consumer never writes this by hand.
+`field` is the relation key verbatim — `[*]` segments preserved. `cardinality` is derived from the path itself (no data scan); the consumer never writes this by hand.
 
 ## Build pipeline guarantees
 
-`qino build` enforces three invariants per collection:
+`qino build` enforces two invariants per collection:
 
 1. **All entries validate.** Any schema failure throws with the offending file path.
 2. **Folder is non-empty.** Zero entries → throw. A collection must have at least one entry.
-3. **Every declared relation is exercised.** If `posts.categories` is declared as a relation but no post has `categories` defined, the build throws with a message asking for a sample entry that exercises the field.
-
-Together these guarantee the lock file's `cardinality` is always concrete (never `"unknown"`).
 
 ## Resolving relationships [v1-proposed]
 
@@ -104,7 +98,7 @@ Defaults can be set on `createCollection`; per-call options override.
 
 ### Inbound (upstream) field naming
 
-When `resolveAncestors: true` materialises inbound references on a target entry, the inbound field defaults to the source collection's `path`. So an author resolved with `resolveAncestors: true` gains a `posts` field listing every post that references them.
+When `resolveAncestors: true` materialises inbound references on a target entry, the inbound field defaults to the source collection's `relativePath` with the leading `/` stripped. So an author resolved with `resolveAncestors: true` gains a `posts` field (from `relativePath: "/posts"`) listing every post that references them.
 
 When two relations on the same source collection point at the same target (e.g. `posts.author` and `posts.editor` both → `authors`), the default would collide. In that case each relation must declare an explicit `inverse` name:
 

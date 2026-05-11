@@ -25,7 +25,7 @@
           "cardinality": "one"
         },
         {
-          "field": "categories",
+          "field": "categories[*]",
           "target": "/categories",
           "cardinality": "many"
         }
