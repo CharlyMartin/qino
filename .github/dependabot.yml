@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    versioning-strategy: increase
+
+  - package-ecosystem: npm
+    directory: "/apps/blog"
+    schedule:
+      interval: weekly
+    versioning-strategy: increase
+
+  - package-ecosystem: npm
+    directory: "/packages/qino"
+    schedule:
+      interval: weekly
+    versioning-strategy: increase
