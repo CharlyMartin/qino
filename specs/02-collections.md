@@ -33,8 +33,8 @@ export const postCollection = createCollection({
   schema: PostSchema,
   extension: ".md", // ".md" | ".mdx" | ".json"
   relations: {
-    author: authorCollection, // 1:1, schema field is string
-    categories: categoryCollection, // 1:n, schema field is Array<string>
+    author: authorCollection, // 1:1, leaf is a string field
+    "categories[*]": categoryCollection, // 1:n, leaf is each element of a string array
   },
 });
 ```
@@ -80,14 +80,26 @@ Positional, not object form. (The earlier draft of the spec used `getOne({ slug 
 
 ### `relations`
 
-Optional object on `createCollection` whose keys are fields of the schema (constrained at compile time to fields whose validated type is `string` or `Array<string>`). Values are other collections (the object returned by another `createCollection` call) — or thunks `() => collection` for forward references.
+Optional object on `createCollection` whose keys are **JSON-path strings** into the schema's validated output, and whose leaf type is `string`. Values are other collections (the object returned by another `createCollection` call) — or thunks `() => collection` for forward references.
 
-Cardinality is inferred from the schema's output type at the type level and verified from the validated data at build time:
+Path grammar:
 
-- `string` field → 1:1 relation (`cardinality: "one"`)
-- `Array<string>` field → 1:n relation (`cardinality: "many"`)
+- Object descent: `parent.child`
+- Array descent: `field[*]` (each element)
+- Leaf must be `string` after walking the path
 
-The lock file records `field`, `target`, and `cardinality` for each relation; resolving relations into full entries (`resolveDescendants` / `resolveAncestors`) is described in `05-relationships.md`.
+Examples (against a schema like the one above plus a `test: { coco: string[], foo: { bar: string } }` field):
+
+- `author` — top-level string
+- `categories[*]` — each element of a `string[]`
+- `test.foo.bar` — nested string
+- `test.coco[*]` — each element of a nested `string[]`
+
+Invalid paths (caught at compile time): keys that don't exist in the schema, paths landing on numbers/booleans/objects, or array fields without `[*]`.
+
+Cardinality is derived from the path itself: any `[*]` anywhere in the key → `cardinality: "many"`; otherwise `cardinality: "one"`. `[*]` is transitive — `articles[*].author` yields many authors per entry, so it's `"many"` even though the leaf is a single field. No build-time data scan is needed.
+
+The lock file records `field` (the path string), `target`, and `cardinality` for each relation; resolving relations into full entries (`resolveDescendants` / `resolveAncestors`) is described in `05-relationships.md`.
 
 ## Getter options (`[v1-proposed]`)
 
@@ -121,4 +133,4 @@ Done when:
 - `.md` entries expose body via `markdown` (when present in schema); `.json` entries don't.
 - Schema validation errors point at the file path that failed.
 - Any Standard Schema validator (zod, Valibot, ArkType, …) is accepted; the runtime never calls validator-specific APIs.
-- A `relations` map can declare which schema fields are paths to other collections; cardinality is inferred from the schema's output type and confirmed at build time.
+- A `relations` map can declare JSON-path strings into the schema (e.g. `author`, `categories[*]`, `test.foo.bar`) as pointers to other collections; cardinality is derived from the path (`[*]` anywhere → `"many"`, else `"one"`).

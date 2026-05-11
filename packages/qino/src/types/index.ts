@@ -7,21 +7,27 @@ export type SupportedFileExtension = z.infer<typeof ExtensionSchema>;
 
 export type ObjectSchema = StandardSchemaV1<unknown, Record<string, unknown>>;
 
-export type Out<Schema extends ObjectSchema> =
+export type ValidatedOutput<Schema extends ObjectSchema> =
   StandardSchemaV1.InferOutput<Schema>;
 
-export type RelationFieldKey<Schema extends ObjectSchema> = {
-  [K in keyof Out<Schema>]-?: NonNullable<Out<Schema>[K]> extends string
-    ? K
-    : NonNullable<Out<Schema>[K]> extends Array<string>
-      ? K
-      : never;
-}[keyof Out<Schema>];
+type RelationPath<T, Prefix extends string = ""> =
+  NonNullable<T> extends string
+    ? Prefix
+    : NonNullable<T> extends Array<infer U>
+      ? RelationPath<U, `${Prefix}[*]`>
+      : NonNullable<T> extends Record<string, unknown>
+        ? {
+            [K in keyof NonNullable<T> & string]: RelationPath<
+              NonNullable<T>[K],
+              Prefix extends "" ? K : `${Prefix}.${K}`
+            >;
+          }[keyof NonNullable<T> & string]
+        : never;
 
 export type RelationTarget = AnyCollection | (() => AnyCollection);
 
 export type Relations<Schema extends ObjectSchema> = {
-  [K in RelationFieldKey<Schema>]?: RelationTarget;
+  [P in RelationPath<ValidatedOutput<Schema>>]?: RelationTarget;
 };
 
 export type CollectionMeta<
@@ -49,8 +55,10 @@ export type Collection<
   Ext extends SupportedFileExtension,
 > = {
   readonly [QinoMeta]: CollectionMeta<Schema, Ext>;
-  getAll(): Promise<Array<{ _meta: EntryMeta<Ext> } & Out<Schema>>>;
-  getOne(slug: string): Promise<{ _meta: EntryMeta<Ext> } & Out<Schema>>;
+  getAll(): Promise<Array<{ _meta: EntryMeta<Ext> } & ValidatedOutput<Schema>>>;
+  getOne(
+    slug: string,
+  ): Promise<{ _meta: EntryMeta<Ext> } & ValidatedOutput<Schema>>;
 };
 
 export type CreateCollectionParams<

@@ -20,7 +20,7 @@ The content lives as plain files on disk: Markdown, MDX, JSON. Nothing is in a d
 
 ## Two-surface model
 
-```
+```txt
 ┌──────────────────┐         ┌──────────────────┐
 │  Developer       │         │  Content editor  │
 │  (IDE)           │         │  (browser)       │
@@ -109,5 +109,8 @@ Used in every file in `specs/`:
 
 ## Brain Dump
 
-- it looks like `qino-lock.json` is automatically generated from `qino/config.ts` + `qino/collections/*.ts`, so maybe we don't need to commit it? It can be rebuilt by the build step.
-- It's a little bit annoying that `qino dev` or `qino watch` are needed in development to make everything work. For now it's fine, but in the future it might be nice to eliminate that step? Not sure it's possible.
+- [x] The relationships key should accept an object with the JSON path to the slug of the related entry, like `author: authorCollection` and `categories[*]: categoryCollection`.
+- [ ] it looks like `qino-lock.json` is automatically generated from `qino/config.ts` + `qino/collections/*.ts`, so maybe we don't need to commit it? It can be rebuilt by the build step.
+- [ ] It's a little bit annoying that `qino dev` or `qino watch` are needed in development to make everything work. For now it's fine, but in the future it might be nice to eliminate that step? Not sure it's possible.
+- [ ] We should make sure that the getters are properly typed to only allow valid relations keys, and that the relation values are properly typed to the related collection's schema. This is a critical part of the developer experience.
+- [ ] We should say in the docs that we recommend using zod and export some prebuilt zod types such as `slug(".md")`. Maybe it's not necessary since the build step will validate that each slug contained in the frontmatter of JSON object are a valid path AND have a valid extension. So `string` should be enough.
