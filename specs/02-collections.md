@@ -101,6 +101,8 @@ Cardinality is derived from the path itself: any `[*]` anywhere in the key → `
 
 The lock file records `field` (the path string), `target`, and `cardinality` for each relation; resolving relations into full entries (`resolveDescendants` / `resolveAncestors`) is described in `05-relationships.md`.
 
+Relation values in content files are stored in verbose form (`author: "authors/jane-doe.json"`, not bare slugs) — see [05-relationships.md → Relation value format](05-relationships.md#relation-value-format).
+
 ## Getter options (`[v1-proposed]`)
 
 The shape under consideration for `getAll`:

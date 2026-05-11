@@ -1,9 +1,13 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
+import type { Simplify } from "type-fest";
 import { z } from "zod";
 import { ExtensionSchema } from "../lib/lock-file";
-import { QinoMeta } from "../runtime/symbols";
+import { JSON_PATH_ARRAY, QinoMeta } from "../runtime/globals";
+import type { ResolveEntry, ResolveOption, NormalizeDepth } from "./resolve";
 
 export type SupportedFileExtension = z.infer<typeof ExtensionSchema>;
+
+export type JsonPathArray = typeof JSON_PATH_ARRAY;
 
 export type ObjectSchema = StandardSchemaV1<unknown, Record<string, unknown>>;
 
@@ -14,7 +18,7 @@ type RelationPath<T, Prefix extends string = ""> =
   NonNullable<T> extends string
     ? Prefix
     : NonNullable<T> extends Array<infer U>
-      ? RelationPath<U, `${Prefix}[*]`>
+      ? RelationPath<U, `${Prefix}${JsonPathArray}`>
       : NonNullable<T> extends Record<string, unknown>
         ? {
             [K in keyof NonNullable<T> & string]: RelationPath<
@@ -33,15 +37,30 @@ export type Relations<Schema extends ObjectSchema> = {
 export type CollectionMeta<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension = SupportedFileExtension,
+  Rels extends Relations<Schema> = Relations<Schema>,
 > = {
   readonly schema: Schema;
   readonly path: string;
   readonly extension: Ext;
-  readonly relations: Relations<Schema>;
+  readonly relations: Rels;
+  readonly resolveRelations: ResolveOption;
 };
 
 export type AnyCollection = {
   readonly [QinoMeta]: CollectionMeta<ObjectSchema>;
+  getAll(
+    options?: GetterOptions,
+  ): Promise<
+    Array<
+      Record<string, unknown> & { _meta: EntryMeta<SupportedFileExtension> }
+    >
+  >;
+  getOne(
+    slug: string,
+    options?: GetterOptions,
+  ): Promise<
+    Record<string, unknown> & { _meta: EntryMeta<SupportedFileExtension> }
+  >;
 };
 
 export type EntryMeta<Ext extends SupportedFileExtension> = {
@@ -50,23 +69,44 @@ export type EntryMeta<Ext extends SupportedFileExtension> = {
   filePath: `${string}${Ext}`;
 };
 
+export type GetterOptions<R extends ResolveOption = ResolveOption> = {
+  resolveRelations?: R;
+};
+
+export type ResolvedView<
+  Schema extends ObjectSchema,
+  Ext extends SupportedFileExtension,
+  Rels extends Relations<Schema>,
+  R extends ResolveOption,
+> = Simplify<
+  { _meta: EntryMeta<Ext> } & ResolveEntry<Schema, Rels, NormalizeDepth<R>>
+>;
+
 export type Collection<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
+  Rels extends Relations<Schema> = {},
+  DefaultR extends ResolveOption = true,
 > = {
-  readonly [QinoMeta]: CollectionMeta<Schema, Ext>;
-  getAll(): Promise<Array<{ _meta: EntryMeta<Ext> } & ValidatedOutput<Schema>>>;
-  getOne(
+  readonly [QinoMeta]: CollectionMeta<Schema, Ext, Rels>;
+  getAll<R extends ResolveOption = DefaultR>(
+    options?: GetterOptions<R>,
+  ): Promise<Array<ResolvedView<Schema, Ext, Rels, R>>>;
+  getOne<R extends ResolveOption = DefaultR>(
     slug: string,
-  ): Promise<{ _meta: EntryMeta<Ext> } & ValidatedOutput<Schema>>;
+    options?: GetterOptions<R>,
+  ): Promise<ResolvedView<Schema, Ext, Rels, R>>;
 };
 
 export type CreateCollectionParams<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
+  Rels extends Relations<Schema> = {},
+  DefaultR extends ResolveOption = true,
 > = {
   relativePath: `/${string}`;
   schema: Schema;
   extension: Ext;
-  relations?: Relations<Schema>;
+  relations?: Rels;
+  resolveRelations?: DefaultR;
 };

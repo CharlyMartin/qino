@@ -5,34 +5,47 @@ import matter from "gray-matter";
 import type {
   Collection,
   CreateCollectionParams,
+  GetterOptions,
   ObjectSchema,
+  Relations,
+  ResolvedView,
   SupportedFileExtension,
 } from "../../types";
+import type { ResolveOption } from "../../types/resolve";
 import { validate } from "../../lib/standard-schema";
-import { QinoMeta } from "../symbols";
+import { QinoMeta } from "../globals";
 import { register } from "../registry";
 import { buildMeta } from "./build-meta";
 import { resolveCollectionDirectory } from "./resolve-collection-directory";
+import { resolveEntry, createResolveCache } from "../resolve-relations";
 
 const CONTENT_FIELD_NAME = "markdown";
 
 export function createCollection<
   S extends ObjectSchema,
   Ext extends SupportedFileExtension,
+  Rels extends Relations<S> = {},
+  DefaultR extends ResolveOption = true,
 >({
   relativePath,
   schema,
   extension,
-  relations = {},
-}: CreateCollectionParams<S, Ext>) {
-  async function getAll() {
+  relations,
+  resolveRelations,
+}: CreateCollectionParams<S, Ext, Rels, DefaultR>) {
+  const collectionRelations = (relations ?? {}) as Rels;
+  const defaultResolve = (resolveRelations ?? true) as ResolveOption;
+
+  async function getAll<R extends ResolveOption = DefaultR>(
+    options?: GetterOptions<R>,
+  ): Promise<Array<ResolvedView<S, Ext, Rels, R>>> {
     const collectionDirectory = await resolveCollectionDirectory(relativePath);
 
     const relFilePaths = await fg(`**/*${extension}`, {
       cwd: collectionDirectory,
     });
 
-    const entries = await Promise.all(
+    const rawEntries = await Promise.all(
       relFilePaths.map(async (relPath) => {
         const meta = buildMeta({
           directory: collectionDirectory,
@@ -45,39 +58,47 @@ export function createCollection<
           "utf-8",
         );
 
-        return {
-          _meta: meta,
-          raw: rawFileData,
-        };
+        return { meta, raw: rawFileData };
       }),
     );
 
-    if (extension == ".json") {
-      return entries.map(({ _meta, raw }) => {
-        const parsed = JSON.parse(raw);
-
+    const validated = rawEntries.map(({ meta, raw }) => {
+      if (extension == ".json") {
         return {
-          _meta,
-          ...validate(schema, parsed, _meta.filePath),
+          _meta: meta,
+          ...validate(schema, JSON.parse(raw), meta.filePath),
         };
-      });
-    }
-
-    return entries.map(({ _meta, raw }) => {
+      }
       const parsed = matter(raw);
-
       return {
-        _meta,
+        _meta: meta,
         ...validate(
           schema,
           { [CONTENT_FIELD_NAME]: parsed.content, ...parsed.data },
-          _meta.filePath,
+          meta.filePath,
         ),
       };
     });
+
+    const effectiveResolve: ResolveOption =
+      options?.resolveRelations ?? defaultResolve;
+    if (effectiveResolve === false) {
+      return validated as Array<ResolvedView<S, Ext, Rels, R>>;
+    }
+
+    const cache = createResolveCache();
+    const resolved = await Promise.all(
+      validated.map((entry) =>
+        resolveEntry(entry, collection, effectiveResolve, cache),
+      ),
+    );
+    return resolved as Array<ResolvedView<S, Ext, Rels, R>>;
   }
 
-  async function getOne(slug: string) {
+  async function getOne<R extends ResolveOption = DefaultR>(
+    slug: string,
+    options?: GetterOptions<R>,
+  ): Promise<ResolvedView<S, Ext, Rels, R>> {
     const collectionDirectory = await resolveCollectionDirectory(relativePath);
 
     const meta = buildMeta({
@@ -88,22 +109,38 @@ export function createCollection<
 
     const data = await fs.readFile(meta.filePath, "utf-8");
 
-    if (extension == ".json") {
-      return {
-        _meta: meta,
-        ...validate(schema, JSON.parse(data), meta.filePath),
-      };
+    const validated =
+      extension == ".json"
+        ? {
+            _meta: meta,
+            ...validate(schema, JSON.parse(data), meta.filePath),
+          }
+        : (() => {
+            const parsed = matter(data);
+            return {
+              _meta: meta,
+              ...validate(
+                schema,
+                { [CONTENT_FIELD_NAME]: parsed.content, ...parsed.data },
+                meta.filePath,
+              ),
+            };
+          })();
+
+    const effectiveResolve: ResolveOption =
+      options?.resolveRelations ?? defaultResolve;
+    if (effectiveResolve === false) {
+      return validated as ResolvedView<S, Ext, Rels, R>;
     }
 
-    const parsed = matter(data);
-    return {
-      _meta: meta,
-      ...validate(
-        schema,
-        { [CONTENT_FIELD_NAME]: parsed.content, ...parsed.data },
-        meta.filePath,
-      ),
-    };
+    const cache = createResolveCache();
+    const resolved = await resolveEntry(
+      validated,
+      collection,
+      effectiveResolve,
+      cache,
+    );
+    return resolved as ResolvedView<S, Ext, Rels, R>;
   }
 
   const collection = {
@@ -111,11 +148,12 @@ export function createCollection<
       schema,
       path: relativePath,
       extension,
-      relations,
+      relations: collectionRelations,
+      resolveRelations: defaultResolve,
     },
     getAll,
     getOne,
-  } as const satisfies Collection<S, Ext>;
+  } as const satisfies Collection<S, Ext, Rels, DefaultR>;
 
   register(collection);
 

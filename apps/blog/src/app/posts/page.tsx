@@ -30,17 +30,39 @@ export default async function PostsIndex() {
                   className="object-cover"
                 />
               </div>
-              <div className="flex flex-col gap-2 p-5">
-                <time className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                  {new Date(post["created-on"]).toLocaleDateString(undefined, {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })}
-                </time>
+              <div className="flex flex-col gap-3 p-5">
+                <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                  <time>
+                    {new Date(post["created-on"]).toLocaleDateString(
+                      undefined,
+                      {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      },
+                    )}
+                  </time>
+                </div>
                 <h2 className="text-xl font-semibold leading-tight text-zinc-950 group-hover:underline dark:text-zinc-50">
                   {post.title}
                 </h2>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  {post.author.firstName} {post.author.lastName}
+                  {" - "}
+                  {post.author.title} @ {post.author.company}
+                </p>
+                {post.categories.length > 0 && (
+                  <ul className="mt-1 flex flex-wrap gap-2">
+                    {post.categories.map((category) => (
+                      <li
+                        key={category._meta.slug}
+                        className="rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-0.5 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
+                      >
+                        {category.name}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </Link>
           </li>

@@ -63,6 +63,26 @@ The TypeScript type system enforces that the path's leaf is `string` after walki
 
 `field` is the relation key verbatim — `[*]` segments preserved. `cardinality` is derived from the path itself (no data scan); the consumer never writes this by hand.
 
+## Relation value format
+
+A relation field in a content file stores the **full path of the target entry relative to `contentFolder`**: the target collection's folder, the slug, and the target's extension.
+
+```yaml
+# src/content/posts/hello.md frontmatter
+author: "authors/jane-doe.json"
+categories:
+  - "categories/architecture.json"
+  - "categories/philosophy.json"
+```
+
+At resolve time the resolver:
+
+1. Asserts the value is under the target collection's `relativePath` (leading `/` is tolerated on the value).
+2. Asserts the value ends with the target collection's `extension`.
+3. Strips both and passes the remaining slug to `targetCollection.getOne(slug)`.
+
+A mismatched prefix, a mismatched extension, or an empty string throws at resolve time with the source `_meta.filePath`, the relation key, and the offending value. Bare slugs (e.g. `author: "jane-doe"`) are **not** accepted — the verbose form is the only valid format. This trades a few extra characters per entry for self-documenting frontmatter and prefix-mismatch detection at the boundary.
+
 ## Build pipeline guarantees
 
 `qino build` enforces two invariants per collection:
@@ -100,6 +120,7 @@ It can be set in two places:
 
 ## Open questions
 
+- Should we need install [jsonpath](https://www.npmjs.com/package/jsonpath)?
 - Generated `.d.ts` types for resolved entries: walk the registry at build time and emit a typed bundle, vs. runtime conditional types using the registry.
 - Performance ceiling: at what collection size do we need indexing rather than linear scans?
 
