@@ -1,7 +1,6 @@
 import fs from "node:fs/promises";
 import nodePath from "node:path";
 import fg from "fast-glob";
-import matter from "gray-matter";
 import type {
   Collection,
   CreateCollectionParams,
@@ -12,14 +11,15 @@ import type {
   SupportedFileExtension,
 } from "../../types";
 import type { ResolveOption } from "../../types/resolve";
-import { validate } from "../../lib";
 import { QinoMeta } from "../globals";
 import { register } from "../registry";
 import { buildMeta } from "./build-meta";
 import { resolveCollectionDirectory } from "./resolve-collection-directory";
 import { resolveEntry, createResolveCache } from "../relations";
+import { validateJsonFile } from "./validate-json-file";
+import { validateMarkdownFile } from "./validate-markdown-file";
 
-const CONTENT_FIELD_NAME = "markdown";
+const META_FIELD_NAME = "_meta";
 
 export function createCollection<
   S extends ObjectSchema,
@@ -35,6 +35,22 @@ export function createCollection<
 }: CreateCollectionParams<S, Ext, Rels, DefaultR>) {
   const collectionRelations = (relations ?? {}) as Rels;
   const defaultResolve = (resolveRelations ?? true) as ResolveOption;
+
+  const collection = {
+    [QinoMeta]: {
+      schema,
+      path: relativePath,
+      extension,
+      relations: collectionRelations,
+      resolveRelations: defaultResolve,
+    },
+    getAll,
+    getOne,
+  } as const satisfies Collection<S, Ext, Rels, DefaultR>;
+
+  register(collection);
+
+  return collection;
 
   async function getAll<R extends ResolveOption = DefaultR>(
     options?: GetterOptions<R>,
@@ -62,34 +78,32 @@ export function createCollection<
       }),
     );
 
-    const validated = rawEntries.map(({ meta, raw }) => {
-      if (extension == ".json") {
-        return {
-          _meta: meta,
-          ...validate(schema, JSON.parse(raw), meta.filePath),
-        };
-      }
-      const parsed = matter(raw);
+    const validatedDataWithMeta = rawEntries.map(({ meta, raw }) => {
+      const validatorFn =
+        extension == ".json" ? validateJsonFile : validateMarkdownFile;
+
+      const validatedData = validatorFn({
+        schema,
+        raw,
+        filePath: meta.filePath,
+      });
+
       return {
-        _meta: meta,
-        ...validate(
-          schema,
-          { [CONTENT_FIELD_NAME]: parsed.content, ...parsed.data },
-          meta.filePath,
-        ),
+        [META_FIELD_NAME]: meta,
+        ...validatedData,
       };
     });
 
-    const effectiveResolve: ResolveOption =
-      options?.resolveRelations ?? defaultResolve;
-    if (effectiveResolve === false) {
-      return validated as Array<ResolvedView<S, Ext, Rels, R>>;
+    const resolveSetting = options?.resolveRelations ?? defaultResolve;
+
+    if (resolveSetting === false) {
+      return validatedDataWithMeta as Array<ResolvedView<S, Ext, Rels, R>>;
     }
 
     const cache = createResolveCache();
     const resolved = await Promise.all(
-      validated.map((entry) =>
-        resolveEntry(entry, collection, effectiveResolve, cache),
+      validatedDataWithMeta.map((entry) =>
+        resolveEntry(entry, collection, resolveSetting, cache),
       ),
     );
     return resolved as Array<ResolvedView<S, Ext, Rels, R>>;
@@ -109,54 +123,31 @@ export function createCollection<
 
     const data = await fs.readFile(meta.filePath, "utf-8");
 
-    const validated =
-      extension == ".json"
-        ? {
-            _meta: meta,
-            ...validate(schema, JSON.parse(data), meta.filePath),
-          }
-        : (() => {
-            const parsed = matter(data);
-            return {
-              _meta: meta,
-              ...validate(
-                schema,
-                { [CONTENT_FIELD_NAME]: parsed.content, ...parsed.data },
-                meta.filePath,
-              ),
-            };
-          })();
+    const validatorFn =
+      extension == ".json" ? validateJsonFile : validateMarkdownFile;
 
-    const effectiveResolve: ResolveOption =
-      options?.resolveRelations ?? defaultResolve;
+    const validatedDataWithMeta = {
+      [META_FIELD_NAME]: meta,
+      ...validatorFn({
+        schema,
+        raw: data,
+        filePath: meta.filePath,
+      }),
+    };
 
-    if (effectiveResolve === false) {
-      return validated as ResolvedView<S, Ext, Rels, R>;
+    const resolveSetting = options?.resolveRelations ?? defaultResolve;
+
+    if (resolveSetting === false) {
+      return validatedDataWithMeta as ResolvedView<S, Ext, Rels, R>;
     }
 
     const cache = createResolveCache();
     const resolved = await resolveEntry(
-      validated,
+      validatedDataWithMeta,
       collection,
-      effectiveResolve,
+      resolveSetting,
       cache,
     );
     return resolved as ResolvedView<S, Ext, Rels, R>;
   }
-
-  const collection = {
-    [QinoMeta]: {
-      schema,
-      path: relativePath,
-      extension,
-      relations: collectionRelations,
-      resolveRelations: defaultResolve,
-    },
-    getAll,
-    getOne,
-  } as const satisfies Collection<S, Ext, Rels, DefaultR>;
-
-  register(collection);
-
-  return collection;
 }
