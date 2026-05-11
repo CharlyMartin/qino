@@ -17,7 +17,7 @@ import { QinoMeta } from "../globals";
 import { register } from "../registry";
 import { buildMeta } from "./build-meta";
 import { resolveCollectionDirectory } from "./resolve-collection-directory";
-import { resolveEntry, createResolveCache } from "../resolve-relations";
+import { resolveEntry, createResolveCache } from "../relations";
 
 const CONTENT_FIELD_NAME = "markdown";
 
