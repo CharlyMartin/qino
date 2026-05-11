@@ -10,11 +10,11 @@ export async function fetchAndResolve(
   cache: ResolveCache,
   ctx: { sourceFilePath: string; relationKey: string },
 ): Promise<Record<string, unknown>> {
-  const targetPath = targetCollection[QinoMeta].path;
-  let perCollection = cache.get(targetPath);
+  const targetDirectory = targetCollection[QinoMeta].directory;
+  let perCollection = cache.get(targetDirectory);
   if (!perCollection) {
     perCollection = new Map();
-    cache.set(targetPath, perCollection);
+    cache.set(targetDirectory, perCollection);
   }
   let rawPromise = perCollection.get(slug) as
     | Promise<Record<string, unknown>>
@@ -29,7 +29,7 @@ export async function fetchAndResolve(
       } catch (cause) {
         const message = cause instanceof Error ? cause.message : String(cause);
         throw new Error(
-          `Failed to resolve relation "${ctx.relationKey}" → ${targetPath}/${slug} (from ${ctx.sourceFilePath}): ${message}`,
+          `Failed to resolve relation "${ctx.relationKey}" → ${targetDirectory}/${slug} (from ${ctx.sourceFilePath}): ${message}`,
           { cause: cause instanceof Error ? cause : undefined },
         );
       }

@@ -6,17 +6,17 @@
   },
   "collections": {
     "/authors": {
-      "path": "/authors",
+      "directory": "/authors",
       "extension": ".json",
       "relations": []
     },
     "/categories": {
-      "path": "/categories",
+      "directory": "/categories",
       "extension": ".json",
       "relations": []
     },
     "/posts": {
-      "path": "/posts",
+      "directory": "/posts",
       "extension": ".md",
       "relations": [
         {

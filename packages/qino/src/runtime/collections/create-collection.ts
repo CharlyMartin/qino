@@ -27,7 +27,7 @@ export function createCollection<
   Rels extends Relations<S> = {},
   DefaultR extends ResolveOption = true,
 >({
-  relativePath,
+  directory,
   schema,
   extension,
   relations,
@@ -39,7 +39,7 @@ export function createCollection<
   const collection = {
     [QinoMeta]: {
       schema,
-      path: relativePath,
+      directory,
       extension,
       relations: collectionRelations,
       resolveRelations: defaultResolve,
@@ -55,7 +55,7 @@ export function createCollection<
   async function getAll<R extends ResolveOption = DefaultR>(
     options?: GetterOptions<R>,
   ): Promise<Array<ResolvedView<S, Ext, Rels, R>>> {
-    const collectionDirectory = await resolveCollectionDirectory(relativePath);
+    const collectionDirectory = await resolveCollectionDirectory(directory);
 
     const relFilePaths = await fg(`**/*${extension}`, {
       cwd: collectionDirectory,
@@ -113,7 +113,7 @@ export function createCollection<
     slug: string,
     options?: GetterOptions<R>,
   ): Promise<ResolvedView<S, Ext, Rels, R>> {
-    const collectionDirectory = await resolveCollectionDirectory(relativePath);
+    const collectionDirectory = await resolveCollectionDirectory(directory);
 
     const meta = buildMeta({
       directory: collectionDirectory,

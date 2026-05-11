@@ -10,7 +10,7 @@ const RelationSchema = z.object({
 });
 
 const CollectionLockSchema = z.object({
-  path: z.string(),
+  directory: z.string(),
   extension: ExtensionSchema,
   relations: z.array(RelationSchema),
 });

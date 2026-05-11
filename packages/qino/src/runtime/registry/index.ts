@@ -14,11 +14,11 @@ function store(): Map<string, AnyCollection> {
 }
 
 export function register(collection: AnyCollection) {
-  store().set(collection[QinoMeta].path, collection);
+  store().set(collection[QinoMeta].directory, collection);
 }
 
 export function unregister(collection: AnyCollection) {
-  store().delete(collection[QinoMeta].path);
+  store().delete(collection[QinoMeta].directory);
 }
 
 export function getRegistry(): ReadonlyMap<string, AnyCollection> {

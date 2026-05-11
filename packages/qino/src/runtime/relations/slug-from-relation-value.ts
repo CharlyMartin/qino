@@ -9,20 +9,20 @@ export function slugFromRelationValue(
   ctx: CTX,
 ) {
   const meta = targetCollection[QinoMeta];
-  const expectedPrefix = `${meta.path.replace(/^\//, "")}/`;
+  const expectedPrefix = `${meta.directory.replace(/^\//, "")}/`;
 
   const expectedExt = meta.extension;
   const normalized = value.startsWith("/") ? value.slice(1) : value;
 
   if (!normalized.startsWith(expectedPrefix)) {
     throw new Error(
-      `Relation "${ctx.relationKey}" in ${ctx.sourceFilePath}: expected value under "${expectedPrefix}" (target collection "${meta.path}"), got "${value}".`,
+      `Relation "${ctx.relationKey}" in ${ctx.sourceFilePath}: expected value under "${expectedPrefix}" (target collection "${meta.directory}"), got "${value}".`,
     );
   }
 
   if (!normalized.endsWith(expectedExt)) {
     throw new Error(
-      `Relation "${ctx.relationKey}" in ${ctx.sourceFilePath}: expected value ending with "${expectedExt}" (target collection "${meta.path}"), got "${value}".`,
+      `Relation "${ctx.relationKey}" in ${ctx.sourceFilePath}: expected value ending with "${expectedExt}" (target collection "${meta.directory}"), got "${value}".`,
     );
   }
 

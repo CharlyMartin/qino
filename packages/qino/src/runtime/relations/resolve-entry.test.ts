@@ -10,11 +10,11 @@ type Entry = Record<string, unknown> & {
 };
 
 function makeCollection({
-  path,
+  directory,
   relations = {},
   store,
 }: {
-  path: string;
+  directory: string;
   relations?: Record<string, AnyCollection | (() => AnyCollection)>;
   store: Map<string, Entry>;
 }): AnyCollection {
@@ -22,7 +22,7 @@ function makeCollection({
   const collection = {
     [QinoMeta]: {
       schema: {} as never,
-      path,
+      directory,
       extension: ".json" as const,
       relations,
       resolveRelations: true as ResolveOption,
@@ -31,7 +31,7 @@ function makeCollection({
     getOne: async (slug: string) => {
       getOneCalls += 1;
       const entry = store.get(slug);
-      if (!entry) throw new Error(`ENOENT: ${path}/${slug}`);
+      if (!entry) throw new Error(`ENOENT: ${directory}/${slug}`);
       return entry as never;
     },
   } as AnyCollection;
@@ -54,12 +54,12 @@ function entry(slug: string, fields: Record<string, unknown>): Entry {
 describe("resolveEntry", () => {
   test("resolveRelations: false returns the entry unchanged", async () => {
     const authors = new Map([["alice", entry("alice", { name: "Alice" })]]);
-    const authorCol = makeCollection({ path: "/authors", store: authors });
+    const authorCol = makeCollection({ directory: "/authors", store: authors });
     const posts = new Map([
       ["hello", entry("hello", { title: "Hi", author: "authors/alice.json" })],
     ]);
     const postCol = makeCollection({
-      path: "/posts",
+      directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
@@ -75,12 +75,12 @@ describe("resolveEntry", () => {
 
   test("depth 1 resolves top-level relations to full entries", async () => {
     const authors = new Map([["alice", entry("alice", { name: "Alice" })]]);
-    const authorCol = makeCollection({ path: "/authors", store: authors });
+    const authorCol = makeCollection({ directory: "/authors", store: authors });
     const posts = new Map([
       ["hello", entry("hello", { title: "Hi", author: "authors/alice.json" })],
     ]);
     const postCol = makeCollection({
-      path: "/posts",
+      directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
@@ -95,7 +95,7 @@ describe("resolveEntry", () => {
       ["dev", entry("dev", { name: "Dev" })],
       ["ops", entry("ops", { name: "Ops" })],
     ]);
-    const catCol = makeCollection({ path: "/categories", store: cats });
+    const catCol = makeCollection({ directory: "/categories", store: cats });
     const posts = new Map([
       [
         "hello",
@@ -106,7 +106,7 @@ describe("resolveEntry", () => {
       ],
     ]);
     const postCol = makeCollection({
-      path: "/posts",
+      directory: "/posts",
       store: posts,
       relations: { "categories[*]": catCol },
     });
@@ -120,13 +120,13 @@ describe("resolveEntry", () => {
 
   test("dedupes shared targets across entries in one call", async () => {
     const authors = new Map([["alice", entry("alice", { name: "Alice" })]]);
-    const authorCol = makeCollection({ path: "/authors", store: authors });
+    const authorCol = makeCollection({ directory: "/authors", store: authors });
     const posts = new Map([
       ["a", entry("a", { title: "A", author: "authors/alice.json" })],
       ["b", entry("b", { title: "B", author: "authors/alice.json" })],
     ]);
     const postCol = makeCollection({
-      path: "/posts",
+      directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
@@ -157,12 +157,12 @@ describe("resolveEntry", () => {
     let authorCol!: AnyCollection;
     let postCol!: AnyCollection;
     authorCol = makeCollection({
-      path: "/authors",
+      directory: "/authors",
       store: authors,
       relations: { favoritePost: () => postCol },
     });
     postCol = makeCollection({
-      path: "/posts",
+      directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
@@ -197,7 +197,7 @@ describe("resolveEntry", () => {
 
   test("broken reference throws with source filePath and relation key", async () => {
     const authors = new Map<string, Entry>();
-    const authorCol = makeCollection({ path: "/authors", store: authors });
+    const authorCol = makeCollection({ directory: "/authors", store: authors });
     const posts = new Map([
       [
         "hello",
@@ -205,7 +205,7 @@ describe("resolveEntry", () => {
       ],
     ]);
     const postCol = makeCollection({
-      path: "/posts",
+      directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
@@ -217,12 +217,12 @@ describe("resolveEntry", () => {
 
   test("empty-string relation throws with source filePath and relation key", async () => {
     const authors = new Map<string, Entry>();
-    const authorCol = makeCollection({ path: "/authors", store: authors });
+    const authorCol = makeCollection({ directory: "/authors", store: authors });
     const posts = new Map([
       ["hello", entry("hello", { title: "Hi", author: "" })],
     ]);
     const postCol = makeCollection({
-      path: "/posts",
+      directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
@@ -236,13 +236,13 @@ describe("resolveEntry", () => {
 
   test("prefix mismatch throws naming the expected target", async () => {
     const authors = new Map([["alice", entry("alice", { name: "Alice" })]]);
-    const authorCol = makeCollection({ path: "/authors", store: authors });
+    const authorCol = makeCollection({ directory: "/authors", store: authors });
     const posts = new Map([
       // value points at `posts/` but should point at `authors/`
       ["hello", entry("hello", { title: "Hi", author: "posts/alice.json" })],
     ]);
     const postCol = makeCollection({
-      path: "/posts",
+      directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
@@ -254,13 +254,13 @@ describe("resolveEntry", () => {
 
   test("extension mismatch throws naming the expected extension", async () => {
     const authors = new Map([["alice", entry("alice", { name: "Alice" })]]);
-    const authorCol = makeCollection({ path: "/authors", store: authors });
+    const authorCol = makeCollection({ directory: "/authors", store: authors });
     const posts = new Map([
       // target is `.json` but value uses `.md`
       ["hello", entry("hello", { title: "Hi", author: "authors/alice.md" })],
     ]);
     const postCol = makeCollection({
-      path: "/posts",
+      directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
@@ -272,12 +272,12 @@ describe("resolveEntry", () => {
 
   test("leading slash on relation value is tolerated", async () => {
     const authors = new Map([["alice", entry("alice", { name: "Alice" })]]);
-    const authorCol = makeCollection({ path: "/authors", store: authors });
+    const authorCol = makeCollection({ directory: "/authors", store: authors });
     const posts = new Map([
       ["hello", entry("hello", { title: "Hi", author: "/authors/alice.json" })],
     ]);
     const postCol = makeCollection({
-      path: "/posts",
+      directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
