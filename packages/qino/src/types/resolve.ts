@@ -7,7 +7,7 @@ import type {
   SupportedFileExtension,
   ValidatedOutput,
 } from "./index";
-import type { MAX_DEPTH } from "../runtime/resolve-relations/normalize-depth";
+import type { MAX_DEPTH } from "../runtime/relations/normalize-depth";
 
 export type MaxDepth = typeof MAX_DEPTH;
 export type Depth = IntClosedRange<0, MaxDepth>;
