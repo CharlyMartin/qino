@@ -1,5 +1,5 @@
-import type { AnyCollection } from "../types";
-import { QinoMeta } from "./globals";
+import type { AnyCollection } from "../../types";
+import { QinoMeta } from "../globals";
 
 const REGISTRY_KEY = Symbol.for("qino.registry");
 
