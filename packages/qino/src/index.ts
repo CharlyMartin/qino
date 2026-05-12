@@ -1,4 +1,7 @@
-export { createConfig, type Config } from "./runtime/config";
-export { createCollection } from "./runtime/collections";
-export { createSingleton } from "./runtime/singletons";
+export {
+  createConfig,
+  type Config,
+  createCollection,
+  createSingleton,
+} from "./runtime";
 export type { Collection, Singleton } from "./types";
