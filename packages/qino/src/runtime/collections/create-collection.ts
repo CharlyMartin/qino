@@ -11,11 +11,16 @@ import type {
   SupportedFileExtension,
 } from "../../types";
 import type { ResolveOption } from "../../types/resolve";
-import { META_FIELD_NAME, QinoMeta } from "../../lib/globals";
 import { buildEntryMeta } from "./build-entry-meta";
 import { resolveCollectionDirectory } from "./resolve-collection-directory";
-import { resolveEntry, createResolveCache } from "../../lib/relations";
-import { validateJsonFile, validateMarkdownFile } from "../../lib/validate";
+import {
+  validateJsonFile,
+  validateMarkdownFile,
+  META_FIELD_NAME,
+  QinoMeta,
+  resolveEntry,
+  createResolveCache,
+} from "../../lib";
 import { collectionRegistry } from "./registry";
 
 export function createCollection<
