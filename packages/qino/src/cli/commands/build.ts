@@ -153,13 +153,10 @@ type CollectionLockEntry = {
 
 type SingletonLockEntry = {
   file: string;
-  extension: SupportedFileExtension;
   relations: Array<RelationLockEntry>;
 };
 
-async function buildCollectionsLock(
-  contentFolderAbs: string,
-): Promise<Record<string, CollectionLockEntry>> {
+async function buildCollectionsLock(contentFolderAbs: string) {
   const registry = collectionRegistry.getRegistry();
   if (registry.size == 0) {
     throw new Error(
@@ -203,9 +200,7 @@ async function buildCollectionsLock(
   return out;
 }
 
-async function buildSingletonsLock(
-  contentFolderAbs: string,
-): Promise<Record<string, SingletonLockEntry>> {
+async function buildSingletonsLock(contentFolderAbs: string) {
   const registry = singletonRegistry.getRegistry();
   const out: Record<string, SingletonLockEntry> = {};
 
@@ -230,7 +225,6 @@ async function buildSingletonsLock(
 
     out[singletonFile] = {
       file: meta.file,
-      extension: meta.extension,
       relations: deriveRelations(meta.relations),
     };
   }
