@@ -22,7 +22,6 @@
     "build": "tsdown",
     "dev": "tsdown --watch",
     "check-types": "tsc --noEmit",
-    "lint": "echo \"no lint configured yet\"",
     "test": "vitest run",
     "test:watch": "vitest"
   },
