@@ -1,2 +1,4 @@
-export { assertDir } from "./asset-dir";
-export { assertFile } from "./asset-file";
+export { assertDirectory } from "./assert-directory";
+export { assertFile } from "./assert-file";
+export { isDirectory } from "./is-directory";
+export { isFile } from "./is-file";

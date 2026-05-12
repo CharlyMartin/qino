@@ -1,18 +1,17 @@
 import { join } from "path";
 import { singletonRegistry } from "../../runtime/singletons/registry";
-import { stat } from "fs/promises";
 import fg from "fast-glob";
 import { createJiti } from "jiti";
+import { SINGLETONS_FOLDER_NAME } from "../../lib";
+import { isDirectory } from "../../utils";
 
 export async function loadSingletons(qinoDir: string) {
   singletonRegistry.clearRegistry();
 
-  const singletonsDir = join(qinoDir, "singletons");
-  let isDir = false;
-  try {
-    isDir = (await stat(singletonsDir)).isDirectory();
-  } catch {}
-  if (!isDir) return;
+  const singletonsDir = join(qinoDir, SINGLETONS_FOLDER_NAME);
+
+  const singletonsDirExists = await isDirectory(singletonsDir);
+  if (!singletonsDirExists) return;
 
   const files = await fg(["**/*.ts", "**/*.tsx", "**/*.js", "**/*.mjs"], {
     cwd: singletonsDir,
