@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { runBuild } from "./commands/build";
+import { runBuild } from "./build";
 
 async function main() {
   const [command] = process.argv.slice(2);
