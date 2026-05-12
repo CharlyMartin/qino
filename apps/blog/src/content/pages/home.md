@@ -1,6 +1,6 @@
 ---
-title: "Qino"
-tagline: "A flat-file Markdown CMS that respects your editor."
+title: "Qino Demo"
+tagline: "The flat-file Markdown CMS with first-class relations and type safety."
 "featured-posts":
   - "posts/the-smallest-useful-cms.md"
   - "posts/why-folder-structure-is-api.md"
