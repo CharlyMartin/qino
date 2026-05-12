@@ -7,7 +7,7 @@ type BuildMetaParams<Ext extends SupportedFileExtension> = {
   extension: Ext;
 };
 
-export function buildMeta<Ext extends SupportedFileExtension>({
+export function buildEntryMeta<Ext extends SupportedFileExtension>({
   directory,
   relativePath,
   extension,

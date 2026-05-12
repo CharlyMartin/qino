@@ -2,14 +2,18 @@ import { stat, writeFile, readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { createJiti } from "jiti";
 import fg from "fast-glob";
-import matter from "gray-matter";
 import { z } from "zod";
 import { ConfigSchema, type Config } from "../../runtime/config";
 import { LockFileSchema, type LockFile } from "../../schemas/lock-file";
-import { getRegistry, clearRegistry } from "../../runtime/registry";
 import { JSON_PATH_ARRAY, QinoMeta } from "../../runtime/globals";
-import type { AnyCollection } from "../../types";
-import { validate } from "../../lib";
+import type {
+  AnyCollection,
+  AnySingleton,
+  SupportedFileExtension,
+} from "../../types";
+import { validateJsonFile, validateMarkdownFile } from "../../lib/validate";
+import { collectionRegistry } from "../../runtime/collections/registry";
+import { singletonRegistry } from "../../runtime/singletons/registry";
 
 declare const __QINO_VERSION__: string;
 
@@ -37,8 +41,10 @@ export async function runBuild() {
   );
 
   await loadCollections(qinoDir);
+  await loadSingletons(qinoDir);
 
   const collectionsLock = await buildCollectionsLock(contentFolderAbs);
+  const singletonsLock = await buildSingletonsLock(contentFolderAbs);
 
   const lock: LockFile = LockFileSchema.parse({
     qinoVersion: __QINO_VERSION__,
@@ -47,6 +53,7 @@ export async function runBuild() {
       mediaFolder: config.mediaFolder,
     },
     collections: collectionsLock,
+    singletons: singletonsLock,
   });
 
   const lockPath = join(qinoDir, "qino-lock.json");
@@ -86,7 +93,7 @@ async function loadConfig(configPath: string): Promise<Config> {
 }
 
 async function loadCollections(qinoDir: string) {
-  clearRegistry();
+  collectionRegistry.clearRegistry();
 
   const collectionsDir = join(qinoDir, "collections");
   let isDir = false;
@@ -110,20 +117,50 @@ async function loadCollections(qinoDir: string) {
   }
 }
 
+async function loadSingletons(qinoDir: string) {
+  singletonRegistry.clearRegistry();
+
+  const singletonsDir = join(qinoDir, "singletons");
+  let isDir = false;
+  try {
+    isDir = (await stat(singletonsDir)).isDirectory();
+  } catch {}
+  if (!isDir) return;
+
+  const files = await fg(["**/*.ts", "**/*.tsx", "**/*.js", "**/*.mjs"], {
+    cwd: singletonsDir,
+    absolute: true,
+  });
+
+  const jiti = createJiti(import.meta.url);
+  for (const file of files) {
+    await jiti.import(file);
+  }
+}
+
+type RelationLockEntry = {
+  field: string;
+  target: string;
+  targetKind: "collection" | "singleton";
+  cardinality: "one" | "many";
+};
+
 type CollectionLockEntry = {
   directory: string;
-  extension: ".md" | ".mdx" | ".json";
-  relations: Array<{
-    field: string;
-    target: string;
-    cardinality: "one" | "many";
-  }>;
+  extension: SupportedFileExtension;
+  relations: Array<RelationLockEntry>;
+};
+
+type SingletonLockEntry = {
+  file: string;
+  extension: SupportedFileExtension;
+  relations: Array<RelationLockEntry>;
 };
 
 async function buildCollectionsLock(
   contentFolderAbs: string,
 ): Promise<Record<string, CollectionLockEntry>> {
-  const registry = getRegistry();
+  const registry = collectionRegistry.getRegistry();
   if (registry.size == 0) {
     throw new Error(
       "No collections registered. Each qino/collections/*.ts file must call createCollection.",
@@ -146,14 +183,14 @@ async function buildCollectionsLock(
     for (const relPath of relPaths) {
       const filePath = join(collectionDir, relPath);
       const raw = await readFile(filePath, "utf-8");
-      const data =
-        meta.extension == ".json"
-          ? JSON.parse(raw)
-          : (() => {
-              const parsed = matter(raw);
-              return { markdown: parsed.content, ...parsed.data };
-            })();
-      validate(meta.schema, data, filePath);
+      const validatorFn =
+        meta.extension == ".json" ? validateJsonFile : validateMarkdownFile;
+
+      validatorFn({
+        schema: meta.schema,
+        raw,
+        filePath,
+      });
     }
 
     out[collectionPath] = {
@@ -166,18 +203,58 @@ async function buildCollectionsLock(
   return out;
 }
 
+async function buildSingletonsLock(
+  contentFolderAbs: string,
+): Promise<Record<string, SingletonLockEntry>> {
+  const registry = singletonRegistry.getRegistry();
+  const out: Record<string, SingletonLockEntry> = {};
+
+  for (const [singletonFile, singleton] of registry.entries()) {
+    const meta = singleton[QinoMeta];
+    const absoluteFilePath = join(contentFolderAbs, meta.file);
+
+    await assertFile(
+      absoluteFilePath,
+      `Singleton "${singletonFile}" not found at ${absoluteFilePath}.`,
+    );
+
+    const raw = await readFile(absoluteFilePath, "utf-8");
+    const validatorFn =
+      meta.extension == ".json" ? validateJsonFile : validateMarkdownFile;
+
+    validatorFn({
+      schema: meta.schema,
+      raw,
+      filePath: absoluteFilePath,
+    });
+
+    out[singletonFile] = {
+      file: meta.file,
+      extension: meta.extension,
+      relations: deriveRelations(meta.relations),
+    };
+  }
+
+  return out;
+}
+
 function deriveRelations(
-  relations: AnyCollection[typeof QinoMeta]["relations"],
-): CollectionLockEntry["relations"] {
-  const out: CollectionLockEntry["relations"] = [];
+  relations:
+    | AnyCollection[typeof QinoMeta]["relations"]
+    | AnySingleton[typeof QinoMeta]["relations"],
+): Array<RelationLockEntry> {
+  const out: Array<RelationLockEntry> = [];
 
   for (const [field, declaration] of Object.entries(relations)) {
     if (!declaration) continue;
     const target =
       typeof declaration == "function" ? declaration() : declaration;
+    const targetMeta = target[QinoMeta];
+    const isSingleton = "file" in targetMeta;
     out.push({
       field,
-      target: target[QinoMeta].directory,
+      target: isSingleton ? targetMeta.file : targetMeta.directory,
+      targetKind: isSingleton ? "singleton" : "collection",
       cardinality: field.includes(JSON_PATH_ARRAY) ? "many" : "one",
     });
   }

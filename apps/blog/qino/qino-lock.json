@@ -22,11 +22,27 @@
         {
           "field": "author",
           "target": "/authors",
+          "targetKind": "collection",
           "cardinality": "one"
         },
         {
           "field": "categories[*]",
           "target": "/categories",
+          "targetKind": "collection",
+          "cardinality": "many"
+        }
+      ]
+    }
+  },
+  "singletons": {
+    "/pages/home.md": {
+      "file": "/pages/home.md",
+      "extension": ".md",
+      "relations": [
+        {
+          "field": "featured-posts[*]",
+          "target": "/posts",
+          "targetKind": "collection",
           "cardinality": "many"
         }
       ]

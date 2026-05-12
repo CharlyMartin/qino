@@ -1,18 +1,28 @@
-import type { AnyCollection } from "../../types";
+import type { AnyCollection, AnySingleton } from "../../types";
 import { QinoMeta } from "../globals";
 
 export type CTX = { sourceFilePath: string; relationKey: string };
 
 export function slugFromRelationValue(
   value: string,
-  targetCollection: AnyCollection,
+  targetCollection: AnyCollection | AnySingleton,
   ctx: CTX,
 ) {
   const meta = targetCollection[QinoMeta];
-  const expectedPrefix = `${meta.directory.replace(/^\//, "")}/`;
-
-  const expectedExt = meta.extension;
   const normalized = value.startsWith("/") ? value.slice(1) : value;
+
+  if ("file" in meta) {
+    const expected = meta.file.replace(/^\//, "");
+    if (normalized != expected) {
+      throw new Error(
+        `Relation "${ctx.relationKey}" in ${ctx.sourceFilePath}: expected value "${expected}" (target singleton "${meta.file}"), got "${value}".`,
+      );
+    }
+    return "";
+  }
+
+  const expectedPrefix = `${meta.directory.replace(/^\//, "")}/`;
+  const expectedExt = meta.extension;
 
   if (!normalized.startsWith(expectedPrefix)) {
     throw new Error(
