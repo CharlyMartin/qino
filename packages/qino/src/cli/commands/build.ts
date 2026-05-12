@@ -141,7 +141,7 @@ async function loadSingletons(qinoDir: string) {
 type RelationLockEntry = {
   field: string;
   target: string;
-  targetKind: "collection" | "singleton";
+  kind: "collection" | "singleton";
   cardinality: "one" | "many";
 };
 
@@ -254,7 +254,7 @@ function deriveRelations(
     out.push({
       field,
       target: isSingleton ? targetMeta.file : targetMeta.directory,
-      targetKind: isSingleton ? "singleton" : "collection",
+      kind: isSingleton ? "singleton" : "collection",
       cardinality: field.includes(JSON_PATH_ARRAY) ? "many" : "one",
     });
   }

@@ -22,13 +22,13 @@
         {
           "field": "author",
           "target": "/authors",
-          "targetKind": "collection",
+          "kind": "collection",
           "cardinality": "one"
         },
         {
           "field": "categories[*]",
           "target": "/categories",
-          "targetKind": "collection",
+          "kind": "collection",
           "cardinality": "many"
         }
       ]
@@ -42,7 +42,7 @@
         {
           "field": "featured-posts[*]",
           "target": "/posts",
-          "targetKind": "collection",
+          "kind": "collection",
           "cardinality": "many"
         }
       ]
