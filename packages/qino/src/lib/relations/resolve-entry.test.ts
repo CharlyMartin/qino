@@ -1,9 +1,10 @@
 import { describe, expect, test } from "vitest";
 import type { AnyCollection, AnySingleton } from "../../types";
 import type { ResolveOption } from "../../types/resolve";
-import { QinoMeta } from "../globals";
+
 import { resolveEntry } from "./resolve-entry";
 import { createResolveCache } from "./create-resolve-cache";
+import { QinoMeta } from "../../runtime/globals";
 
 type Entry = Record<string, unknown> & {
   _meta: { slug: string; fileName: string; filePath: string };
@@ -300,7 +301,10 @@ function makeSingleton({
   data,
 }: {
   file: `/${string}`;
-  relations?: Record<string, AnyCollection | AnySingleton | (() => AnyCollection | AnySingleton)>;
+  relations?: Record<
+    string,
+    AnyCollection | AnySingleton | (() => AnyCollection | AnySingleton)
+  >;
   data: SingletonEntry;
 }): AnySingleton {
   return {
@@ -386,9 +390,7 @@ describe("singleton targets", () => {
     const cache = createResolveCache();
     await expect(
       resolveEntry(posts.get("hello")!, postCol, 1, cache),
-    ).rejects.toThrow(
-      /siteConfig.*config\/site\.json.*config\/other\.json/,
-    );
+    ).rejects.toThrow(/siteConfig.*config\/site\.json.*config\/other\.json/);
   });
 
   test("leading slash on singleton relation value is tolerated", async () => {
