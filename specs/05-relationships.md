@@ -56,12 +56,12 @@ The TypeScript type system enforces that the path's leaf is `string` after walki
 
 ```json
 "relations": [
-  { "field": "categories[*]", "target": "/categories", "cardinality": "many" },
-  { "field": "author",        "target": "/authors",    "cardinality": "one"  }
+  { "field": "categories[*]", "target": "/categories", "targetKind": "collection", "cardinality": "many" },
+  { "field": "author",        "target": "/authors",    "targetKind": "collection", "cardinality": "one"  }
 ]
 ```
 
-`field` is the relation key verbatim — `[*]` segments preserved. `cardinality` is derived from the path itself (no data scan); the consumer never writes this by hand.
+`field` is the relation key verbatim — `[*]` segments preserved. `targetKind` is `"collection"` or `"singleton"` depending on what the relation points at; consumers reading the lock file use it to decide whether to look up the target in the `collections` or `singletons` section. `cardinality` is derived from the path itself (no data scan); the consumer never writes either of these by hand.
 
 ## Relation value format
 
@@ -75,13 +75,15 @@ categories:
   - "categories/philosophy.json"
 ```
 
-At resolve time the resolver:
+At resolve time, for a **collection target** the resolver:
 
 1. Asserts the value is under the target collection's `directory` (leading `/` is tolerated on the value).
 2. Asserts the value ends with the target collection's `extension`.
 3. Strips both and passes the remaining slug to `targetCollection.getOne(slug)`.
 
 A mismatched prefix, a mismatched extension, or an empty string throws at resolve time with the source `_meta.filePath`, the relation key, and the offending value. Bare slugs (e.g. `author: "jane-doe"`) are **not** accepted — the verbose form is the only valid format. This trades a few extra characters per entry for self-documenting frontmatter and prefix-mismatch detection at the boundary.
+
+For a **singleton target** (see [03-singletons.md](03-singletons.md)), the value must equal the target singleton's `file` exactly (leading `/` is tolerated). The prefix+extension pair collapses to a single equality check because a singleton has exactly one file. On match the resolver calls `targetSingleton.getData({ resolveRelations: false })`; on mismatch it throws naming the expected file, the relation key, and the source file path.
 
 ## Build pipeline guarantees
 

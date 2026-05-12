@@ -11,15 +11,12 @@ import type {
   SupportedFileExtension,
 } from "../../types";
 import type { ResolveOption } from "../../types/resolve";
-import { QinoMeta } from "../globals";
-import { register } from "../registry";
-import { buildMeta } from "./build-meta";
+import { META_FIELD_NAME, QinoMeta } from "../globals";
+import { buildEntryMeta } from "./build-entry-meta";
 import { resolveCollectionDirectory } from "./resolve-collection-directory";
 import { resolveEntry, createResolveCache } from "../relations";
-import { validateJsonFile } from "./validate-json-file";
-import { validateMarkdownFile } from "./validate-markdown-file";
-
-const META_FIELD_NAME = "_meta";
+import { validateJsonFile, validateMarkdownFile } from "../../lib/validate";
+import { collectionRegistry } from "./registry";
 
 export function createCollection<
   S extends ObjectSchema,
@@ -48,7 +45,7 @@ export function createCollection<
     getOne,
   } as const satisfies Collection<S, Ext, Rels, DefaultR>;
 
-  register(collection);
+  collectionRegistry.register(collection);
 
   return collection;
 
@@ -63,7 +60,7 @@ export function createCollection<
 
     const rawEntries = await Promise.all(
       relFilePaths.map(async (relPath) => {
-        const meta = buildMeta({
+        const meta = buildEntryMeta({
           directory: collectionDirectory,
           relativePath: relPath,
           extension,
@@ -115,7 +112,7 @@ export function createCollection<
   ): Promise<ResolvedView<S, Ext, Rels, R>> {
     const collectionDirectory = await resolveCollectionDirectory(directory);
 
-    const meta = buildMeta({
+    const meta = buildEntryMeta({
       directory: collectionDirectory,
       relativePath: `${slug}${extension}`,
       extension,

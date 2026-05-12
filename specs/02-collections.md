@@ -80,7 +80,7 @@ Positional, not object form. (The earlier draft of the spec used `getOne({ slug 
 
 ### `relations`
 
-Optional object on `createCollection` whose keys are **JSON-path strings** into the schema's validated output, and whose leaf type is `string`. Values are other collections (the object returned by another `createCollection` call) — or thunks `() => collection` for forward references.
+Optional object on `createCollection` whose keys are **JSON-path strings** into the schema's validated output, and whose leaf type is `string`. Values are other collections or singletons (the object returned by another `createCollection` or `createSingleton` call) — or thunks `() => target` for forward references.
 
 Path grammar:
 
@@ -99,7 +99,7 @@ Invalid paths (caught at compile time): keys that don't exist in the schema, pat
 
 Cardinality is derived from the path itself: any `[*]` anywhere in the key → `cardinality: "many"`; otherwise `cardinality: "one"`. `[*]` is transitive — `articles[*].author` yields many authors per entry, so it's `"many"` even though the leaf is a single field. No build-time data scan is needed.
 
-The lock file records `field` (the path string), `target`, and `cardinality` for each relation; resolving relations into full entries (`resolveDescendants` / `resolveAncestors`) is described in `05-relationships.md`.
+The lock file records `field` (the path string), `target`, `targetKind` (`"collection"` or `"singleton"`), and `cardinality` for each relation; resolving relations into full entries (`resolveDescendants` / `resolveAncestors`) is described in `05-relationships.md`.
 
 Relation values in content files are stored in verbose form (`author: "authors/jane-doe.json"`, not bare slugs) — see [05-relationships.md → Relation value format](05-relationships.md#relation-value-format).
 

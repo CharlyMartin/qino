@@ -28,7 +28,10 @@ type RelationPath<T, Prefix extends string = ""> =
           }[keyof NonNullable<T> & string]
         : never;
 
-export type RelationTarget = AnyCollection | (() => AnyCollection);
+export type RelationTarget =
+  | AnyCollection
+  | AnySingleton
+  | (() => AnyCollection | AnySingleton);
 
 export type Relations<Schema extends ObjectSchema> = {
   [P in RelationPath<ValidatedOutput<Schema>>]?: RelationTarget;
@@ -69,6 +72,34 @@ export type EntryMeta<Ext extends SupportedFileExtension> = {
   filePath: `${string}${Ext}`;
 };
 
+export type SingletonEntryMeta<Ext extends SupportedFileExtension> = {
+  fileName: `${string}${Ext}`;
+  filePath: `${string}${Ext}`;
+};
+
+export type SingletonMeta<
+  Schema extends ObjectSchema,
+  Ext extends SupportedFileExtension = SupportedFileExtension,
+  Rels extends Relations<Schema> = Relations<Schema>,
+> = {
+  readonly schema: Schema;
+  readonly file: `/${string}`;
+  readonly extension: Ext;
+  readonly relations: Rels;
+  readonly resolveRelations: ResolveOption;
+};
+
+export type AnySingleton = {
+  readonly [QinoMeta]: SingletonMeta<ObjectSchema>;
+  getData(
+    options?: GetterOptions,
+  ): Promise<
+    Record<string, unknown> & {
+      _meta: SingletonEntryMeta<SupportedFileExtension>;
+    }
+  >;
+};
+
 export type GetterOptions<R extends ResolveOption = ResolveOption> = {
   resolveRelations?: R;
 };
@@ -80,6 +111,19 @@ export type ResolvedView<
   R extends ResolveOption,
 > = Simplify<
   { _meta: EntryMeta<Ext> } & ResolveEntry<Schema, Rels, NormalizeDepth<R>>
+>;
+
+export type ResolvedSingletonView<
+  Schema extends ObjectSchema,
+  Ext extends SupportedFileExtension,
+  Rels extends Relations<Schema>,
+  R extends ResolveOption,
+> = Simplify<
+  { _meta: SingletonEntryMeta<Ext> } & ResolveEntry<
+    Schema,
+    Rels,
+    NormalizeDepth<R>
+  >
 >;
 
 export type Collection<
@@ -98,6 +142,18 @@ export type Collection<
   ): Promise<ResolvedView<Schema, Ext, Rels, R>>;
 };
 
+export type Singleton<
+  Schema extends ObjectSchema,
+  Ext extends SupportedFileExtension,
+  Rels extends Relations<Schema> = {},
+  DefaultR extends ResolveOption = true,
+> = {
+  readonly [QinoMeta]: SingletonMeta<Schema, Ext, Rels>;
+  getData<R extends ResolveOption = DefaultR>(
+    options?: GetterOptions<R>,
+  ): Promise<ResolvedSingletonView<Schema, Ext, Rels, R>>;
+};
+
 export type CreateCollectionParams<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
@@ -107,6 +163,31 @@ export type CreateCollectionParams<
   directory: `/${string}`;
   schema: Schema;
   extension: Ext;
+  relations?: Rels;
+  resolveRelations?: DefaultR;
+};
+
+export type SingletonFile = {
+  [Ext in SupportedFileExtension]: `/${string}${Ext}`;
+}[SupportedFileExtension];
+
+export type ExtractSingletonExtension<F extends string> =
+  F extends `${string}.json`
+    ? ".json"
+    : F extends `${string}.mdx`
+      ? ".mdx"
+      : F extends `${string}.md`
+        ? ".md"
+        : never;
+
+export type CreateSingletonParams<
+  Schema extends ObjectSchema,
+  F extends SingletonFile,
+  Rels extends Relations<Schema> = {},
+  DefaultR extends ResolveOption = true,
+> = {
+  file: F;
+  schema: Schema;
   relations?: Rels;
   resolveRelations?: DefaultR;
 };

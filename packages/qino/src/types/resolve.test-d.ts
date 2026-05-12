@@ -1,7 +1,9 @@
 import { describe, expectTypeOf, test } from "vitest";
 import { z } from "zod";
 import { createCollection } from "../runtime/collections";
-import { clearRegistry } from "../runtime/registry";
+import { createSingleton } from "../runtime/singletons";
+import { collectionRegistry } from "../runtime/collections/registry";
+import { singletonRegistry } from "../runtime/singletons/registry";
 
 const AuthorSchema = z
   .object({
@@ -23,7 +25,8 @@ const PostSchema = z
   })
   .strict();
 
-clearRegistry();
+collectionRegistry.clearRegistry();
+singletonRegistry.clearRegistry();
 
 const authorCollection = createCollection({
   directory: "/authors",
@@ -148,5 +151,74 @@ describe("transitive depth (chained collections)", () => {
     const posts = await chainedPostCollection.getAll({ resolveRelations: 2 });
     expectTypeOf(posts[0].editor.name).toEqualTypeOf<string>();
     expectTypeOf(posts[0].editor.lead.name).toEqualTypeOf<string>();
+  });
+});
+
+describe("singletons", () => {
+  const HomeSchema = z
+    .object({
+      title: z.string(),
+      "featured-posts": z.array(z.string()),
+    })
+    .strict();
+
+  const homeSingleton = createSingleton({
+    file: "/pages/home.md",
+    schema: HomeSchema,
+    relations: {
+      "featured-posts[*]": postCollection,
+    },
+  });
+
+  test("_meta has fileName and filePath but no slug", async () => {
+    const home = await homeSingleton.getData({ resolveRelations: false });
+    const meta = home._meta;
+    expectTypeOf(meta.fileName).toEqualTypeOf<`${string}.md`>();
+    expectTypeOf(meta.filePath).toEqualTypeOf<`${string}.md`>();
+    expectTypeOf<keyof typeof meta>().toEqualTypeOf<"fileName" | "filePath">();
+  });
+
+  test("resolveRelations: false keeps strings", async () => {
+    const home = await homeSingleton.getData({ resolveRelations: false });
+    expectTypeOf(home["featured-posts"]).toEqualTypeOf<Array<string>>();
+  });
+
+  test("depth 1 resolves featured-posts to full Post entries", async () => {
+    const home = await homeSingleton.getData({ resolveRelations: 1 });
+    expectTypeOf(home["featured-posts"][0].title).toEqualTypeOf<string>();
+    expectTypeOf(home["featured-posts"][0]._meta.slug).toEqualTypeOf<string>();
+  });
+});
+
+describe("collection → singleton relation", () => {
+  const ConfigSchema = z.object({ siteName: z.string() }).strict();
+  const configSingleton = createSingleton({
+    file: "/config/site.json",
+    schema: ConfigSchema,
+  });
+
+  const FooSchema = z
+    .object({ title: z.string(), siteConfig: z.string() })
+    .strict();
+
+  const fooCollection = createCollection({
+    directory: "/foos",
+    schema: FooSchema,
+    extension: ".json",
+    relations: { siteConfig: configSingleton },
+  });
+
+  test("depth 1: collection → singleton resolves to singleton shape", async () => {
+    const foos = await fooCollection.getAll({ resolveRelations: 1 });
+    const foo = foos[0];
+    expectTypeOf(foo.siteConfig.siteName).toEqualTypeOf<string>();
+    expectTypeOf<keyof typeof foo.siteConfig._meta>().toEqualTypeOf<
+      "fileName" | "filePath"
+    >();
+  });
+
+  test("resolveRelations: false keeps the relation as a string", async () => {
+    const foos = await fooCollection.getAll({ resolveRelations: false });
+    expectTypeOf(foos[0].siteConfig).toEqualTypeOf<string>();
   });
 });

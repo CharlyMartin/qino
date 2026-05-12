@@ -4,6 +4,7 @@ import type {
   EntryMeta,
   JsonPathArray,
   ObjectSchema,
+  SingletonEntryMeta,
   SupportedFileExtension,
   ValidatedOutput,
 } from "./index";
@@ -52,14 +53,15 @@ type ResolveValue<
 type ResolveTarget<Target, D extends Depth> = D extends 0
   ? string
   : NonNullable<Target> extends () => infer C
-    ? ResolveCollectionTarget<C, Dec<D>>
-    : ResolveCollectionTarget<NonNullable<Target>, Dec<D>>;
+    ? ResolveRelationTarget<C, Dec<D>>
+    : ResolveRelationTarget<NonNullable<Target>, Dec<D>>;
 
-type ResolveCollectionTarget<C, NextD extends Depth> = C extends {
+type ResolveRelationTarget<C, NextD extends Depth> = C extends {
   readonly [QinoMeta]: {
     schema: infer S;
     extension: infer Ext;
     relations: infer Rels;
+    directory: string;
   };
 }
   ? Ext extends SupportedFileExtension
@@ -67,7 +69,22 @@ type ResolveCollectionTarget<C, NextD extends Depth> = C extends {
       ? Simplify<{ _meta: EntryMeta<Ext> } & ResolveEntry<S, Rels, NextD>>
       : never
     : never
-  : never;
+  : C extends {
+        readonly [QinoMeta]: {
+          schema: infer S;
+          extension: infer Ext;
+          relations: infer Rels;
+          file: string;
+        };
+      }
+    ? Ext extends SupportedFileExtension
+      ? S extends ObjectSchema
+        ? Simplify<
+            { _meta: SingletonEntryMeta<Ext> } & ResolveEntry<S, Rels, NextD>
+          >
+        : never
+      : never
+    : never;
 
 export type ResolveEntry<
   S extends ObjectSchema,

@@ -1,4 +1,4 @@
-import type { AnyCollection } from "../../types";
+import type { AnyCollection, AnySingleton } from "../../types";
 import { QinoMeta } from "../globals";
 import type { ResolveCache } from "./create-resolve-cache";
 import { fetchAndResolve } from "./fetch-and-resolve";
@@ -8,18 +8,18 @@ import { walkAndSet } from "./walk-and-set";
 
 export async function resolveEntryAtDepth(
   entry: Record<string, unknown>,
-  collection: AnyCollection,
+  host: AnyCollection | AnySingleton,
   depth: number,
   cache: ResolveCache,
 ): Promise<Record<string, unknown>> {
   if (depth <= 0) return entry;
 
-  const relations = collection[QinoMeta].relations;
+  const relations = host[QinoMeta].relations;
   let result: Record<string, unknown> = entry;
 
   for (const [relationKey, target] of Object.entries(relations)) {
     if (!target) continue;
-    const targetCollection = typeof target == "function" ? target() : target;
+    const resolvedTarget = typeof target == "function" ? target() : target;
     const segments = parsePath(relationKey);
     const sourceFilePath =
       (entry._meta as { filePath?: string } | undefined)?.filePath ??
@@ -36,11 +36,11 @@ export async function resolveEntryAtDepth(
           `Empty relation reference at "${relationKey}" in ${sourceFilePath}.`,
         );
       }
-      const slug = slugFromRelationValue(leaf, targetCollection, {
+      const slug = slugFromRelationValue(leaf, resolvedTarget, {
         sourceFilePath,
         relationKey,
       });
-      return fetchAndResolve(targetCollection, slug, depth - 1, cache, {
+      return fetchAndResolve(resolvedTarget, slug, depth - 1, cache, {
         sourceFilePath,
         relationKey,
       });

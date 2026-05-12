@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import type { AnyCollection } from "../../types";
+import type { AnyCollection, AnySingleton } from "../../types";
 import type { ResolveOption } from "../../types/resolve";
 import { QinoMeta } from "../globals";
 import { resolveEntry } from "./resolve-entry";
@@ -15,7 +15,10 @@ function makeCollection({
   store,
 }: {
   directory: string;
-  relations?: Record<string, AnyCollection | (() => AnyCollection)>;
+  relations?: Record<
+    string,
+    AnyCollection | AnySingleton | (() => AnyCollection | AnySingleton)
+  >;
   store: Map<string, Entry>;
 }): AnyCollection {
   let getOneCalls = 0;
@@ -284,5 +287,128 @@ describe("resolveEntry", () => {
     const cache = createResolveCache();
     const resolved = await resolveEntry(posts.get("hello")!, postCol, 1, cache);
     expect(resolved.author).toMatchObject({ name: "Alice" });
+  });
+});
+
+type SingletonEntry = Record<string, unknown> & {
+  _meta: { fileName: string; filePath: string };
+};
+
+function makeSingleton({
+  file,
+  relations = {},
+  data,
+}: {
+  file: `/${string}`;
+  relations?: Record<string, AnyCollection | AnySingleton | (() => AnyCollection | AnySingleton)>;
+  data: SingletonEntry;
+}): AnySingleton {
+  return {
+    [QinoMeta]: {
+      schema: {} as never,
+      file,
+      extension: ".json" as const,
+      relations,
+      resolveRelations: true as ResolveOption,
+    },
+    getData: async () => data as never,
+  } as AnySingleton;
+}
+
+function singletonEntry(
+  file: string,
+  fields: Record<string, unknown>,
+): SingletonEntry {
+  return {
+    _meta: { fileName: file.split("/").pop()!, filePath: `/fixtures${file}` },
+    ...fields,
+  };
+}
+
+describe("singleton targets", () => {
+  test("collection → singleton resolves via getData", async () => {
+    const siteConfig = singletonEntry("/config/site.json", {
+      siteName: "Qino",
+    });
+    const configSingleton = makeSingleton({
+      file: "/config/site.json",
+      data: siteConfig,
+    });
+    const posts = new Map([
+      [
+        "hello",
+        entry("hello", { title: "Hi", siteConfig: "config/site.json" }),
+      ],
+    ]);
+    const postCol = makeCollection({
+      directory: "/posts",
+      store: posts,
+      relations: { siteConfig: configSingleton },
+    });
+    const cache = createResolveCache();
+    const resolved = await resolveEntry(posts.get("hello")!, postCol, 1, cache);
+    expect(resolved.siteConfig).toMatchObject({ siteName: "Qino" });
+  });
+
+  test("singleton-as-host getData resolves its own relation to a collection entry", async () => {
+    const authors = new Map([["alice", entry("alice", { name: "Alice" })]]);
+    const authorCol = makeCollection({ directory: "/authors", store: authors });
+    const homeData = singletonEntry("/pages/home.md", {
+      title: "Home",
+      author: "authors/alice.json",
+    });
+    const homeSingleton = makeSingleton({
+      file: "/pages/home.md",
+      data: homeData,
+      relations: { author: authorCol },
+    });
+    const cache = createResolveCache();
+    const resolved = await resolveEntry(homeData, homeSingleton, 1, cache);
+    expect(resolved.author).toMatchObject({ name: "Alice" });
+  });
+
+  test("singleton target value mismatch throws naming the expected file", async () => {
+    const configSingleton = makeSingleton({
+      file: "/config/site.json",
+      data: singletonEntry("/config/site.json", { siteName: "Qino" }),
+    });
+    const posts = new Map([
+      [
+        "hello",
+        entry("hello", { title: "Hi", siteConfig: "config/other.json" }),
+      ],
+    ]);
+    const postCol = makeCollection({
+      directory: "/posts",
+      store: posts,
+      relations: { siteConfig: configSingleton },
+    });
+    const cache = createResolveCache();
+    await expect(
+      resolveEntry(posts.get("hello")!, postCol, 1, cache),
+    ).rejects.toThrow(
+      /siteConfig.*config\/site\.json.*config\/other\.json/,
+    );
+  });
+
+  test("leading slash on singleton relation value is tolerated", async () => {
+    const configSingleton = makeSingleton({
+      file: "/config/site.json",
+      data: singletonEntry("/config/site.json", { siteName: "Qino" }),
+    });
+    const posts = new Map([
+      [
+        "hello",
+        entry("hello", { title: "Hi", siteConfig: "/config/site.json" }),
+      ],
+    ]);
+    const postCol = makeCollection({
+      directory: "/posts",
+      store: posts,
+      relations: { siteConfig: configSingleton },
+    });
+    const cache = createResolveCache();
+    const resolved = await resolveEntry(posts.get("hello")!, postCol, 1, cache);
+    expect(resolved.siteConfig).toMatchObject({ siteName: "Qino" });
   });
 });

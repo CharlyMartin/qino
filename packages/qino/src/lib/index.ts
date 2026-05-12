@@ -1,1 +1,2 @@
-export { validate } from "./validate";
+export * from "./validate";
+export { createRegistry } from "./create-registry";
