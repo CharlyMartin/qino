@@ -3,8 +3,7 @@ import { collectionRegistry } from "../../runtime/collections/registry";
 import { join } from "path";
 import fg from "fast-glob";
 import { COLLECTIONS_FOLDER_NAME, ROOT_FOLDER_NAME } from "../../lib";
-import { assertDirectory, isDirectory } from "../../utils";
-import assert from "node:assert";
+import { assertDirectory } from "../../utils";
 
 export async function loadCollections(qinoDir: string) {
   collectionRegistry.clearRegistry();

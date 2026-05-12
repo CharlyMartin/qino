@@ -6,7 +6,6 @@
     "dev": "next dev",
     "build": "qino build && next build",
     "start": "next start",
-    "lint": "eslint",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
@@ -28,8 +27,6 @@
     "@types/node": "20.19.39",
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
-    "eslint": "9.39.1",
-    "eslint-config-next": "16.2.4",
     "tailwindcss": "4.2.4",
     "typescript": "5.9.2"
   }
