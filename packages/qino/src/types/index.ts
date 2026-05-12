@@ -128,7 +128,7 @@ export type ResolvedSingletonView<
 export type Collection<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
-  Rels extends Relations<Schema> = {},
+  Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
 > = {
   readonly [QinoMeta]: CollectionMeta<Schema, Ext, Rels>;
@@ -144,7 +144,7 @@ export type Collection<
 export type Singleton<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
-  Rels extends Relations<Schema> = {},
+  Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
 > = {
   readonly [QinoMeta]: SingletonMeta<Schema, Ext, Rels>;
@@ -156,7 +156,7 @@ export type Singleton<
 export type CreateCollectionParams<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
-  Rels extends Relations<Schema> = {},
+  Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
 > = {
   directory: `/${string}`;
@@ -182,7 +182,7 @@ export type ExtractSingletonExtension<F extends string> =
 export type CreateSingletonParams<
   Schema extends ObjectSchema,
   F extends SingletonFile,
-  Rels extends Relations<Schema> = {},
+  Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
 > = {
   file: F;

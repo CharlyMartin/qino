@@ -27,7 +27,7 @@ import { resolveSingletonFile } from "./resolve-singleton-file";
 export function createSingleton<
   S extends ObjectSchema,
   F extends SingletonFile,
-  Rels extends Relations<S> = {},
+  Rels extends Relations<S> = object,
   DefaultR extends ResolveOption = true,
 >({
   file,
