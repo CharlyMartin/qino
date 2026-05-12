@@ -7,7 +7,7 @@ export const ExtensionSchema = z.enum(SUPPORTED_EXTENSIONS);
 const RelationSchema = z.object({
   field: z.string(),
   target: z.string(),
-  targetKind: z.enum(["collection", "singleton"]),
+  kind: z.enum(["collection", "singleton"]),
   cardinality: z.enum(["one", "many"]),
 });
 

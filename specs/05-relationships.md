@@ -56,12 +56,12 @@ The TypeScript type system enforces that the path's leaf is `string` after walki
 
 ```json
 "relations": [
-  { "field": "categories[*]", "target": "/categories", "targetKind": "collection", "cardinality": "many" },
-  { "field": "author",        "target": "/authors",    "targetKind": "collection", "cardinality": "one"  }
+  { "field": "categories[*]", "target": "/categories", "kind": "collection", "cardinality": "many" },
+  { "field": "author",        "target": "/authors",    "kind": "collection", "cardinality": "one"  }
 ]
 ```
 
-`field` is the relation key verbatim — `[*]` segments preserved. `targetKind` is `"collection"` or `"singleton"` depending on what the relation points at; consumers reading the lock file use it to decide whether to look up the target in the `collections` or `singletons` section. `cardinality` is derived from the path itself (no data scan); the consumer never writes either of these by hand.
+`field` is the relation key verbatim — `[*]` segments preserved. `kind` is `"collection"` or `"singleton"` depending on what the relation points at; consumers reading the lock file use it to decide whether to look up the target in the `collections` or `singletons` section. `cardinality` is derived from the path itself (no data scan); the consumer never writes either of these by hand.
 
 ## Relation value format
 
