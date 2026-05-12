@@ -28,7 +28,7 @@ import { resolveCollectionDirectory } from "./resolve-collection-directory";
 export function createCollection<
   S extends ObjectSchema,
   Ext extends SupportedFileExtension,
-  Rels extends Relations<S> = {},
+  Rels extends Relations<S> = object,
   DefaultR extends ResolveOption = true,
 >({
   directory,
