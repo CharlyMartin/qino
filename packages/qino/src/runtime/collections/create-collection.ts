@@ -11,7 +11,7 @@ import type {
   SupportedFileExtension,
 } from "../../types";
 import type { ResolveOption } from "../../types/resolve";
-import { META_FIELD_NAME, QinoMeta } from "../globals";
+import { META_FIELD_NAME, QinoMeta } from "../../lib/globals";
 import { buildEntryMeta } from "./build-entry-meta";
 import { resolveCollectionDirectory } from "./resolve-collection-directory";
 import { resolveEntry, createResolveCache } from "../../lib/relations";

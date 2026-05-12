@@ -1,4 +1,4 @@
-import { SUPPORTED_EXTENSIONS } from "../globals";
+import { SUPPORTED_EXTENSIONS } from "../../lib/globals";
 
 export function extractExtension(file: string) {
   for (const ext of SUPPORTED_EXTENSIONS) {

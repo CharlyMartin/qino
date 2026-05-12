@@ -2,7 +2,7 @@ import type { StandardSchemaV1 } from "@standard-schema/spec";
 import type { Simplify } from "type-fest";
 import { z } from "zod";
 import { ExtensionSchema } from "../schemas/lock-file";
-import { JSON_PATH_ARRAY, QinoMeta } from "../runtime/globals";
+import { JSON_PATH_ARRAY, QinoMeta } from "../lib/globals";
 import type { ResolveEntry, ResolveOption, NormalizeDepth } from "./resolve";
 
 export type SupportedFileExtension = z.infer<typeof ExtensionSchema>;
@@ -91,9 +91,7 @@ export type SingletonMeta<
 
 export type AnySingleton = {
   readonly [QinoMeta]: SingletonMeta<ObjectSchema>;
-  getData(
-    options?: GetterOptions,
-  ): Promise<
+  getData(options?: GetterOptions): Promise<
     Record<string, unknown> & {
       _meta: SingletonEntryMeta<SupportedFileExtension>;
     }
