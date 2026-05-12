@@ -19,7 +19,6 @@ const CollectionLockSchema = z.object({
 
 const SingletonLockSchema = z.object({
   file: z.string(),
-  extension: ExtensionSchema,
   relations: z.array(RelationSchema),
 });
 

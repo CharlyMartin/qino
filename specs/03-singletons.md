@@ -93,13 +93,14 @@ A value that doesn't match throws at resolve time naming the expected file, the 
 "singletons": {
   "/pages/home.md": {
     "file": "/pages/home.md",
-    "extension": ".md",
     "relations": [
       { "field": "featured-posts[*]", "target": "/posts", "kind": "collection", "cardinality": "many" }
     ]
   }
 }
 ```
+
+The extension is intentionally not stored — it's derivable from `file`'s suffix (one of `.md` | `.mdx` | `.json`), the same way `createSingleton` derives it at runtime.
 
 The `kind` discriminator on each relation tells consumers reading the lock file whether the target is a collection or another singleton. The same `kind` is emitted in collection relations (see [02-collections.md](02-collections.md) and [05-relationships.md](05-relationships.md)).
 
