@@ -59,37 +59,36 @@ describe("resolveEntry", () => {
   test("resolveRelations: false returns the entry unchanged", async () => {
     const authors = new Map([["alice", entry("alice", { name: "Alice" })]]);
     const authorCol = makeCollection({ directory: "/authors", store: authors });
-    const posts = new Map([
-      ["hello", entry("hello", { title: "Hi", author: "authors/alice.json" })],
-    ]);
+    const helloPost = entry("hello", {
+      title: "Hi",
+      author: "authors/alice.json",
+    });
+    const posts = new Map([["hello", helloPost]]);
     const postCol = makeCollection({
       directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
     const cache = createResolveCache();
-    const resolved = await resolveEntry(
-      posts.get("hello")!,
-      postCol,
-      false,
-      cache,
-    );
+    const resolved = await resolveEntry(helloPost, postCol, false, cache);
     expect(resolved.author).toBe("authors/alice.json");
   });
 
   test("depth 1 resolves top-level relations to full entries", async () => {
     const authors = new Map([["alice", entry("alice", { name: "Alice" })]]);
     const authorCol = makeCollection({ directory: "/authors", store: authors });
-    const posts = new Map([
-      ["hello", entry("hello", { title: "Hi", author: "authors/alice.json" })],
-    ]);
+    const helloPost = entry("hello", {
+      title: "Hi",
+      author: "authors/alice.json",
+    });
+    const posts = new Map([["hello", helloPost]]);
     const postCol = makeCollection({
       directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
     const cache = createResolveCache();
-    const resolved = await resolveEntry(posts.get("hello")!, postCol, 1, cache);
+    const resolved = await resolveEntry(helloPost, postCol, 1, cache);
     expect(resolved.author).toMatchObject({ name: "Alice" });
     expect((resolved.author as Entry)._meta.slug).toBe("alice");
   });
@@ -100,22 +99,18 @@ describe("resolveEntry", () => {
       ["ops", entry("ops", { name: "Ops" })],
     ]);
     const catCol = makeCollection({ directory: "/categories", store: cats });
-    const posts = new Map([
-      [
-        "hello",
-        entry("hello", {
-          title: "Hi",
-          categories: ["categories/dev.json", "categories/ops.json"],
-        }),
-      ],
-    ]);
+    const helloPost = entry("hello", {
+      title: "Hi",
+      categories: ["categories/dev.json", "categories/ops.json"],
+    });
+    const posts = new Map([["hello", helloPost]]);
     const postCol = makeCollection({
       directory: "/posts",
       store: posts,
       relations: { "categories[*]": catCol },
     });
     const cache = createResolveCache();
-    const resolved = await resolveEntry(posts.get("hello")!, postCol, 1, cache);
+    const resolved = await resolveEntry(helloPost, postCol, 1, cache);
     expect(resolved.categories).toEqual([
       expect.objectContaining({ name: "Dev" }),
       expect.objectContaining({ name: "Ops" }),
@@ -125,9 +120,11 @@ describe("resolveEntry", () => {
   test("dedupes shared targets across entries in one call", async () => {
     const authors = new Map([["alice", entry("alice", { name: "Alice" })]]);
     const authorCol = makeCollection({ directory: "/authors", store: authors });
+    const aPost = entry("a", { title: "A", author: "authors/alice.json" });
+    const bPost = entry("b", { title: "B", author: "authors/alice.json" });
     const posts = new Map([
-      ["a", entry("a", { title: "A", author: "authors/alice.json" })],
-      ["b", entry("b", { title: "B", author: "authors/alice.json" })],
+      ["a", aPost],
+      ["b", bPost],
     ]);
     const postCol = makeCollection({
       directory: "/posts",
@@ -136,8 +133,8 @@ describe("resolveEntry", () => {
     });
     const cache = createResolveCache();
     const [aResolved, bResolved] = await Promise.all([
-      resolveEntry(posts.get("a")!, postCol, 1, cache),
-      resolveEntry(posts.get("b")!, postCol, 1, cache),
+      resolveEntry(aPost, postCol, 1, cache),
+      resolveEntry(bPost, postCol, 1, cache),
     ]);
     expect(aResolved.author).toBe(bResolved.author); // same object identity
     expect(
@@ -155,28 +152,23 @@ describe("resolveEntry", () => {
         }),
       ],
     ]);
-    const posts = new Map([
-      ["hello", entry("hello", { title: "Hi", author: "authors/alice.json" })],
-    ]);
-    let authorCol!: AnyCollection;
-    let postCol!: AnyCollection;
-    authorCol = makeCollection({
+    const helloPost = entry("hello", {
+      title: "Hi",
+      author: "authors/alice.json",
+    });
+    const posts = new Map([["hello", helloPost]]);
+    const authorCol = makeCollection({
       directory: "/authors",
       store: authors,
       relations: { favoritePost: () => postCol },
     });
-    postCol = makeCollection({
+    const postCol = makeCollection({
       directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
     const cache = createResolveCache();
-    const resolved = await resolveEntry(
-      posts.get("hello")!,
-      postCol,
-      true,
-      cache,
-    );
+    const resolved = await resolveEntry(helloPost, postCol, true, cache);
     // depth 6: post -> author -> post -> author -> post -> author -> (string)
     // Walk down to the deepest resolved node and confirm it bottoms out as a string.
     let node: unknown = resolved;
@@ -202,38 +194,34 @@ describe("resolveEntry", () => {
   test("broken reference throws with source filePath and relation key", async () => {
     const authors = new Map<string, Entry>();
     const authorCol = makeCollection({ directory: "/authors", store: authors });
-    const posts = new Map([
-      [
-        "hello",
-        entry("hello", { title: "Hi", author: "authors/missing.json" }),
-      ],
-    ]);
+    const helloPost = entry("hello", {
+      title: "Hi",
+      author: "authors/missing.json",
+    });
+    const posts = new Map([["hello", helloPost]]);
     const postCol = makeCollection({
       directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
     const cache = createResolveCache();
-    await expect(
-      resolveEntry(posts.get("hello")!, postCol, 1, cache),
-    ).rejects.toThrow(/author.*\/authors\/missing.*\/fixtures\/hello\.json/);
+    await expect(resolveEntry(helloPost, postCol, 1, cache)).rejects.toThrow(
+      /author.*\/authors\/missing.*\/fixtures\/hello\.json/,
+    );
   });
 
   test("empty-string relation throws with source filePath and relation key", async () => {
     const authors = new Map<string, Entry>();
     const authorCol = makeCollection({ directory: "/authors", store: authors });
-    const posts = new Map([
-      ["hello", entry("hello", { title: "Hi", author: "" })],
-    ]);
+    const helloPost = entry("hello", { title: "Hi", author: "" });
+    const posts = new Map([["hello", helloPost]]);
     const postCol = makeCollection({
       directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
     const cache = createResolveCache();
-    await expect(
-      resolveEntry(posts.get("hello")!, postCol, 1, cache),
-    ).rejects.toThrow(
+    await expect(resolveEntry(helloPost, postCol, 1, cache)).rejects.toThrow(
       /empty relation reference.*author.*\/fixtures\/hello\.json/i,
     );
   });
@@ -241,52 +229,58 @@ describe("resolveEntry", () => {
   test("prefix mismatch throws naming the expected target", async () => {
     const authors = new Map([["alice", entry("alice", { name: "Alice" })]]);
     const authorCol = makeCollection({ directory: "/authors", store: authors });
-    const posts = new Map([
-      // value points at `posts/` but should point at `authors/`
-      ["hello", entry("hello", { title: "Hi", author: "posts/alice.json" })],
-    ]);
+    // value points at `posts/` but should point at `authors/`
+    const helloPost = entry("hello", {
+      title: "Hi",
+      author: "posts/alice.json",
+    });
+    const posts = new Map([["hello", helloPost]]);
     const postCol = makeCollection({
       directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
     const cache = createResolveCache();
-    await expect(
-      resolveEntry(posts.get("hello")!, postCol, 1, cache),
-    ).rejects.toThrow(/author.*authors\/.*posts\/alice\.json/);
+    await expect(resolveEntry(helloPost, postCol, 1, cache)).rejects.toThrow(
+      /author.*authors\/.*posts\/alice\.json/,
+    );
   });
 
   test("extension mismatch throws naming the expected extension", async () => {
     const authors = new Map([["alice", entry("alice", { name: "Alice" })]]);
     const authorCol = makeCollection({ directory: "/authors", store: authors });
-    const posts = new Map([
-      // target is `.json` but value uses `.md`
-      ["hello", entry("hello", { title: "Hi", author: "authors/alice.md" })],
-    ]);
+    // target is `.json` but value uses `.md`
+    const helloPost = entry("hello", {
+      title: "Hi",
+      author: "authors/alice.md",
+    });
+    const posts = new Map([["hello", helloPost]]);
     const postCol = makeCollection({
       directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
     const cache = createResolveCache();
-    await expect(
-      resolveEntry(posts.get("hello")!, postCol, 1, cache),
-    ).rejects.toThrow(/author.*\.json.*authors\/alice\.md/);
+    await expect(resolveEntry(helloPost, postCol, 1, cache)).rejects.toThrow(
+      /author.*\.json.*authors\/alice\.md/,
+    );
   });
 
   test("leading slash on relation value is tolerated", async () => {
     const authors = new Map([["alice", entry("alice", { name: "Alice" })]]);
     const authorCol = makeCollection({ directory: "/authors", store: authors });
-    const posts = new Map([
-      ["hello", entry("hello", { title: "Hi", author: "/authors/alice.json" })],
-    ]);
+    const helloPost = entry("hello", {
+      title: "Hi",
+      author: "/authors/alice.json",
+    });
+    const posts = new Map([["hello", helloPost]]);
     const postCol = makeCollection({
       directory: "/posts",
       store: posts,
       relations: { author: authorCol },
     });
     const cache = createResolveCache();
-    const resolved = await resolveEntry(posts.get("hello")!, postCol, 1, cache);
+    const resolved = await resolveEntry(helloPost, postCol, 1, cache);
     expect(resolved.author).toMatchObject({ name: "Alice" });
   });
 });
@@ -324,7 +318,10 @@ function singletonEntry(
   fields: Record<string, unknown>,
 ): SingletonEntry {
   return {
-    _meta: { fileName: file.split("/").pop()!, filePath: `/fixtures${file}` },
+    _meta: {
+      fileName: file.slice(file.lastIndexOf("/") + 1),
+      filePath: `/fixtures${file}`,
+    },
     ...fields,
   };
 }
@@ -338,19 +335,18 @@ describe("singleton targets", () => {
       file: "/config/site.json",
       data: siteConfig,
     });
-    const posts = new Map([
-      [
-        "hello",
-        entry("hello", { title: "Hi", siteConfig: "config/site.json" }),
-      ],
-    ]);
+    const helloPost = entry("hello", {
+      title: "Hi",
+      siteConfig: "config/site.json",
+    });
+    const posts = new Map([["hello", helloPost]]);
     const postCol = makeCollection({
       directory: "/posts",
       store: posts,
       relations: { siteConfig: configSingleton },
     });
     const cache = createResolveCache();
-    const resolved = await resolveEntry(posts.get("hello")!, postCol, 1, cache);
+    const resolved = await resolveEntry(helloPost, postCol, 1, cache);
     expect(resolved.siteConfig).toMatchObject({ siteName: "Qino" });
   });
 
@@ -376,21 +372,20 @@ describe("singleton targets", () => {
       file: "/config/site.json",
       data: singletonEntry("/config/site.json", { siteName: "Qino" }),
     });
-    const posts = new Map([
-      [
-        "hello",
-        entry("hello", { title: "Hi", siteConfig: "config/other.json" }),
-      ],
-    ]);
+    const helloPost = entry("hello", {
+      title: "Hi",
+      siteConfig: "config/other.json",
+    });
+    const posts = new Map([["hello", helloPost]]);
     const postCol = makeCollection({
       directory: "/posts",
       store: posts,
       relations: { siteConfig: configSingleton },
     });
     const cache = createResolveCache();
-    await expect(
-      resolveEntry(posts.get("hello")!, postCol, 1, cache),
-    ).rejects.toThrow(/siteConfig.*config\/site\.json.*config\/other\.json/);
+    await expect(resolveEntry(helloPost, postCol, 1, cache)).rejects.toThrow(
+      /siteConfig.*config\/site\.json.*config\/other\.json/,
+    );
   });
 
   test("leading slash on singleton relation value is tolerated", async () => {
@@ -398,19 +393,18 @@ describe("singleton targets", () => {
       file: "/config/site.json",
       data: singletonEntry("/config/site.json", { siteName: "Qino" }),
     });
-    const posts = new Map([
-      [
-        "hello",
-        entry("hello", { title: "Hi", siteConfig: "/config/site.json" }),
-      ],
-    ]);
+    const helloPost = entry("hello", {
+      title: "Hi",
+      siteConfig: "/config/site.json",
+    });
+    const posts = new Map([["hello", helloPost]]);
     const postCol = makeCollection({
       directory: "/posts",
       store: posts,
       relations: { siteConfig: configSingleton },
     });
     const cache = createResolveCache();
-    const resolved = await resolveEntry(posts.get("hello")!, postCol, 1, cache);
+    const resolved = await resolveEntry(helloPost, postCol, 1, cache);
     expect(resolved.siteConfig).toMatchObject({ siteName: "Qino" });
   });
 });
