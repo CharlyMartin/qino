@@ -1,5 +1,11 @@
 import { join } from "path";
-import { QinoMeta, validateJsonFile, validateMarkdownFile } from "../../lib";
+import {
+  COLLECTIONS_FOLDER_NAME,
+  QinoMeta,
+  ROOT_FOLDER_NAME,
+  validateJsonFile,
+  validateMarkdownFile,
+} from "../../lib";
 import { collectionRegistry } from "../../runtime/collections/registry";
 import type { SupportedFileExtension } from "../../types";
 import fg from "fast-glob";
@@ -17,7 +23,7 @@ export async function buildCollectionsLock(contentFolderAbs: string) {
 
   if (registry.size == 0) {
     throw new Error(
-      "No collections registered. Each qino/collections/*.ts file must call createCollection.",
+      `No collections registered. Call createCollection for each ${ROOT_FOLDER_NAME}/${COLLECTIONS_FOLDER_NAME} directories.`,
     );
   }
 
