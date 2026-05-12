@@ -1,5 +1,6 @@
 import { createCollection } from "qino";
 import { z } from "zod";
+
 import { authorCollection } from "./authors";
 import { categoryCollection } from "./categories";
 

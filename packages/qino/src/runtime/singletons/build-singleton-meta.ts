@@ -1,4 +1,5 @@
 import nodePath from "node:path";
+
 import type { SingletonEntryMeta, SupportedFileExtension } from "../../types";
 
 type BuildSingletonMetaParams<Ext extends SupportedFileExtension> = {

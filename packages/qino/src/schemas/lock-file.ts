@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { ConfigSchema } from "../runtime/config";
+
 import { SUPPORTED_EXTENSIONS } from "../lib";
+import { ConfigSchema } from "../runtime";
 
 export const ExtensionSchema = z.enum(SUPPORTED_EXTENSIONS);
 

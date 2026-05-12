@@ -1,8 +1,9 @@
 import { describe, expectTypeOf, test } from "vitest";
 import { z } from "zod";
+
 import { createCollection } from "../runtime/collections";
-import { createSingleton } from "../runtime/singletons";
 import { collectionRegistry } from "../runtime/collections/registry";
+import { createSingleton } from "../runtime/singletons";
 import { singletonRegistry } from "../runtime/singletons/registry";
 
 const AuthorSchema = z

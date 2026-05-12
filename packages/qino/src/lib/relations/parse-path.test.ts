@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+
 import { parsePath } from "./parse-path";
 
 describe("parsePath", () => {

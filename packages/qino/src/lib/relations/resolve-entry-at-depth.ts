@@ -1,6 +1,5 @@
-import { QinoMeta } from "../globals";
 import type { AnyCollection, AnySingleton } from "../../types";
-
+import { QinoMeta } from "../globals";
 import type { ResolveCache } from "./create-resolve-cache";
 import { fetchAndResolve } from "./fetch-and-resolve";
 import { parsePath } from "./parse-path";

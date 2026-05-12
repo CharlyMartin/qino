@@ -1,6 +1,7 @@
 import nodePath from "node:path";
-import { getConfig } from "../config";
+
 import type { SupportedFileExtension } from "../../types";
+import { getConfig } from "../config";
 
 export async function resolveSingletonFile<Ext extends SupportedFileExtension>(
   file: `/${string}${Ext}`,

@@ -1,7 +1,8 @@
-import { validate } from ".";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import matter from "gray-matter";
+
 import type { ValidateFileParams } from "./types";
+import { validate } from "./validate";
 
 const CONTENT_FIELD_NAME = "markdown";
 

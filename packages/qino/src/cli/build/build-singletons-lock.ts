@@ -1,8 +1,9 @@
-import { join } from "path";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+
 import { QinoMeta, validateJsonFile, validateMarkdownFile } from "../../lib";
 import { singletonRegistry } from "../../runtime/singletons/registry";
 import { assertFile } from "../../utils";
-import { readFile } from "fs/promises";
 import { deriveRelations, type RelationLockEntry } from "./derive-relations";
 
 type SingletonLockEntry = {

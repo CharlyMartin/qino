@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
+
 import type { AnyCollection, AnySingleton } from "../../types";
 import type { ResolveOption } from "../../types/resolve";
-
-import { resolveEntry } from "./resolve-entry";
-import { createResolveCache } from "./create-resolve-cache";
 import { QinoMeta } from "../globals";
+import { createResolveCache } from "./create-resolve-cache";
+import { resolveEntry } from "./resolve-entry";
 
 type Entry = Record<string, unknown> & {
   _meta: { slug: string; fileName: string; filePath: string };

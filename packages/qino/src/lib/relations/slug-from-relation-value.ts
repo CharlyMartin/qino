@@ -1,5 +1,5 @@
-import { QinoMeta } from "../globals";
 import type { AnyCollection, AnySingleton } from "../../types";
+import { QinoMeta } from "../globals";
 
 export type CTX = { sourceFilePath: string; relationKey: string };
 

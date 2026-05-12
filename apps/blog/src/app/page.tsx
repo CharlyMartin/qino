@@ -1,5 +1,6 @@
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+
 import { homeSingleton } from "../../qino/singletons/home";
 
 export default async function Home() {

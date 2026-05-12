@@ -1,8 +1,10 @@
-import { createJiti } from "jiti";
-import { collectionRegistry } from "../../runtime/collections/registry";
-import { join } from "path";
+import { join } from "node:path";
+
 import fg from "fast-glob";
+import { createJiti } from "jiti";
+
 import { COLLECTIONS_FOLDER_NAME, ROOT_FOLDER_NAME } from "../../lib";
+import { collectionRegistry } from "../../runtime/collections/registry";
 import { assertDirectory } from "../../utils";
 
 export async function loadCollections(qinoDir: string) {
