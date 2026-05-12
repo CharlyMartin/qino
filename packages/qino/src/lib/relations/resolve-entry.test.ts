@@ -4,7 +4,7 @@ import type { ResolveOption } from "../../types/resolve";
 
 import { resolveEntry } from "./resolve-entry";
 import { createResolveCache } from "./create-resolve-cache";
-import { QinoMeta } from "../../runtime/globals";
+import { QinoMeta } from "../globals";
 
 type Entry = Record<string, unknown> & {
   _meta: { slug: string; fileName: string; filePath: string };

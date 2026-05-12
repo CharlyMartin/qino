@@ -1,4 +1,4 @@
-import { QinoMeta } from "../../runtime/globals";
+import { QinoMeta } from "../globals";
 import type { AnyCollection, AnySingleton } from "../../types";
 
 import type { ResolveCache } from "./create-resolve-cache";

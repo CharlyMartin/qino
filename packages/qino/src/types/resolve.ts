@@ -1,5 +1,5 @@
 import type { Simplify, Subtract, IntClosedRange } from "type-fest";
-import type { QinoMeta } from "../runtime/globals";
+import type { QinoMeta } from "../lib/globals";
 import type {
   EntryMeta,
   JsonPathArray,
