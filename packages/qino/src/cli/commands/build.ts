@@ -5,7 +5,7 @@ import fg from "fast-glob";
 import { z } from "zod";
 import { ConfigSchema, type Config } from "../../runtime/config";
 import { LockFileSchema, type LockFile } from "../../schemas/lock-file";
-import { JSON_PATH_ARRAY, QinoMeta } from "../../lib/globals";
+import { JSON_PATH_ARRAY, QinoMeta } from "../../lib";
 import type {
   AnyCollection,
   AnySingleton,

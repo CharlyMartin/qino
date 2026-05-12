@@ -2,7 +2,7 @@ import type { StandardSchemaV1 } from "@standard-schema/spec";
 import type { Simplify } from "type-fest";
 import { z } from "zod";
 import { ExtensionSchema } from "../schemas/lock-file";
-import { JSON_PATH_ARRAY, QinoMeta } from "../lib/globals";
+import { JSON_PATH_ARRAY, QinoMeta } from "../lib";
 import type { ResolveEntry, ResolveOption, NormalizeDepth } from "./resolve";
 
 export type SupportedFileExtension = z.infer<typeof ExtensionSchema>;

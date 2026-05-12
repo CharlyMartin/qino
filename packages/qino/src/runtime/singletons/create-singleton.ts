@@ -10,9 +10,14 @@ import type {
   SingletonFile,
 } from "../../types";
 import type { ResolveOption } from "../../types/resolve";
-import { META_FIELD_NAME, QinoMeta } from "../../lib/globals";
-import { resolveEntry, createResolveCache } from "../../lib/relations";
-import { validateJsonFile, validateMarkdownFile } from "../../lib/validate";
+import {
+  validateJsonFile,
+  validateMarkdownFile,
+  META_FIELD_NAME,
+  QinoMeta,
+  resolveEntry,
+  createResolveCache,
+} from "../../lib";
 import { buildSingletonMeta } from "./build-singleton-meta";
 import { resolveSingletonFile } from "./resolve-singleton-file";
 import { singletonRegistry } from "./registry";
