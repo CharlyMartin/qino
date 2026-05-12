@@ -1,4 +1,4 @@
-import { JSON_PATH_ARRAY } from "../globals";
+import { JSON_PATH_ARRAY } from "../../runtime/globals";
 import type { Segment } from "./parse-path";
 
 export async function walkAndSet(

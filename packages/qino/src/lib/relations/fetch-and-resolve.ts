@@ -1,5 +1,6 @@
+import { QinoMeta } from "../../runtime/globals";
 import type { AnyCollection, AnySingleton } from "../../types";
-import { QinoMeta } from "../globals";
+
 import type { ResolveCache } from "./create-resolve-cache";
 import { resolveEntryAtDepth } from "./resolve-entry-at-depth";
 

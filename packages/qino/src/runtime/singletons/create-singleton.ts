@@ -11,7 +11,7 @@ import type {
 } from "../../types";
 import type { ResolveOption } from "../../types/resolve";
 import { META_FIELD_NAME, QinoMeta } from "../globals";
-import { resolveEntry, createResolveCache } from "../relations";
+import { resolveEntry, createResolveCache } from "../../lib/relations";
 import { validateJsonFile, validateMarkdownFile } from "../../lib/validate";
 import { buildSingletonMeta } from "./build-singleton-meta";
 import { resolveSingletonFile } from "./resolve-singleton-file";
