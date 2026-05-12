@@ -1,6 +1,16 @@
 import fs from "node:fs/promises";
 import nodePath from "node:path";
+
 import fg from "fast-glob";
+
+import {
+  createResolveCache,
+  META_FIELD_NAME,
+  QinoMeta,
+  resolveEntry,
+  validateJsonFile,
+  validateMarkdownFile,
+} from "../../lib";
 import type {
   Collection,
   CreateCollectionParams,
@@ -12,16 +22,8 @@ import type {
 } from "../../types";
 import type { ResolveOption } from "../../types/resolve";
 import { buildEntryMeta } from "./build-entry-meta";
-import { resolveCollectionDirectory } from "./resolve-collection-directory";
-import {
-  validateJsonFile,
-  validateMarkdownFile,
-  META_FIELD_NAME,
-  QinoMeta,
-  resolveEntry,
-  createResolveCache,
-} from "../../lib";
 import { collectionRegistry } from "./registry";
+import { resolveCollectionDirectory } from "./resolve-collection-directory";
 
 export function createCollection<
   S extends ObjectSchema,

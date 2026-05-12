@@ -1,5 +1,6 @@
 import nodePath from "node:path";
-import type { SupportedFileExtension, EntryMeta } from "../../types";
+
+import type { EntryMeta, SupportedFileExtension } from "../../types";
 
 type BuildMetaParams<Ext extends SupportedFileExtension> = {
   directory: string;

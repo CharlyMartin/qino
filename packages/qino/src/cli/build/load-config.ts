@@ -1,6 +1,7 @@
 import { createJiti } from "jiti";
-import { ConfigSchema, type Config } from "../../runtime";
 import { z } from "zod";
+
+import { type Config, ConfigSchema } from "../../runtime";
 
 export async function loadConfig(configPath: string): Promise<Config> {
   const jiti = createJiti(import.meta.url);

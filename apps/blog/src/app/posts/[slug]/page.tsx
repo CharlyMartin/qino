@@ -5,6 +5,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
+
 import { postCollection } from "../../../../qino/collections/posts";
 
 type PostPageProps = {

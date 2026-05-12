@@ -1,2 +1,2 @@
-export { createConfig, ConfigSchema, type Config } from "./create-config";
+export { type Config, ConfigSchema, createConfig } from "./create-config";
 export { getConfig } from "./get-config";

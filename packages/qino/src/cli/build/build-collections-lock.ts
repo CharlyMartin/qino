@@ -1,4 +1,8 @@
-import { join } from "path";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+
+import fg from "fast-glob";
+
 import {
   COLLECTIONS_FOLDER_NAME,
   QinoMeta,
@@ -8,8 +12,6 @@ import {
 } from "../../lib";
 import { collectionRegistry } from "../../runtime/collections/registry";
 import type { SupportedFileExtension } from "../../types";
-import fg from "fast-glob";
-import { readFile } from "fs/promises";
 import { deriveRelations, type RelationLockEntry } from "./derive-relations";
 
 type CollectionLockEntry = {

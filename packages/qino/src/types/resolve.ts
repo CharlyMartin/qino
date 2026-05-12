@@ -1,5 +1,6 @@
-import type { Simplify, Subtract, IntClosedRange } from "type-fest";
-import type { QinoMeta } from "../lib";
+import type { IntClosedRange, Simplify, Subtract } from "type-fest";
+
+import type { MAX_DEPTH, QinoMeta } from "../lib";
 import type {
   EntryMeta,
   JsonPathArray,
@@ -8,7 +9,6 @@ import type {
   SupportedFileExtension,
   ValidatedOutput,
 } from "./index";
-import type { MAX_DEPTH } from "../lib/relations";
 
 export type MaxDepth = typeof MAX_DEPTH;
 export type Depth = IntClosedRange<0, MaxDepth>;

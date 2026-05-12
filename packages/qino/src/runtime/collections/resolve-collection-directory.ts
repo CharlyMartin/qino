@@ -1,5 +1,6 @@
-import { getConfig } from "../config";
 import nodePath from "node:path";
+
+import { getConfig } from "../config";
 
 export async function resolveCollectionDirectory(directory: string) {
   const config = await getConfig();

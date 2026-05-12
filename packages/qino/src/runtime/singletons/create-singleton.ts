@@ -1,4 +1,13 @@
 import fs from "node:fs/promises";
+
+import {
+  createResolveCache,
+  META_FIELD_NAME,
+  QinoMeta,
+  resolveEntry,
+  validateJsonFile,
+  validateMarkdownFile,
+} from "../../lib";
 import type {
   CreateSingletonParams,
   ExtractSingletonExtension,
@@ -10,18 +19,10 @@ import type {
   SingletonFile,
 } from "../../types";
 import type { ResolveOption } from "../../types/resolve";
-import {
-  validateJsonFile,
-  validateMarkdownFile,
-  META_FIELD_NAME,
-  QinoMeta,
-  resolveEntry,
-  createResolveCache,
-} from "../../lib";
 import { buildSingletonMeta } from "./build-singleton-meta";
-import { resolveSingletonFile } from "./resolve-singleton-file";
-import { singletonRegistry } from "./registry";
 import { extractExtension } from "./extract-extension";
+import { singletonRegistry } from "./registry";
+import { resolveSingletonFile } from "./resolve-singleton-file";
 
 export function createSingleton<
   S extends ObjectSchema,

@@ -1,8 +1,10 @@
-import { join } from "path";
-import { singletonRegistry } from "../../runtime/singletons/registry";
+import { join } from "node:path";
+
 import fg from "fast-glob";
 import { createJiti } from "jiti";
+
 import { SINGLETONS_FOLDER_NAME } from "../../lib";
+import { singletonRegistry } from "../../runtime/singletons/registry";
 import { isDirectory } from "../../utils";
 
 export async function loadSingletons(qinoDir: string) {
