@@ -133,3 +133,27 @@ Done when:
 - A `postCollection` can declare `author: <relation>` and `categories: <relation>` and the lock file reflects both with correct cardinality.
 - `postCollection.getAll()` returns posts whose `author` and `categories` are full entries, not strings (relations resolve by default). Passing `{ resolveRelations: false }` returns the raw string paths instead.
 - Broken references surface a clear error pointing at the offending file and field.
+
+```ts
+ NodeTree (skeleton, returned by getTree):
+ {
+   slug: string,             // "guides", "guides/queries"
+   title: string,            // from titleField (file present) or humanize(folderName) (group-only)
+   fileName?: string,        // present iff a file backs this node
+   filePath?: string,        // present iff a file backs this node
+   children: NodeTree[],     // always [], never null/undefined
+ }
+
+ HydratedNodeTree (returned by getEntries) adds data: validatedFields on file-backed nodes; group-only nodes keep just { slug, title, children }.
+ {
+   slug: string,
+   title: string,
+   fileName?: string,
+   filePath?: string,
+   children: HydratedNodeTree[],
+   data: validatedFields, // only on file-backed nodes
+ }
+
+// Suggestion
+type HydratedNodeTree = NodeTree & { data: ValidatedFields }
+```
