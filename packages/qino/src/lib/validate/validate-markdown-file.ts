@@ -12,7 +12,7 @@ export function validateMarkdownFile<S extends StandardSchemaV1>({
   filePath,
 }: ValidateFileParams<S>) {
   const parsed = matter(raw);
-  const augmented = { [CONTENT_FIELD_NAME]: parsed.content, ...parsed.data };
+  const augmented = { ...parsed.data, [CONTENT_FIELD_NAME]: parsed.content };
 
   return validate(schema, augmented, filePath);
 }

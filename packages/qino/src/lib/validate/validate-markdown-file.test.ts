@@ -19,7 +19,7 @@ describe("validateMarkdownFile", () => {
     expect(result.markdown.trim()).toBe("# Body");
   });
 
-  test("frontmatter `markdown` key overrides the body (spread order)", () => {
+  test("body overrides a frontmatter `markdown` key (spread order)", () => {
     const schema = z.object({ markdown: z.string() });
     const raw = ["---", "markdown: from-frontmatter", "---", "body here"].join(
       "\n",
@@ -29,7 +29,7 @@ describe("validateMarkdownFile", () => {
       raw,
       filePath: "/fixtures/override.md",
     });
-    expect(result.markdown).toBe("from-frontmatter");
+    expect(result.markdown.trim()).toBe("body here");
   });
 
   test("handles raw with no frontmatter (only body is exposed)", () => {
