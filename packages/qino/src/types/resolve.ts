@@ -1,6 +1,6 @@
 import type { IntClosedRange, Simplify, Subtract } from "type-fest";
 
-import type { MAX_DEPTH, QinoMeta } from "../lib";
+import type { MAX_RESOLVE_DEPTH, QinoMeta } from "../lib";
 import type {
   EntryMeta,
   JsonPathArray,
@@ -10,7 +10,7 @@ import type {
   ValidatedOutput,
 } from "./index";
 
-export type MaxDepth = typeof MAX_DEPTH;
+export type MaxDepth = typeof MAX_RESOLVE_DEPTH;
 export type Depth = IntClosedRange<0, MaxDepth>;
 export type ResolveOption = boolean | IntClosedRange<1, MaxDepth>;
 
