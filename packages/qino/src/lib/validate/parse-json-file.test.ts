@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { validateJsonFile } from "./validate-json-file";
+import { parseJsonFile } from "./parse-json-file";
 
-describe("validateJsonFile", () => {
+describe("parseJsonFile", () => {
   test("parses JSON and validates against the schema", () => {
     const schema = z.object({ name: z.string(), age: z.number() });
-    const result = validateJsonFile({
+    const result = parseJsonFile({
       schema,
       raw: '{"name":"Alice","age":30}',
       filePath: "/fixtures/ok.json",
@@ -17,7 +17,7 @@ describe("validateJsonFile", () => {
   test("propagates validation errors with the supplied filePath", () => {
     const schema = z.object({ name: z.string() });
     expect(() =>
-      validateJsonFile({
+      parseJsonFile({
         schema,
         raw: '{"name":42}',
         filePath: "/fixtures/bad.json",
@@ -28,7 +28,7 @@ describe("validateJsonFile", () => {
   test("lets JSON.parse SyntaxError propagate as-is", () => {
     const schema = z.object({});
     expect(() =>
-      validateJsonFile({
+      parseJsonFile({
         schema,
         raw: "{ not json",
         filePath: "/fixtures/broken.json",
