@@ -1,4 +1,4 @@
-import type { RelationTarget } from "../../types";
+import type { AnyEntry, RelationTarget } from "../../types";
 import type { ResolveCache } from "./create-resolve-cache";
 import { parsePath } from "./parse-path";
 import { resolveRelationLeaf } from "./resolve-relation-leaf";
@@ -10,33 +10,34 @@ type Context = {
   cache: ResolveCache;
 };
 
-export async function resolveEntry(
-  entry: Record<string, unknown>,
-  ctx: Context,
-): Promise<Record<string, unknown>> {
+export async function resolveEntry(entry: AnyEntry, ctx: Context) {
   const { relations, depth, cache } = ctx;
-
   if (depth <= 0) return entry;
+
+  const sourceFilePath = entry._meta.filePath;
 
   let result: Record<string, unknown> = entry;
 
   for (const [relationKey, target] of Object.entries(relations)) {
     if (!target) continue;
-    const resolvedTarget = typeof target == "function" ? target() : target;
-    const segments = parsePath(relationKey);
-    const sourceFilePath =
-      (entry._meta as { filePath?: string } | undefined)?.filePath ??
-      "<unknown>";
 
-    result = (await walkAndSet(result, segments, async (leaf) =>
-      resolveRelationLeaf(leaf, {
-        relationKey,
-        sourceFilePath,
-        target: resolvedTarget,
-        depth: depth - 1,
-        cache,
-      }),
-    )) as Record<string, unknown>;
+    const resolvedTarget = typeof target == "function" ? target() : target;
+
+    const segments = parsePath(relationKey);
+
+    result = (await walkAndSet({
+      value: result,
+      segments,
+      setLeaf: async (leaf) => {
+        return resolveRelationLeaf(leaf, {
+          relationKey,
+          sourceFilePath,
+          target: resolvedTarget,
+          depth: depth - 1,
+          cache,
+        });
+      },
+    })) as Record<string, unknown>;
   }
 
   return result;

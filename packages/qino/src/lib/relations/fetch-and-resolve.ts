@@ -1,4 +1,4 @@
-import type { AnyCollection, AnySingleton } from "../../types";
+import type { AnyCollection, AnyEntry, AnySingleton } from "../../types";
 import { QinoMeta } from "../globals";
 import type { ResolveCache } from "./create-resolve-cache";
 import { resolveEntry } from "./resolve-entry";
@@ -22,9 +22,7 @@ export async function fetchAndResolve(
     perTarget = new Map();
     cache.set(cacheKey, perTarget);
   }
-  let rawPromise = perTarget.get(slug) as
-    | Promise<Record<string, unknown>>
-    | undefined;
+  let rawPromise = perTarget.get(slug) as Promise<AnyEntry> | undefined;
   if (!rawPromise) {
     rawPromise = (async () => {
       try {
@@ -36,7 +34,7 @@ export async function fetchAndResolve(
             : await (target as AnyCollection).getOne(slug, {
                 resolveRelations: false,
               });
-        return fetched as Record<string, unknown>;
+        return fetched;
       } catch (cause) {
         const message = cause instanceof Error ? cause.message : String(cause);
         const ref =

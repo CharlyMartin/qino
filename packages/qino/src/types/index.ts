@@ -7,9 +7,7 @@ import type { ExtensionSchema } from "../schemas/lock-file";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 
 export type SupportedFileExtension = z.infer<typeof ExtensionSchema>;
-
 export type JsonPathArray = typeof JSON_PATH_ARRAY;
-
 export type ObjectSchema = StandardSchemaV1<unknown, Record<string, unknown>>;
 
 export type ValidatedOutput<Schema extends ObjectSchema> =
@@ -99,6 +97,12 @@ export type AnySingleton = {
       _meta: SingletonEntryMeta<SupportedFileExtension>;
     }
   >;
+};
+
+export type AnyEntry = Record<string, unknown> & {
+  _meta:
+    | EntryMeta<SupportedFileExtension>
+    | SingletonEntryMeta<SupportedFileExtension>;
 };
 
 export type GetterOptions<R extends ResolveOption = ResolveOption> = {

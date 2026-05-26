@@ -1,11 +1,17 @@
 import { JSON_PATH_ARRAY } from "../globals";
 import type { Segment } from "./parse-path";
 
-export async function walkAndSet(
-  value: unknown,
-  segments: ReadonlyArray<Segment>,
-  setLeaf: (leaf: unknown) => Promise<unknown>,
-): Promise<unknown> {
+type WalkAndSetParams = {
+  value: unknown;
+  segments: ReadonlyArray<Segment>;
+  setLeaf: (leaf: unknown) => Promise<unknown>;
+};
+
+export async function walkAndSet({
+  value,
+  segments,
+  setLeaf,
+}: WalkAndSetParams): Promise<unknown> {
   if (segments.length == 0) {
     return setLeaf(value);
   }
@@ -18,7 +24,9 @@ export async function walkAndSet(
         `Expected array at "${JSON_PATH_ARRAY}" segment; got ${typeof value == "object" ? (value === null ? "null" : "object") : typeof value}.`,
       );
     }
-    return Promise.all(value.map((item) => walkAndSet(item, rest, setLeaf)));
+    return Promise.all(
+      value.map((item) => walkAndSet({ value: item, segments: rest, setLeaf })),
+    );
   }
 
   if (value === null || typeof value != "object" || Array.isArray(value)) {
@@ -30,7 +38,11 @@ export async function walkAndSet(
     return value;
   }
 
-  const newChild = await walkAndSet(obj[head.name], rest, setLeaf);
+  const newChild = await walkAndSet({
+    value: obj[head.name],
+    segments: rest,
+    setLeaf,
+  });
 
   return { ...obj, [head.name]: newChild };
 }
