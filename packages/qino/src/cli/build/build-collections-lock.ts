@@ -3,13 +3,9 @@ import { join } from "node:path";
 
 import fg from "fast-glob";
 
-import {
-  COLLECTIONS_FOLDER_NAME,
-  parseJsonFile,
-  parseMarkdownFile,
-  QinoMeta,
-  ROOT_FOLDER_NAME,
-} from "../../lib";
+import { COLLECTIONS_FOLDER_NAME, QinoMeta, ROOT_FOLDER_NAME } from "../../lib";
+import { parseFile } from "../../lib/parse/parse-file";
+import { validate } from "../../lib/validate";
 import type { AnyCollection, SupportedFileExtension } from "../../types";
 import { deriveRelations, type RelationLockEntry } from "./derive-relations";
 
@@ -44,14 +40,13 @@ export async function buildCollectionsLock(
 
     for (const relPath of relPaths) {
       const filePath = join(collectionDir, relPath);
-      const raw = await readFile(filePath, "utf-8");
-      const validatorFn =
-        meta.extension == ".json" ? parseJsonFile : parseMarkdownFile;
+      const data = await readFile(filePath, "utf-8");
 
-      validatorFn({
+      parseFile({
         schema: meta.schema,
-        raw,
+        data,
         filePath,
+        validatorFn: validate,
       });
     }
 

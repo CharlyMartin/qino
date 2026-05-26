@@ -1,7 +1,12 @@
 export const QinoMeta = Symbol.for("qino.meta");
 export const JSON_PATH_ARRAY = "[*]";
 export const META_FIELD_NAME = "_meta";
-export const SUPPORTED_CONTENT_EXTENSIONS = [".md", ".mdx", ".json"] as const;
+export const SUPPORTED_CONTENT_EXTENSIONS = [
+  ".md",
+  ".mdx",
+  ".markdown",
+  ".json",
+] as const;
 export const ROOT_FOLDER_NAME = "qino";
 export const COLLECTIONS_FOLDER_NAME = "collections";
 export const SINGLETONS_FOLDER_NAME = "singletons";

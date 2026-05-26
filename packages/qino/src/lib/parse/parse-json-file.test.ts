@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { z } from "zod";
 
+import { validate } from "../validate";
 import { parseJsonFile } from "./parse-json-file";
 
 describe("parseJsonFile", () => {
@@ -8,8 +9,9 @@ describe("parseJsonFile", () => {
     const schema = z.object({ name: z.string(), age: z.number() });
     const result = parseJsonFile({
       schema,
-      raw: '{"name":"Alice","age":30}',
+      data: '{"name":"Alice","age":30}',
       filePath: "/fixtures/ok.json",
+      validatorFn: validate,
     });
     expect(result).toEqual({ name: "Alice", age: 30 });
   });
@@ -19,8 +21,9 @@ describe("parseJsonFile", () => {
     expect(() =>
       parseJsonFile({
         schema,
-        raw: '{"name":42}',
+        data: '{"name":42}',
         filePath: "/fixtures/bad.json",
+        validatorFn: validate,
       }),
     ).toThrow(/\/fixtures\/bad\.json.*name/s);
   });
@@ -30,8 +33,9 @@ describe("parseJsonFile", () => {
     expect(() =>
       parseJsonFile({
         schema,
-        raw: "{ not json",
+        data: "{ not json",
         filePath: "/fixtures/broken.json",
+        validatorFn: validate,
       }),
     ).toThrow(SyntaxError);
   });
