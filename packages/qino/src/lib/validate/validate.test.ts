@@ -7,11 +7,11 @@ import { validate } from "./validate";
 describe("validate", () => {
   test("returns the parsed value on success", () => {
     const schema = z.object({ name: z.string(), age: z.number() });
-    const result = validate(
+    const result = validate({
       schema,
-      { name: "Alice", age: 30 },
-      "/fixtures/ok.json",
-    );
+      data: { name: "Alice", age: 30 },
+      filePath: "/fixtures/ok.json",
+    });
     expect(result).toEqual({ name: "Alice", age: 30 });
   });
 
@@ -21,18 +21,18 @@ describe("validate", () => {
       nested: z.object({ age: z.number() }),
     });
     expect(() =>
-      validate(
+      validate({
         schema,
-        { name: 42, nested: { age: "thirty" } },
-        "/fixtures/bad.json",
-      ),
+        data: { name: 42, nested: { age: "thirty" } },
+        filePath: "/fixtures/bad.json",
+      }),
     ).toThrow(/\/fixtures\/bad\.json/);
     expect(() =>
-      validate(
+      validate({
         schema,
-        { name: 42, nested: { age: "thirty" } },
-        "/fixtures/bad.json",
-      ),
+        data: { name: 42, nested: { age: "thirty" } },
+        filePath: "/fixtures/bad.json",
+      }),
     ).toThrow(/nested\.age/);
   });
 
@@ -41,20 +41,28 @@ describe("validate", () => {
       { message: "bad", path: [{ key: "foo" }, { key: "bar" }] },
     ]);
     expect(() =>
-      validate(schema, {}, "/fixtures/object-segments.json"),
+      validate({
+        schema,
+        data: {},
+        filePath: "/fixtures/object-segments.json",
+      }),
     ).toThrow(/foo\.bar: bad/);
   });
 
   test("formats empty/missing paths as (root)", () => {
     const noPath = makeFailingSchema([{ message: "nope" }]);
-    expect(() => validate(noPath, {}, "/fixtures/no-path.json")).toThrow(
-      /\(root\): nope/,
-    );
+    expect(() =>
+      validate({ schema: noPath, data: {}, filePath: "/fixtures/no-path.json" }),
+    ).toThrow(/\(root\): nope/);
 
     const emptyPath = makeFailingSchema([{ message: "still nope", path: [] }]);
-    expect(() => validate(emptyPath, {}, "/fixtures/empty-path.json")).toThrow(
-      /\(root\): still nope/,
-    );
+    expect(() =>
+      validate({
+        schema: emptyPath,
+        data: {},
+        filePath: "/fixtures/empty-path.json",
+      }),
+    ).toThrow(/\(root\): still nope/);
   });
 
   test("throws when the validator returns a Promise (async)", () => {
@@ -65,9 +73,13 @@ describe("validate", () => {
         validate: async () => ({ value: {} }),
       },
     };
-    expect(() => validate(asyncSchema, {}, "/fixtures/async.json")).toThrow(
-      /\/fixtures\/async\.json.*synchronous/i,
-    );
+    expect(() =>
+      validate({
+        schema: asyncSchema,
+        data: {},
+        filePath: "/fixtures/async.json",
+      }),
+    ).toThrow(/\/fixtures\/async\.json.*synchronous/i);
   });
 });
 

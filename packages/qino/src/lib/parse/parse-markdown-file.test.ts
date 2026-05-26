@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { z } from "zod";
 
+import { validate } from "../validate";
 import { parseMarkdownFile } from "./parse-markdown-file";
 
 describe("parseMarkdownFile", () => {
@@ -12,8 +13,9 @@ describe("parseMarkdownFile", () => {
     const raw = ["---", "title: Hello", "---", "", "# Body"].join("\n");
     const result = parseMarkdownFile({
       schema,
-      raw,
+      data: raw,
       filePath: "/fixtures/post.md",
+      validatorFn: validate,
     });
     expect(result.title).toBe("Hello");
     expect(result.markdown.trim()).toBe("# Body");
@@ -26,8 +28,9 @@ describe("parseMarkdownFile", () => {
     );
     const result = parseMarkdownFile({
       schema,
-      raw,
+      data: raw,
       filePath: "/fixtures/override.md",
+      validatorFn: validate,
     });
     expect(result.markdown.trim()).toBe("body here");
   });
@@ -36,8 +39,9 @@ describe("parseMarkdownFile", () => {
     const schema = z.object({ markdown: z.string() });
     const result = parseMarkdownFile({
       schema,
-      raw: "just the body",
+      data: "just the body",
       filePath: "/fixtures/plain.md",
+      validatorFn: validate,
     });
     expect(result.markdown).toBe("just the body");
   });
@@ -48,8 +52,9 @@ describe("parseMarkdownFile", () => {
     expect(() =>
       parseMarkdownFile({
         schema,
-        raw,
+        data: raw,
         filePath: "/fixtures/bad.md",
+        validatorFn: validate,
       }),
     ).toThrow(/\/fixtures\/bad\.md.*title/s);
   });

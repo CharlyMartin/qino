@@ -1,10 +1,16 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 
-export function validate<S extends StandardSchemaV1>(
-  schema: S,
-  data: unknown,
-  filePath: string,
-) {
+export type ValidateParams<S extends StandardSchemaV1> = {
+  schema: S;
+  data: unknown;
+  filePath: string;
+};
+
+export function validate<S extends StandardSchemaV1>({
+  schema,
+  data,
+  filePath,
+}: ValidateParams<S>) {
   const result = schema["~standard"].validate(data);
 
   if (result instanceof Promise) {
