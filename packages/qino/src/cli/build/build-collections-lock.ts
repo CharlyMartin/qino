@@ -5,10 +5,10 @@ import fg from "fast-glob";
 
 import {
   COLLECTIONS_FOLDER_NAME,
+  parseMarkdownFile,
   QinoMeta,
   ROOT_FOLDER_NAME,
   validateJsonFile,
-  validateMarkdownFile,
 } from "../../lib";
 import type { AnyCollection, SupportedFileExtension } from "../../types";
 import { deriveRelations, type RelationLockEntry } from "./derive-relations";
@@ -46,7 +46,7 @@ export async function buildCollectionsLock(
       const filePath = join(collectionDir, relPath);
       const raw = await readFile(filePath, "utf-8");
       const validatorFn =
-        meta.extension == ".json" ? validateJsonFile : validateMarkdownFile;
+        meta.extension == ".json" ? validateJsonFile : parseMarkdownFile;
 
       validatorFn({
         schema: meta.schema,
