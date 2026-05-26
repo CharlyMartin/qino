@@ -19,8 +19,8 @@ import type {
   SingletonFile,
 } from "../../types";
 import type { ResolveOption } from "../../types/resolve";
+import { extractExtension } from "../../utils/extract-extension";
 import { buildSingletonMeta } from "./build-singleton-meta";
-import { extractExtension } from "./extract-extension";
 import { resolveSingletonFile } from "./resolve-singleton-file";
 
 export function createSingleton<
