@@ -14,7 +14,6 @@ import { normalizeDepth } from "../../lib/relations/normalize-depth";
 import { resolveEntry } from "../../lib/relations/resolve-entry";
 import type {
   Collection,
-  CreateCollectionParams,
   GetterOptions,
   ObjectSchema,
   Relations,
@@ -24,6 +23,19 @@ import type {
 import type { ResolveOption } from "../../types/resolve";
 import { buildEntryMeta } from "./build-entry-meta";
 import { resolveCollectionDirectory } from "./resolve-collection-directory";
+
+type CreateCollectionParams<
+  Schema extends ObjectSchema,
+  Ext extends SupportedFileExtension,
+  Rels extends Relations<Schema> = object,
+  DefaultR extends ResolveOption = true,
+> = {
+  directory: `/${string}`;
+  schema: Schema;
+  extension: Ext;
+  relations?: Rels;
+  resolveRelations?: DefaultR;
+};
 
 export function createCollection<
   S extends ObjectSchema,
