@@ -177,9 +177,11 @@ export type ExtractSingletonExtension<F extends string> =
     ? ".json"
     : F extends `${string}.mdx`
       ? ".mdx"
-      : F extends `${string}.md`
-        ? ".md"
-        : never;
+      : F extends `${string}.markdown`
+        ? ".markdown"
+        : F extends `${string}.md`
+          ? ".md"
+          : never;
 
 export type CreateSingletonParams<
   Schema extends ObjectSchema,
