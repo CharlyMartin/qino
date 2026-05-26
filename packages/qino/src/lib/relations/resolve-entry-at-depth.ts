@@ -1,9 +1,8 @@
 import type { AnyCollection, AnySingleton } from "../../types";
 import { QinoMeta } from "../globals";
 import type { ResolveCache } from "./create-resolve-cache";
-import { fetchAndResolve } from "./fetch-and-resolve";
 import { parsePath } from "./parse-path";
-import { slugFromRelationValue } from "./slug-from-relation-value";
+import { resolveRelationLeaf } from "./resolve-relation-leaf";
 import { walkAndSet } from "./walk-and-set";
 
 export async function resolveEntryAtDepth(
@@ -25,26 +24,15 @@ export async function resolveEntryAtDepth(
       (entry._meta as { filePath?: string } | undefined)?.filePath ??
       "<unknown>";
 
-    result = (await walkAndSet(result, segments, async (leaf) => {
-      if (typeof leaf != "string") {
-        throw new Error(
-          `Expected string at relation "${relationKey}" in ${sourceFilePath}; got ${typeof leaf}.`,
-        );
-      }
-      if (leaf == "") {
-        throw new Error(
-          `Empty relation reference at "${relationKey}" in ${sourceFilePath}.`,
-        );
-      }
-      const slug = slugFromRelationValue(leaf, resolvedTarget, {
-        sourceFilePath,
+    result = (await walkAndSet(result, segments, async (leaf) =>
+      resolveRelationLeaf(leaf, {
         relationKey,
-      });
-      return fetchAndResolve(resolvedTarget, slug, depth - 1, cache, {
         sourceFilePath,
-        relationKey,
-      });
-    })) as Record<string, unknown>;
+        target: resolvedTarget,
+        depth: depth - 1,
+        cache,
+      }),
+    )) as Record<string, unknown>;
   }
 
   return result;

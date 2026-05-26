@@ -42,6 +42,7 @@ export function createCollection<
 
   const collection = {
     [QinoMeta]: {
+      is: "collection",
       schema,
       directory,
       extension,

@@ -4,7 +4,9 @@ import type { AnyCollection, AnySingleton } from "../../types";
 export type RelationLockEntry = {
   field: string;
   target: string;
-  kind: "collection" | "singleton";
+  kind:
+    | AnyCollection[typeof QinoMeta]["is"]
+    | AnySingleton[typeof QinoMeta]["is"];
   cardinality: "one" | "many";
 };
 
@@ -20,12 +22,12 @@ export function deriveRelations(
     const target =
       typeof declaration == "function" ? declaration() : declaration;
     const targetMeta = target[QinoMeta];
-    const isSingleton = "file" in targetMeta;
+    const isSingleton = target[QinoMeta].is == "singleton";
 
     out.push({
       field,
       target: isSingleton ? targetMeta.file : targetMeta.directory,
-      kind: isSingleton ? "singleton" : "collection",
+      kind: targetMeta.is,
       cardinality: field.includes(JSON_PATH_ARRAY) ? "many" : "one",
     });
   }
