@@ -8,8 +8,8 @@ const pkg = JSON.parse(readFileSync("./package.json", "utf8")) as {
 
 export default defineConfig({
   entry: {
-    index: ["src/index.ts", "!src/**/*.test.ts"],
-    cli: ["src/cli/index.ts", "!src/cli/**/*.test.ts"],
+    index: "src/index.ts",
+    cli: "src/cli/index.ts",
   },
   format: ["esm"],
   dts: true,

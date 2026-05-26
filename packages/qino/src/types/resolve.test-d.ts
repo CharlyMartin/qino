@@ -2,9 +2,7 @@ import { describe, expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
 import { createCollection } from "../runtime/collections";
-import { collectionRegistry } from "../runtime/collections/registry";
 import { createSingleton } from "../runtime/singletons";
-import { singletonRegistry } from "../runtime/singletons/registry";
 
 const AuthorSchema = z
   .object({
@@ -25,9 +23,6 @@ const PostSchema = z
     categories: z.array(z.string()),
   })
   .strict();
-
-collectionRegistry.clearRegistry();
-singletonRegistry.clearRegistry();
 
 const authorCollection = createCollection({
   directory: "/authors",

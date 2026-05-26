@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 import { QinoMeta, validateJsonFile, validateMarkdownFile } from "../../lib";
-import { singletonRegistry } from "../../runtime/singletons/registry";
+import type { AnySingleton } from "../../types";
 import { assertFile } from "../../utils";
 import { deriveRelations, type RelationLockEntry } from "./derive-relations";
 
@@ -11,8 +11,10 @@ type SingletonLockEntry = {
   relations: Array<RelationLockEntry>;
 };
 
-export async function buildSingletonsLock(contentFolderAbs: string) {
-  const registry = singletonRegistry.getRegistry();
+export async function buildSingletonsLock(
+  contentFolderAbs: string,
+  registry: Map<string, AnySingleton>,
+) {
   const out: Record<string, SingletonLockEntry> = {};
 
   for (const [singletonFile, singleton] of registry.entries()) {

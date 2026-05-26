@@ -25,6 +25,7 @@ function makeCollection({
   let getOneCalls = 0;
   const collection = {
     [QinoMeta]: {
+      is: "collection" as const,
       schema: {} as never,
       directory,
       extension: ".json" as const,
@@ -303,6 +304,7 @@ function makeSingleton({
 }): AnySingleton {
   return {
     [QinoMeta]: {
+      is: "singleton" as const,
       schema: {} as never,
       file,
       extension: ".json" as const,
