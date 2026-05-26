@@ -6,7 +6,7 @@ import { validate } from "./validate";
 
 const CONTENT_FIELD_NAME = "markdown";
 
-export function validateMarkdownFile<S extends StandardSchemaV1>({
+export function parseMarkdownFile<S extends StandardSchemaV1>({
   schema,
   raw,
   filePath,

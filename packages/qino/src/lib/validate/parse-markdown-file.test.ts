@@ -1,16 +1,16 @@
 import { describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { validateMarkdownFile } from "./validate-markdown-file";
+import { parseMarkdownFile } from "./parse-markdown-file";
 
-describe("validateMarkdownFile", () => {
+describe("parseMarkdownFile", () => {
   test("exposes the body under the `markdown` field and merges frontmatter", () => {
     const schema = z.object({
       title: z.string(),
       markdown: z.string(),
     });
     const raw = ["---", "title: Hello", "---", "", "# Body"].join("\n");
-    const result = validateMarkdownFile({
+    const result = parseMarkdownFile({
       schema,
       raw,
       filePath: "/fixtures/post.md",
@@ -24,7 +24,7 @@ describe("validateMarkdownFile", () => {
     const raw = ["---", "markdown: from-frontmatter", "---", "body here"].join(
       "\n",
     );
-    const result = validateMarkdownFile({
+    const result = parseMarkdownFile({
       schema,
       raw,
       filePath: "/fixtures/override.md",
@@ -34,7 +34,7 @@ describe("validateMarkdownFile", () => {
 
   test("handles raw with no frontmatter (only body is exposed)", () => {
     const schema = z.object({ markdown: z.string() });
-    const result = validateMarkdownFile({
+    const result = parseMarkdownFile({
       schema,
       raw: "just the body",
       filePath: "/fixtures/plain.md",
@@ -46,7 +46,7 @@ describe("validateMarkdownFile", () => {
     const schema = z.object({ title: z.string(), markdown: z.string() });
     const raw = ["---", "title: 42", "---", "body"].join("\n");
     expect(() =>
-      validateMarkdownFile({
+      parseMarkdownFile({
         schema,
         raw,
         filePath: "/fixtures/bad.md",

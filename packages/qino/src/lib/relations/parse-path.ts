@@ -29,5 +29,6 @@ export function parsePath(path: string) {
       segments.push({ kind: "key", name: part });
     }
   }
+
   return segments;
 }

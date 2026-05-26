@@ -16,7 +16,7 @@ export function validate<S extends StandardSchemaV1>(
   if (result.issues) {
     const lines = result.issues.map((issue) => {
       const segments = issue.path?.map((segment) => {
-        if (typeof segment == "object" && segment != null) {
+        if (typeof segment == "object" && segment !== null) {
           return String(segment.key);
         }
         return String(segment);
