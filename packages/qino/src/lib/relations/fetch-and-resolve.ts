@@ -1,7 +1,7 @@
 import type { AnyCollection, AnySingleton } from "../../types";
 import { QinoMeta } from "../globals";
 import type { ResolveCache } from "./create-resolve-cache";
-import { resolveEntryAtDepth } from "./resolve-entry-at-depth";
+import { resolveEntry } from "./resolve-entry";
 
 type CTX = {
   sourceFilePath: string;
@@ -50,5 +50,9 @@ export async function fetchAndResolve(
     perTarget.set(slug, rawPromise);
   }
   const raw = await rawPromise;
-  return resolveEntryAtDepth(raw, target, depth, cache);
+  return resolveEntry(raw, {
+    relations: target[QinoMeta].relations,
+    depth,
+    cache,
+  });
 }

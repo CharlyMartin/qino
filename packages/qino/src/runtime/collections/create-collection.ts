@@ -7,10 +7,11 @@ import {
   createResolveCache,
   META_FIELD_NAME,
   QinoMeta,
-  resolveEntry,
   validate,
 } from "../../lib";
 import { parseFile } from "../../lib/parse/parse-file";
+import { normalizeDepth } from "../../lib/relations/normalize-depth";
+import { resolveEntry } from "../../lib/relations/resolve-entry";
 import type {
   Collection,
   CreateCollectionParams,
@@ -101,9 +102,15 @@ export function createCollection<
     }
 
     const cache = createResolveCache();
+    const depth = normalizeDepth(resolveSetting);
+
     const resolved = await Promise.all(
       validatedDataWithMeta.map((entry) =>
-        resolveEntry(entry, collection, resolveSetting, cache),
+        resolveEntry(entry, {
+          relations: collection[QinoMeta].relations,
+          depth,
+          cache,
+        }),
       ),
     );
     return resolved as Array<ResolvedView<S, Ext, Rels, R>>;
@@ -140,12 +147,12 @@ export function createCollection<
     }
 
     const cache = createResolveCache();
-    const resolved = await resolveEntry(
-      validatedDataWithMeta,
-      collection,
-      resolveSetting,
+    const depth = normalizeDepth(resolveSetting);
+    const resolved = await resolveEntry(validatedDataWithMeta, {
+      relations: collection[QinoMeta].relations,
+      depth,
       cache,
-    );
+    });
     return resolved as ResolvedView<S, Ext, Rels, R>;
   }
 }
