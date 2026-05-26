@@ -10,7 +10,6 @@ import { parseFile } from "../../lib/parse/parse-file";
 import { normalizeDepth } from "../../lib/relations/normalize-depth";
 import { resolveEntry } from "../../lib/relations/resolve-entry";
 import type {
-  CreateSingletonParams,
   ExtractSingletonExtension,
   GetterOptions,
   ObjectSchema,
@@ -23,6 +22,18 @@ import type { ResolveOption } from "../../types/resolve";
 import { extractExtension } from "../../utils/extract-extension";
 import { buildSingletonMeta } from "./build-singleton-meta";
 import { resolveSingletonFile } from "./resolve-singleton-file";
+
+type CreateSingletonParams<
+  Schema extends ObjectSchema,
+  F extends SingletonFile,
+  Rels extends Relations<Schema> = object,
+  DefaultR extends ResolveOption = true,
+> = {
+  file: F;
+  schema: Schema;
+  relations?: Rels;
+  resolveRelations?: DefaultR;
+};
 
 export function createSingleton<
   S extends ObjectSchema,

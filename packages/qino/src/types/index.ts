@@ -155,19 +155,6 @@ export type Singleton<
   ): Promise<ResolvedSingletonView<Schema, Ext, Rels, R>>;
 };
 
-export type CreateCollectionParams<
-  Schema extends ObjectSchema,
-  Ext extends SupportedFileExtension,
-  Rels extends Relations<Schema> = object,
-  DefaultR extends ResolveOption = true,
-> = {
-  directory: `/${string}`;
-  schema: Schema;
-  extension: Ext;
-  relations?: Rels;
-  resolveRelations?: DefaultR;
-};
-
 export type SingletonFile = {
   [Ext in SupportedFileExtension]: `/${string}${Ext}`;
 }[SupportedFileExtension];
@@ -182,15 +169,3 @@ export type ExtractSingletonExtension<F extends string> =
         : F extends `${string}.md`
           ? ".md"
           : never;
-
-export type CreateSingletonParams<
-  Schema extends ObjectSchema,
-  F extends SingletonFile,
-  Rels extends Relations<Schema> = object,
-  DefaultR extends ResolveOption = true,
-> = {
-  file: F;
-  schema: Schema;
-  relations?: Rels;
-  resolveRelations?: DefaultR;
-};
