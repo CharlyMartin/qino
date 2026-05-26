@@ -4,10 +4,11 @@ import {
   createResolveCache,
   META_FIELD_NAME,
   QinoMeta,
-  resolveEntry,
   validate,
 } from "../../lib";
 import { parseFile } from "../../lib/parse/parse-file";
+import { normalizeDepth } from "../../lib/relations/normalize-depth";
+import { resolveEntry } from "../../lib/relations/resolve-entry";
 import type {
   CreateSingletonParams,
   ExtractSingletonExtension,
@@ -79,12 +80,12 @@ export function createSingleton<
     }
 
     const cache = createResolveCache();
-    const resolved = await resolveEntry(
-      validatedDataWithMeta,
-      singleton,
-      resolveSetting,
+    const depth = normalizeDepth(resolveSetting);
+    const resolved = await resolveEntry(validatedDataWithMeta, {
+      relations: singleton[QinoMeta].relations,
+      depth,
       cache,
-    );
+    });
     return resolved as ResolvedSingletonView<S, Ext, Rels, R>;
   }
 }
