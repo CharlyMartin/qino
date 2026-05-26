@@ -3,15 +3,20 @@ import { QinoMeta } from "../globals";
 import type { ResolveCache } from "./create-resolve-cache";
 import { resolveEntryAtDepth } from "./resolve-entry-at-depth";
 
+type CTX = {
+  sourceFilePath: string;
+  relationKey: string;
+};
+
 export async function fetchAndResolve(
   target: AnyCollection | AnySingleton,
   slug: string,
   depth: number,
   cache: ResolveCache,
-  ctx: { sourceFilePath: string; relationKey: string },
+  ctx: CTX,
 ): Promise<Record<string, unknown>> {
   const meta = target[QinoMeta];
-  const cacheKey = "file" in meta ? meta.file : meta.directory;
+  const cacheKey = meta.is == "singleton" ? meta.file : meta.directory;
   let perTarget = cache.get(cacheKey);
   if (!perTarget) {
     perTarget = new Map();
@@ -24,7 +29,7 @@ export async function fetchAndResolve(
     rawPromise = (async () => {
       try {
         const fetched =
-          "file" in meta
+          meta.is == "singleton"
             ? await (target as AnySingleton).getData({
                 resolveRelations: false,
               })
@@ -34,7 +39,8 @@ export async function fetchAndResolve(
         return fetched as Record<string, unknown>;
       } catch (cause) {
         const message = cause instanceof Error ? cause.message : String(cause);
-        const ref = "file" in meta ? meta.file : `${meta.directory}/${slug}`;
+        const ref =
+          meta.is == "singleton" ? meta.file : `${meta.directory}/${slug}`;
         throw new Error(
           `Failed to resolve relation "${ctx.relationKey}" → ${ref} (from ${ctx.sourceFilePath}): ${message}`,
           { cause: cause instanceof Error ? cause : undefined },

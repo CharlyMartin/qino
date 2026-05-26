@@ -10,10 +10,9 @@ export function parseRelationValue(
   ctx: Context,
 ) {
   const normalized = removeLeadingSlash(value);
-
   const meta = target[QinoMeta];
 
-  if ("file" in meta) {
+  if (meta.is == "singleton") {
     const expected = removeLeadingSlash(meta.file);
 
     if (normalized != expected) {

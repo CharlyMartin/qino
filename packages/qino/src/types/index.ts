@@ -43,6 +43,7 @@ export type CollectionMeta<
   Ext extends SupportedFileExtension = SupportedFileExtension,
   Rels extends Relations<Schema> = Relations<Schema>,
 > = {
+  readonly is: "collection";
   readonly schema: Schema;
   readonly directory: `/${string}`;
   readonly extension: Ext;
@@ -83,6 +84,7 @@ export type SingletonMeta<
   Ext extends SupportedFileExtension = SupportedFileExtension,
   Rels extends Relations<Schema> = Relations<Schema>,
 > = {
+  readonly is: "singleton";
   readonly schema: Schema;
   readonly file: `/${string}`;
   readonly extension: Ext;

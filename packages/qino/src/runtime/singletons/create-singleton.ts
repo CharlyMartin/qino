@@ -42,6 +42,7 @@ export function createSingleton<
 
   const singleton = {
     [QinoMeta]: {
+      is: "singleton",
       schema,
       file,
       extension,
