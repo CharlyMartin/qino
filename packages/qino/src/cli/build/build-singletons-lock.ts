@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { parseMarkdownFile, QinoMeta, validateJsonFile } from "../../lib";
+import { parseJsonFile, parseMarkdownFile, QinoMeta } from "../../lib";
 import type { AnySingleton } from "../../types";
 import { assertFile } from "../../utils";
 import { deriveRelations, type RelationLockEntry } from "./derive-relations";
@@ -28,7 +28,7 @@ export async function buildSingletonsLock(
 
     const raw = await readFile(absoluteFilePath, "utf-8");
     const validatorFn =
-      meta.extension == ".json" ? validateJsonFile : parseMarkdownFile;
+      meta.extension == ".json" ? parseJsonFile : parseMarkdownFile;
 
     validatorFn({
       schema: meta.schema,

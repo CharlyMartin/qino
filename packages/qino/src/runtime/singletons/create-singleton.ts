@@ -3,10 +3,10 @@ import fs from "node:fs/promises";
 import {
   createResolveCache,
   META_FIELD_NAME,
+  parseJsonFile,
   parseMarkdownFile,
   QinoMeta,
   resolveEntry,
-  validateJsonFile,
 } from "../../lib";
 import type {
   CreateSingletonParams,
@@ -63,7 +63,7 @@ export function createSingleton<
     const raw = await fs.readFile(absoluteFilePath, "utf-8");
 
     const validatorFn =
-      extension == ".json" ? validateJsonFile : parseMarkdownFile;
+      extension == ".json" ? parseJsonFile : parseMarkdownFile;
 
     const validatedDataWithMeta = {
       [META_FIELD_NAME]: meta,

@@ -6,10 +6,10 @@ import fg from "fast-glob";
 import {
   createResolveCache,
   META_FIELD_NAME,
+  parseJsonFile,
   parseMarkdownFile,
   QinoMeta,
   resolveEntry,
-  validateJsonFile,
 } from "../../lib";
 import type {
   Collection,
@@ -82,7 +82,7 @@ export function createCollection<
 
     const validatedDataWithMeta = rawEntries.map(({ meta, raw }) => {
       const validatorFn =
-        extension == ".json" ? validateJsonFile : parseMarkdownFile;
+        extension == ".json" ? parseJsonFile : parseMarkdownFile;
 
       const validatedData = validatorFn({
         schema,
@@ -126,7 +126,7 @@ export function createCollection<
     const data = await fs.readFile(meta.filePath, "utf-8");
 
     const validatorFn =
-      extension == ".json" ? validateJsonFile : parseMarkdownFile;
+      extension == ".json" ? parseJsonFile : parseMarkdownFile;
 
     const validatedDataWithMeta = {
       [META_FIELD_NAME]: meta,
