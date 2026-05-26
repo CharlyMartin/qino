@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "qino build && next build",
+    "prebuild": "qino build",
+    "build": "next build",
     "start": "next start",
     "check-types": "tsc --noEmit"
   },

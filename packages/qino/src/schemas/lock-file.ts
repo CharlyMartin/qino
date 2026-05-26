@@ -1,9 +1,9 @@
 import { z } from "zod";
 
-import { SUPPORTED_EXTENSIONS } from "../lib";
+import { SUPPORTED_CONTENT_EXTENSIONS } from "../lib";
 import { ConfigSchema } from "../runtime";
 
-export const ExtensionSchema = z.enum(SUPPORTED_EXTENSIONS);
+export const ExtensionSchema = z.enum(SUPPORTED_CONTENT_EXTENSIONS);
 
 const RelationSchema = z.object({
   field: z.string(),

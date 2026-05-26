@@ -21,7 +21,6 @@ import type {
 import type { ResolveOption } from "../../types/resolve";
 import { buildSingletonMeta } from "./build-singleton-meta";
 import { extractExtension } from "./extract-extension";
-import { singletonRegistry } from "./registry";
 import { resolveSingletonFile } from "./resolve-singleton-file";
 
 export function createSingleton<
@@ -51,8 +50,6 @@ export function createSingleton<
     },
     getData,
   } as const satisfies Singleton<S, Ext, Rels, DefaultR>;
-
-  singletonRegistry.register(singleton);
 
   return singleton;
 

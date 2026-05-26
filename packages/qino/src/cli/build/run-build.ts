@@ -45,11 +45,17 @@ export async function runBuild() {
     `mediaFolder "${config.mediaFolder}" is not a directory (resolved to ${mediaFolderAbs})`,
   );
 
-  await loadCollections(qinoDir);
-  await loadSingletons(qinoDir);
+  const collections = await loadCollections(qinoDir);
+  const singletons = await loadSingletons(qinoDir);
 
-  const collectionsLock = await buildCollectionsLock(contentFolderAbs);
-  const singletonsLock = await buildSingletonsLock(contentFolderAbs);
+  const collectionsLock = await buildCollectionsLock(
+    contentFolderAbs,
+    collections,
+  );
+  const singletonsLock = await buildSingletonsLock(
+    contentFolderAbs,
+    singletons,
+  );
 
   const lock: LockFile = LockFileSchema.parse({
     qinoVersion: __QINO_VERSION__,

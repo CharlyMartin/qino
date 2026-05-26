@@ -3,25 +3,45 @@ import { join } from "node:path";
 import fg from "fast-glob";
 import { createJiti } from "jiti";
 
-import { SINGLETONS_FOLDER_NAME } from "../../lib";
-import { singletonRegistry } from "../../runtime/singletons/registry";
-import { isDirectory } from "../../utils";
+import {
+  QinoMeta,
+  SINGLETONS_FOLDER_NAME,
+  SUPPORTED_CODE_EXTENSIONS,
+} from "../../lib";
+import type { AnySingleton } from "../../types";
+import { assertDirectory } from "../../utils";
+import { assertQinoPrimitive } from "../../utils/assert-qino-primitive";
 
 export async function loadSingletons(qinoDir: string) {
-  singletonRegistry.clearRegistry();
-
   const singletonsDir = join(qinoDir, SINGLETONS_FOLDER_NAME);
+  await assertDirectory(
+    singletonsDir,
+    `"${SINGLETONS_FOLDER_NAME}" folder not found at "${singletonsDir}". Create a "${SINGLETONS_FOLDER_NAME}" folder to hold your singleton files, or remove the folder if you don't have any singletons.`,
+  );
 
-  const singletonsDirExists = await isDirectory(singletonsDir);
-  if (!singletonsDirExists) return;
-
-  const files = await fg(["**/*.ts", "**/*.tsx", "**/*.js", "**/*.mjs"], {
-    cwd: singletonsDir,
-    absolute: true,
-  });
+  const files = await fg(
+    SUPPORTED_CODE_EXTENSIONS.map((ext) => `*${ext}`),
+    { cwd: singletonsDir, absolute: true },
+  );
 
   const jiti = createJiti(import.meta.url);
+  const registry = new Map<string, AnySingleton>();
+
   for (const file of files) {
-    await jiti.import(file);
+    const importedValue = (await jiti.import(file)) as Record<string, unknown>;
+
+    for (const value of Object.values(importedValue)) {
+      assertQinoPrimitive(
+        value,
+        `Invalid export in singleton file "${file}". All exports must be valid Qino primitives created with the "createSingleton" function.`,
+      );
+
+      if (value[QinoMeta].is == "singleton") {
+        const singleton = value as AnySingleton;
+        registry.set(singleton[QinoMeta].file, singleton);
+      }
+    }
   }
+
+  return registry;
 }

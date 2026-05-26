@@ -6,7 +6,10 @@
       "Bash(echo \"EXIT=$?\")",
       "Bash(rm qino/qino-lock.json)",
       "Bash(pnpm exec *)",
-      "Bash(pnpm *)"
+      "Bash(pnpm *)",
+      "Read(//private/tmp/**)",
+      "Bash(node -e \"import\\('fast-glob'\\).then\\(fg => fg.default\\(['.ts','.tsx','.js','.mjs'], { cwd: '/Users/charly/Code/repositories/qino/apps/blog/qino/collections', absolute: true }\\).then\\(console.log\\)\\)\")",
+      "Bash(node *)"
     ]
   }
 }

@@ -10,8 +10,7 @@ import {
   validateJsonFile,
   validateMarkdownFile,
 } from "../../lib";
-import { collectionRegistry } from "../../runtime/collections/registry";
-import type { SupportedFileExtension } from "../../types";
+import type { AnyCollection, SupportedFileExtension } from "../../types";
 import { deriveRelations, type RelationLockEntry } from "./derive-relations";
 
 type CollectionLockEntry = {
@@ -20,12 +19,13 @@ type CollectionLockEntry = {
   relations: Array<RelationLockEntry>;
 };
 
-export async function buildCollectionsLock(contentFolderAbs: string) {
-  const registry = collectionRegistry.getRegistry();
-
+export async function buildCollectionsLock(
+  contentFolderAbs: string,
+  registry: Map<string, AnyCollection>,
+) {
   if (registry.size == 0) {
     throw new Error(
-      `No collections registered. Call createCollection for each ${ROOT_FOLDER_NAME}/${COLLECTIONS_FOLDER_NAME} directories.`,
+      `No collections found. Export a createCollection(...) result from each file in ${ROOT_FOLDER_NAME}/${COLLECTIONS_FOLDER_NAME}.`,
     );
   }
 

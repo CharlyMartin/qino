@@ -22,7 +22,6 @@ import type {
 } from "../../types";
 import type { ResolveOption } from "../../types/resolve";
 import { buildEntryMeta } from "./build-entry-meta";
-import { collectionRegistry } from "./registry";
 import { resolveCollectionDirectory } from "./resolve-collection-directory";
 
 export function createCollection<
@@ -52,8 +51,6 @@ export function createCollection<
     getAll,
     getOne,
   } as const satisfies Collection<S, Ext, Rels, DefaultR>;
-
-  collectionRegistry.register(collection);
 
   return collection;
 
