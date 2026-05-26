@@ -5,11 +5,14 @@ import { type Config, ConfigSchema } from "../../runtime";
 
 export async function loadConfig(configPath: string): Promise<Config> {
   const jiti = createJiti(import.meta.url);
-  const mod = (await jiti.import(configPath)) as { default?: unknown };
-  if (!mod || typeof mod != "object" || !mod.default) {
-    throw new Error("qino/config.ts must default-export createConfig({...})");
+  const imported = await jiti.import(configPath);
+
+  if (!imported || typeof imported != "object" || !("default" in imported)) {
+    throw new Error("qino/config.ts must export default createConfig({...})");
   }
-  const result = ConfigSchema.safeParse(mod.default);
+
+  const result = ConfigSchema.safeParse(imported.default);
+
   if (!result.success) {
     throw new Error(
       `Invalid config in ${configPath}.\n${z.prettifyError(result.error)}`,
