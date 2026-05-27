@@ -1,5 +1,6 @@
 import { JSON_PATH_ARRAY, QinoMeta } from "../../lib";
 import type { AnyCollection, AnySingleton } from "../../types";
+import { isSingleton } from "../../utils/is-singleton";
 
 export type RelationLockEntry = {
   field: string;
@@ -22,11 +23,10 @@ export function deriveRelations(
     const target =
       typeof declaration == "function" ? declaration() : declaration;
     const targetMeta = target[QinoMeta];
-    const isSingleton = target[QinoMeta].is == "singleton";
 
     out.push({
       field,
-      target: isSingleton ? targetMeta.file : targetMeta.directory,
+      target: isSingleton(target) ? targetMeta.file : targetMeta.directory,
       kind: targetMeta.is,
       cardinality: field.includes(JSON_PATH_ARRAY) ? "many" : "one",
     });

@@ -20,9 +20,7 @@ describe("extractExtension", () => {
   });
 
   test("throws for an unsupported extension", () => {
-    expect(() => extractExtension("notes.txt")).toThrow(
-      /must end with one of/,
-    );
+    expect(() => extractExtension("notes.txt")).toThrow(/must end with one of/);
   });
 
   test("throws for a file with no extension", () => {

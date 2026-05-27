@@ -21,9 +21,10 @@ export async function walkAndSet({
   if (head.kind == "array") {
     if (!Array.isArray(value)) {
       throw new Error(
-        `Expected array at "${JSON_PATH_ARRAY}" segment; got ${typeof value == "object" ? (value === null ? "null" : "object") : typeof value}.`,
+        `Expected array at "${JSON_PATH_ARRAY}" segment; got ${typeof value}.`,
       );
     }
+
     return Promise.all(
       value.map((item) => walkAndSet({ value: item, segments: rest, setLeaf })),
     );
@@ -34,6 +35,7 @@ export async function walkAndSet({
   }
 
   const obj = value as Record<string, unknown>;
+
   if (!(head.name in obj)) {
     return value;
   }
