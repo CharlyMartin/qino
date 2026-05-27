@@ -11,6 +11,7 @@ import {
 import type { AnySingleton } from "../../types";
 import { assertDirectory } from "../../utils";
 import { assertQinoPrimitive } from "../../utils/assert-qino-primitive";
+import { isSingleton } from "../../utils/is-singleton";
 
 export async function loadSingletons(qinoDir: string) {
   const singletonsDir = join(qinoDir, SINGLETONS_FOLDER_NAME);
@@ -36,9 +37,8 @@ export async function loadSingletons(qinoDir: string) {
         `Invalid export in singleton file "${file}". All exports must be valid Qino primitives created with the "createSingleton" function.`,
       );
 
-      if (value[QinoMeta].is == "singleton") {
-        const singleton = value as AnySingleton;
-        registry.set(singleton[QinoMeta].file, singleton);
+      if (isSingleton(value)) {
+        registry.set(value[QinoMeta].file, value);
       }
     }
   }

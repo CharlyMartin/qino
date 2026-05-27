@@ -12,6 +12,7 @@ import {
 import type { AnyCollection } from "../../types";
 import { assertDirectory } from "../../utils";
 import { assertQinoPrimitive } from "../../utils/assert-qino-primitive";
+import { isCollection } from "../../utils/is-collection";
 
 export async function loadCollections(qinoDir: string) {
   const collectionsDir = join(qinoDir, COLLECTIONS_FOLDER_NAME);
@@ -37,9 +38,8 @@ export async function loadCollections(qinoDir: string) {
         `Invalid export in collection file "${file}". All exports must be valid Qino primitives created with the "createCollection" function.`,
       );
 
-      if (value[QinoMeta].is == "collection") {
-        const collection = value as AnyCollection;
-        registry.set(collection[QinoMeta].directory, collection);
+      if (isCollection(value)) {
+        registry.set(value[QinoMeta].directory, value);
       }
     }
   }

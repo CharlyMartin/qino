@@ -9,6 +9,7 @@ import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 export type SupportedFileExtension = z.infer<typeof ExtensionSchema>;
 export type JsonPathArray = typeof JSON_PATH_ARRAY;
 export type ObjectSchema = StandardSchemaV1<unknown, Record<string, unknown>>;
+export type GenericPath = `/${string}`;
 
 export type ValidatedOutput<Schema extends ObjectSchema> =
   StandardSchemaV1.InferOutput<Schema>;
@@ -43,7 +44,7 @@ export type CollectionMeta<
 > = {
   readonly is: "collection";
   readonly schema: Schema;
-  readonly directory: `/${string}`;
+  readonly directory: GenericPath;
   readonly extension: Ext;
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
@@ -66,6 +67,8 @@ export type AnyCollection = {
   >;
 };
 
+export type AnyCollectionMeta = AnyCollection[typeof QinoMeta];
+
 export type EntryMeta<Ext extends SupportedFileExtension> = {
   slug: string;
   fileName: `${string}${Ext}`;
@@ -84,7 +87,7 @@ export type SingletonMeta<
 > = {
   readonly is: "singleton";
   readonly schema: Schema;
-  readonly file: `/${string}`;
+  readonly file: GenericPath;
   readonly extension: Ext;
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
@@ -98,6 +101,8 @@ export type AnySingleton = {
     }
   >;
 };
+
+export type AnySingletonMeta = AnySingleton[typeof QinoMeta];
 
 export type AnyEntry = Record<string, unknown> & {
   _meta:

@@ -1,10 +1,10 @@
-import type { AnyCollection, AnySingleton } from "../../types";
+import type { AnyCollectionMeta, AnySingletonMeta } from "../../types";
 import { parseRelationValue } from "./parse-relation-value";
 
 type Context = {
   relationKey: string;
   sourceFilePath: string;
-  target: AnyCollection | AnySingleton;
+  targetMeta: AnyCollectionMeta | AnySingletonMeta;
   resolveTargetReference: (slug: string) => Promise<Record<string, unknown>>;
 };
 
@@ -21,7 +21,7 @@ export async function resolveRelationLeaf(leaf: unknown, ctx: Context) {
     );
   }
 
-  const slug = parseRelationValue(leaf, ctx.target, {
+  const slug = parseRelationValue(leaf, ctx.targetMeta, {
     sourceFilePath: ctx.sourceFilePath,
     relationKey: ctx.relationKey,
   });
