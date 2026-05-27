@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { MAX_RESOLVE_DEPTH } from "../globals";
+import { MAX_RESOLVE_DEPTH } from "../../data/globals";
 import { normalizeDepth } from "./normalize-depth";
 
 describe("normalizeDepth", () => {

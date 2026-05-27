@@ -1,7 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-import { QinoMeta, validate } from "../../lib";
+import { QinoMeta } from "../../data";
+import { validate } from "../../lib";
 import { parseFile } from "../../lib/parse/parse-file";
 import type { AnySingleton } from "../../types";
 import { assertFile } from "../../utils";

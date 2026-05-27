@@ -8,7 +8,7 @@ import {
   QinoMeta,
   ROOT_FOLDER_NAME,
   SUPPORTED_CODE_EXTENSIONS,
-} from "../../lib";
+} from "../../data";
 import type { AnyCollection } from "../../types";
 import { assertDirectory } from "../../utils";
 import { assertQinoPrimitive } from "../../utils/assert-qino-primitive";

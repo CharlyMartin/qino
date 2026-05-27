@@ -1,6 +1,6 @@
+import { QinoMeta } from "../../data/globals";
 import type { AnyCollection, AnySingleton } from "../../types";
 import { removeLeadingSlash } from "../../utils";
-import { QinoMeta } from "../globals";
 
 export type Context = { sourceFilePath: string; relationKey: string };
 

@@ -7,7 +7,7 @@ import {
   QinoMeta,
   SINGLETONS_FOLDER_NAME,
   SUPPORTED_CODE_EXTENSIONS,
-} from "../../lib";
+} from "../../data";
 import type { AnySingleton } from "../../types";
 import { assertDirectory } from "../../utils";
 import { assertQinoPrimitive } from "../../utils/assert-qino-primitive";

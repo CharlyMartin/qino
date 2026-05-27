@@ -1,6 +1,6 @@
 import type { IntClosedRange, Simplify, Subtract } from "type-fest";
 
-import type { MAX_RESOLVE_DEPTH, QinoMeta } from "../lib";
+import type { MAX_RESOLVE_DEPTH, QinoMeta } from "../data";
 import type {
   EntryMeta,
   JsonPathArray,
