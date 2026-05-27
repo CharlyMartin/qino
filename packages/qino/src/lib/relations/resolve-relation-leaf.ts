@@ -1,14 +1,11 @@
 import type { AnyCollection, AnySingleton } from "../../types";
-import type { ResolveCache } from "./create-resolve-cache";
-import { fetchAndResolve } from "./fetch-and-resolve";
 import { parseRelationValue } from "./parse-relation-value";
 
 type Context = {
   relationKey: string;
   sourceFilePath: string;
   target: AnyCollection | AnySingleton;
-  depth: number;
-  cache: ResolveCache;
+  resolveTargetReference: (slug: string) => Promise<Record<string, unknown>>;
 };
 
 export async function resolveRelationLeaf(leaf: unknown, ctx: Context) {
@@ -29,8 +26,5 @@ export async function resolveRelationLeaf(leaf: unknown, ctx: Context) {
     relationKey: ctx.relationKey,
   });
 
-  return fetchAndResolve(ctx.target, slug, ctx.depth, ctx.cache, {
-    sourceFilePath: ctx.sourceFilePath,
-    relationKey: ctx.relationKey,
-  });
+  return ctx.resolveTargetReference(slug);
 }

@@ -4,6 +4,7 @@ import nodePath from "node:path";
 import fg from "fast-glob";
 
 import {
+  createRelationResolver,
   createResolveCache,
   META_FIELD_NAME,
   QinoMeta,
@@ -11,7 +12,6 @@ import {
 } from "../../lib";
 import { parseFile } from "../../lib/parse/parse-file";
 import { normalizeDepth } from "../../lib/relations/normalize-depth";
-import { resolveEntry } from "../../lib/relations/resolve-entry";
 import type {
   Collection,
   GetterOptions,
@@ -114,14 +114,15 @@ export function createCollection<
     }
 
     const cache = createResolveCache();
+    const resolver = createRelationResolver(cache);
+
     const depth = normalizeDepth(resolveSetting);
 
     const resolved = await Promise.all(
       validatedDataWithMeta.map((entry) =>
-        resolveEntry(entry, {
+        resolver.resolveEntry(entry, {
           relations: collection[QinoMeta].relations,
           depth,
-          cache,
         }),
       ),
     );
@@ -159,11 +160,13 @@ export function createCollection<
     }
 
     const cache = createResolveCache();
+    const resolver = createRelationResolver(cache);
+
     const depth = normalizeDepth(resolveSetting);
-    const resolved = await resolveEntry(validatedDataWithMeta, {
+
+    const resolved = await resolver.resolveEntry(validatedDataWithMeta, {
       relations: collection[QinoMeta].relations,
       depth,
-      cache,
     });
     return resolved as ResolvedView<S, Ext, Rels, R>;
   }

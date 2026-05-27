@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 
 import {
+  createRelationResolver,
   createResolveCache,
   META_FIELD_NAME,
   QinoMeta,
@@ -8,7 +9,6 @@ import {
 } from "../../lib";
 import { parseFile } from "../../lib/parse/parse-file";
 import { normalizeDepth } from "../../lib/relations/normalize-depth";
-import { resolveEntry } from "../../lib/relations/resolve-entry";
 import type {
   ExtractSingletonExtension,
   GetterOptions,
@@ -91,11 +91,13 @@ export function createSingleton<
     }
 
     const cache = createResolveCache();
+    const resolver = createRelationResolver(cache);
+
     const depth = normalizeDepth(resolveSetting);
-    const resolved = await resolveEntry(validatedDataWithMeta, {
+
+    const resolved = await resolver.resolveEntry(validatedDataWithMeta, {
       relations: singleton[QinoMeta].relations,
       depth,
-      cache,
     });
     return resolved as ResolvedSingletonView<S, Ext, Rels, R>;
   }

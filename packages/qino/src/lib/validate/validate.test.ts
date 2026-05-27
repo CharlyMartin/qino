@@ -52,7 +52,11 @@ describe("validate", () => {
   test("formats empty/missing paths as (root)", () => {
     const noPath = makeFailingSchema([{ message: "nope" }]);
     expect(() =>
-      validate({ schema: noPath, data: {}, filePath: "/fixtures/no-path.json" }),
+      validate({
+        schema: noPath,
+        data: {},
+        filePath: "/fixtures/no-path.json",
+      }),
     ).toThrow(/\(root\): nope/);
 
     const emptyPath = makeFailingSchema([{ message: "still nope", path: [] }]);

@@ -1,13 +1,18 @@
 import { describe, expect, test } from "vitest";
 
-import type { AnyCollection, AnySingleton } from "../../types";
+import type { AnyCollection, AnyEntry, AnySingleton } from "../../types";
 import type { ResolveOption } from "../../types/resolve";
 import { QinoMeta } from "../globals";
+import { createRelationResolver } from "./create-relation-resolver";
 import { createResolveCache } from "./create-resolve-cache";
 import { resolveRelationLeaf } from "./resolve-relation-leaf";
 
-type Entry = Record<string, unknown> & {
-  _meta: { slug: string; fileName: string; filePath: string };
+type Entry = AnyEntry & {
+  _meta: {
+    slug: string;
+    fileName: `${string}.json`;
+    filePath: `${string}.json`;
+  };
 };
 
 function entry(slug: string, fields: Record<string, unknown> = {}): Entry {
@@ -63,8 +68,7 @@ function makeSingleton(
 const baseCtx = () => ({
   relationKey: "author",
   sourceFilePath: "/fixtures/post.json",
-  depth: 0,
-  cache: createResolveCache(),
+  resolveTargetReference: async (slug: string) => ({ slug }),
 });
 
 describe("resolveRelationLeaf", () => {
@@ -89,23 +93,23 @@ describe("resolveRelationLeaf", () => {
     ).rejects.toThrow(/empty relation reference.*author.*post\.json/i);
   });
 
-  test("resolves a collection reference to the fetched entry", async () => {
+  test("parses a collection reference and delegates target resolution", async () => {
     const authors = new Map([["alice", entry("alice", { name: "Alice" })]]);
     const target = makeCollection("/authors", authors);
     const result = await resolveRelationLeaf("authors/alice.json", {
       ...baseCtx(),
       target,
     });
-    expect(result).toMatchObject({ name: "Alice" });
+    expect(result).toMatchObject({ slug: "alice" });
   });
 
-  test("resolves a singleton reference via getData", async () => {
+  test("parses a singleton reference and delegates target resolution", async () => {
     const target = makeSingleton("/config/site.json", { siteName: "Qino" });
     const result = await resolveRelationLeaf("config/site.json", {
       ...baseCtx(),
       target,
     });
-    expect(result).toMatchObject({ siteName: "Qino" });
+    expect(result).toMatchObject({ slug: "config/site.json" });
   });
 
   test("tolerates a leading slash on the reference value", async () => {
@@ -115,7 +119,7 @@ describe("resolveRelationLeaf", () => {
       ...baseCtx(),
       target,
     });
-    expect(result).toMatchObject({ name: "Alice" });
+    expect(result).toMatchObject({ slug: "alice" });
   });
 
   test("propagates a prefix mismatch error from parseRelationValue", async () => {
@@ -128,11 +132,31 @@ describe("resolveRelationLeaf", () => {
     ).rejects.toThrow(/expected value under "authors\/".*posts\/alice\.json/);
   });
 
-  test("propagates a missing-target error from fetchAndResolve", async () => {
+  test("propagates a missing-target error from the resolver", async () => {
     const target = makeCollection("/authors");
+    const resolver = createRelationResolver(createResolveCache());
+
     await expect(
-      resolveRelationLeaf("authors/missing.json", { ...baseCtx(), target }),
+      resolver.resolveEntry(entry("post", { author: "authors/missing.json" }), {
+        relations: { author: target },
+        depth: 1,
+      }),
     ).rejects.toThrow(/author.*authors\/missing.*post\.json/);
+  });
+
+  test("resolves a singleton reference via getData", async () => {
+    const target = makeSingleton("/config/site.json", { siteName: "Qino" });
+    const resolver = createRelationResolver(createResolveCache());
+
+    const result = await resolver.resolveEntry(
+      entry("post", { site: "config/site.json" }),
+      {
+        relations: { site: target },
+        depth: 1,
+      },
+    );
+
+    expect(result.site).toMatchObject({ siteName: "Qino" });
   });
 
   test("dedupes repeated lookups for the same slug via the shared cache", async () => {
@@ -156,12 +180,18 @@ describe("resolveRelationLeaf", () => {
       },
     } as AnyCollection;
 
-    const ctx = { ...baseCtx(), target };
+    const resolver = createRelationResolver(createResolveCache());
     const [a, b] = await Promise.all([
-      resolveRelationLeaf("authors/alice.json", ctx),
-      resolveRelationLeaf("authors/alice.json", ctx),
+      resolver.resolveEntry(entry("first", { author: "authors/alice.json" }), {
+        relations: { author: target },
+        depth: 1,
+      }),
+      resolver.resolveEntry(entry("second", { author: "authors/alice.json" }), {
+        relations: { author: target },
+        depth: 1,
+      }),
     ]);
-    expect(a).toBe(b);
+    expect(a.author).toBe(b.author);
     expect(getOneCalls).toBe(1);
   });
 });

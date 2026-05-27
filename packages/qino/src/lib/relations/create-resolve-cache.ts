@@ -1,5 +1,7 @@
-export type ResolveCache = Map<string, Map<string, Promise<unknown>>>;
+import type { AnyEntry } from "../../types";
 
-export function createResolveCache() {
-  return new Map() as ResolveCache;
+export type ResolveCache = Map<string, Map<string, Promise<AnyEntry>>>;
+
+export function createResolveCache(): ResolveCache {
+  return new Map();
 }
