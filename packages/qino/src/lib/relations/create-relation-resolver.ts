@@ -7,6 +7,7 @@ import type {
 } from "../../types";
 import { isSingleton } from "../../utils/is-singleton";
 import type { ResolveCache } from "./create-resolve-cache";
+import { fetchTargetEntry } from "./fetch-target-entry";
 import { parsePath } from "./parse-path";
 import { resolveRelationLeaf } from "./resolve-relation-leaf";
 import { walkAndSet } from "./walk-and-set";
@@ -16,7 +17,7 @@ type ResolveEntryContext = {
   depth: number;
 };
 
-type RelationErrorContext = {
+export type RelationErrorContext = {
   sourceFilePath: string;
   relationKey: string;
 };
@@ -36,10 +37,10 @@ export function createRelationResolver(cache: ResolveCache) {
       const resolvedTarget = typeof target == "function" ? target() : target;
       const segments = parsePath(relationKey);
 
-      const errorCtx: RelationErrorContext = {
+      const errorCtx = {
         sourceFilePath: entry._meta.filePath,
         relationKey,
-      };
+      } satisfies RelationErrorContext;
 
       result = (await walkAndSet({
         value: result,
@@ -47,7 +48,7 @@ export function createRelationResolver(cache: ResolveCache) {
         setLeaf: async (leaf) => {
           return resolveRelationLeaf(leaf, {
             ...errorCtx,
-            target: resolvedTarget,
+            targetMeta: resolvedTarget[QinoMeta],
             resolveTargetReference: (slug) => {
               return resolveTargetReference(
                 resolvedTarget,
@@ -89,8 +90,7 @@ export function createRelationResolver(cache: ResolveCache) {
     let entryPromise = entryCache.get(slug);
 
     if (!entryPromise) {
-      entryPromise = fetchRawTarget(target, slug, ctx);
-
+      entryPromise = fetchTargetEntry(target, slug, ctx);
       entryCache.set(slug, entryPromise);
     }
 
@@ -113,27 +113,4 @@ function getTargetUniquePath(target: AnyCollection | AnySingleton) {
   return isSingleton(target)
     ? target[QinoMeta].file
     : target[QinoMeta].directory;
-}
-
-async function fetchRawTarget(
-  target: AnyCollection | AnySingleton,
-  slug: string,
-  ctx: RelationErrorContext,
-) {
-  try {
-    return isSingleton(target)
-      ? await target.getData({ resolveRelations: false })
-      : await target.getOne(slug, { resolveRelations: false });
-  } catch (cause) {
-    const message = cause instanceof Error ? cause.message : String(cause);
-
-    const errorRef = isSingleton(target)
-      ? target[QinoMeta].file
-      : `${target[QinoMeta].directory}/${slug}`;
-
-    throw new Error(
-      `Failed to resolve relation "${ctx.relationKey}" → ${errorRef} (from ${ctx.sourceFilePath}): ${message}`,
-      { cause: cause instanceof Error ? cause : undefined },
-    );
-  }
 }

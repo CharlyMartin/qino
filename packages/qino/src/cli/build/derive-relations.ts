@@ -1,20 +1,16 @@
 import { JSON_PATH_ARRAY, QinoMeta } from "../../data";
-import type { AnyCollection, AnySingleton } from "../../types";
+import type { AnyCollectionMeta, AnySingletonMeta } from "../../types";
 import { isSingleton } from "../../utils/is-singleton";
 
 export type RelationLockEntry = {
   field: string;
   target: string;
-  kind:
-    | AnyCollection[typeof QinoMeta]["is"]
-    | AnySingleton[typeof QinoMeta]["is"];
+  kind: AnyCollectionMeta["is"] | AnySingletonMeta["is"];
   cardinality: "one" | "many";
 };
 
 export function deriveRelations(
-  relations:
-    | AnyCollection[typeof QinoMeta]["relations"]
-    | AnySingleton[typeof QinoMeta]["relations"],
+  relations: AnyCollectionMeta["relations"] | AnySingletonMeta["relations"],
 ) {
   const out: Array<RelationLockEntry> = [];
 

@@ -13,6 +13,7 @@ import { parseFile } from "../../lib/parse/parse-file";
 import { normalizeDepth } from "../../lib/relations/normalize-depth";
 import type {
   Collection,
+  GenericPath,
   GetterOptions,
   ObjectSchema,
   Relations,
@@ -29,7 +30,7 @@ type CreateCollectionParams<
   Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
 > = {
-  directory: `/${string}`;
+  directory: GenericPath;
   schema: Schema;
   extension: Ext;
   relations?: Rels;
