@@ -1,10 +1,9 @@
 import fs from "node:fs/promises";
 
+import { META_FIELD_NAME, QinoMeta } from "../../data";
 import {
   createRelationResolver,
   createResolveCache,
-  META_FIELD_NAME,
-  QinoMeta,
   validate,
 } from "../../lib";
 import { parseFile } from "../../lib/parse/parse-file";

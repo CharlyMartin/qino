@@ -1,4 +1,4 @@
-import { JSON_PATH_ARRAY } from "../globals";
+import { JSON_PATH_ARRAY } from "../../data/globals";
 
 export type Segment = { kind: "key"; name: string } | { kind: "array" };
 

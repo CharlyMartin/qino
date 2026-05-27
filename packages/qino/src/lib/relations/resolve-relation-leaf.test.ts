@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 
+import { QinoMeta } from "../../data/globals";
 import type { AnyCollection, AnyEntry, AnySingleton } from "../../types";
 import type { ResolveOption } from "../../types/resolve";
-import { QinoMeta } from "../globals";
 import { createRelationResolver } from "./create-relation-resolver";
 import { createResolveCache } from "./create-resolve-cache";
 import { resolveRelationLeaf } from "./resolve-relation-leaf";

@@ -2,7 +2,7 @@ import type { StandardSchemaV1 } from "@standard-schema/spec";
 import type { Simplify } from "type-fest";
 import type { z } from "zod";
 
-import { type JSON_PATH_ARRAY, QinoMeta } from "../lib";
+import { type JSON_PATH_ARRAY, QinoMeta } from "../data";
 import type { ExtensionSchema } from "../schemas/lock-file";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 

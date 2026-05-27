@@ -1,3 +1,4 @@
+import { QinoMeta } from "../../data";
 import type {
   AnyCollection,
   AnyEntry,
@@ -5,7 +6,6 @@ import type {
   RelationTarget,
 } from "../../types";
 import { isSingleton } from "../../utils/is-singleton";
-import { QinoMeta } from "../globals";
 import type { ResolveCache } from "./create-resolve-cache";
 import { parsePath } from "./parse-path";
 import { resolveRelationLeaf } from "./resolve-relation-leaf";

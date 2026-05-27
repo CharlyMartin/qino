@@ -1,4 +1,4 @@
-import { QinoMeta } from "../lib";
+import { QinoMeta } from "../data";
 import type { AnyCollection, AnySingleton } from "../types";
 
 export function isSingleton(

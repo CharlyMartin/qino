@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import fg from "fast-glob";
 
-import { COLLECTIONS_FOLDER_NAME, QinoMeta, ROOT_FOLDER_NAME } from "../../lib";
+import { COLLECTIONS_FOLDER_NAME, QinoMeta, ROOT_FOLDER_NAME } from "../../data";
 import { parseFile } from "../../lib/parse/parse-file";
 import { validate } from "../../lib/validate";
 import type { AnyCollection, SupportedFileExtension } from "../../types";

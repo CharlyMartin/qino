@@ -1,4 +1,4 @@
-import { JSON_PATH_ARRAY, QinoMeta } from "../../lib";
+import { JSON_PATH_ARRAY, QinoMeta } from "../../data";
 import type { AnyCollection, AnySingleton } from "../../types";
 import { isSingleton } from "../../utils/is-singleton";
 

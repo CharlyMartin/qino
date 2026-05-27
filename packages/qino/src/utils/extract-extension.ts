@@ -1,4 +1,4 @@
-import { SUPPORTED_CONTENT_EXTENSIONS } from "../lib";
+import { SUPPORTED_CONTENT_EXTENSIONS } from "../data";
 
 export function extractExtension(file: string) {
   for (const ext of SUPPORTED_CONTENT_EXTENSIONS) {
