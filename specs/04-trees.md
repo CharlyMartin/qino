@@ -32,24 +32,27 @@ export const docsTree = createTree({
   schema: DocsSchema,
   extension: ".md", // ".md" | ".mdx" | ".json"
   titleField: "title", // must be a key in `schema` whose value is `string`
+  orderFileName: "_order.json", // optional, default "_order.json"
 });
 ```
 
 Any [Standard Schema](https://standardschema.dev)–compatible validator works. The runtime treats validation as a black box.
 
-Source of truth (when implemented): `packages/qino/src/runtime/create-tree/index.ts`.
+A tree's `directory` is **exclusive** — no other tree or collection may share or overlap it. Declaring two trees on overlapping paths → build error.
+
+Source of truth (when implemented): `packages/qino/src/runtime/trees/create-tree.ts`.
 
 ## Behaviour
 
 ### Slug
 
-Slug = relative path inside `directory`, minus the file extension, with a trailing `index` segment stripped:
+Slug = relative path inside `directory`, minus the file extension:
 
 - `/docs/introduction.md` → `introduction`
-- `/docs/guides/index.md` → `guides`
+- `/docs/guides.md` → `guides`
 - `/docs/guides/queries.md` → `guides/queries`
 
-Slugs are globally unique within a tree. Duplicate slugs (e.g. `foo.md` and `foo/index.md` both resolving to `foo`) → build error.
+Slugs are globally unique within a tree. Duplicate slugs (e.g. `foo.md` and `foo.mdx` both resolving to `foo`) → build error.
 
 ### Markdown vs JSON
 
@@ -73,34 +76,31 @@ Same `true | number | false` semantics as collections/singletons. Settable on `c
 
 ## Content-folder convention
 
-Every node is file-backed via an `index` convention:
+Every node is file-backed via a sibling-file convention:
 
 - **Leaves** are files: `introduction.md`, `installation.md`.
-- **Parents** put their content in an `index.<ext>` file inside the folder: `guides/index.md`. The frontmatter's `titleField` titles the node; the body is the parent's content.
-- **Every subfolder must contain an `index.<ext>`**. Missing → build error. A section that's just a sidebar header (no body) is expressed with a minimal `index.md` carrying only `titleField` in frontmatter.
+- **Sections** are a `<name>.<ext>` file alongside a same-named `<name>/` folder containing the children. The `.md` file's frontmatter titles the node; its body is the parent's content. The folder holds only children — never an `index.<ext>`.
+- **Every non-empty `<name>/` folder must have a sibling `<name>.<ext>` file.** Missing → build error naming the folder and the expected sibling path. A section that's just a sidebar header (no body) is expressed with a minimal `<name>.<ext>` carrying only `titleField` in frontmatter.
+- An empty `<name>/` folder (no entries) is silently ignored; `<name>.<ext>` next to it is treated as a leaf.
 
 ```text
 content/docs/
   _order.json
   introduction.md
   installation.md
+  guides.md
   guides/
     _order.json
-    index.md
     queries.md
     mutations.md
     caching.md
+  react.md
   react/
     _order.json
-    index.md
     overview.md
     use-query.md
     use-mutation.md
 ```
-
-`index.<ext>` directly under `directory` is **not allowed** — the tree itself is the root. Build error if found.
-
-A tree's `directory` is **exclusive** — no other tree or collection may share or overlap it. Declaring two trees on overlapping paths → build error.
 
 ## `_order.json`
 
@@ -110,12 +110,12 @@ One file per node (root and each subfolder). Optional.
 ["introduction", "installation", "guides", "react"]
 ```
 
-- Each entry is a bare slug relative to the folder, no extension. Folder names and file names use the same syntax (e.g. `"guides"` covers both `guides/` and the implicit `guides/index.md`).
+- Each entry is a bare slug relative to the folder, no extension.
 - Files present on disk but not listed in `_order.json` are appended after listed entries in filesystem order (loose semantics).
 - Entries in `_order.json` referencing files that don't exist → build error, naming the offending entry and the `_order.json` path.
 - If `_order.json` is absent, the order at that node is filesystem order.
 
-`_order.json` lives alongside content rather than next to the tree definition: the content folder remains the single source of truth for what exists and in what order.
+`_order.json` lives alongside content rather than next to the tree definition: the content folder remains the single source of truth for what exists and in what order. It's one of the rare instances where Qino touches the content folder. Usually, it sits on top of it and the content folder shouldn't be aware of Qino at all. But in this case, for DX purposes, it's better to have the order file next to the content it describes rather than buried in the tree definition.
 
 ## Returned shapes
 
@@ -124,33 +124,26 @@ Tree nodes use **flat meta** — `slug`, `fileName`, `filePath`, `title`, and `c
 `NodeTree` (skeleton, returned by `getTree`):
 
 ```ts
-{
-  slug: string,         // "guides", "guides/queries"
-  title: string,        // from titleField in the node's frontmatter
-  fileName: string,     // "index.md", "queries.md", ...
-  filePath: string,     // absolute path on disk
-  children: NodeTree[], // always [], never null
-}
-```
-
-`HydratedNodeTree` (returned by `getEntries`):
-
-```ts
-type HydratedNodeTree = NodeTree & { data: ValidatedFields }
+type NodeTree = {
+  slug: string; // "guides", "guides/queries"
+  title: string; // from titleField in the node's frontmatter
+  fileName: string; // "guides.md", "queries.md", ...
+  filePath: string; // absolute path on disk
+  children: NodeTree[]; // always [], never null
+};
 ```
 
 `Entry` (returned by `getEntry`):
 
 ```ts
-{
-  slug: string,
-  fileName: string,
-  filePath: string,
-  data: ValidatedFields,
-}
+type TreeEntry = {
+  _meta: {
+    slug: string;
+    fileName: string;
+    filePath: string;
+  };
+} & ValidatedFields; // from the schema, e.g. { title: string, markdown: string, author: string, ... }
 ```
-
-The only schema key a user must avoid is the literal `data` field — flagged as a build-time error if encountered.
 
 ## Getters
 
@@ -182,8 +175,8 @@ const guides = await docsTree.getTree("guides");
   {
     "slug": "guides",
     "title": "Guides",
-    "fileName": "index.md",
-    "filePath": "/abs/content/docs/guides/index.md",
+    "fileName": "guides.md",
+    "filePath": "/abs/content/docs/guides.md",
     "children": [
       {
         "slug": "guides/queries",
@@ -192,29 +185,10 @@ const guides = await docsTree.getTree("guides");
         "filePath": "/abs/content/docs/guides/queries.md",
         "children": []
       }
-    ]
+    ] // The children should be ordered according to _order.json if it exists, otherwise filesystem order
   }
 ]
 ```
-
-### `getEntries`
-
-```ts
-getEntries(node: NodeTree): Promise<HydratedNodeTree>
-getEntries(tree: NodeTree[]): Promise<HydratedNodeTree[]>
-```
-
-Hydrates a skeleton tree (or single node) into a hydrated tree. Each node gains `data: validatedFields` from reading, parsing, and validating its file. Children are hydrated recursively.
-
-```ts
-const tree = await docsTree.getTree();
-const hydrated = await docsTree.getEntries(tree);
-
-const guides = await docsTree.getTree("guides");
-const hydratedGuides = await docsTree.getEntries(guides);
-```
-
-The two-step pattern (`getTree` then `getEntries`) lets consumers prune the skeleton client-side before paying for hydration — useful for partial reads like rendering only the open section of a sidebar.
 
 ### `getEntry`
 
@@ -229,6 +203,12 @@ const entry = await docsTree.getEntry("guides/queries");
 ```
 
 There is intentionally **no flat `getAll`** — trees are about hierarchy. To produce a flat list, walk the hydrated tree.
+
+### `getEntries`
+
+For V2, consider adding a getEntries function that would take in a NodeTree or NodeTree[] and return the hydrated equivalent.
+
+API to be defined.
 
 ## Lock-file entry
 
@@ -252,17 +232,16 @@ The `kind` discriminator on each relation tells consumers reading the lock file 
 `qino build` walks `qino/trees/*.{ts,tsx,js,mjs}`, and for each tree:
 
 1. Validates every file in the tree's directory against the schema.
-2. Asserts every subfolder contains an `index.<ext>`.
-3. Asserts no `index.<ext>` sits directly under `directory`.
-4. Asserts no duplicate slugs.
-5. Asserts every entry referenced by an `_order.json` exists on disk.
-6. Emits the lock-file entry under `trees.<directory>`.
+2. Asserts every non-empty `<name>/` subfolder has a sibling parent file `<name>.<ext>`; missing → build error.
+3. Asserts no duplicate slugs.
+4. Asserts every entry referenced by an `_order.json` exists on disk.
+5. Emits the lock-file entry under `trees.<directory>`.
 
 The `qino/trees/` folder is **optional** — projects with no trees skip it without error.
 
 ## Open questions
 
-- **Cloud-UI reorder write path** — drag-to-reorder in the dashboard commits to `_order.json` on a branch. Wire-format and conflict resolution deferred to V2.
+- **Cloud-UI reorder write path** — drag-to-reorder in the dashboard commits to `_order.json` on a branch. Moves must keep `foo.<ext>` and `foo/` paired across reparenting/rename. Wire-format and conflict resolution deferred to V2.
 - **`_order.json` metadata** — should `_order.json` eventually support per-entry metadata (e.g. `hidden: true`, `external: "https://..."`)? Defer until a real consumer needs it; if added, the bare-slug form must remain valid.
 - **Getter options parity** — collections plan a `getAll({ first, last, sort, filter, ... })` shape. Whether `getEntries` grows analogous options (filter by predicate before hydrating, limit by depth) is open.
 
@@ -272,10 +251,9 @@ Done when:
 
 - `createTree` is implemented with at least one canonical example in `apps/docs/` (to be created).
 - `getTree()` returns root-level `NodeTree[]` with full nesting; `getTree(slug)` returns a single `NodeTree`; both throw on invalid slugs.
-- `getEntries(node | tree)` returns the hydrated equivalent with `data: ValidatedFields` on every node; children hydrate recursively.
 - `getEntry(slug)` returns a single `Entry`; throws on missing slug or schema mismatch with the offending file path in the error.
-- Slug derivation strips a trailing `/index` segment and produces unique slugs across the tree; duplicate slugs fail at build.
-- `index.<ext>` is required in every subfolder; missing → build error. `index.<ext>` directly under `directory` → build error.
+- Slug derivation produces unique slugs across the tree; duplicate slugs fail at build.
+- Every non-empty subfolder has a sibling parent file `<name>.<ext>`; missing → build error naming the folder and the expected file path.
 - `_order.json` is honoured per node; missing files are appended in filesystem order; references to non-existent files throw at build with a clear message.
 - A tree's `directory` overlapping another tree or collection's directory throws at build.
 - `qino-lock.json` includes a `trees.<id>` entry with `directory`, `extension`, `titleField`, and `relations`.
