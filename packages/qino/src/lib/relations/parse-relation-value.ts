@@ -1,3 +1,4 @@
+import { QinoPrimitives } from "../../data";
 import type { AnyCollectionMeta, AnySingletonMeta } from "../../types";
 import { removeLeadingSlash } from "../../utils";
 
@@ -10,7 +11,7 @@ export function parseRelationValue(
 ) {
   const normalized = removeLeadingSlash(value);
 
-  if (targetMeta.is == "singleton") {
+  if (targetMeta.is == QinoPrimitives.singleton) {
     const expected = removeLeadingSlash(targetMeta.file);
 
     if (normalized != expected) {

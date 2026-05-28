@@ -19,7 +19,8 @@ export const SUPPORTED_CODE_EXTENSIONS = [
   ".js",
   ".mjs",
 ] as const;
+
 export const QinoPrimitives = {
   collection: "collection",
   singleton: "singleton",
-};
+} as const;

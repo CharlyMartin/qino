@@ -1,6 +1,6 @@
 import type { Simplify } from "type-fest";
 
-import type { QinoMeta } from "../data";
+import type { QinoMeta, QinoPrimitives } from "../data";
 import type { CollectionEntryMeta } from "./entry";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
@@ -45,7 +45,7 @@ export type CollectionMeta<
   Ext extends SupportedFileExtension = SupportedFileExtension,
   Rels extends Relations<Schema> = Relations<Schema>,
 > = {
-  readonly is: "collection";
+  readonly is: (typeof QinoPrimitives)["collection"];
   readonly schema: Schema;
   readonly directory: GenericPath;
   readonly extension: Ext;

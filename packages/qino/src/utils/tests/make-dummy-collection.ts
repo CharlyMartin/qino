@@ -1,4 +1,4 @@
-import { QinoMeta } from "../../data/globals";
+import { QinoMeta, QinoPrimitives } from "../../data/globals";
 import type {
   AnyCollection,
   AnyEntry,
@@ -23,7 +23,7 @@ export function makeDummyCollection({
 }: MakeDummyCollectionOptions) {
   return {
     [QinoMeta]: {
-      is: "collection",
+      is: QinoPrimitives.collection,
       schema: {} as never,
       directory,
       extension,
