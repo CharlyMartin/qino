@@ -14,10 +14,10 @@ import type {
   ObjectSchema,
   Relations,
   ResolvedSingletonView,
+  ResolveOption,
   Singleton,
   SingletonFile,
 } from "../../types";
-import type { ResolveOption } from "../../types/resolve";
 import { extractExtension } from "../../utils/extract-extension";
 import { buildSingletonMeta } from "./build-singleton-meta";
 import { resolveSingletonFile } from "./resolve-singleton-file";

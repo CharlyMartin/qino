@@ -17,10 +17,10 @@ import type {
   GetterOptions,
   ObjectSchema,
   Relations,
-  ResolvedView,
+  ResolvedCollectionView,
+  ResolveOption,
   SupportedFileExtension,
 } from "../../types";
-import type { ResolveOption } from "../../types/resolve";
 import { buildEntryMeta } from "./build-entry-meta";
 import { resolveCollectionDirectory } from "./resolve-collection-directory";
 
@@ -69,7 +69,7 @@ export function createCollection<
 
   async function getAll<R extends ResolveOption = DefaultR>(
     options?: GetterOptions<R>,
-  ): Promise<Array<ResolvedView<S, Ext, Rels, R>>> {
+  ): Promise<Array<ResolvedCollectionView<S, Ext, Rels, R>>> {
     const collectionDirectory = await resolveCollectionDirectory(directory);
 
     const relFilePaths = await fg(`**/*${extension}`, {
@@ -110,7 +110,9 @@ export function createCollection<
     const resolveSetting = options?.resolveRelations ?? defaultResolve;
 
     if (resolveSetting === false) {
-      return validatedDataWithMeta as Array<ResolvedView<S, Ext, Rels, R>>;
+      return validatedDataWithMeta as Array<
+        ResolvedCollectionView<S, Ext, Rels, R>
+      >;
     }
 
     const cache = createResolveCache();
@@ -126,13 +128,13 @@ export function createCollection<
         }),
       ),
     );
-    return resolved as Array<ResolvedView<S, Ext, Rels, R>>;
+    return resolved as Array<ResolvedCollectionView<S, Ext, Rels, R>>;
   }
 
   async function getOne<R extends ResolveOption = DefaultR>(
     slug: string,
     options?: GetterOptions<R>,
-  ): Promise<ResolvedView<S, Ext, Rels, R>> {
+  ): Promise<ResolvedCollectionView<S, Ext, Rels, R>> {
     const collectionDirectory = await resolveCollectionDirectory(directory);
 
     const meta = buildEntryMeta({
@@ -156,7 +158,7 @@ export function createCollection<
     const resolveSetting = options?.resolveRelations ?? defaultResolve;
 
     if (resolveSetting === false) {
-      return validatedDataWithMeta as ResolvedView<S, Ext, Rels, R>;
+      return validatedDataWithMeta as ResolvedCollectionView<S, Ext, Rels, R>;
     }
 
     const cache = createResolveCache();
@@ -168,6 +170,6 @@ export function createCollection<
       relations: collection[QinoMeta].relations,
       depth,
     });
-    return resolved as ResolvedView<S, Ext, Rels, R>;
+    return resolved as ResolvedCollectionView<S, Ext, Rels, R>;
   }
 }

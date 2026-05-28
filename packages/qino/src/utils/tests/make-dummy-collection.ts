@@ -4,9 +4,9 @@ import type {
   AnyEntry,
   GenericPath,
   RelationTarget,
+  ResolveOption,
   SupportedFileExtension,
 } from "../../types";
-import type { ResolveOption } from "../../types/resolve";
 
 type MakeDummyCollectionOptions = {
   directory: GenericPath;

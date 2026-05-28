@@ -1,14 +1,9 @@
 import type { IntClosedRange, Simplify, Subtract } from "type-fest";
 
 import type { MAX_RESOLVE_DEPTH, QinoMeta } from "../data";
-import type {
-  EntryMeta,
-  JsonPathArray,
-  ObjectSchema,
-  SingletonEntryMeta,
-  SupportedFileExtension,
-  ValidatedOutput,
-} from "./index";
+import type { CollectionEntryMeta, SingletonEntryMeta } from "./entry";
+import type { ObjectSchema, ValidatedOutput } from "./schema";
+import type { JsonPathArray, SupportedFileExtension } from "./utils";
 
 export type MaxDepth = typeof MAX_RESOLVE_DEPTH;
 export type Depth = IntClosedRange<0, MaxDepth>;
@@ -66,7 +61,9 @@ type ResolveRelationTarget<C, NextD extends Depth> = C extends {
 }
   ? Ext extends SupportedFileExtension
     ? S extends ObjectSchema
-      ? Simplify<{ _meta: EntryMeta<Ext> } & ResolveEntry<S, Rels, NextD>>
+      ? Simplify<
+          { _meta: CollectionEntryMeta<Ext> } & ResolveEntry<S, Rels, NextD>
+        >
       : never
     : never
   : C extends {
