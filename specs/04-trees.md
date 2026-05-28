@@ -119,7 +119,9 @@ One file per node (root and each subfolder). Optional.
 
 ## Returned shapes
 
-Tree nodes use **flat meta** — `slug`, `fileName`, `filePath`, `title`, and `children` are top-level siblings. Validated schema fields are nested under `data`. This diverges from collections/singletons (which spread fields beside `_meta`) on purpose: tree nodes are walked, so terse top-level keys read better and namespacing schema fields under `data` removes any field-collision risk.
+`NodeTree` skeletons (returned by `getTree`) use flat meta — `slug`, `title`, `fileName`, `filePath`, and `children` are top-level siblings — because tree nodes are walked and terse top-level keys read better in traversal code.
+
+`TreeEntry` (returned by `getEntry`) uses the same `_meta` + spread layout as collections and singletons. `getEntry` is a leaf-level read, so consistency with the other primitives wins here.
 
 `NodeTree` (skeleton, returned by `getTree`):
 
@@ -193,10 +195,10 @@ const guides = await docsTree.getTree("guides");
 ### `getEntry`
 
 ```ts
-getEntry(slug: string): Promise<Entry>
+getEntry(slug: string): Promise<TreeEntry>
 ```
 
-Returns a single entry by slug, shape `{ slug, fileName, filePath, data: ValidatedFields }`. Throws if the slug doesn't exist or if schema validation fails (with the offending file path in the error).
+Returns a single entry by slug, shape `{ _meta: { slug, fileName, filePath }, ...validatedFields }`. Throws if the slug doesn't exist or if schema validation fails (with the offending file path in the error).
 
 ```ts
 const entry = await docsTree.getEntry("guides/queries");

@@ -3,5 +3,6 @@ export {
   createCollection,
   createConfig,
   createSingleton,
+  createTree,
 } from "./runtime";
-export type { Collection, Singleton } from "./types";
+export type { Collection, NodeTree, Singleton, Tree } from "./types";

@@ -23,11 +23,19 @@ const SingletonLockSchema = z.object({
   relations: z.array(RelationSchema),
 });
 
+const TreeLockSchema = z.object({
+  directory: z.string(),
+  extension: ExtensionSchema,
+  titleField: z.string(),
+  relations: z.array(RelationSchema),
+});
+
 export const LockFileSchema = z.object({
   qinoVersion: z.string(),
   config: ConfigSchema,
   collections: z.record(z.string(), CollectionLockSchema),
   singletons: z.record(z.string(), SingletonLockSchema),
+  trees: z.record(z.string(), TreeLockSchema),
 });
 
 export type LockFile = z.infer<typeof LockFileSchema>;
