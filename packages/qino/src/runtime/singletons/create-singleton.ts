@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
 
-import { META_FIELD_NAME, QinoMeta } from "../../data";
+import { META_FIELD_NAME, QinoMeta, QinoPrimitives } from "../../data";
 import {
   createRelationResolver,
   createResolveCache,
@@ -52,7 +52,7 @@ export function createSingleton<
 
   const singleton = {
     [QinoMeta]: {
-      is: "singleton",
+      is: QinoPrimitives.singleton,
       schema,
       file,
       extension,

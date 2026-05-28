@@ -3,7 +3,7 @@ import nodePath from "node:path";
 
 import fg from "fast-glob";
 
-import { META_FIELD_NAME, QinoMeta } from "../../data";
+import { META_FIELD_NAME, QinoMeta, QinoPrimitives } from "../../data";
 import {
   createRelationResolver,
   createResolveCache,
@@ -54,7 +54,7 @@ export function createCollection<
 
   const collection = {
     [QinoMeta]: {
-      is: "collection",
+      is: QinoPrimitives.collection,
       schema,
       directory,
       extension,

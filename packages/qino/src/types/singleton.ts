@@ -1,6 +1,6 @@
 import type { Simplify } from "type-fest";
 
-import type { QinoMeta } from "../data";
+import type { QinoMeta, QinoPrimitives } from "../data";
 import type { SingletonEntryMeta } from "./entry";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
@@ -16,7 +16,7 @@ export type SingletonMeta<
   Ext extends SupportedFileExtension = SupportedFileExtension,
   Rels extends Relations<Schema> = Relations<Schema>,
 > = {
-  readonly is: "singleton";
+  readonly is: (typeof QinoPrimitives)["singleton"];
   readonly schema: Schema;
   readonly file: GenericPath;
   readonly extension: Ext;

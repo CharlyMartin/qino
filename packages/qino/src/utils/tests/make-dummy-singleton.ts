@@ -1,4 +1,4 @@
-import { QinoMeta } from "../../data/globals";
+import { QinoMeta, QinoPrimitives } from "../../data/globals";
 import type { AnySingleton, GenericPath, ResolveOption } from "../../types";
 
 type MakeDummySingletonOptions = {
@@ -12,7 +12,7 @@ export function makeDummySingleton({
 }: MakeDummySingletonOptions) {
   return {
     [QinoMeta]: {
-      is: "singleton",
+      is: QinoPrimitives.singleton,
       schema: {} as never,
       file,
       extension: ".json" as const,
