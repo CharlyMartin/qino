@@ -1,5 +1,5 @@
 import { MAX_RESOLVE_DEPTH } from "../../data/globals";
-import type { ResolveOption } from "../../types/resolve";
+import type { ResolveOption } from "../../types";
 
 export function normalizeDepth(
   value: ResolveOption,

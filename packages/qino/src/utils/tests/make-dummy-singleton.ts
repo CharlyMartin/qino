@@ -1,6 +1,5 @@
 import { QinoMeta } from "../../data/globals";
-import type { AnySingleton, GenericPath } from "../../types";
-import type { ResolveOption } from "../../types/resolve";
+import type { AnySingleton, GenericPath, ResolveOption } from "../../types";
 
 type MakeDummySingletonOptions = {
   file: GenericPath;
