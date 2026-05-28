@@ -1,4 +1,7 @@
+import type { META_FIELD_NAME } from "../data";
 import type { SupportedFileExtension } from "./utils";
+
+export type MetaFieldName = typeof META_FIELD_NAME;
 
 export type CollectionEntryMeta<Ext extends SupportedFileExtension> = {
   slug: string;
@@ -12,7 +15,7 @@ export type SingletonEntryMeta<Ext extends SupportedFileExtension> = {
 };
 
 export type AnyEntry = Record<string, unknown> & {
-  _meta:
+  [K in MetaFieldName]:
     | CollectionEntryMeta<SupportedFileExtension>
     | SingletonEntryMeta<SupportedFileExtension>;
 };

@@ -1,7 +1,11 @@
 import type { IntClosedRange, Simplify, Subtract } from "type-fest";
 
 import type { MAX_RESOLVE_DEPTH, QinoMeta } from "../data";
-import type { CollectionEntryMeta, SingletonEntryMeta } from "./entry";
+import type {
+  CollectionEntryMeta,
+  MetaFieldName,
+  SingletonEntryMeta,
+} from "./entry";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
 import type { JsonPathArray, SupportedFileExtension } from "./utils";
 
@@ -62,7 +66,9 @@ type ResolveRelationTarget<C, NextD extends Depth> = C extends {
   ? Ext extends SupportedFileExtension
     ? S extends ObjectSchema
       ? Simplify<
-          { _meta: CollectionEntryMeta<Ext> } & ResolveEntry<S, Rels, NextD>
+          {
+            [K in MetaFieldName]: CollectionEntryMeta<Ext>;
+          } & ResolveEntry<S, Rels, NextD>
         >
       : never
     : never
@@ -77,7 +83,9 @@ type ResolveRelationTarget<C, NextD extends Depth> = C extends {
     ? Ext extends SupportedFileExtension
       ? S extends ObjectSchema
         ? Simplify<
-            { _meta: SingletonEntryMeta<Ext> } & ResolveEntry<S, Rels, NextD>
+            {
+              [K in MetaFieldName]: SingletonEntryMeta<Ext>;
+            } & ResolveEntry<S, Rels, NextD>
           >
         : never
       : never

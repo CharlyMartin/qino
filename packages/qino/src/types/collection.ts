@@ -1,7 +1,7 @@
 import type { Simplify } from "type-fest";
 
 import type { QinoMeta, QinoPrimitives } from "../data";
-import type { CollectionEntryMeta } from "./entry";
+import type { CollectionEntryMeta, MetaFieldName } from "./entry";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
@@ -33,7 +33,7 @@ export type ResolvedCollectionView<
   Rels extends Relations<Schema>,
   R extends ResolveOption,
 > = Simplify<
-  { _meta: CollectionEntryMeta<Ext> } & ResolveEntry<
+  { [K in MetaFieldName]: CollectionEntryMeta<Ext> } & ResolveEntry<
     Schema,
     Rels,
     NormalizeDepth<R>
@@ -58,7 +58,7 @@ export type AnyCollection = {
   getAll(options?: GetterOptions): Promise<
     Array<
       Record<string, unknown> & {
-        _meta: CollectionEntryMeta<SupportedFileExtension>;
+        [K in MetaFieldName]: CollectionEntryMeta<SupportedFileExtension>;
       }
     >
   >;
@@ -67,7 +67,7 @@ export type AnyCollection = {
     options?: GetterOptions,
   ): Promise<
     Record<string, unknown> & {
-      _meta: CollectionEntryMeta<SupportedFileExtension>;
+      [K in MetaFieldName]: CollectionEntryMeta<SupportedFileExtension>;
     }
   >;
 };

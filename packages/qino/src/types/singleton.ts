@@ -1,7 +1,7 @@
 import type { Simplify } from "type-fest";
 
 import type { QinoMeta, QinoPrimitives } from "../data";
-import type { SingletonEntryMeta } from "./entry";
+import type { MetaFieldName, SingletonEntryMeta } from "./entry";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
@@ -28,7 +28,7 @@ export type AnySingleton = {
   readonly [QinoMeta]: SingletonMeta<ObjectSchema>;
   getData(options?: GetterOptions): Promise<
     Record<string, unknown> & {
-      _meta: SingletonEntryMeta<SupportedFileExtension>;
+      [K in MetaFieldName]: SingletonEntryMeta<SupportedFileExtension>;
     }
   >;
 };
@@ -68,7 +68,7 @@ export type ResolvedSingletonView<
   Rels extends Relations<Schema>,
   R extends ResolveOption,
 > = Simplify<
-  { _meta: SingletonEntryMeta<Ext> } & ResolveEntry<
+  { [K in MetaFieldName]: SingletonEntryMeta<Ext> } & ResolveEntry<
     Schema,
     Rels,
     NormalizeDepth<R>
