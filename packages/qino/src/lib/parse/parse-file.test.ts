@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { z } from "zod";
 
+import { MARKDOWN_BODY_FIELD_NAME } from "../../data";
 import { validate } from "../validate";
 import { parseFile } from "./parse-file";
 
@@ -17,7 +18,10 @@ describe("parseFile", () => {
   });
 
   test("routes .md files through markdown parsing", () => {
-    const schema = z.object({ title: z.string(), markdown: z.string() });
+    const schema = z.object({
+      title: z.string(),
+      [MARKDOWN_BODY_FIELD_NAME]: z.string(),
+    });
     const raw = ["---", "title: Hello", "---", "", "# Body"].join("\n");
     const result = parseFile({
       schema,
@@ -26,11 +30,11 @@ describe("parseFile", () => {
       validatorFn: validate,
     });
     expect(result.title).toBe("Hello");
-    expect(result.markdown.trim()).toBe("# Body");
+    expect(result[MARKDOWN_BODY_FIELD_NAME].trim()).toBe("# Body");
   });
 
   test("routes .mdx and .markdown files through markdown parsing", () => {
-    const schema = z.object({ markdown: z.string() });
+    const schema = z.object({ [MARKDOWN_BODY_FIELD_NAME]: z.string() });
     const raw = "body only";
 
     expect(
@@ -39,7 +43,7 @@ describe("parseFile", () => {
         data: raw,
         filePath: "/fixtures/post.mdx",
         validatorFn: validate,
-      }).markdown,
+      }).body,
     ).toBe("body only");
 
     expect(
@@ -48,7 +52,7 @@ describe("parseFile", () => {
         data: raw,
         filePath: "/fixtures/post.markdown",
         validatorFn: validate,
-      }).markdown,
+      }).body,
     ).toBe("body only");
   });
 

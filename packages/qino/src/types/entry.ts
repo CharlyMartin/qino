@@ -14,8 +14,15 @@ export type SingletonEntryMeta<Ext extends SupportedFileExtension> = {
   filePath: `${string}${Ext}`;
 };
 
+export type TreeEntryMeta<Ext extends SupportedFileExtension> = {
+  slug: string;
+  fileName: `${string}${Ext}`;
+  filePath: `${string}${Ext}`;
+};
+
 export type AnyEntry = Record<string, unknown> & {
   [K in MetaFieldName]:
     | CollectionEntryMeta<SupportedFileExtension>
-    | SingletonEntryMeta<SupportedFileExtension>;
+    | SingletonEntryMeta<SupportedFileExtension>
+    | TreeEntryMeta<SupportedFileExtension>;
 };

@@ -1,8 +1,8 @@
 import { QinoMeta, QinoPrimitives } from "../data";
 import type { AnyCollection, AnySingleton, AnyTree } from "../types";
 
-export function isSingleton(
+export function isTree(
   target: AnyCollection | AnySingleton | AnyTree,
-): target is AnySingleton {
-  return target[QinoMeta].is == QinoPrimitives.singleton;
+): target is AnyTree {
+  return target[QinoMeta].is == QinoPrimitives.tree;
 }

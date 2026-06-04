@@ -8,7 +8,7 @@ import {
   SINGLETONS_FOLDER_NAME,
   SUPPORTED_CODE_EXTENSIONS,
 } from "../../data";
-import type { AnySingleton } from "../../types";
+import type { AnySingleton, GenericPath } from "../../types";
 import { assertDirectory } from "../../utils";
 import { assertQinoPrimitive } from "../../utils/assert-qino-primitive";
 import { isSingleton } from "../../utils/is-singleton";
@@ -26,7 +26,7 @@ export async function loadSingletons(qinoDir: string) {
   );
 
   const jiti = createJiti(import.meta.url);
-  const registry = new Map<string, AnySingleton>();
+  const registry = new Map<GenericPath, AnySingleton>();
 
   for (const file of files) {
     const importedValue = (await jiti.import(file)) as Record<string, unknown>;
