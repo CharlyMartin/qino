@@ -1,18 +1,23 @@
 import { QinoMeta, QinoPrimitives } from "../../data/globals";
-import type { AnyTree, GenericPath, ResolveOption } from "../../types";
+import type {
+  AnyTree,
+  GenericPath,
+  ResolveOption,
+  SupportedFileExtension,
+} from "../../types";
 
 type MakeDummyTreeOptions = {
   directory: GenericPath;
+  extension: SupportedFileExtension;
 };
 
-// Should allow all extensions.
-export function makeDummyTree({ directory }: MakeDummyTreeOptions) {
+export function makeDummyTree({ directory, extension }: MakeDummyTreeOptions) {
   return {
     [QinoMeta]: {
       is: QinoPrimitives.tree,
       schema: {} as never,
       directory,
-      extension: ".md" as const,
+      extension,
       titleField: "title",
       orderFileName: "_order.json",
       relations: {},
