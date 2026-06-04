@@ -23,7 +23,7 @@ export async function buildTreesLock(
     const treeDir = join(contentFolderAbs, meta.directory);
 
     const nodes = await walkTree({
-      absDirectory: treeDir,
+      directoryPath: treeDir,
       schema: meta.schema,
       extension: meta.extension,
       titleField: meta.titleField,
