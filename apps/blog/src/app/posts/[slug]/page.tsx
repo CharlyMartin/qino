@@ -88,7 +88,7 @@ export default async function PostPage({ params }: PostPageProps) {
             ),
           }}
         >
-          {post.markdown}
+          {post.body}
         </ReactMarkdown>
       </div>
     </article>

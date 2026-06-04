@@ -46,5 +46,13 @@
         }
       ]
     }
+  },
+  "trees": {
+    "/docs": {
+      "directory": "/docs",
+      "extension": ".mdx",
+      "titleField": "title",
+      "relations": []
+    }
   }
 }
