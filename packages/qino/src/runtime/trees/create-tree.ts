@@ -104,7 +104,6 @@ export function createTree<
     slug: string,
     options?: GetterOptions<R>,
   ): Promise<ResolvedTreeEntry<S, Ext, Rels, R>> {
-    // what does abs mean here?
     const directoryPath = await resolveTreeDirectory(directory);
 
     const meta = buildEntryMeta({
