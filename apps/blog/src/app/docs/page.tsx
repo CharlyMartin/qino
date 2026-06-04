@@ -36,7 +36,7 @@ export default async function DocsIndex() {
             {JSON.stringify(
               nodes,
               (key, value) =>
-                key === "filePath" && typeof value === "string"
+                key == "filePath" && typeof value == "string"
                   ? value.replace(process.cwd(), "")
                   : value,
               2,

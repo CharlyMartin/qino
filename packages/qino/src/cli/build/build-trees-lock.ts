@@ -30,7 +30,7 @@ export async function buildTreesLock(
       orderFileName: meta.orderFileName,
     });
 
-    if (countNodes(nodes) === 0) {
+    if (countNodes(nodes) == 0) {
       throw new Error(
         `Tree "${treePath}" (directory: ${meta.directory}) has no entries. A tree must have at least one entry. Add files under ${ROOT_FOLDER_NAME}/${TREES_FOLDER_NAME} or remove the tree definition.`,
       );
