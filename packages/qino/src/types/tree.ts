@@ -40,6 +40,8 @@ export type TreeMeta<
   readonly resolveRelations: ResolveOption;
 };
 
+export type TreeNodeLike = { [K in MetaFieldName]: { slug: string } };
+
 export type Tree<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
@@ -54,6 +56,8 @@ export type Tree<
     slug: string,
     options?: GetterOptions<R>,
   ): Promise<ResolvedTreeEntry<Schema, Ext, Rels, R>>;
+  getNextNode(entryOrSlug: string | TreeNodeLike): Promise<NodeTree | null>;
+  getPreviousNode(entryOrSlug: string | TreeNodeLike): Promise<NodeTree | null>;
 };
 
 export type ResolvedTreeEntry<
@@ -92,4 +96,6 @@ export type AnyTree = {
       [K in MetaFieldName]: TreeEntryMeta<SupportedFileExtension>;
     }
   >;
+  getNextNode(entryOrSlug: string | TreeNodeLike): Promise<NodeTree | null>;
+  getPreviousNode(entryOrSlug: string | TreeNodeLike): Promise<NodeTree | null>;
 };

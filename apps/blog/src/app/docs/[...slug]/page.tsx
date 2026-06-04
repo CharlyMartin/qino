@@ -17,9 +17,11 @@ export default async function DocsPage({ params }: DocsPageProps) {
   const { slug } = await params;
   const fullSlug = slug.join("/");
 
-  const [nodes, entry] = await Promise.all([
+  const [nodes, entry, previousNode, nextNode] = await Promise.all([
     docsTree.getTree(),
     docsTree.getEntry(fullSlug),
+    docsTree.getPreviousNode(fullSlug),
+    docsTree.getNextNode(fullSlug),
   ]);
 
   return (
@@ -61,6 +63,38 @@ export default async function DocsPage({ params }: DocsPageProps) {
             }}
           />
         </div>
+        <nav className="mt-16 grid grid-cols-2 gap-4 border-t border-zinc-200 pt-8 dark:border-zinc-800">
+          {previousNode ? (
+            <Link
+              href={`/docs/${previousNode.slug}`}
+              className="group flex flex-col items-start rounded-lg border border-zinc-200 p-4 transition-colors hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-600"
+            >
+              <span className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                Previous
+              </span>
+              <span className="mt-1 text-sm font-medium text-zinc-950 group-hover:underline dark:text-zinc-50">
+                {previousNode.title}
+              </span>
+            </Link>
+          ) : (
+            <span />
+          )}
+          {nextNode ? (
+            <Link
+              href={`/docs/${nextNode.slug}`}
+              className="group flex flex-col items-end rounded-lg border border-zinc-200 p-4 text-right transition-colors hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-600"
+            >
+              <span className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                Next
+              </span>
+              <span className="mt-1 text-sm font-medium text-zinc-950 group-hover:underline dark:text-zinc-50">
+                {nextNode.title}
+              </span>
+            </Link>
+          ) : (
+            <span />
+          )}
+        </nav>
       </article>
     </main>
   );

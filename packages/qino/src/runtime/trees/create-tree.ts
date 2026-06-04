@@ -25,8 +25,10 @@ import type {
   StringKeys,
   SupportedFileExtension,
   Tree,
+  TreeNodeLike,
 } from "../../types";
 import { findNode } from "./find-node";
+import { flattenTree } from "./flatten-tree";
 import { resolveTreeDirectory } from "./resolve-tree-directory";
 import { walkTree } from "./walk-tree";
 
@@ -46,7 +48,6 @@ type CreateTreeParams<
   resolveRelations?: DefaultR;
 };
 
-// I don't think createTree should allow JSON? TBD. Maybe it should.
 export function createTree<
   S extends ObjectSchema,
   Ext extends SupportedFileExtension,
@@ -79,6 +80,8 @@ export function createTree<
     },
     getTree,
     getEntry,
+    getNextNode,
+    getPreviousNode,
   } as const satisfies Tree<S, Ext, Title, Rels, DefaultR>;
 
   return tree;
@@ -114,8 +117,6 @@ export function createTree<
 
     const raw = await fs.readFile(meta.filePath, "utf-8");
 
-    // Maybe the returned entry should also two functions: getNext and getPrevious that would return the next and previous entries according to the order file?
-    // Would that be hard to do?
     const validatedDataWithMeta = {
       [META_FIELD_NAME]: meta,
       ...parseFile({
@@ -143,5 +144,49 @@ export function createTree<
     });
 
     return resolved as ResolvedTreeEntry<S, Ext, Rels, R>;
+  }
+
+  async function getNextNode(entryOrSlug: string | TreeNodeLike) {
+    return getNeighbour(entryOrSlug, +1);
+  }
+
+  async function getPreviousNode(entryOrSlug: string | TreeNodeLike) {
+    return getNeighbour(entryOrSlug, -1);
+  }
+
+  async function getNeighbour(
+    entryOrSlug: string | TreeNodeLike,
+    offset: 1 | -1,
+  ) {
+    const slug =
+      typeof entryOrSlug == "string"
+        ? entryOrSlug
+        : entryOrSlug[META_FIELD_NAME].slug;
+
+    const directoryPath = await resolveTreeDirectory(directory);
+
+    const nodes = await walkTree({
+      directoryPath,
+      schema,
+      extension,
+      titleField,
+      orderFileName: resolvedOrderFileName,
+    });
+
+    const flatTree = flattenTree(nodes);
+    const index = flatTree.findIndex((node) => node.slug == slug);
+
+    if (index == -1) {
+      throw new Error(`Tree entry "${slug}" not found in tree "${directory}".`);
+    }
+
+    const neighborIndex = index + offset;
+    const neighbourNode = flatTree[neighborIndex];
+
+    if (!neighbourNode) {
+      return null;
+    }
+
+    return neighbourNode;
   }
 }
