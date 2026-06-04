@@ -4,7 +4,7 @@ import nodePath from "node:path";
 
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
-import { readOrderFile } from "./read-order-file";
+import { getOrderFromFile } from "./get-order-from-file";
 
 let tmp: string;
 
@@ -16,62 +16,108 @@ afterEach(async () => {
   await fs.rm(tmp, { recursive: true, force: true });
 });
 
-describe("readOrderFile", () => {
-  test("returns null when the order file is absent", async () => {
+describe("getOrderFromFile", () => {
+  test("returns undefined when the order file is absent", async () => {
     expect(
-      await readOrderFile({ folder: tmp, fileName: "_order.json" }),
-    ).toBeNull();
+      await getOrderFromFile({
+        folder: tmp,
+        fileName: "_order.json",
+        extension: ".md",
+      }),
+    ).toBeUndefined();
   });
 
-  test("returns parsed entries when the file is a string array", async () => {
+  test("returns parsed entries when the file is an array of filenames", async () => {
     await fs.writeFile(
       nodePath.join(tmp, "_order.json"),
-      JSON.stringify(["intro", "guides", "react"]),
+      JSON.stringify(["intro.md", "guides.md", "react.md"]),
     );
-    const result = await readOrderFile({
+    const result = await getOrderFromFile({
       folder: tmp,
       fileName: "_order.json",
+      extension: ".md",
     });
-    expect(result?.entries).toEqual(["intro", "guides", "react"]);
+    expect(result?.entries).toEqual(["intro.md", "guides.md", "react.md"]);
     expect(result?.path).toBe(nodePath.join(tmp, "_order.json"));
   });
 
-  test("throws when the file is not a string array", async () => {
+  test("throws when the file is not an array", async () => {
     await fs.writeFile(
       nodePath.join(tmp, "_order.json"),
-      JSON.stringify({ entries: ["intro"] }),
+      JSON.stringify({ entries: ["intro.md"] }),
     );
     await expect(
-      readOrderFile({ folder: tmp, fileName: "_order.json" }),
-    ).rejects.toThrow(/expected an array of strings/);
+      getOrderFromFile({
+        folder: tmp,
+        fileName: "_order.json",
+        extension: ".md",
+      }),
+    ).rejects.toThrow(/expected an array of filenames ending in "\.md"/);
   });
 
   test("throws when the file contains non-string entries", async () => {
     await fs.writeFile(
       nodePath.join(tmp, "_order.json"),
-      JSON.stringify(["intro", 42]),
+      JSON.stringify(["intro.md", 42]),
     );
     await expect(
-      readOrderFile({ folder: tmp, fileName: "_order.json" }),
-    ).rejects.toThrow(/expected an array of strings/);
+      getOrderFromFile({
+        folder: tmp,
+        fileName: "_order.json",
+        extension: ".md",
+      }),
+    ).rejects.toThrow(/expected an array of filenames ending in "\.md"/);
+  });
+
+  test("throws when an entry is missing the extension", async () => {
+    await fs.writeFile(
+      nodePath.join(tmp, "_order.json"),
+      JSON.stringify(["intro.md", "guides"]),
+    );
+    await expect(
+      getOrderFromFile({
+        folder: tmp,
+        fileName: "_order.json",
+        extension: ".md",
+      }),
+    ).rejects.toThrow(/must end with "\.md"/);
+  });
+
+  test("throws when an entry has the wrong extension", async () => {
+    await fs.writeFile(
+      nodePath.join(tmp, "_order.json"),
+      JSON.stringify(["intro.mdx", "guides.mdx"]),
+    );
+    await expect(
+      getOrderFromFile({
+        folder: tmp,
+        fileName: "_order.json",
+        extension: ".md",
+      }),
+    ).rejects.toThrow(/must end with "\.md"/);
   });
 
   test("throws when the file is not valid JSON", async () => {
     await fs.writeFile(nodePath.join(tmp, "_order.json"), "{ not json");
     await expect(
-      readOrderFile({ folder: tmp, fileName: "_order.json" }),
+      getOrderFromFile({
+        folder: tmp,
+        fileName: "_order.json",
+        extension: ".md",
+      }),
     ).rejects.toThrow(/is not valid JSON/);
   });
 
   test("honours a custom orderFileName", async () => {
     await fs.writeFile(
       nodePath.join(tmp, "sidebar.json"),
-      JSON.stringify(["one", "two"]),
+      JSON.stringify(["one.md", "two.md"]),
     );
-    const result = await readOrderFile({
+    const result = await getOrderFromFile({
       folder: tmp,
       fileName: "sidebar.json",
+      extension: ".md",
     });
-    expect(result?.entries).toEqual(["one", "two"]);
+    expect(result?.entries).toEqual(["one.md", "two.md"]);
   });
 });

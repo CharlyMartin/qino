@@ -53,7 +53,7 @@ describe("walkTree", () => {
     await writeMd(tmp, "z-extra", "Extra");
     await fs.writeFile(
       nodePath.join(tmp, "_order.json"),
-      JSON.stringify(["introduction", "installation"]),
+      JSON.stringify(["introduction.md", "installation.md"]),
     );
 
     const nodes = await walkTree({
@@ -135,7 +135,7 @@ describe("walkTree", () => {
     await writeMd(tmp, "introduction", "Introduction");
     await fs.writeFile(
       nodePath.join(tmp, "_order.json"),
-      JSON.stringify(["introduction", "nope"]),
+      JSON.stringify(["introduction.md", "nope.md"]),
     );
 
     await expect(
@@ -146,7 +146,7 @@ describe("walkTree", () => {
         titleField: "title",
         orderFileName: "_order.json",
       }),
-    ).rejects.toThrow(/entry "nope" does not exist on disk/);
+    ).rejects.toThrow(/entry "nope\.md" does not exist on disk/);
   });
 
   test("treats non-extension files as ignored, including the order file itself", async () => {
