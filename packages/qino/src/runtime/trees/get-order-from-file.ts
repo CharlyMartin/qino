@@ -27,26 +27,23 @@ export async function getOrderFromFile({
 
   const raw = await fs.readFile(orderPath, "utf-8");
 
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch (cause) {
-    throw new Error(`${orderPath} is not valid JSON.`, { cause });
-  }
-
   const schema = z.array(
     z.string().refine((s) => s.endsWith(extension), {
       error: `must end with "${extension}"`,
     }),
   );
 
-  const result = schema.safeParse(parsed);
+  try {
+    const parsed = JSON.parse(raw);
+    const zodParsed = schema.parse(parsed);
+    return { path: orderPath, entries: zodParsed } satisfies Order;
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      throw new Error(
+        `${orderPath}: expected an array of filenames ending in "${extension}".\n${error.message}`,
+      );
+    }
 
-  if (!result.success) {
-    throw new Error(
-      `${orderPath}: expected an array of filenames ending in "${extension}".\n${z.prettifyError(result.error)}`,
-    );
+    throw new Error(`${orderPath} is not valid JSON.`, { cause: error });
   }
-
-  return { path: orderPath, entries: result.data } satisfies Order;
 }
