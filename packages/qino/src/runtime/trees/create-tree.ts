@@ -96,7 +96,7 @@ export function createTree<
       orderFileName: resolvedOrderFileName,
     });
 
-    if (slug === undefined) return nodes;
+    if (typeof slug == "undefined") return nodes;
     return findNode(nodes, slug, directory);
   }
 

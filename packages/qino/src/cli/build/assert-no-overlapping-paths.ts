@@ -68,7 +68,7 @@ function assertCrossPairs(
 }
 
 function pathsOverlap(a: string, b: string) {
-  if (a === b) return true;
+  if (a == b) return true;
   const aSlash = a.endsWith("/") ? a : `${a}/`;
   const bSlash = b.endsWith("/") ? b : `${b}/`;
   return a.startsWith(bSlash) || b.startsWith(aSlash);

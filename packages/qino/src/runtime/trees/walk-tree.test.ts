@@ -88,7 +88,7 @@ describe("walkTree", () => {
       orderFileName: "_order.json",
     });
 
-    const guides = nodes.find((n) => n.slug === "guides");
+    const guides = nodes.find((n) => n.slug == "guides");
     expect(guides?.children.map((c) => c.slug)).toEqual([
       "guides/mutations",
       "guides/queries",

@@ -39,3 +39,4 @@ No test runner is configured yet — pick one when introducing the first package
 
 1. Stick to one function per file, and name if after it: `create-collection.ts` should export a single `createCollection` function. Important functions shoudld also have a test file with the same name: `create-collection.test.ts`.
 2. Avoid return types unless necessary. Let TypeScript infer them where possible, to keep code DRY and maintainable.
+3. Only use `===` when necessary, when types don't match and you want to avoid coercion, for instance. When types match, use `==`.

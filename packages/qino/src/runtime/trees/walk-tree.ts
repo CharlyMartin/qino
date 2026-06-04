@@ -45,7 +45,7 @@ async function walkFolder({
 
   for (const dirent of sorted) {
     if (dirent.isFile()) {
-      if (dirent.name === params.orderFileName) continue;
+      if (dirent.name == params.orderFileName) continue;
       if (!dirent.name.endsWith(params.extension)) continue;
       const name = dirent.name.slice(0, -params.extension.length);
       fileMap.set(name, nodePath.join(absFolder, dirent.name));
@@ -81,7 +81,7 @@ async function walkFolder({
 
   for (const [name, children] of folderMap) {
     if (fileMap.has(name)) continue;
-    if (children.length === 0) continue;
+    if (children.length == 0) continue;
     const folderRel = relFromRoot ? `${relFromRoot}/${name}` : name;
     throw new Error(
       `Tree: folder "${folderRel}" is missing its sibling file "${folderRel}${params.extension}".`,
