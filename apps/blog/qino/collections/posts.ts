@@ -12,7 +12,7 @@ const PostSchema = z
     categories: z.array(z.string()),
     image: z.string(),
     author: z.string(),
-    markdown: z.string(),
+    body: z.string(),
   })
   .strict();
 

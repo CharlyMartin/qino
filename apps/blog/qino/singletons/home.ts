@@ -8,7 +8,7 @@ const HomeSchema = z
     title: z.string(),
     tagline: z.string(),
     "featured-posts": z.array(z.string()),
-    markdown: z.string(),
+    body: z.string(),
   })
   .strict();
 
