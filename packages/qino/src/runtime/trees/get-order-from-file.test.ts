@@ -80,7 +80,7 @@ describe("getOrderFromFile", () => {
         fileName: "_order.json",
         extension: ".md",
       }),
-    ).rejects.toThrow(/must end with "\.md"/);
+    ).rejects.toThrow(/must end with.*\.md/);
   });
 
   test("throws when an entry has the wrong extension", async () => {
@@ -94,7 +94,7 @@ describe("getOrderFromFile", () => {
         fileName: "_order.json",
         extension: ".md",
       }),
-    ).rejects.toThrow(/must end with "\.md"/);
+    ).rejects.toThrow(/must end with.*\.md/);
   });
 
   test("throws when the file is not valid JSON", async () => {

@@ -6,8 +6,8 @@ import { findNode } from "./find-node";
 describe("findNode", () => {
   test("returns a root-level node by slug", () => {
     const tree = [
-      makeDummyNode({ slug: "introduction" }),
-      makeDummyNode({ slug: "installation" }),
+      makeDummyNode({ slug: "introduction", extension: ".md" }),
+      makeDummyNode({ slug: "installation", extension: ".md" }),
     ];
     expect(findNode(tree, "installation", "/docs").slug).toBe("installation");
   });
@@ -16,11 +16,18 @@ describe("findNode", () => {
     const tree = [
       makeDummyNode({
         slug: "guides",
+        extension: ".md",
         children: [
-          makeDummyNode({ slug: "guides/queries" }),
+          makeDummyNode({ slug: "guides/queries", extension: ".md" }),
           makeDummyNode({
             slug: "guides/mutations",
-            children: [makeDummyNode({ slug: "guides/mutations/optimistic" })],
+            extension: ".md",
+            children: [
+              makeDummyNode({
+                slug: "guides/mutations/optimistic",
+                extension: ".md",
+              }),
+            ],
           }),
         ],
       }),
@@ -31,14 +38,14 @@ describe("findNode", () => {
   });
 
   test("throws when slug does not exist", () => {
-    const tree = [makeDummyNode({ slug: "introduction" })];
+    const tree = [makeDummyNode({ slug: "introduction", extension: ".md" })];
     expect(() => findNode(tree, "nope", "/docs")).toThrow(
       /Tree entry "nope" not found in tree "\/docs"/,
     );
   });
 
   test("throws when intermediate slug segment does not exist", () => {
-    const tree = [makeDummyNode({ slug: "guides" })];
+    const tree = [makeDummyNode({ slug: "guides", extension: ".md" })];
     expect(() => findNode(tree, "guides/missing", "/docs")).toThrow(
       /Tree entry "guides\/missing" not found/,
     );

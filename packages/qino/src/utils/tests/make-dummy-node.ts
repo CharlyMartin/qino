@@ -1,11 +1,15 @@
-import type { NodeTree } from "../../types";
+import type { NodeTree, SupportedFileExtension } from "../../types";
 
-// Should also allow .mdx and .markdown extensions.
-export function makeDummyNode(partial: Partial<NodeTree> & { slug: string }) {
+type MakeDummyNodeOptions = Partial<NodeTree> & {
+  slug: string;
+  extension: SupportedFileExtension;
+};
+
+export function makeDummyNode({ extension, ...partial }: MakeDummyNodeOptions) {
   return {
     title: partial.title ?? partial.slug,
-    fileName: partial.fileName ?? `${partial.slug}.md`,
-    filePath: partial.filePath ?? `/abs/${partial.slug}.md`,
+    fileName: partial.fileName ?? `${partial.slug}${extension}`,
+    filePath: partial.filePath ?? `/abs/${partial.slug}${extension}`,
     children: partial.children ?? [],
     ...partial,
   } as NodeTree;
