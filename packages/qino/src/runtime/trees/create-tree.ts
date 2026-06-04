@@ -86,10 +86,10 @@ export function createTree<
   async function getTree(): Promise<Array<NodeTree>>;
   async function getTree(slug: string): Promise<NodeTree>;
   async function getTree(slug?: string) {
-    const absDirectory = await resolveTreeDirectory(directory);
+    const directoryPath = await resolveTreeDirectory(directory);
 
     const nodes = await walkTree({
-      absDirectory,
+      directoryPath,
       schema,
       extension,
       titleField,
@@ -105,10 +105,10 @@ export function createTree<
     options?: GetterOptions<R>,
   ): Promise<ResolvedTreeEntry<S, Ext, Rels, R>> {
     // what does abs mean here?
-    const absDirectory = await resolveTreeDirectory(directory);
+    const directoryPath = await resolveTreeDirectory(directory);
 
     const meta = buildEntryMeta({
-      directory: absDirectory,
+      directory: directoryPath,
       relativePath: `${slug}${extension}`,
       extension,
     });

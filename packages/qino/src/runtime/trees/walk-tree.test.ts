@@ -36,7 +36,7 @@ describe("walkTree", () => {
     await writeMd(tmp, "introduction", "Introduction");
 
     const nodes = await walkTree({
-      absDirectory: tmp,
+      directoryPath: tmp,
       schema: Schema,
       extension: ".md",
       titleField: "title",
@@ -57,7 +57,7 @@ describe("walkTree", () => {
     );
 
     const nodes = await walkTree({
-      absDirectory: tmp,
+      directoryPath: tmp,
       schema: Schema,
       extension: ".md",
       titleField: "title",
@@ -81,7 +81,7 @@ describe("walkTree", () => {
     await writeMd(guidesDir, "mutations", "Mutations");
 
     const nodes = await walkTree({
-      absDirectory: tmp,
+      directoryPath: tmp,
       schema: Schema,
       extension: ".md",
       titleField: "title",
@@ -100,7 +100,7 @@ describe("walkTree", () => {
     await fs.mkdir(nodePath.join(tmp, "introduction"));
 
     const nodes = await walkTree({
-      absDirectory: tmp,
+      directoryPath: tmp,
       schema: Schema,
       extension: ".md",
       titleField: "title",
@@ -120,7 +120,7 @@ describe("walkTree", () => {
 
     await expect(
       walkTree({
-        absDirectory: tmp,
+        directoryPath: tmp,
         schema: Schema,
         extension: ".md",
         titleField: "title",
@@ -140,7 +140,7 @@ describe("walkTree", () => {
 
     await expect(
       walkTree({
-        absDirectory: tmp,
+        directoryPath: tmp,
         schema: Schema,
         extension: ".md",
         titleField: "title",
@@ -155,7 +155,7 @@ describe("walkTree", () => {
     await fs.writeFile(nodePath.join(tmp, "README.txt"), "ignored");
 
     const nodes = await walkTree({
-      absDirectory: tmp,
+      directoryPath: tmp,
       schema: Schema,
       extension: ".md",
       titleField: "title",

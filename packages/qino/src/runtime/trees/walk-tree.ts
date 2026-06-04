@@ -10,9 +10,8 @@ import { buildTreeNode } from "./build-tree-node";
 import { getOrderFromFile } from "./get-order-from-file";
 import { getOrderedNodeTrees } from "./get-ordered-node-trees";
 
-// Rename absDirectory to absoluteDirectory.
 type WalkTreeParams = {
-  absDirectory: string;
+  directoryPath: string;
   schema: ObjectSchema;
   extension: SupportedFileExtension;
   titleField: string;
@@ -22,7 +21,7 @@ type WalkTreeParams = {
 export async function walkTree(params: WalkTreeParams) {
   return walkFolder({
     params,
-    absFolder: params.absDirectory,
+    absFolder: params.directoryPath,
     relFromRoot: "",
   });
 }
