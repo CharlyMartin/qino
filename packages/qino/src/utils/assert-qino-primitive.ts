@@ -1,10 +1,10 @@
 import { QinoMeta } from "../data";
-import type { AnyCollection, AnySingleton } from "../types";
+import type { AnyCollection, AnySingleton, AnyTree } from "../types";
 
 export function assertQinoPrimitive(
   value: unknown,
   msg?: string,
-): asserts value is AnyCollection | AnySingleton {
+): asserts value is AnyCollection | AnySingleton | AnyTree {
   const isValid =
     typeof value == "object" &&
     value !== null &&

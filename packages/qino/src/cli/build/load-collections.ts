@@ -9,7 +9,7 @@ import {
   ROOT_FOLDER_NAME,
   SUPPORTED_CODE_EXTENSIONS,
 } from "../../data";
-import type { AnyCollection } from "../../types";
+import type { AnyCollection, GenericPath } from "../../types";
 import { assertDirectory } from "../../utils";
 import { assertQinoPrimitive } from "../../utils/assert-qino-primitive";
 import { isCollection } from "../../utils/is-collection";
@@ -27,7 +27,7 @@ export async function loadCollections(qinoDir: string) {
   );
 
   const jiti = createJiti(import.meta.url);
-  const registry = new Map<string, AnyCollection>();
+  const registry = new Map<GenericPath, AnyCollection>();
 
   for (const file of files) {
     const importedValue = (await jiti.import(file)) as Record<string, unknown>;
