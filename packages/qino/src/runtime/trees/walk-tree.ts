@@ -7,7 +7,8 @@ import type {
   SupportedFileExtension,
 } from "../../types";
 import { buildTreeNode } from "./build-tree-node";
-import { readOrderFile } from "./read-order-file";
+import { getOrderFromFile } from "./get-order-from-file";
+import { getOrderedNodeTrees } from "./get-ordered-node-trees";
 
 // Rename absDirectory to absoluteDirectory.
 type WalkTreeParams = {
@@ -19,14 +20,24 @@ type WalkTreeParams = {
 };
 
 export async function walkTree(params: WalkTreeParams) {
-  return walkFolder(params, params.absDirectory, "");
+  return walkFolder({
+    params,
+    absFolder: params.absDirectory,
+    relFromRoot: "",
+  });
 }
 
-async function walkFolder(
-  params: WalkTreeParams,
-  absFolder: string,
-  relFromRoot: string,
-) {
+type WalkFolderParams = {
+  params: WalkTreeParams;
+  absFolder: string;
+  relFromRoot: string;
+};
+
+async function walkFolder({
+  params,
+  absFolder,
+  relFromRoot,
+}: WalkFolderParams) {
   const entries = await fs.readdir(absFolder, { withFileTypes: true });
   const sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
 
@@ -44,7 +55,11 @@ async function walkFolder(
         ? `${relFromRoot}/${dirent.name}`
         : dirent.name;
       const childAbs = nodePath.join(absFolder, dirent.name);
-      const children = await walkFolder(params, childAbs, childRel);
+      const children = await walkFolder({
+        params,
+        absFolder: childAbs,
+        relFromRoot: childRel,
+      });
       folderMap.set(dirent.name, children);
     }
   }
@@ -74,29 +89,14 @@ async function walkFolder(
     );
   }
 
-  // Maybe readOrderFile should also order the files. So that we wouldn't have to return order.path for better error messages. It would all happen in the function.
-  const order = await readOrderFile({
+  const order = await getOrderFromFile({
     folder: absFolder,
     fileName: params.orderFileName,
+    extension: params.extension,
   });
-  if (!order) return [...candidates.values()];
 
-  const result: Array<NodeTree> = [];
-  const seen = new Set<string>();
-
-  for (const orderName of order.entries) {
-    const node = candidates.get(orderName);
-    if (!node) {
-      throw new Error(
-        `${order.path}: entry "${orderName}" does not exist on disk (no matching "${orderName}${params.extension}" or non-empty "${orderName}/" folder).`,
-      );
-    }
-    result.push(node);
-    seen.add(orderName);
-  }
-  for (const [name, node] of candidates) {
-    if (!seen.has(name)) result.push(node);
-  }
-
-  return result;
+  return getOrderedNodeTrees({
+    order,
+    candidates,
+  });
 }

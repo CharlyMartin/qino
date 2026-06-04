@@ -51,7 +51,7 @@ For ordering that can't be programmatic:
 
 ```ts
 createCollection({ sort: "posts/_order.json" });
-// _order.json: ["a-post", "another-post", "yet-another-post"]
+// _order.json: ["a-post.md", "another-post.md", "yet-another-post.md"]
 ```
 
 JSON (not TS) so the cloud UI can read/edit it from GitHub.

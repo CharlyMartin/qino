@@ -34,7 +34,7 @@ export async function buildTreeNode({
   });
 
   const title = validated[titleField];
-  if (typeof title !== "string") {
+  if (typeof title != "string") {
     throw new Error(
       `${filePath}: expected titleField "${titleField}" to resolve to a string, got ${typeof title}.`,
     );
@@ -46,5 +46,5 @@ export async function buildTreeNode({
     fileName: nodePath.basename(filePath),
     filePath,
     children,
-  } satisfies NodeTree;
+  } as const satisfies NodeTree;
 }

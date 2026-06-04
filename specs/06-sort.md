@@ -44,7 +44,7 @@ createCollection({
 
 _Maybe this should not be possible -> collections can be ordered by the getter. If the user needs arbitrary ordering, use a tree_
 
-For order that can't be programmatic — a list of slugs in the desired order:
+For order that can't be programmatic — a list of filenames in the desired order:
 
 ```ts
 createCollection({
@@ -53,7 +53,7 @@ createCollection({
 ```
 
 ```json
-["a-post", "another-post", "yet-another-post"]
+["a-post.md", "another-post.md", "yet-another-post.md"]
 ```
 
 JSON (not TS) so the cloud UI can read and edit it from GitHub.

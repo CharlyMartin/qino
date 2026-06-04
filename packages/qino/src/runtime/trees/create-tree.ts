@@ -7,6 +7,7 @@ import {
   QinoPrimitives,
 } from "../../data";
 import {
+  buildEntryMeta,
   createRelationResolver,
   createResolveCache,
   validate,
@@ -25,7 +26,6 @@ import type {
   SupportedFileExtension,
   Tree,
 } from "../../types";
-import { buildTreeEntryMeta } from "./build-tree-entry-meta";
 import { findNode } from "./find-node";
 import { resolveTreeDirectory } from "./resolve-tree-directory";
 import { walkTree } from "./walk-tree";
@@ -107,7 +107,7 @@ export function createTree<
     // what does abs mean here?
     const absDirectory = await resolveTreeDirectory(directory);
 
-    const meta = buildTreeEntryMeta({
+    const meta = buildEntryMeta({
       directory: absDirectory,
       relativePath: `${slug}${extension}`,
       extension,

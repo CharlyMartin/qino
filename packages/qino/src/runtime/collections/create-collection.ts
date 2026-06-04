@@ -9,6 +9,7 @@ import {
   createResolveCache,
   validate,
 } from "../../lib";
+import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
 import { parseFile } from "../../lib/parse/parse-file";
 import { normalizeDepth } from "../../lib/relations/normalize-depth";
 import type {
@@ -21,7 +22,6 @@ import type {
   ResolveOption,
   SupportedFileExtension,
 } from "../../types";
-import { buildEntryMeta } from "./build-entry-meta";
 import { resolveCollectionDirectory } from "./resolve-collection-directory";
 
 type CreateCollectionParams<

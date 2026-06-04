@@ -1,1 +1,1 @@
-["queries", "mutations", "schemas"]
+["queries.mdx", "mutations.mdx", "schemas.mdx"]

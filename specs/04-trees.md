@@ -107,10 +107,11 @@ content/docs/
 One file per node (root and each subfolder). Optional.
 
 ```json
-["introduction", "installation", "guides", "react"]
+["introduction.md", "installation.md", "guides.md", "react.md"]
 ```
 
-- Each entry is a bare slug relative to the folder, no extension.
+- Each entry is the filename relative to the folder, including its extension. Every tree node is anchored on a file (a `<name>/` folder must have a sibling `<name>.<ext>`), so the entry always names that anchor file.
+- Entries are validated against the tree's configured extension; an entry that doesn't end in it is a build error.
 - Files present on disk but not listed in `_order.json` are appended after listed entries in filesystem order (loose semantics).
 - Entries in `_order.json` referencing files that don't exist → build error, naming the offending entry and the `_order.json` path.
 - If `_order.json` is absent, the order at that node is filesystem order.
@@ -244,7 +245,7 @@ The `qino/trees/` folder is **optional** — projects with no trees skip it with
 ## Open questions
 
 - **Cloud-UI reorder write path** — drag-to-reorder in the dashboard commits to `_order.json` on a branch. Moves must keep `foo.<ext>` and `foo/` paired across reparenting/rename. Wire-format and conflict resolution deferred to V2.
-- **`_order.json` metadata** — should `_order.json` eventually support per-entry metadata (e.g. `hidden: true`, `external: "https://..."`)? Defer until a real consumer needs it; if added, the bare-slug form must remain valid.
+- **`_order.json` metadata** — should `_order.json` eventually support per-entry metadata (e.g. `hidden: true`, `external: "https://..."`)? Defer until a real consumer needs it; if added, the bare-filename form must remain valid.
 - **Getter options parity** — collections plan a `getAll({ first, last, sort, filter, ... })` shape. Whether `getEntries` grows analogous options (filter by predicate before hydrating, limit by depth) is open.
 
 ## Acceptance criteria
