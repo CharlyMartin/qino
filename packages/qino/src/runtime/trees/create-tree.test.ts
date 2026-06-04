@@ -181,4 +181,81 @@ describe("createTree", () => {
     const entry = await tree.getEntry("intro", { resolveRelations: false });
     expect(entry._meta.slug).toBe("intro");
   });
+
+  describe("getNextNode / getPreviousNode", () => {
+    async function setupNested() {
+      const docs = nodePath.join(tmp, "docs");
+      await fs.mkdir(docs);
+      await writeMd(docs, "introduction", "Introduction");
+      await writeMd(docs, "guides", "Guides");
+      const guidesDir = nodePath.join(docs, "guides");
+      await fs.mkdir(guidesDir);
+      await writeMd(guidesDir, "queries", "Queries");
+      await writeMd(guidesDir, "mutations", "Mutations");
+      await writeMd(docs, "reference", "Reference");
+      await fs.writeFile(
+        nodePath.join(docs, "_order.json"),
+        JSON.stringify(["introduction.md", "guides.md", "reference.md"]),
+      );
+      await fs.writeFile(
+        nodePath.join(guidesDir, "_order.json"),
+        JSON.stringify(["queries.md", "mutations.md"]),
+      );
+
+      return createTree({
+        directory: "/docs",
+        schema: Schema,
+        extension: ".md",
+        titleField: "title",
+      });
+    }
+
+    test("getNextNode(slug) returns the next node in depth-first order", async () => {
+      const tree = await setupNested();
+      const next = await tree.getNextNode("introduction");
+      expect(next?.slug).toBe("guides");
+    });
+
+    test("getNextNode descends into children of a parent node", async () => {
+      const tree = await setupNested();
+      const next = await tree.getNextNode("guides");
+      expect(next?.slug).toBe("guides/queries");
+    });
+
+    test("getNextNode crosses out of a nested branch to the next uncle", async () => {
+      const tree = await setupNested();
+      const next = await tree.getNextNode("guides/mutations");
+      expect(next?.slug).toBe("reference");
+    });
+
+    test("getNextNode returns null at the last node", async () => {
+      const tree = await setupNested();
+      expect(await tree.getNextNode("reference")).toBeNull();
+    });
+
+    test("getPreviousNode returns null at the first node", async () => {
+      const tree = await setupNested();
+      expect(await tree.getPreviousNode("introduction")).toBeNull();
+    });
+
+    test("getPreviousNode returns the previous node in depth-first order", async () => {
+      const tree = await setupNested();
+      const prev = await tree.getPreviousNode("reference");
+      expect(prev?.slug).toBe("guides/mutations");
+    });
+
+    test("accepts an entry object instead of a slug", async () => {
+      const tree = await setupNested();
+      const entry = await tree.getEntry("introduction");
+      const next = await tree.getNextNode(entry);
+      expect(next?.slug).toBe("guides");
+    });
+
+    test("throws when slug does not exist", async () => {
+      const tree = await setupNested();
+      await expect(tree.getNextNode("nope")).rejects.toThrow(
+        /Tree entry "nope" not found in tree "\/docs"/,
+      );
+    });
+  });
 });

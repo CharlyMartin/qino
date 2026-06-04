@@ -29,6 +29,7 @@ export type {
   StringKeys,
   Tree,
   TreeMeta,
+  TreeNodeLike,
 } from "./tree";
 export type {
   GenericPath,

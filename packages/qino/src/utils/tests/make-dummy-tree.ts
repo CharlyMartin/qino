@@ -27,5 +27,7 @@ export function makeDummyTree({ directory, extension }: MakeDummyTreeOptions) {
     getEntry: (async () => {
       throw new Error("not implemented");
     }) as never,
+    getNextNode: async () => null,
+    getPreviousNode: async () => null,
   } as AnyTree;
 }
