@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import nodePath from "node:path";
 
 import {
   DEFAULT_ORDER_FILE_NAME,
@@ -27,12 +28,12 @@ import type {
   Tree,
   TreeNodeLike,
 } from "../../types";
+import type { QinoContext } from "../qino/create-qino";
 import { findNode } from "./find-node";
 import { flattenTree } from "./flatten-tree";
-import { resolveTreeDirectory } from "./resolve-tree-directory";
 import { walkTree } from "./walk-tree";
 
-type CreateTreeParams<
+export type CreateTreeParams<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Title extends StringKeys<Schema>,
@@ -54,22 +55,27 @@ export function createTree<
   Title extends StringKeys<S>,
   Rels extends Relations<S> = object,
   DefaultR extends ResolveOption = true,
->({
-  directory,
-  schema,
-  extension,
-  titleField,
-  orderFileName,
-  relations,
-  resolveRelations,
-}: CreateTreeParams<S, Ext, Title, Rels, DefaultR>) {
+>(ctx: QinoContext, params: CreateTreeParams<S, Ext, Title, Rels, DefaultR>) {
+  const {
+    directory,
+    schema,
+    extension,
+    titleField,
+    orderFileName,
+    relations,
+    resolveRelations,
+  } = params;
+
   const treeRelations = (relations ?? {}) as Rels;
   const defaultResolve = (resolveRelations ?? true) as ResolveOption;
   const resolvedOrderFileName = orderFileName ?? DEFAULT_ORDER_FILE_NAME;
+  const directoryPath = nodePath.join(ctx.config.contentFolder, directory);
 
   const tree = {
     [QinoMeta]: {
       is: QinoPrimitives.tree,
+      instanceId: ctx.instanceId,
+      config: ctx.config,
       schema,
       directory,
       extension,
@@ -89,8 +95,6 @@ export function createTree<
   async function getTree(): Promise<Array<NodeTree>>;
   async function getTree(slug: string): Promise<NodeTree>;
   async function getTree(slug?: string) {
-    const directoryPath = await resolveTreeDirectory(directory);
-
     const nodes = await walkTree({
       directoryPath,
       schema,
@@ -107,8 +111,6 @@ export function createTree<
     slug: string,
     options?: GetterOptions<R>,
   ): Promise<ResolvedTreeEntry<S, Ext, Rels, R>> {
-    const directoryPath = await resolveTreeDirectory(directory);
-
     const meta = buildEntryMeta({
       directory: directoryPath,
       relativePath: `${slug}${extension}`,
@@ -141,6 +143,7 @@ export function createTree<
     const resolved = await resolver.resolveEntry(validatedDataWithMeta, {
       relations: tree[QinoMeta].relations,
       depth,
+      sourceInstanceId: ctx.instanceId,
     });
 
     return resolved as ResolvedTreeEntry<S, Ext, Rels, R>;
@@ -162,8 +165,6 @@ export function createTree<
       typeof entryOrSlug == "string"
         ? entryOrSlug
         : entryOrSlug[META_FIELD_NAME].slug;
-
-    const directoryPath = await resolveTreeDirectory(directory);
 
     const nodes = await walkTree({
       directoryPath,

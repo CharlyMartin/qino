@@ -22,9 +22,9 @@ import type {
   ResolveOption,
   SupportedFileExtension,
 } from "../../types";
-import { resolveCollectionDirectory } from "./resolve-collection-directory";
+import type { QinoContext } from "../qino/create-qino";
 
-type CreateCollectionParams<
+export type CreateCollectionParams<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema> = object,
@@ -42,19 +42,22 @@ export function createCollection<
   Ext extends SupportedFileExtension,
   Rels extends Relations<S> = object,
   DefaultR extends ResolveOption = true,
->({
-  directory,
-  schema,
-  extension,
-  relations,
-  resolveRelations,
-}: CreateCollectionParams<S, Ext, Rels, DefaultR>) {
+>(ctx: QinoContext, params: CreateCollectionParams<S, Ext, Rels, DefaultR>) {
+  const { directory, schema, extension, relations, resolveRelations } = params;
+
   const collectionRelations = (relations ?? {}) as Rels;
   const defaultResolve = (resolveRelations ?? true) as ResolveOption;
+
+  const collectionDirectory = nodePath.join(
+    ctx.config.contentFolder,
+    directory,
+  );
 
   const collection = {
     [QinoMeta]: {
       is: QinoPrimitives.collection,
+      instanceId: ctx.instanceId,
+      config: ctx.config,
       schema,
       directory,
       extension,
@@ -70,8 +73,6 @@ export function createCollection<
   async function getAll<R extends ResolveOption = DefaultR>(
     options?: GetterOptions<R>,
   ): Promise<Array<ResolvedCollectionView<S, Ext, Rels, R>>> {
-    const collectionDirectory = await resolveCollectionDirectory(directory);
-
     const relFilePaths = await fg(`**/*${extension}`, {
       cwd: collectionDirectory,
     });
@@ -125,6 +126,7 @@ export function createCollection<
         resolver.resolveEntry(entry, {
           relations: collection[QinoMeta].relations,
           depth,
+          sourceInstanceId: ctx.instanceId,
         }),
       ),
     );
@@ -135,8 +137,6 @@ export function createCollection<
     slug: string,
     options?: GetterOptions<R>,
   ): Promise<ResolvedCollectionView<S, Ext, Rels, R>> {
-    const collectionDirectory = await resolveCollectionDirectory(directory);
-
     const meta = buildEntryMeta({
       directory: collectionDirectory,
       relativePath: `${slug}${extension}`,
@@ -169,6 +169,7 @@ export function createCollection<
     const resolved = await resolver.resolveEntry(validatedDataWithMeta, {
       relations: collection[QinoMeta].relations,
       depth,
+      sourceInstanceId: ctx.instanceId,
     });
     return resolved as ResolvedCollectionView<S, Ext, Rels, R>;
   }

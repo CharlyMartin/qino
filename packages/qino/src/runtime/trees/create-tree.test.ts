@@ -2,24 +2,18 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import nodePath from "node:path";
 
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
 import { MARKDOWN_BODY_FIELD_NAME, QinoMeta, QinoPrimitives } from "../../data";
-import { createTree } from "./create-tree";
+import { createQino } from "../qino/create-qino";
 
 let tmp: string;
-
-vi.mock("./resolve-tree-directory", () => ({
-  resolveTreeDirectory: async (directory: string) =>
-    nodePath.join(currentContentRoot, directory),
-}));
-
-let currentContentRoot = "";
+let createTree: ReturnType<typeof createQino>["createTree"];
 
 beforeEach(async () => {
   tmp = await fs.mkdtemp(nodePath.join(os.tmpdir(), "qino-tree-"));
-  currentContentRoot = tmp;
+  ({ createTree } = createQino({ contentFolder: tmp, mediaFolder: tmp }));
 });
 
 afterEach(async () => {

@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import nodePath from "node:path";
 
 import { META_FIELD_NAME, QinoMeta, QinoPrimitives } from "../../data";
 import {
@@ -19,10 +20,10 @@ import type {
   SingletonFile,
 } from "../../types";
 import { extractExtension } from "../../utils/extract-extension";
+import type { QinoContext } from "../qino/create-qino";
 import { buildSingletonMeta } from "./build-singleton-meta";
-import { resolveSingletonFile } from "./resolve-singleton-file";
 
-type CreateSingletonParams<
+export type CreateSingletonParams<
   Schema extends ObjectSchema,
   F extends SingletonFile,
   Rels extends Relations<Schema> = object,
@@ -39,20 +40,24 @@ export function createSingleton<
   F extends SingletonFile,
   Rels extends Relations<S> = object,
   DefaultR extends ResolveOption = true,
->({
-  file,
-  schema,
-  relations,
-  resolveRelations,
-}: CreateSingletonParams<S, F, Rels, DefaultR>) {
+>(ctx: QinoContext, params: CreateSingletonParams<S, F, Rels, DefaultR>) {
+  const { file, schema, relations, resolveRelations } = params;
+
   type Ext = ExtractSingletonExtension<F>;
   const extension = extractExtension(file) as Ext;
   const singletonRelations = (relations ?? {}) as Rels;
   const defaultResolve = (resolveRelations ?? true) as ResolveOption;
 
+  const absoluteFilePath = nodePath.join(
+    ctx.config.contentFolder,
+    file,
+  ) as `${string}${Ext}`;
+
   const singleton = {
     [QinoMeta]: {
       is: QinoPrimitives.singleton,
+      instanceId: ctx.instanceId,
+      config: ctx.config,
       schema,
       file,
       extension,
@@ -67,8 +72,6 @@ export function createSingleton<
   async function getData<R extends ResolveOption = DefaultR>(
     options?: GetterOptions<R>,
   ): Promise<ResolvedSingletonView<S, Ext, Rels, R>> {
-    const absoluteFilePath = await resolveSingletonFile(file);
-
     const meta = buildSingletonMeta({ filePath: absoluteFilePath });
 
     const raw = await fs.readFile(absoluteFilePath, "utf-8");
@@ -97,6 +100,7 @@ export function createSingleton<
     const resolved = await resolver.resolveEntry(validatedDataWithMeta, {
       relations: singleton[QinoMeta].relations,
       depth,
+      sourceInstanceId: ctx.instanceId,
     });
     return resolved as ResolvedSingletonView<S, Ext, Rels, R>;
   }

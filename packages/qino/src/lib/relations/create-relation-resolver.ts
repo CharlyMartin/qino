@@ -15,6 +15,7 @@ import { walkAndSet } from "./walk-and-set";
 type ResolveEntryContext = {
   relations: Record<string, RelationTarget | undefined>;
   depth: number;
+  sourceInstanceId: symbol;
 };
 
 export type RelationErrorContext = {
@@ -26,7 +27,7 @@ export function createRelationResolver(cache: ResolveCache) {
   return { resolveEntry };
 
   async function resolveEntry(entry: AnyEntry, ctx: ResolveEntryContext) {
-    const { relations, depth } = ctx;
+    const { relations, depth, sourceInstanceId } = ctx;
     if (depth <= 0) return entry;
 
     let result: Record<string, unknown> = entry;
@@ -35,6 +36,13 @@ export function createRelationResolver(cache: ResolveCache) {
       if (!target) continue;
 
       const resolvedTarget = typeof target == "function" ? target() : target;
+
+      if (resolvedTarget[QinoMeta].instanceId != sourceInstanceId) {
+        throw new Error(
+          `Relation "${relationKey}" (from ${entry._meta.filePath}) points to a primitive created by a different createQino() call. All related primitives must come from the same Qino instance.`,
+        );
+      }
+
       const segments = parsePath(relationKey);
 
       const errorCtx = {
@@ -54,6 +62,7 @@ export function createRelationResolver(cache: ResolveCache) {
                 resolvedTarget,
                 slug,
                 depth - 1,
+                sourceInstanceId,
                 errorCtx,
               );
             },
@@ -69,6 +78,7 @@ export function createRelationResolver(cache: ResolveCache) {
     target: AnyCollection | AnySingleton,
     slug: string,
     depth: number,
+    sourceInstanceId: symbol,
     ctx: RelationErrorContext,
   ) {
     const raw = await getOrFetchRawTarget(target, slug, ctx);
@@ -76,6 +86,7 @@ export function createRelationResolver(cache: ResolveCache) {
     return resolveEntry(raw, {
       relations: target[QinoMeta].relations,
       depth,
+      sourceInstanceId,
     });
   }
 

@@ -1,6 +1,6 @@
-import { createSingleton } from "qino";
 import z from "zod";
 
+import { createSingleton } from "../";
 import { postCollection } from "../collections/posts";
 
 const HomeSchema = z

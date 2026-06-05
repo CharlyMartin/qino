@@ -1,6 +1,7 @@
 import type { Simplify } from "type-fest";
 
 import type { QinoMeta, QinoPrimitives } from "../data";
+import type { QinoConfig } from "../runtime/qino/create-qino";
 import type { MetaFieldName, TreeEntryMeta } from "./entry";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
@@ -31,6 +32,8 @@ export type TreeMeta<
   Rels extends Relations<Schema> = Relations<Schema>,
 > = {
   readonly is: (typeof QinoPrimitives)["tree"];
+  readonly instanceId: symbol;
+  readonly config: QinoConfig;
   readonly schema: Schema;
   readonly directory: GenericPath;
   readonly extension: Ext;
@@ -75,6 +78,8 @@ export type ResolvedTreeEntry<
 
 export type AnyTreeMeta = {
   readonly is: (typeof QinoPrimitives)["tree"];
+  readonly instanceId: symbol;
+  readonly config: QinoConfig;
   readonly schema: ObjectSchema;
   readonly directory: GenericPath;
   readonly extension: SupportedFileExtension;
