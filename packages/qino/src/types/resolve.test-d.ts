@@ -1,8 +1,12 @@
 import { describe, expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
-import { createCollection } from "../runtime/collections";
-import { createSingleton } from "../runtime/singletons";
+import { createQino } from "../runtime/qino/create-qino";
+
+const { createCollection, createSingleton } = createQino({
+  contentFolder: "src/content",
+  mediaFolder: "public",
+});
 
 const AuthorSchema = z
   .object({

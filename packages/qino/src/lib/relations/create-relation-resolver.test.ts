@@ -1,12 +1,15 @@
 import { describe, expect, test, vi } from "vitest";
 
 import {
+  DUMMY_INSTANCE_ID,
   makeDummyCollection,
   makeDummyEntry,
   makeDummySingleton,
 } from "../../utils/tests";
 import { createRelationResolver } from "./create-relation-resolver";
 import { createResolveCache } from "./create-resolve-cache";
+
+const sourceInstanceId = DUMMY_INSTANCE_ID;
 
 describe("createRelationResolver", () => {
   describe("depth gate", () => {
@@ -25,6 +28,7 @@ describe("createRelationResolver", () => {
       const result = await resolver.resolveEntry(entry, {
         relations: { author: target },
         depth: 0,
+        sourceInstanceId,
       });
 
       expect(result).toBe(entry);
@@ -46,6 +50,7 @@ describe("createRelationResolver", () => {
       const result = await resolver.resolveEntry(entry, {
         relations: { author: target },
         depth: -1,
+        sourceInstanceId,
       });
 
       expect(result).toBe(entry);
@@ -72,7 +77,7 @@ describe("createRelationResolver", () => {
           extension: ".json",
           fields: { author: "authors/alice.json" },
         }),
-        { relations: { author: target }, depth: 1 },
+        { relations: { author: target }, depth: 1, sourceInstanceId },
       );
 
       expect(result.author).toMatchObject({ name: "Alice" });
@@ -91,7 +96,7 @@ describe("createRelationResolver", () => {
           extension: ".json",
           fields: { site: "config/site.json" },
         }),
-        { relations: { site: target }, depth: 1 },
+        { relations: { site: target }, depth: 1, sourceInstanceId },
       );
 
       expect(result.site).toMatchObject({ siteName: "Qino" });
@@ -117,7 +122,7 @@ describe("createRelationResolver", () => {
           extension: ".json",
           fields: { author: "authors/alice.json" },
         }),
-        { relations: { author: lazy }, depth: 1 },
+        { relations: { author: lazy }, depth: 1, sourceInstanceId },
       );
 
       expect(lazy).toHaveBeenCalled();
@@ -133,7 +138,7 @@ describe("createRelationResolver", () => {
           extension: ".json",
           fields: { author: "authors/alice.json" },
         }),
-        { relations: { author: undefined }, depth: 1 },
+        { relations: { author: undefined }, depth: 1, sourceInstanceId },
       );
 
       expect(result.author).toBe("authors/alice.json");
@@ -160,7 +165,11 @@ describe("createRelationResolver", () => {
           extension: ".json",
           fields: { profile: { author: "authors/alice.json" } },
         }),
-        { relations: { "profile.author": target }, depth: 1 },
+        {
+          relations: { "profile.author": target },
+          depth: 1,
+          sourceInstanceId,
+        },
       );
 
       expect(result.profile).toMatchObject({ author: { name: "Alice" } });
@@ -193,7 +202,7 @@ describe("createRelationResolver", () => {
           extension: ".json",
           fields: { tags: ["tags/a.json", "tags/b.json"] },
         }),
-        { relations: { "tags[*]": target }, depth: 1 },
+        { relations: { "tags[*]": target }, depth: 1, sourceInstanceId },
       );
 
       expect(result.tags).toMatchObject([{ label: "A" }, { label: "B" }]);
@@ -227,7 +236,7 @@ describe("createRelationResolver", () => {
             extension: ".json",
             fields: { author: "authors/alice.json" },
           }),
-          { relations: { author: target }, depth: 1 },
+          { relations: { author: target }, depth: 1, sourceInstanceId },
         ),
         resolver.resolveEntry(
           makeDummyEntry({
@@ -235,7 +244,7 @@ describe("createRelationResolver", () => {
             extension: ".json",
             fields: { author: "authors/alice.json" },
           }),
-          { relations: { author: target }, depth: 1 },
+          { relations: { author: target }, depth: 1, sourceInstanceId },
         ),
       ]);
 
@@ -278,7 +287,11 @@ describe("createRelationResolver", () => {
             editor: "editors/alice.json",
           },
         }),
-        { relations: { author: authors, editor: editors }, depth: 1 },
+        {
+          relations: { author: authors, editor: editors },
+          depth: 1,
+          sourceInstanceId,
+        },
       );
 
       expect(result.author).toMatchObject({ kind: "author" });
@@ -303,9 +316,32 @@ describe("createRelationResolver", () => {
             extension: ".json",
             fields: { author: "authors/missing.json" },
           }),
-          { relations: { author: target }, depth: 1 },
+          { relations: { author: target }, depth: 1, sourceInstanceId },
         ),
       ).rejects.toThrow(/author.*authors\/missing.*post\.json/);
+    });
+  });
+
+  describe("cross-instance enforcement", () => {
+    test("throws when a relation target was created by a different Qino instance", async () => {
+      const otherInstanceId = Symbol("qino.other");
+      const target = makeDummyCollection({
+        directory: "/authors",
+        extension: ".json",
+        instanceId: otherInstanceId,
+      });
+      const resolver = createRelationResolver(createResolveCache());
+
+      await expect(
+        resolver.resolveEntry(
+          makeDummyEntry({
+            slug: "post",
+            extension: ".json",
+            fields: { author: "authors/alice.json" },
+          }),
+          { relations: { author: target }, depth: 1, sourceInstanceId },
+        ),
+      ).rejects.toThrow(/different createQino/);
     });
   });
 
@@ -340,7 +376,7 @@ describe("createRelationResolver", () => {
           extension: ".json",
           fields: { author: "authors/alice.json" },
         }),
-        { relations: { author: authors }, depth: 1 },
+        { relations: { author: authors }, depth: 1, sourceInstanceId },
       );
 
       expect(result.author).toMatchObject({
@@ -379,7 +415,7 @@ describe("createRelationResolver", () => {
           extension: ".json",
           fields: { author: "authors/alice.json" },
         }),
-        { relations: { author: authors }, depth: 2 },
+        { relations: { author: authors }, depth: 2, sourceInstanceId },
       );
 
       expect(result.author).toMatchObject({

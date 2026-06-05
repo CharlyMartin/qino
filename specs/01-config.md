@@ -5,21 +5,41 @@
 
 ## Intent
 
-`qino/config.ts` is where developers declare project-wide settings: where content and media files live in the consumer app. These values are written into `qino-lock.json` by the CLI and read back by getters at runtime.
+`qino/index.ts` is where developers declare project-wide settings (content and media
+folders) and create the `createCollection` / `createSingleton` / `createTree`
+factories that the rest of the project uses. These values are captured in-memory by
+the returned Qino instance and read by getters at runtime — there is no JSON
+manifest on disk (see `11-lock-file.md` for the deferred cloud-UI artifact).
 
 ## API
 
 ```ts
-// qino/config.ts
-import { createConfig } from "qino";
+// qino/index.ts
+import { createQino } from "qino";
 
-export default createConfig({
+export const { createCollection, createSingleton, createTree } = createQino({
   contentFolder: "src/content",
   mediaFolder: "public",
 });
 ```
 
-`createConfig` is a typed passthrough — returns the config untouched. Its only job is to type-check the input and act as the export the CLI loads.
+`createQino` validates the options, mints an internal instance id, and returns
+factory functions bound to that instance. Every primitive created from these
+factories carries the same instance id on its `QinoMeta` — relations across
+instances throw at build time and at runtime.
+
+Per-primitive files import from this entry:
+
+```ts
+// qino/collections/posts.ts
+import { createCollection } from "../";
+
+export const postCollection = createCollection({
+  directory: "/posts",
+  schema: PostSchema,
+  extension: ".md",
+});
+```
 
 ## Schema
 
@@ -30,23 +50,34 @@ export default createConfig({
 }
 ```
 
-Source of truth: `packages/qino/src/runtime/create-config.ts`.
+Source of truth: `packages/qino/src/runtime/qino/qino-options.ts`.
 
 ## Behaviour
 
-- `qino/config.ts` is **never** imported by the consumer app. It is loaded only by `qino build`.
-- The CLI uses [jiti](https://github.com/unjs/jiti) to import the TS file without a build step.
-- Both folder paths must exist and be directories — `qino build` errors out otherwise.
-- Paths in collection definitions are resolved relative to `contentFolder`. Asset paths resolve relative to `mediaFolder`.
+- `qino/index.ts` is imported transitively by every collection/singleton/tree file
+  (through the `import { createCollection } from "../"` chain). It is also loaded by
+  `qino build` indirectly — the CLI globs `qino/collections/*`, `qino/singletons/*`,
+  `qino/trees/*` and jiti-imports each file, which evaluates `createQino` exactly
+  once.
+- The CLI uses [jiti](https://github.com/unjs/jiti) to import TS files without a
+  build step.
+- Both folder paths must exist and be directories — `qino build` errors out
+  otherwise.
+- Paths in collection / singleton / tree definitions are resolved relative to
+  `contentFolder`. Asset paths resolve relative to `mediaFolder`.
 
 ## Open questions
 
 - Add `i18n: boolean` (deferred to V2 — see `12-i18n.md`).
+- Add `ui: true` opt-in to re-enable lock-file emission for the cloud UI (see
+  `11-lock-file.md` and `13-cloud-ui.md`).
 
 ## Acceptance criteria
 
 Done when:
 
-- A consumer can run `qino build` and see `qino-lock.json` written with the config block.
-- Missing or invalid `qino/config.ts` produces a clear error at build time.
-- Getters at runtime read paths only via the lock file, never by importing `config.ts`.
+- A consumer can run `qino build` and see schemas + paths + relations validated with
+  no JSON artifact written.
+- Missing or invalid `qino/index.ts` produces a clear error at build time.
+- Getters at runtime read paths only from the in-memory `QinoMeta`, never from a
+  generated file.

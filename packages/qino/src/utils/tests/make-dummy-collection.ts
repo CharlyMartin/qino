@@ -1,4 +1,5 @@
 import { QinoMeta, QinoPrimitives } from "../../data/globals";
+import type { QinoConfig } from "../../runtime/qino/create-qino";
 import type {
   AnyCollection,
   AnyEntry,
@@ -7,12 +8,15 @@ import type {
   ResolveOption,
   SupportedFileExtension,
 } from "../../types";
+import { DUMMY_CONFIG, DUMMY_INSTANCE_ID } from "./dummy-config";
 
 type MakeDummyCollectionOptions = {
   directory: GenericPath;
   extension: SupportedFileExtension;
   store?: Map<string, AnyEntry>;
   relations?: Record<string, RelationTarget | undefined>;
+  instanceId?: symbol;
+  config?: QinoConfig;
 };
 
 export function makeDummyCollection({
@@ -20,10 +24,14 @@ export function makeDummyCollection({
   extension,
   store = new Map(),
   relations = {},
+  instanceId = DUMMY_INSTANCE_ID,
+  config = DUMMY_CONFIG,
 }: MakeDummyCollectionOptions) {
   return {
     [QinoMeta]: {
       is: QinoPrimitives.collection,
+      instanceId,
+      config,
       schema: {} as never,
       directory,
       extension,

@@ -9,6 +9,10 @@ A browser-based editing surface for content editors. They never touch the IDE â€
 
 The cloud UI's only contract with a Qino project is `qino-lock.json` on GitHub. It does not import any TS files from the consumer's repo.
 
+> **Status note (V1):** `qino-lock.json` generation has been removed from the CLI
+> while the cloud UI is on hold. It will return as an opt-in (`--ui` / `ui: true`)
+> when this spec is picked up. See `11-lock-file.md`.
+
 ## Read path
 
 1. Editor authenticates.

@@ -1,5 +1,6 @@
-import { createCollection } from "qino";
 import z from "zod";
+
+import { createCollection } from "../";
 
 const CategorySchema = z
   .object({

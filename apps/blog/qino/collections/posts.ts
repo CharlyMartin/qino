@@ -1,6 +1,6 @@
-import { createCollection } from "qino";
 import { z } from "zod";
 
+import { createCollection } from "../";
 import { authorCollection } from "./authors";
 import { categoryCollection } from "./categories";
 

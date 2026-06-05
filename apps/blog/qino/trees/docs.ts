@@ -1,5 +1,6 @@
-import { createTree } from "qino";
 import z from "zod";
+
+import { createTree } from "../";
 
 const DocsSchema = z
   .object({

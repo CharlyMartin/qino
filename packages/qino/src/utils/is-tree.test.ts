@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
 
+import { isTree } from "./is-tree";
 import {
   makeDummyCollection,
   makeDummySingleton,
   makeDummyTree,
 } from "./tests";
-import { isTree } from "./is-tree";
 
 describe("isTree", () => {
   test("returns true for a tree", () => {

@@ -5,7 +5,10 @@
 
 ## Intent
 
-The CLI is the only path that loads `qino/config.ts` and `qino/collections/*.ts` at build time. It writes `qino-lock.json` from those files, and (planned) regenerates types and watches for changes.
+The CLI is the only path that loads `qino/index.ts` and `qino/collections/*.ts` at
+build time. It validates schemas, paths, and relations, and (planned) regenerates
+types and watches for changes. There is no JSON manifest on disk — see
+`11-lock-file.md` for the deferred cloud-UI artifact.
 
 ## Commands
 
@@ -13,30 +16,38 @@ The CLI is the only path that loads `qino/config.ts` and `qino/collections/*.ts`
 
 What it does today:
 
-1. Verifies `qino/` exists and `qino/config.ts` is present.
-2. Loads `qino/config.ts` via [jiti](https://github.com/unjs/jiti).
-3. Validates the config against `ConfigSchema`.
-4. Verifies `contentFolder` and `mediaFolder` exist and are directories.
-5. Writes `qino/qino-lock.json` containing `{ qinoVersion, config }`.
+1. Verifies `qino/` exists and `qino/index.ts` is present.
+2. Globs and jiti-imports every file in `qino/collections/`, `qino/singletons/`,
+   `qino/trees/`. Each import transitively pulls in `qino/index.ts`, which calls
+   `createQino({...})` and binds the factories.
+3. Asserts at least one primitive was found.
+4. Verifies all loaded primitives share the same internal Qino instance id (i.e.
+   they came from a single `createQino` call).
+5. Verifies every relation target shares that same instance id.
+6. Reads the config (`contentFolder`, `mediaFolder`) from any loaded primitive's
+   `QinoMeta` and verifies both folders exist on disk.
+7. Asserts no overlapping paths between collections / singletons / trees.
+8. Validates each primitive by exercising its getter (`getAll` / `getData` /
+   `getTree`) with `resolveRelations: false`. Each file is read and parsed against
+   its schema; missing or invalid files fail the build.
 
-What it must do for V1:
+What it must still do for V1:
 
-6. Discover and load every file in `qino/collections/`, `qino/pages/`, `qino/trees/`.
-7. Extract each definition's schema and metadata (path, extension, relations).
-8. Write the full lock file (see `11-lock-file.md`).
-9. Generate `.d.ts` types into a known location.
+9. Generate `.d.ts` types into a known location (slug unions per collection / tree,
+   typed getter signatures).
 
-Source of truth (today): `packages/qino/src/cli/commands/build.ts`.
+Source of truth: `packages/qino/src/cli/build/run-build.ts`.
 
 ### `qino dev` `[v1-proposed]`
 
 `build` + `watch`. Watches:
 
-- `qino/config.ts`
-- `qino/collections/*.ts`, `qino/pages/*.ts`, `qino/trees/*.ts`
+- `qino/index.ts`
+- `qino/collections/*.ts`, `qino/singletons/*.ts`, `qino/trees/*.ts`
 - Content files under `contentFolder` (for type regeneration of slug unions)
 
-On change: re-runs the relevant part of build and rewrites `qino-lock.json`. Hot-reloads if the consumer dev server supports it.
+On change: re-runs the relevant part of build and regenerates types. Hot-reloads if
+the consumer dev server supports it.
 
 ## Generated types `[v1-proposed]`
 
@@ -56,21 +67,25 @@ The pattern follows Next.js 16's `typed-routes` (`.next/types/routes.d.ts`).
 
 ## Behaviour
 
-- The CLI is invoked from the consumer app's repo root. It assumes `cwd` contains a `qino/` folder.
+- The CLI is invoked from the consumer app's repo root. It assumes `cwd` contains a
+  `qino/` folder with an `index.ts` entry.
 - Errors are surfaced with file paths and Zod's `prettifyError` output.
-- `qino build` is idempotent — running it twice on unchanged inputs produces an identical lock file (modulo `qinoVersion` if upgraded).
+- `qino build` is idempotent — running it twice on unchanged inputs produces no
+  diff (it does not write any files today).
 
 ## Open questions
 
 - Where do generated `.d.ts` types live and how does TS pick them up (paths in `tsconfig`, ambient declarations, etc.)?
 - Does `qino dev` own a dev server, or does it just watch and let the consumer's dev server pick up file changes?
 - Exit codes for `build` failures (validation vs IO vs config).
+- When to reintroduce JSON manifest emission for the cloud UI (see
+  `11-lock-file.md`, `13-cloud-ui.md`).
 
 ## Acceptance criteria
 
 Done when:
 
 - `pnpm --filter <consumer> qino build` succeeds end-to-end against `apps/blog/`.
-- The resulting `qino-lock.json` matches the schema in `11-lock-file.md` exactly.
-- `qino dev` rewrites the lock file within ~500ms of a relevant file change.
+- Schema / path / relation violations all surface as actionable errors.
+- `qino dev` re-runs validation within ~500ms of a relevant file change.
 - Generated `.d.ts` types are picked up by TS in `apps/blog/` without manual configuration beyond what's already in `tsconfig.json`.
