@@ -22,6 +22,7 @@ import type {
   ResolveOption,
   SupportedFileExtension,
 } from "../../types";
+import type { Slug } from "../../types/utils";
 import type { QinoContext } from "../qino/create-qino";
 
 export type CreateCollectionParams<
@@ -134,7 +135,7 @@ export function createCollection<
   }
 
   async function getOne<R extends ResolveOption = DefaultR>(
-    slug: string,
+    slug: Slug,
     options?: GetterOptions<R>,
   ): Promise<ResolvedCollectionView<S, Ext, Rels, R>> {
     const meta = buildEntryMeta({

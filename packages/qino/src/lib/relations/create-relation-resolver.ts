@@ -5,6 +5,7 @@ import type {
   AnySingleton,
   RelationTarget,
 } from "../../types";
+import type { Slug } from "../../types/utils";
 import { isSingleton } from "../../utils/is-singleton";
 import type { ResolveCache } from "./create-resolve-cache";
 import { fetchTargetEntry } from "./fetch-target-entry";
@@ -76,7 +77,7 @@ export function createRelationResolver(cache: ResolveCache) {
 
   async function resolveTargetReference(
     target: AnyCollection | AnySingleton,
-    slug: string,
+    slug: Slug,
     depth: number,
     sourceInstanceId: symbol,
     ctx: RelationErrorContext,
@@ -92,7 +93,7 @@ export function createRelationResolver(cache: ResolveCache) {
 
   async function getOrFetchRawTarget(
     target: AnyCollection | AnySingleton,
-    slug: string,
+    slug: Slug,
     ctx: RelationErrorContext,
   ) {
     const cacheKey = getTargetUniquePath(target);

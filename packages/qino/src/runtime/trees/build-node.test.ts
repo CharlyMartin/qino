@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
 import { MARKDOWN_BODY_FIELD_NAME } from "../../data";
-import { buildTreeNode } from "./build-tree-node";
+import { buildNode } from "./build-node";
 
 let tmp: string;
 
@@ -18,7 +18,7 @@ afterEach(async () => {
   await fs.rm(tmp, { recursive: true, force: true });
 });
 
-describe("buildTreeNode", () => {
+describe("buildNode", () => {
   test("builds a node from a markdown file using its titleField", async () => {
     const filePath = nodePath.join(tmp, "introduction.md");
     await fs.writeFile(
@@ -31,7 +31,7 @@ describe("buildTreeNode", () => {
       [MARKDOWN_BODY_FIELD_NAME]: z.string(),
     });
 
-    const node = await buildTreeNode({
+    const node = await buildNode({
       schema,
       extension: ".md",
       titleField: "title",
@@ -61,7 +61,7 @@ describe("buildTreeNode", () => {
       [MARKDOWN_BODY_FIELD_NAME]: z.string(),
     });
 
-    const node = await buildTreeNode({
+    const node = await buildNode({
       schema,
       extension: ".md",
       titleField: "label",
@@ -86,7 +86,7 @@ describe("buildTreeNode", () => {
     });
 
     await expect(
-      buildTreeNode({
+      buildNode({
         schema,
         extension: ".md",
         titleField: "title",

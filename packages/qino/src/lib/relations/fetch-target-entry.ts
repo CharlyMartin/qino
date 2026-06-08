@@ -1,11 +1,12 @@
 import { QinoMeta } from "../../data";
 import type { AnyCollection, AnySingleton } from "../../types";
+import type { Slug } from "../../types/utils";
 import { isSingleton } from "../../utils/is-singleton";
 import type { RelationErrorContext } from "./create-relation-resolver";
 
 export async function fetchTargetEntry(
   target: AnyCollection | AnySingleton,
-  slug: string,
+  slug: Slug,
   ctx: RelationErrorContext,
 ) {
   try {
