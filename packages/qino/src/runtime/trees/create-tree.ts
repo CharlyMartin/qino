@@ -85,6 +85,7 @@ export function createTree<
       resolveRelations: defaultResolve,
     },
     getTree,
+    getNodes,
     getEntry,
     getNextNode,
     getPreviousNode,
@@ -95,16 +96,13 @@ export function createTree<
   async function getTree(): Promise<Array<NodeTree>>;
   async function getTree(slug: string): Promise<NodeTree>;
   async function getTree(slug?: string) {
-    const nodes = await walkTree({
-      directoryPath,
-      schema,
-      extension,
-      titleField,
-      orderFileName: resolvedOrderFileName,
-    });
-
+    const nodes = await walkAll();
     if (typeof slug == "undefined") return nodes;
     return findNode(nodes, slug, directory);
+  }
+
+  async function getNodes() {
+    return flattenTree(await walkAll());
   }
 
   async function getEntry<R extends ResolveOption = DefaultR>(
@@ -157,6 +155,16 @@ export function createTree<
     return getNeighbour(entryOrSlug, -1);
   }
 
+  async function walkAll() {
+    return walkTree({
+      directoryPath,
+      schema,
+      extension,
+      titleField,
+      orderFileName: resolvedOrderFileName,
+    });
+  }
+
   async function getNeighbour(
     entryOrSlug: string | TreeNodeLike,
     offset: 1 | -1,
@@ -166,15 +174,7 @@ export function createTree<
         ? entryOrSlug
         : entryOrSlug[META_FIELD_NAME].slug;
 
-    const nodes = await walkTree({
-      directoryPath,
-      schema,
-      extension,
-      titleField,
-      orderFileName: resolvedOrderFileName,
-    });
-
-    const flatTree = flattenTree(nodes);
+    const flatTree = flattenTree(await walkAll());
     const index = flatTree.findIndex((node) => node.slug == slug);
 
     if (index == -1) {

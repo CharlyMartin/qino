@@ -12,6 +12,11 @@ type PostPageProps = {
   params: Promise<{ slug: string }>;
 };
 
+export async function generateStaticParams() {
+  const posts = await postCollection.getAll();
+  return posts.map((post) => ({ slug: post._meta.slug }));
+}
+
 export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params;
 
