@@ -18,7 +18,6 @@ import { normalizeDepth } from "../../lib/relations/normalize-depth";
 import type {
   GenericPath,
   GetterOptions,
-  NodeTree,
   ObjectSchema,
   Relations,
   ResolvedTreeEntry,
@@ -26,6 +25,7 @@ import type {
   StringKeys,
   SupportedFileExtension,
   Tree,
+  TreeNode,
   TreeNodeLike,
 } from "../../types";
 import type { QinoContext } from "../qino/create-qino";
@@ -93,8 +93,8 @@ export function createTree<
 
   return tree;
 
-  async function getTree(): Promise<Array<NodeTree>>;
-  async function getTree(slug: string): Promise<NodeTree>;
+  async function getTree(): Promise<Array<TreeNode>>;
+  async function getTree(slug: string): Promise<TreeNode>;
   async function getTree(slug?: string) {
     const nodes = await walkAll();
     if (typeof slug == "undefined") return nodes;

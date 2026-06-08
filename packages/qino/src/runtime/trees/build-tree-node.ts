@@ -4,9 +4,9 @@ import nodePath from "node:path";
 import { parseFile } from "../../lib/parse/parse-file";
 import { validate } from "../../lib/validate";
 import type {
-  NodeTree,
   ObjectSchema,
   SupportedFileExtension,
+  TreeNode,
 } from "../../types";
 
 type BuildTreeNodeParams = {
@@ -15,7 +15,7 @@ type BuildTreeNodeParams = {
   titleField: string;
   filePath: string;
   slug: string;
-  children: Array<NodeTree>;
+  children: Array<TreeNode>;
 };
 
 export async function buildTreeNode({
@@ -46,5 +46,5 @@ export async function buildTreeNode({
     fileName: nodePath.basename(filePath),
     filePath,
     children,
-  } as const satisfies NodeTree;
+  } as const satisfies TreeNode;
 }

@@ -1,6 +1,6 @@
-import type { NodeTree, SupportedFileExtension } from "../../types";
+import type { SupportedFileExtension, TreeNode } from "../../types";
 
-type MakeDummyNodeOptions = Partial<NodeTree> & {
+type MakeDummyNodeOptions = Partial<TreeNode> & {
   slug: string;
   extension: SupportedFileExtension;
 };
@@ -12,5 +12,5 @@ export function makeDummyNode({ extension, ...partial }: MakeDummyNodeOptions) {
     filePath: partial.filePath ?? `/abs/${partial.slug}${extension}`,
     children: partial.children ?? [],
     ...partial,
-  } as NodeTree;
+  } as TreeNode;
 }
