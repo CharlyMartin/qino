@@ -79,7 +79,7 @@ describe("buildEntryMeta", () => {
     ).toThrow(/hello/);
   });
 
-  test("strips subdirectories in relativePath (uses basename only)", () => {
+  test("preserves nested directories in relativePath", () => {
     expect(
       buildEntryMeta({
         directory: "/posts",
@@ -87,9 +87,9 @@ describe("buildEntryMeta", () => {
         extension: ".md",
       }),
     ).toEqual({
-      slug: "hello",
+      slug: "nested/sub/hello",
       fileName: "hello.md",
-      filePath: "/posts/hello.md",
+      filePath: "/posts/nested/sub/hello.md",
     });
   });
 

@@ -1,5 +1,6 @@
 import nodePath from "node:path";
 
 export function removeExtension(path: string) {
-  return nodePath.parse(path).name;
+  const ext = nodePath.extname(path);
+  return ext ? path.slice(0, -ext.length) : path;
 }

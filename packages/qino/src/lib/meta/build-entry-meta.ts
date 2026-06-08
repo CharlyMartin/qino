@@ -18,11 +18,9 @@ export function buildEntryMeta<Ext extends SupportedFileExtension>({
     throw new Error(`${relativePath} does not end with ${extension}`);
   }
 
-  const fileName = nodePath.basename(relativePath);
-
   return {
-    slug: removeExtension(fileName),
-    fileName: fileName as `${string}${Ext}`,
-    filePath: nodePath.join(directory, fileName) as `${string}${Ext}`,
+    slug: removeExtension(relativePath),
+    fileName: nodePath.basename(relativePath) as `${string}${Ext}`,
+    filePath: nodePath.join(directory, relativePath) as `${string}${Ext}`,
   } satisfies CollectionEntryMeta<Ext>;
 }
