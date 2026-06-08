@@ -9,8 +9,15 @@ const DocsSchema = z
   })
   .strict();
 
+export const docsTreeV1 = createTree({
+  directory: "/docs/v1",
+  schema: DocsSchema,
+  extension: ".mdx",
+  titleField: "title",
+});
+
 export const docsTree = createTree({
-  directory: "/docs",
+  directory: "/docs/v2",
   schema: DocsSchema,
   extension: ".mdx",
   titleField: "title",
