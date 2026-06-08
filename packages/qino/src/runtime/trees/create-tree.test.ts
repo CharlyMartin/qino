@@ -146,6 +146,31 @@ describe("createTree", () => {
     ).toBe("Welcome");
   });
 
+  test("getEntry() resolves a nested slug to the correct file", async () => {
+    const docs = nodePath.join(tmp, "docs");
+    await fs.mkdir(docs);
+    const guidesDir = nodePath.join(docs, "guides");
+    await fs.mkdir(guidesDir);
+    const queriesDir = nodePath.join(guidesDir, "queries");
+    await fs.mkdir(queriesDir);
+    await writeMd(queriesDir, "basics", "Basics", "Body");
+
+    const tree = createTree({
+      directory: "/docs",
+      schema: Schema,
+      extension: ".md",
+      titleField: "title",
+    });
+
+    const entry = await tree.getEntry("guides/queries/basics");
+    expect(entry._meta.slug).toBe("guides/queries/basics");
+    expect(entry._meta.fileName).toBe("basics.md");
+    expect(entry._meta.filePath.endsWith("guides/queries/basics.md")).toBe(
+      true,
+    );
+    expect((entry as { title: string }).title).toBe("Basics");
+  });
+
   test("getEntry() throws when the slug does not exist", async () => {
     const docs = nodePath.join(tmp, "docs");
     await fs.mkdir(docs);
