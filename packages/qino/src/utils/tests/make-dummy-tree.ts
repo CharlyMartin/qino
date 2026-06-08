@@ -35,6 +35,7 @@ export function makeDummyTree({
       resolveRelations: true as ResolveOption,
     },
     getTree: (async () => []) as never,
+    getNodes: async () => [],
     getEntry: (async () => {
       throw new Error("not implemented");
     }) as never,

@@ -201,6 +201,42 @@ describe("createTree", () => {
     expect(entry._meta.slug).toBe("intro");
   });
 
+  test("getNodes() returns every node flattened in depth-first order", async () => {
+    const docs = nodePath.join(tmp, "docs");
+    await fs.mkdir(docs);
+    await writeMd(docs, "introduction", "Introduction");
+    await writeMd(docs, "guides", "Guides");
+    const guidesDir = nodePath.join(docs, "guides");
+    await fs.mkdir(guidesDir);
+    await writeMd(guidesDir, "queries", "Queries");
+    await writeMd(guidesDir, "mutations", "Mutations");
+    await writeMd(docs, "reference", "Reference");
+    await fs.writeFile(
+      nodePath.join(docs, "_order.json"),
+      JSON.stringify(["introduction.md", "guides.md", "reference.md"]),
+    );
+    await fs.writeFile(
+      nodePath.join(guidesDir, "_order.json"),
+      JSON.stringify(["queries.md", "mutations.md"]),
+    );
+
+    const tree = createTree({
+      directory: "/docs",
+      schema: Schema,
+      extension: ".md",
+      titleField: "title",
+    });
+
+    const nodes = await tree.getNodes();
+    expect(nodes.map((n) => n.slug)).toEqual([
+      "introduction",
+      "guides",
+      "guides/queries",
+      "guides/mutations",
+      "reference",
+    ]);
+  });
+
   describe("getNextNode / getPreviousNode", () => {
     async function setupNested() {
       const docs = nodePath.join(tmp, "docs");

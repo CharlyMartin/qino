@@ -55,6 +55,7 @@ export type Tree<
   readonly [QinoMeta]: TreeMeta<Schema, Ext, Title, Rels>;
   getTree(): Promise<Array<NodeTree>>;
   getTree(slug: string): Promise<NodeTree>;
+  getNodes(): Promise<Array<NodeTree>>;
   getEntry<R extends ResolveOption = DefaultR>(
     slug: string,
     options?: GetterOptions<R>,
@@ -93,6 +94,7 @@ export type AnyTree = {
   readonly [QinoMeta]: AnyTreeMeta;
   getTree(): Promise<Array<NodeTree>>;
   getTree(slug: string): Promise<NodeTree>;
+  getNodes(): Promise<Array<NodeTree>>;
   getEntry(
     slug: string,
     options?: GetterOptions,

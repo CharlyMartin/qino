@@ -13,6 +13,11 @@ type DocsPageProps = {
   params: Promise<{ slug: Array<string> }>;
 };
 
+export async function generateStaticParams() {
+  const nodes = await docsTree.getNodes();
+  return nodes.map((node) => ({ slug: node.slug.split("/") }));
+}
+
 export default async function DocsPage({ params }: DocsPageProps) {
   const { slug } = await params;
   const fullSlug = slug.join("/");
