@@ -1,8 +1,9 @@
 import type { TreeNode } from "../../types";
+import type { Slug } from "../../types/utils";
 
 export function findNode(
   nodes: Array<TreeNode>,
-  slug: string,
+  slug: Slug,
   treeDirectory: string,
 ) {
   const segments = slug.split("/");

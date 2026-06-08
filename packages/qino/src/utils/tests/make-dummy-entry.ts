@@ -1,7 +1,8 @@
 import type { AnyEntry, SupportedFileExtension } from "../../types";
+import type { Slug } from "../../types/utils";
 
 type MakeDummyEntryOptions = {
-  slug: string;
+  slug: Slug;
   extension: SupportedFileExtension;
   fields?: Record<string, unknown>;
 };

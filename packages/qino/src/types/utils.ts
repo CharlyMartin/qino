@@ -11,3 +11,5 @@ export type GenericPath = `/${string}`;
 export type GetterOptions<R extends ResolveOption = ResolveOption> = {
   resolveRelations?: R;
 };
+
+export type Slug = string;

@@ -26,11 +26,12 @@ import type {
   SupportedFileExtension,
   Tree,
   TreeNode,
-  TreeNodeLike,
 } from "../../types";
+import type { Slug } from "../../types/utils";
 import type { QinoContext } from "../qino/create-qino";
 import { findNode } from "./find-node";
 import { flattenTree } from "./flatten-tree";
+import { getNeighborNode } from "./get-neighbor-node";
 import { walkTree } from "./walk-tree";
 
 export type CreateTreeParams<
@@ -94,19 +95,26 @@ export function createTree<
   return tree;
 
   async function getTree(): Promise<Array<TreeNode>>;
-  async function getTree(slug: string): Promise<TreeNode>;
-  async function getTree(slug?: string) {
-    const nodes = await walkAll();
+  async function getTree(slug: Slug): Promise<TreeNode>;
+  async function getTree(slug?: Slug) {
+    const nodes = await walkTree({
+      directoryPath,
+      schema,
+      extension,
+      titleField,
+      orderFileName: resolvedOrderFileName,
+    });
+
     if (typeof slug == "undefined") return nodes;
     return findNode(nodes, slug, directory);
   }
 
   async function getFlatTree() {
-    return flattenTree(await walkAll());
+    return flattenTree(await getTree());
   }
 
   async function getEntry<R extends ResolveOption = DefaultR>(
-    slug: string,
+    slug: Slug,
     options?: GetterOptions<R>,
   ): Promise<ResolvedTreeEntry<S, Ext, Rels, R>> {
     const meta = buildEntryMeta({
@@ -147,47 +155,21 @@ export function createTree<
     return resolved as ResolvedTreeEntry<S, Ext, Rels, R>;
   }
 
-  async function getNextNode(entryOrSlug: string | TreeNodeLike) {
-    return getNeighbour(entryOrSlug, +1);
-  }
-
-  async function getPreviousNode(entryOrSlug: string | TreeNodeLike) {
-    return getNeighbour(entryOrSlug, -1);
-  }
-
-  async function walkAll() {
-    return walkTree({
-      directoryPath,
-      schema,
-      extension,
-      titleField,
-      orderFileName: resolvedOrderFileName,
+  async function getNextNode(slug: Slug) {
+    return getNeighborNode({
+      tree: await getTree(),
+      slug,
+      directory,
+      offset: 1,
     });
   }
 
-  async function getNeighbour(
-    entryOrSlug: string | TreeNodeLike,
-    offset: 1 | -1,
-  ) {
-    const slug =
-      typeof entryOrSlug == "string"
-        ? entryOrSlug
-        : entryOrSlug[META_FIELD_NAME].slug;
-
-    const flatTree = flattenTree(await walkAll());
-    const index = flatTree.findIndex((node) => node.slug == slug);
-
-    if (index == -1) {
-      throw new Error(`Tree entry "${slug}" not found in tree "${directory}".`);
-    }
-
-    const neighborIndex = index + offset;
-    const neighbourNode = flatTree[neighborIndex];
-
-    if (!neighbourNode) {
-      return null;
-    }
-
-    return neighbourNode;
+  async function getPreviousNode(slug: Slug) {
+    return getNeighborNode({
+      tree: await getTree(),
+      slug,
+      directory,
+      offset: -1,
+    });
   }
 }

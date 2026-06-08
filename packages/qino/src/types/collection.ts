@@ -9,6 +9,7 @@ import type { ObjectSchema } from "./schema";
 import type {
   GenericPath,
   GetterOptions,
+  Slug,
   SupportedFileExtension,
 } from "./utils";
 
@@ -23,7 +24,7 @@ export type Collection<
     options?: GetterOptions<R>,
   ): Promise<Array<ResolvedCollectionView<Schema, Ext, Rels, R>>>;
   getOne<R extends ResolveOption = DefaultR>(
-    slug: string,
+    slug: Slug,
     options?: GetterOptions<R>,
   ): Promise<ResolvedCollectionView<Schema, Ext, Rels, R>>;
 };
@@ -66,7 +67,7 @@ export type AnyCollection = {
     >
   >;
   getOne(
-    slug: string,
+    slug: Slug,
     options?: GetterOptions,
   ): Promise<
     Record<string, unknown> & {

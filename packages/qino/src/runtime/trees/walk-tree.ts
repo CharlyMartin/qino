@@ -6,7 +6,7 @@ import type {
   SupportedFileExtension,
   TreeNode,
 } from "../../types";
-import { buildTreeNode } from "./build-tree-node";
+import { buildNode } from "./build-node";
 import { getOrderFromFile } from "./get-order-from-file";
 import { getOrderedNodeTrees } from "./get-ordered-node-trees";
 
@@ -68,7 +68,7 @@ async function walkFolder({
   for (const [name, filePath] of fileMap) {
     const children = folderMap.get(name) ?? [];
     const slug = relFromRoot ? `${relFromRoot}/${name}` : name;
-    const node = await buildTreeNode({
+    const node = await buildNode({
       schema: params.schema,
       extension: params.extension,
       titleField: params.titleField,

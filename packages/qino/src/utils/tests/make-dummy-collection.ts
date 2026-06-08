@@ -8,6 +8,7 @@ import type {
   ResolveOption,
   SupportedFileExtension,
 } from "../../types";
+import type { Slug } from "../../types/utils";
 import { DUMMY_CONFIG, DUMMY_INSTANCE_ID } from "./dummy-config";
 
 type MakeDummyCollectionOptions = {
@@ -39,7 +40,7 @@ export function makeDummyCollection({
       resolveRelations: true as ResolveOption,
     },
     getAll: async () => Array.from(store.values()) as never,
-    getOne: async (slug: string) => {
+    getOne: async (slug: Slug) => {
       const found = store.get(slug);
       if (!found) throw new Error(`ENOENT: ${directory}/${slug}`);
       return found as never;

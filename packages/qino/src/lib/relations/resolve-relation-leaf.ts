@@ -1,11 +1,12 @@
 import type { AnyCollectionMeta, AnySingletonMeta } from "../../types";
+import type { Slug } from "../../types/utils";
 import { parseRelationValue } from "./parse-relation-value";
 
 type Context = {
   relationKey: string;
   sourceFilePath: string;
   targetMeta: AnyCollectionMeta | AnySingletonMeta;
-  resolveTargetReference: (slug: string) => Promise<Record<string, unknown>>;
+  resolveTargetReference: (slug: Slug) => Promise<Record<string, unknown>>;
 };
 
 export async function resolveRelationLeaf(leaf: unknown, ctx: Context) {

@@ -8,17 +8,18 @@ import type {
   SupportedFileExtension,
   TreeNode,
 } from "../../types";
+import type { Slug } from "../../types/utils";
 
 type BuildTreeNodeParams = {
   schema: ObjectSchema;
   extension: SupportedFileExtension;
   titleField: string;
   filePath: string;
-  slug: string;
+  slug: Slug;
   children: Array<TreeNode>;
 };
 
-export async function buildTreeNode({
+export async function buildNode({
   schema,
   titleField,
   filePath,
