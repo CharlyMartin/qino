@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 
 import type { TreeNode } from "../../types";
 import { makeDummyNode } from "../../utils/tests";
-import { getOrderedNodeTrees } from "./get-ordered-node-trees";
+import { getOrderedNodes } from "./get-ordered-nodes";
 
 function makeCandidates(slugs: Array<string>) {
   return new Map(
@@ -10,10 +10,10 @@ function makeCandidates(slugs: Array<string>) {
   );
 }
 
-describe("getOrderedNodeTrees", () => {
+describe("getOrderedNodes", () => {
   test("returns all candidates in Map insertion order when no order is provided", () => {
     const candidates = makeCandidates(["intro", "guides", "react"]);
-    const result = getOrderedNodeTrees({ candidates });
+    const result = getOrderedNodes({ candidates });
     expect(result.map((node) => node.slug)).toEqual([
       "intro",
       "guides",
@@ -22,12 +22,12 @@ describe("getOrderedNodeTrees", () => {
   });
 
   test("returns an empty array when candidates is empty and no order is provided", () => {
-    expect(getOrderedNodeTrees({ candidates: new Map() })).toEqual([]);
+    expect(getOrderedNodes({ candidates: new Map() })).toEqual([]);
   });
 
   test("orders candidates according to order.entries", () => {
     const candidates = makeCandidates(["intro", "guides", "react"]);
-    const result = getOrderedNodeTrees({
+    const result = getOrderedNodes({
       candidates,
       order: {
         path: "/posts/_order.json",
@@ -43,7 +43,7 @@ describe("getOrderedNodeTrees", () => {
 
   test("appends candidates not listed in order after the ordered ones", () => {
     const candidates = makeCandidates(["intro", "guides", "react", "advanced"]);
-    const result = getOrderedNodeTrees({
+    const result = getOrderedNodes({
       candidates,
       order: {
         path: "/posts/_order.json",
@@ -63,7 +63,7 @@ describe("getOrderedNodeTrees", () => {
     candidates.set("z", makeDummyNode({ slug: "z", extension: ".md" }));
     candidates.set("a", makeDummyNode({ slug: "a", extension: ".md" }));
     candidates.set("m", makeDummyNode({ slug: "m", extension: ".md" }));
-    const result = getOrderedNodeTrees({
+    const result = getOrderedNodes({
       candidates,
       order: { path: "/posts/_order.json", entries: ["a.md"] },
     });
@@ -73,7 +73,7 @@ describe("getOrderedNodeTrees", () => {
   test("throws when an order entry has no matching candidate", () => {
     const candidates = makeCandidates(["intro", "guides"]);
     expect(() =>
-      getOrderedNodeTrees({
+      getOrderedNodes({
         candidates,
         order: {
           path: "/posts/_order.json",
@@ -86,7 +86,7 @@ describe("getOrderedNodeTrees", () => {
   test("error message mentions the bare folder name as a fallback", () => {
     const candidates = makeCandidates(["intro"]);
     expect(() =>
-      getOrderedNodeTrees({
+      getOrderedNodes({
         candidates,
         order: {
           path: "/posts/_order.json",
@@ -98,7 +98,7 @@ describe("getOrderedNodeTrees", () => {
 
   test("returns all candidates when order.entries is empty", () => {
     const candidates = makeCandidates(["intro", "guides"]);
-    const result = getOrderedNodeTrees({
+    const result = getOrderedNodes({
       candidates,
       order: { path: "/posts/_order.json", entries: [] },
     });
@@ -120,7 +120,7 @@ describe("getOrderedNodeTrees", () => {
       ["intro", intro],
       ["guides", guides],
     ]);
-    const result = getOrderedNodeTrees({
+    const result = getOrderedNodes({
       candidates,
       order: { path: "/posts/_order.json", entries: ["guides.md"] },
     });

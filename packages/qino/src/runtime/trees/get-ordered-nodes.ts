@@ -7,7 +7,7 @@ type GetNodeTreesFromOrderParams = {
   candidates: Map<string, TreeNode>;
 };
 
-export function getOrderedNodeTrees({
+export function getOrderedNodes({
   order,
   candidates,
 }: GetNodeTreesFromOrderParams) {

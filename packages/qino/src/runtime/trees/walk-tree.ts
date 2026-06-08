@@ -8,7 +8,7 @@ import type {
 } from "../../types";
 import { buildNode } from "./build-node";
 import { getOrderFromFile } from "./get-order-from-file";
-import { getOrderedNodeTrees } from "./get-ordered-node-trees";
+import { getOrderedNodes } from "./get-ordered-nodes";
 
 type WalkTreeParams = {
   directoryPath: string;
@@ -94,7 +94,7 @@ async function walkFolder({
     extension: params.extension,
   });
 
-  return getOrderedNodeTrees({
+  return getOrderedNodes({
     order,
     candidates,
   });
