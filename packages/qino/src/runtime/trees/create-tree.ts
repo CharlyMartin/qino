@@ -85,7 +85,7 @@ export function createTree<
       resolveRelations: defaultResolve,
     },
     getTree,
-    getNodes,
+    getFlatTree,
     getEntry,
     getNextNode,
     getPreviousNode,
@@ -101,7 +101,7 @@ export function createTree<
     return findNode(nodes, slug, directory);
   }
 
-  async function getNodes() {
+  async function getFlatTree() {
     return flattenTree(await walkAll());
   }
 

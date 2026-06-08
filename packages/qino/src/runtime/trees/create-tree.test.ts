@@ -201,7 +201,7 @@ describe("createTree", () => {
     expect(entry._meta.slug).toBe("intro");
   });
 
-  test("getNodes() returns every node flattened in depth-first order", async () => {
+  test("getFlatTree() returns every node flattened in depth-first order", async () => {
     const docs = nodePath.join(tmp, "docs");
     await fs.mkdir(docs);
     await writeMd(docs, "introduction", "Introduction");
@@ -227,7 +227,7 @@ describe("createTree", () => {
       titleField: "title",
     });
 
-    const nodes = await tree.getNodes();
+    const nodes = await tree.getFlatTree();
     expect(nodes.map((n) => n.slug)).toEqual([
       "introduction",
       "guides",

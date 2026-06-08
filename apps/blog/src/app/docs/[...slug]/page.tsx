@@ -14,7 +14,7 @@ type DocsPageProps = {
 };
 
 export async function generateStaticParams() {
-  const nodes = await docsTree.getNodes();
+  const nodes = await docsTree.getFlatTree();
   return nodes.map((node) => ({ slug: node.slug.split("/") }));
 }
 
