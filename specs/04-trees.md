@@ -120,19 +120,19 @@ One file per node (root and each subfolder). Optional.
 
 ## Returned shapes
 
-`NodeTree` skeletons (returned by `getTree`) use flat meta — `slug`, `title`, `fileName`, `filePath`, and `children` are top-level siblings — because tree nodes are walked and terse top-level keys read better in traversal code.
+`TreeNode` skeletons (returned by `getTree`) use flat meta — `slug`, `title`, `fileName`, `filePath`, and `children` are top-level siblings — because tree nodes are walked and terse top-level keys read better in traversal code.
 
 `TreeEntry` (returned by `getEntry`) uses the same `_meta` + spread layout as collections and singletons. `getEntry` is a leaf-level read, so consistency with the other primitives wins here.
 
-`NodeTree` (skeleton, returned by `getTree`):
+`TreeNode` (skeleton, returned by `getTree`):
 
 ```ts
-type NodeTree = {
+type TreeNode = {
   slug: string; // "guides", "guides/queries"
   title: string; // from titleField in the node's frontmatter
   fileName: string; // "guides.md", "queries.md", ...
   filePath: string; // absolute path on disk
-  children: NodeTree[]; // always [], never null
+  children: TreeNode[]; // always [], never null
 };
 ```
 
@@ -153,11 +153,11 @@ type TreeEntry = {
 ### `getTree`
 
 ```ts
-getTree(): Promise<NodeTree[]>
-getTree(slug: string): Promise<NodeTree>
+getTree(): Promise<TreeNode[]>
+getTree(slug: string): Promise<TreeNode>
 ```
 
-Without an argument, returns the whole tree as root-level `NodeTree[]` with full nesting. With a slug, returns the single `NodeTree` at that slug with its nested children. Throws if `slug` doesn't exist.
+Without an argument, returns the whole tree as root-level `TreeNode[]` with full nesting. With a slug, returns the single `TreeNode` at that slug with its nested children. Throws if `slug` doesn't exist.
 
 Slug syntax: slash notation matching the rest of the API.
 
@@ -209,7 +209,7 @@ There is intentionally **no flat `getAll`** — trees are about hierarchy. To pr
 
 ### `getEntries`
 
-For V2, consider adding a getEntries function that would take in a NodeTree or NodeTree[] and return the hydrated equivalent.
+For V2, consider adding a getEntries function that would take in a TreeNode or TreeNode[] and return the hydrated equivalent.
 
 API to be defined.
 
@@ -253,7 +253,7 @@ The `qino/trees/` folder is **optional** — projects with no trees skip it with
 Done when:
 
 - `createTree` is implemented with at least one canonical example in `apps/docs/` (to be created).
-- `getTree()` returns root-level `NodeTree[]` with full nesting; `getTree(slug)` returns a single `NodeTree`; both throw on invalid slugs.
+- `getTree()` returns root-level `TreeNode[]` with full nesting; `getTree(slug)` returns a single `TreeNode`; both throw on invalid slugs.
 - `getEntry(slug)` returns a single `Entry`; throws on missing slug or schema mismatch with the offending file path in the error.
 - Slug derivation produces unique slugs across the tree; duplicate slugs fail at build.
 - Every non-empty subfolder has a sibling parent file `<name>.<ext>`; missing → build error naming the folder and the expected file path.

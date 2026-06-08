@@ -1,10 +1,10 @@
-import type { NodeTree } from "../../types";
+import type { TreeNode } from "../../types";
 import { removeExtension } from "../../utils/remove-extension";
 import type { Order } from "./get-order-from-file";
 
 type GetNodeTreesFromOrderParams = {
   order?: Order;
-  candidates: Map<string, NodeTree>;
+  candidates: Map<string, TreeNode>;
 };
 
 export function getOrderedNodeTrees({
@@ -13,7 +13,7 @@ export function getOrderedNodeTrees({
 }: GetNodeTreesFromOrderParams) {
   if (!order) return [...candidates.values()];
 
-  const result: Array<NodeTree> = [];
+  const result: Array<TreeNode> = [];
   const seen = new Set<string>();
 
   for (const fileName of order.entries) {

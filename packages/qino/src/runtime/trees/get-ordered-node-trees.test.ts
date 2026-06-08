@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import type { NodeTree } from "../../types";
+import type { TreeNode } from "../../types";
 import { makeDummyNode } from "../../utils/tests";
 import { getOrderedNodeTrees } from "./get-ordered-node-trees";
 
@@ -59,7 +59,7 @@ describe("getOrderedNodeTrees", () => {
   });
 
   test("appended candidates preserve Map insertion order", () => {
-    const candidates = new Map<string, NodeTree>();
+    const candidates = new Map<string, TreeNode>();
     candidates.set("z", makeDummyNode({ slug: "z", extension: ".md" }));
     candidates.set("a", makeDummyNode({ slug: "a", extension: ".md" }));
     candidates.set("m", makeDummyNode({ slug: "m", extension: ".md" }));
@@ -105,7 +105,7 @@ describe("getOrderedNodeTrees", () => {
     expect(result.map((node) => node.slug)).toEqual(["intro", "guides"]);
   });
 
-  test("returns the actual NodeTree objects from the candidates map", () => {
+  test("returns the actual TreeNode objects from the candidates map", () => {
     const intro = makeDummyNode({
       slug: "intro",
       extension: ".md",

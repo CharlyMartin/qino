@@ -1,7 +1,7 @@
 export { createQino } from "./runtime";
 export type {
   Collection,
-  NodeTree,
   Singleton,
   Tree,
+  TreeNode,
 } from "./types";

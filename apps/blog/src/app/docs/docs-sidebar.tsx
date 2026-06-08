@@ -1,8 +1,8 @@
 import Link from "next/link";
-import type { NodeTree } from "qino";
+import type { TreeNode } from "qino";
 
 type DocsSidebarProps = {
-  nodes: Array<NodeTree>;
+  nodes: Array<TreeNode>;
   activeSlug?: string;
 };
 
@@ -18,7 +18,7 @@ function DocsList({
   nodes,
   activeSlug,
 }: {
-  nodes: Array<NodeTree>;
+  nodes: Array<TreeNode>;
   activeSlug?: string;
 }) {
   if (nodes.length === 0) return null;

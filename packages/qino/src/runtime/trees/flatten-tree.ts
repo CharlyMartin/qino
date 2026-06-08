@@ -1,7 +1,7 @@
-import type { NodeTree } from "../../types";
+import type { TreeNode } from "../../types";
 
-export function flattenTree(nodes: Array<NodeTree>) {
-  const result: Array<NodeTree> = [];
+export function flattenTree(nodes: Array<TreeNode>) {
+  const result: Array<TreeNode> = [];
 
   for (const node of nodes) {
     result.push(node);

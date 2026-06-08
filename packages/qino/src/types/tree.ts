@@ -17,12 +17,12 @@ export type StringKeys<Schema extends ObjectSchema> = {
     string]: ValidatedOutput<Schema>[K] extends string ? K : never;
 }[keyof ValidatedOutput<Schema> & string];
 
-export type NodeTree = {
+export type TreeNode = {
   slug: string;
   title: string;
   fileName: string;
   filePath: string;
-  children: Array<NodeTree>;
+  children: Array<TreeNode>;
 };
 
 export type TreeMeta<
@@ -53,15 +53,15 @@ export type Tree<
   DefaultR extends ResolveOption = true,
 > = {
   readonly [QinoMeta]: TreeMeta<Schema, Ext, Title, Rels>;
-  getTree(): Promise<Array<NodeTree>>;
-  getTree(slug: string): Promise<NodeTree>;
-  getNodes(): Promise<Array<NodeTree>>;
+  getTree(): Promise<Array<TreeNode>>;
+  getTree(slug: string): Promise<TreeNode>;
+  getNodes(): Promise<Array<TreeNode>>;
   getEntry<R extends ResolveOption = DefaultR>(
     slug: string,
     options?: GetterOptions<R>,
   ): Promise<ResolvedTreeEntry<Schema, Ext, Rels, R>>;
-  getNextNode(entryOrSlug: string | TreeNodeLike): Promise<NodeTree | null>;
-  getPreviousNode(entryOrSlug: string | TreeNodeLike): Promise<NodeTree | null>;
+  getNextNode(entryOrSlug: string | TreeNodeLike): Promise<TreeNode | null>;
+  getPreviousNode(entryOrSlug: string | TreeNodeLike): Promise<TreeNode | null>;
 };
 
 export type ResolvedTreeEntry<
@@ -92,9 +92,9 @@ export type AnyTreeMeta = {
 
 export type AnyTree = {
   readonly [QinoMeta]: AnyTreeMeta;
-  getTree(): Promise<Array<NodeTree>>;
-  getTree(slug: string): Promise<NodeTree>;
-  getNodes(): Promise<Array<NodeTree>>;
+  getTree(): Promise<Array<TreeNode>>;
+  getTree(slug: string): Promise<TreeNode>;
+  getNodes(): Promise<Array<TreeNode>>;
   getEntry(
     slug: string,
     options?: GetterOptions,
@@ -103,6 +103,6 @@ export type AnyTree = {
       [K in MetaFieldName]: TreeEntryMeta<SupportedFileExtension>;
     }
   >;
-  getNextNode(entryOrSlug: string | TreeNodeLike): Promise<NodeTree | null>;
-  getPreviousNode(entryOrSlug: string | TreeNodeLike): Promise<NodeTree | null>;
+  getNextNode(entryOrSlug: string | TreeNodeLike): Promise<TreeNode | null>;
+  getPreviousNode(entryOrSlug: string | TreeNodeLike): Promise<TreeNode | null>;
 };

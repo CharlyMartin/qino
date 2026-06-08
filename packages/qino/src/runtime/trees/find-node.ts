@@ -1,13 +1,13 @@
-import type { NodeTree } from "../../types";
+import type { TreeNode } from "../../types";
 
 export function findNode(
-  nodes: Array<NodeTree>,
+  nodes: Array<TreeNode>,
   slug: string,
   treeDirectory: string,
 ) {
   const segments = slug.split("/");
   let currentNodes = nodes;
-  let found: NodeTree | undefined;
+  let found: TreeNode | undefined;
 
   for (let i = 0; i < segments.length; i += 1) {
     const expectedSlug = segments.slice(0, i + 1).join("/");

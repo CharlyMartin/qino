@@ -30,7 +30,7 @@ export default async function DocsIndex() {
 
         <section>
           <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Raw tree (NodeTree[])
+            Raw tree (TreeNode[])
           </h2>
           <pre className="overflow-auto rounded-lg border border-zinc-200 bg-zinc-50 p-4 text-xs text-zinc-800 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-200">
             {JSON.stringify(

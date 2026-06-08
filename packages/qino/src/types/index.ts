@@ -24,11 +24,11 @@ export type {
 export type {
   AnyTree,
   AnyTreeMeta,
-  NodeTree,
   ResolvedTreeEntry,
   StringKeys,
   Tree,
   TreeMeta,
+  TreeNode,
   TreeNodeLike,
 } from "./tree";
 export type {

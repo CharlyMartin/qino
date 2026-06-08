@@ -2,9 +2,9 @@ import fs from "node:fs/promises";
 import nodePath from "node:path";
 
 import type {
-  NodeTree,
   ObjectSchema,
   SupportedFileExtension,
+  TreeNode,
 } from "../../types";
 import { buildTreeNode } from "./build-tree-node";
 import { getOrderFromFile } from "./get-order-from-file";
@@ -41,7 +41,7 @@ async function walkFolder({
   const sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
 
   const fileMap = new Map<string, string>();
-  const folderMap = new Map<string, Array<NodeTree>>();
+  const folderMap = new Map<string, Array<TreeNode>>();
 
   for (const dirent of sorted) {
     if (dirent.isFile()) {
@@ -63,7 +63,7 @@ async function walkFolder({
     }
   }
 
-  const candidates = new Map<string, NodeTree>();
+  const candidates = new Map<string, TreeNode>();
 
   for (const [name, filePath] of fileMap) {
     const children = folderMap.get(name) ?? [];
