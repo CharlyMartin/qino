@@ -1,6 +1,6 @@
 import z from "zod";
 
-import { createCollection } from "../";
+import { qino } from "../";
 
 const AuthorSchema = z
   .object({
@@ -11,7 +11,7 @@ const AuthorSchema = z
   })
   .strict();
 
-export const authorCollection = createCollection({
+export const authorCollection = qino.createCollection({
   directory: "/authors",
   schema: AuthorSchema,
   extension: ".json",

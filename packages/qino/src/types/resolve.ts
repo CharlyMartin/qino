@@ -1,6 +1,6 @@
 import type { IntClosedRange, Simplify, Subtract } from "type-fest";
 
-import type { MAX_RESOLVE_DEPTH, QinoMeta } from "../data";
+import type { MAX_RESOLVE_DEPTH, QinoPrimitiveMarker } from "../data";
 import type {
   CollectionEntryMeta,
   MetaFieldName,
@@ -56,7 +56,7 @@ type ResolveTarget<Target, D extends Depth> = D extends 0
     : ResolveRelationTarget<NonNullable<Target>, Dec<D>>;
 
 type ResolveRelationTarget<C, NextD extends Depth> = C extends {
-  readonly [QinoMeta]: {
+  readonly [QinoPrimitiveMarker]: {
     schema: infer S;
     extension: infer Ext;
     relations: infer Rels;
@@ -73,7 +73,7 @@ type ResolveRelationTarget<C, NextD extends Depth> = C extends {
       : never
     : never
   : C extends {
-        readonly [QinoMeta]: {
+        readonly [QinoPrimitiveMarker]: {
           schema: infer S;
           extension: infer Ext;
           relations: infer Rels;

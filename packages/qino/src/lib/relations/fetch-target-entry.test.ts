@@ -1,6 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 
-import { QinoMeta } from "../../data/globals";
+import { QinoPrimitiveMarker } from "../../data/globals";
 import {
   makeDummyCollection,
   makeDummyEntry,
@@ -108,7 +108,7 @@ describe("fetchTargetEntry", () => {
         (e: unknown) => e,
       );
 
-      expect(target[QinoMeta].is).toBe("singleton");
+      expect(target[QinoPrimitiveMarker].is).toBe("singleton");
       expect((err as Error).message).toContain("/config/site.json");
       expect((err as Error).message).not.toContain("/ignored");
     });

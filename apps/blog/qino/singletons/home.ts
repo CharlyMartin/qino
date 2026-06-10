@@ -1,6 +1,6 @@
 import z from "zod";
 
-import { createSingleton } from "../";
+import { qino } from "../";
 import { postCollection } from "../collections/posts";
 
 const HomeSchema = z
@@ -12,7 +12,7 @@ const HomeSchema = z
   })
   .strict();
 
-export const homeSingleton = createSingleton({
+export const homeSingleton = qino.createSingleton({
   file: "/pages/home.md",
   schema: HomeSchema,
   relations: {

@@ -13,6 +13,36 @@ describe("assertNoOverlappingPaths", () => {
     ).not.toThrow();
   });
 
+  test("passes for empty inputs", () => {
+    expect(() =>
+      assertNoOverlappingPaths({
+        collectionDirs: [],
+        singletonFiles: [],
+        treeDirs: [],
+      }),
+    ).not.toThrow();
+  });
+
+  test("throws when two collection directories overlap", () => {
+    expect(() =>
+      assertNoOverlappingPaths({
+        collectionDirs: ["/posts", "/posts/featured"],
+        singletonFiles: [],
+        treeDirs: [],
+      }),
+    ).toThrow(/Collection directories overlap.*\/posts.*\/posts\/featured/);
+  });
+
+  test("throws when two collection directories are equal", () => {
+    expect(() =>
+      assertNoOverlappingPaths({
+        collectionDirs: ["/posts", "/posts"],
+        singletonFiles: [],
+        treeDirs: [],
+      }),
+    ).toThrow(/Collection directories overlap/);
+  });
+
   test("throws when one tree directory is a prefix of another", () => {
     expect(() =>
       assertNoOverlappingPaths({
@@ -21,6 +51,16 @@ describe("assertNoOverlappingPaths", () => {
         treeDirs: ["/docs", "/docs/api"],
       }),
     ).toThrow(/Tree directories overlap.*\/docs.*\/docs\/api/);
+  });
+
+  test("throws when two singletons target the same file", () => {
+    expect(() =>
+      assertNoOverlappingPaths({
+        collectionDirs: [],
+        singletonFiles: ["/settings.json", "/settings.json"],
+        treeDirs: [],
+      }),
+    ).toThrow(/Two singletons target the same file.*\/settings\.json/);
   });
 
   test("throws when a tree directory is a prefix of a collection directory", () => {
@@ -52,6 +92,18 @@ describe("assertNoOverlappingPaths", () => {
       }),
     ).toThrow(
       /Singleton file "\/docs\/preamble\.md" sits inside tree directory "\/docs"/,
+    );
+  });
+
+  test("throws when a singleton file sits inside a collection directory", () => {
+    expect(() =>
+      assertNoOverlappingPaths({
+        collectionDirs: ["/posts"],
+        singletonFiles: ["/posts/intro.md"],
+        treeDirs: [],
+      }),
+    ).toThrow(
+      /Singleton file "\/posts\/intro\.md" sits inside collection directory "\/posts"/,
     );
   });
 

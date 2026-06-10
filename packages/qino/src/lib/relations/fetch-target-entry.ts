@@ -1,4 +1,4 @@
-import { QinoMeta } from "../../data";
+import { QinoPrimitiveMarker } from "../../data";
 import type { AnyCollection, AnySingleton } from "../../types";
 import type { Slug } from "../../types/utils";
 import { isSingleton } from "../../utils/is-singleton";
@@ -17,8 +17,8 @@ export async function fetchTargetEntry(
     const message = cause instanceof Error ? cause.message : String(cause);
 
     const errorRef = isSingleton(target)
-      ? target[QinoMeta].file
-      : `${target[QinoMeta].directory}/${slug}`;
+      ? target[QinoPrimitiveMarker].file
+      : `${target[QinoPrimitiveMarker].directory}/${slug}`;
 
     throw new Error(
       `Failed to resolve relation "${ctx.relationKey}" → ${errorRef} (from ${ctx.sourceFilePath}): ${message}`,

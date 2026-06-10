@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { QinoMeta } from "../../data/globals";
+import { QinoPrimitiveMarker } from "../../data/globals";
 import { makeDummyCollection, makeDummySingleton } from "../../utils/tests";
 import { resolveRelationLeaf } from "./resolve-relation-leaf";
 
@@ -15,7 +15,7 @@ describe("resolveRelationLeaf", () => {
     const targetMeta = makeDummyCollection({
       directory: "/authors",
       extension: ".json",
-    })[QinoMeta];
+    })[QinoPrimitiveMarker];
     await expect(
       resolveRelationLeaf(42, { ...baseCtx(), targetMeta }),
     ).rejects.toThrow(/author.*post\.json.*number/);
@@ -25,7 +25,7 @@ describe("resolveRelationLeaf", () => {
     const targetMeta = makeDummyCollection({
       directory: "/authors",
       extension: ".json",
-    })[QinoMeta];
+    })[QinoPrimitiveMarker];
     await expect(
       resolveRelationLeaf(null, { ...baseCtx(), targetMeta }),
     ).rejects.toThrow(/author.*post\.json.*object/);
@@ -35,7 +35,7 @@ describe("resolveRelationLeaf", () => {
     const targetMeta = makeDummyCollection({
       directory: "/authors",
       extension: ".json",
-    })[QinoMeta];
+    })[QinoPrimitiveMarker];
     await expect(
       resolveRelationLeaf("", { ...baseCtx(), targetMeta }),
     ).rejects.toThrow(/empty relation reference.*author.*post\.json/i);
@@ -45,7 +45,7 @@ describe("resolveRelationLeaf", () => {
     const targetMeta = makeDummyCollection({
       directory: "/authors",
       extension: ".json",
-    })[QinoMeta];
+    })[QinoPrimitiveMarker];
     const result = await resolveRelationLeaf("authors/alice.json", {
       ...baseCtx(),
       targetMeta,
@@ -57,7 +57,7 @@ describe("resolveRelationLeaf", () => {
     const targetMeta = makeDummySingleton({
       file: "/config/site.json",
       data: { siteName: "Qino" },
-    })[QinoMeta];
+    })[QinoPrimitiveMarker];
     const result = await resolveRelationLeaf("config/site.json", {
       ...baseCtx(),
       targetMeta,
@@ -69,7 +69,7 @@ describe("resolveRelationLeaf", () => {
     const targetMeta = makeDummyCollection({
       directory: "/authors",
       extension: ".json",
-    })[QinoMeta];
+    })[QinoPrimitiveMarker];
     const result = await resolveRelationLeaf("/authors/alice.json", {
       ...baseCtx(),
       targetMeta,
@@ -81,7 +81,7 @@ describe("resolveRelationLeaf", () => {
     const targetMeta = makeDummyCollection({
       directory: "/authors",
       extension: ".json",
-    })[QinoMeta];
+    })[QinoPrimitiveMarker];
     await expect(
       resolveRelationLeaf("posts/alice.json", { ...baseCtx(), targetMeta }),
     ).rejects.toThrow(/expected value under "authors\/".*posts\/alice\.json/);

@@ -1,7 +1,6 @@
 import type { Simplify } from "type-fest";
 
-import type { QinoMeta, QinoPrimitives } from "../data";
-import type { QinoConfig } from "../runtime/qino/create-qino";
+import type { QinoPrimitiveMarker, QinoPrimitives } from "../data";
 import type { MetaFieldName, TreeEntryMeta } from "./entry";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
@@ -34,7 +33,6 @@ export type TreeMeta<
 > = {
   readonly is: (typeof QinoPrimitives)["tree"];
   readonly instanceId: symbol;
-  readonly config: QinoConfig;
   readonly schema: Schema;
   readonly directory: GenericPath;
   readonly extension: Ext;
@@ -51,7 +49,7 @@ export type Tree<
   Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
 > = {
-  readonly [QinoMeta]: TreeMeta<Schema, Ext, Title, Rels>;
+  readonly [QinoPrimitiveMarker]: TreeMeta<Schema, Ext, Title, Rels>;
   getTree(): Promise<Array<TreeNode>>;
   getTree(slug: Slug): Promise<TreeNode>;
   getFlatTree(): Promise<Array<TreeNode>>;
@@ -79,7 +77,6 @@ export type ResolvedTreeEntry<
 export type AnyTreeMeta = {
   readonly is: (typeof QinoPrimitives)["tree"];
   readonly instanceId: symbol;
-  readonly config: QinoConfig;
   readonly schema: ObjectSchema;
   readonly directory: GenericPath;
   readonly extension: SupportedFileExtension;
@@ -90,7 +87,7 @@ export type AnyTreeMeta = {
 };
 
 export type AnyTree = {
-  readonly [QinoMeta]: AnyTreeMeta;
+  readonly [QinoPrimitiveMarker]: AnyTreeMeta;
   getTree(): Promise<Array<TreeNode>>;
   getTree(slug: Slug): Promise<TreeNode>;
   getFlatTree(): Promise<Array<TreeNode>>;

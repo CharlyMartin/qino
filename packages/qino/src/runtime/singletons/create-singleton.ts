@@ -1,7 +1,11 @@
 import fs from "node:fs/promises";
 import nodePath from "node:path";
 
-import { META_FIELD_NAME, QinoMeta, QinoPrimitives } from "../../data";
+import {
+  META_FIELD_NAME,
+  QinoPrimitiveMarker,
+  QinoPrimitives,
+} from "../../data";
 import {
   createRelationResolver,
   createResolveCache,
@@ -49,15 +53,14 @@ export function createSingleton<
   const defaultResolve = (resolveRelations ?? true) as ResolveOption;
 
   const absoluteFilePath = nodePath.join(
-    ctx.config.contentFolder,
+    ctx.contentFolder,
     file,
   ) as `${string}${Ext}`;
 
   const singleton = {
-    [QinoMeta]: {
+    [QinoPrimitiveMarker]: {
       is: QinoPrimitives.singleton,
       instanceId: ctx.instanceId,
-      config: ctx.config,
       schema,
       file,
       extension,
@@ -98,7 +101,7 @@ export function createSingleton<
     const depth = normalizeDepth(resolveSetting);
 
     const resolved = await resolver.resolveEntry(validatedDataWithMeta, {
-      relations: singleton[QinoMeta].relations,
+      relations: singleton[QinoPrimitiveMarker].relations,
       depth,
       sourceInstanceId: ctx.instanceId,
     });

@@ -1,7 +1,6 @@
 import type { Simplify } from "type-fest";
 
-import type { QinoMeta, QinoPrimitives } from "../data";
-import type { QinoConfig } from "../runtime/qino/create-qino";
+import type { QinoPrimitiveMarker, QinoPrimitives } from "../data";
 import type { MetaFieldName, SingletonEntryMeta } from "./entry";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
@@ -19,7 +18,6 @@ export type SingletonMeta<
 > = {
   readonly is: (typeof QinoPrimitives)["singleton"];
   readonly instanceId: symbol;
-  readonly config: QinoConfig;
   readonly schema: Schema;
   readonly file: GenericPath;
   readonly extension: Ext;
@@ -28,7 +26,7 @@ export type SingletonMeta<
 };
 
 export type AnySingleton = {
-  readonly [QinoMeta]: SingletonMeta<ObjectSchema>;
+  readonly [QinoPrimitiveMarker]: SingletonMeta<ObjectSchema>;
   getData(options?: GetterOptions): Promise<
     Record<string, unknown> & {
       [K in MetaFieldName]: SingletonEntryMeta<SupportedFileExtension>;
@@ -36,7 +34,7 @@ export type AnySingleton = {
   >;
 };
 
-export type AnySingletonMeta = AnySingleton[typeof QinoMeta];
+export type AnySingletonMeta = AnySingleton[typeof QinoPrimitiveMarker];
 
 export type Singleton<
   Schema extends ObjectSchema,
@@ -44,7 +42,7 @@ export type Singleton<
   Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
 > = {
-  readonly [QinoMeta]: SingletonMeta<Schema, Ext, Rels>;
+  readonly [QinoPrimitiveMarker]: SingletonMeta<Schema, Ext, Rels>;
   getData<R extends ResolveOption = DefaultR>(
     options?: GetterOptions<R>,
   ): Promise<ResolvedSingletonView<Schema, Ext, Rels, R>>;

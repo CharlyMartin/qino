@@ -1,7 +1,6 @@
 import type { Simplify } from "type-fest";
 
-import type { QinoMeta, QinoPrimitives } from "../data";
-import type { QinoConfig } from "../runtime/qino/create-qino";
+import type { QinoPrimitiveMarker, QinoPrimitives } from "../data";
 import type { CollectionEntryMeta, MetaFieldName } from "./entry";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
@@ -19,7 +18,7 @@ export type Collection<
   Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
 > = {
-  readonly [QinoMeta]: CollectionMeta<Schema, Ext, Rels>;
+  readonly [QinoPrimitiveMarker]: CollectionMeta<Schema, Ext, Rels>;
   getAll<R extends ResolveOption = DefaultR>(
     options?: GetterOptions<R>,
   ): Promise<Array<ResolvedCollectionView<Schema, Ext, Rels, R>>>;
@@ -49,7 +48,6 @@ export type CollectionMeta<
 > = {
   readonly is: (typeof QinoPrimitives)["collection"];
   readonly instanceId: symbol;
-  readonly config: QinoConfig;
   readonly schema: Schema;
   readonly directory: GenericPath;
   readonly extension: Ext;
@@ -58,7 +56,7 @@ export type CollectionMeta<
 };
 
 export type AnyCollection = {
-  readonly [QinoMeta]: CollectionMeta<ObjectSchema>;
+  readonly [QinoPrimitiveMarker]: CollectionMeta<ObjectSchema>;
   getAll(options?: GetterOptions): Promise<
     Array<
       Record<string, unknown> & {
@@ -76,4 +74,4 @@ export type AnyCollection = {
   >;
 };
 
-export type AnyCollectionMeta = AnyCollection[typeof QinoMeta];
+export type AnyCollectionMeta = AnyCollection[typeof QinoPrimitiveMarker];

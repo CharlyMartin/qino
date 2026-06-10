@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { createCollection } from "../";
+import { qino } from "../";
 import { authorCollection } from "./authors";
 import { categoryCollection } from "./categories";
 
@@ -16,7 +16,7 @@ const PostSchema = z
   })
   .strict();
 
-export const postCollection = createCollection({
+export const postCollection = qino.createCollection({
   directory: "/posts",
   schema: PostSchema,
   extension: ".md",

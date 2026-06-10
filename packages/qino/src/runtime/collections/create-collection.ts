@@ -3,7 +3,11 @@ import nodePath from "node:path";
 
 import fg from "fast-glob";
 
-import { META_FIELD_NAME, QinoMeta, QinoPrimitives } from "../../data";
+import {
+  META_FIELD_NAME,
+  QinoPrimitiveMarker,
+  QinoPrimitives,
+} from "../../data";
 import {
   createRelationResolver,
   createResolveCache,
@@ -49,16 +53,12 @@ export function createCollection<
   const collectionRelations = (relations ?? {}) as Rels;
   const defaultResolve = (resolveRelations ?? true) as ResolveOption;
 
-  const collectionDirectory = nodePath.join(
-    ctx.config.contentFolder,
-    directory,
-  );
+  const collectionDirectory = nodePath.join(ctx.contentFolder, directory);
 
   const collection = {
-    [QinoMeta]: {
+    [QinoPrimitiveMarker]: {
       is: QinoPrimitives.collection,
       instanceId: ctx.instanceId,
-      config: ctx.config,
       schema,
       directory,
       extension,
@@ -125,7 +125,7 @@ export function createCollection<
     const resolved = await Promise.all(
       validatedDataWithMeta.map((entry) =>
         resolver.resolveEntry(entry, {
-          relations: collection[QinoMeta].relations,
+          relations: collection[QinoPrimitiveMarker].relations,
           depth,
           sourceInstanceId: ctx.instanceId,
         }),
@@ -168,7 +168,7 @@ export function createCollection<
     const depth = normalizeDepth(resolveSetting);
 
     const resolved = await resolver.resolveEntry(validatedDataWithMeta, {
-      relations: collection[QinoMeta].relations,
+      relations: collection[QinoPrimitiveMarker].relations,
       depth,
       sourceInstanceId: ctx.instanceId,
     });

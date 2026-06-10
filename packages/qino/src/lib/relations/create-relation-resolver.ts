@@ -1,4 +1,4 @@
-import { QinoMeta } from "../../data";
+import { QinoPrimitiveMarker } from "../../data";
 import type {
   AnyCollection,
   AnyEntry,
@@ -38,7 +38,7 @@ export function createRelationResolver(cache: ResolveCache) {
 
       const resolvedTarget = typeof target == "function" ? target() : target;
 
-      if (resolvedTarget[QinoMeta].instanceId != sourceInstanceId) {
+      if (resolvedTarget[QinoPrimitiveMarker].instanceId != sourceInstanceId) {
         throw new Error(
           `Relation "${relationKey}" (from ${entry._meta.filePath}) points to a primitive created by a different createQino() call. All related primitives must come from the same Qino instance.`,
         );
@@ -57,7 +57,7 @@ export function createRelationResolver(cache: ResolveCache) {
         setLeaf: async (leaf) => {
           return resolveRelationLeaf(leaf, {
             ...errorCtx,
-            targetMeta: resolvedTarget[QinoMeta],
+            targetMeta: resolvedTarget[QinoPrimitiveMarker],
             resolveTargetReference: (slug) => {
               return resolveTargetReference(
                 resolvedTarget,
@@ -85,7 +85,7 @@ export function createRelationResolver(cache: ResolveCache) {
     const raw = await getOrFetchRawTarget(target, slug, ctx);
 
     return resolveEntry(raw, {
-      relations: target[QinoMeta].relations,
+      relations: target[QinoPrimitiveMarker].relations,
       depth,
       sourceInstanceId,
     });
@@ -123,6 +123,6 @@ function getOrCreateEntryCache(cache: ResolveCache, cacheKey: string) {
 
 function getTargetUniquePath(target: AnyCollection | AnySingleton) {
   return isSingleton(target)
-    ? target[QinoMeta].file
-    : target[QinoMeta].directory;
+    ? target[QinoPrimitiveMarker].file
+    : target[QinoPrimitiveMarker].directory;
 }
