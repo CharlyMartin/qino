@@ -50,6 +50,6 @@
     "expect-type": "1.3.0",
     "tsdown": "0.22.2",
     "typescript": "5.9.2",
-    "vitest": "4.1.5"
+    "vitest": "4.1.8"
   }
 }
