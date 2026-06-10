@@ -11,6 +11,14 @@ export function assertNoOverlappingPaths({
   singletonFiles,
   treeDirs,
 }: AssertNoOverlappingPathsParams) {
+  // Within-type: no two primitives of the same kind may own overlapping paths.
+  assertUniquePairs(
+    collectionDirs,
+    pathsOverlap,
+    (a, b) =>
+      `Collection directories overlap: "${a}" and "${b}". Each collection must own a distinct, non-overlapping directory.`,
+  );
+
   assertUniquePairs(
     treeDirs,
     pathsOverlap,
@@ -18,6 +26,14 @@ export function assertNoOverlappingPaths({
       `Tree directories overlap: "${a}" and "${b}". Each tree must own a distinct, non-overlapping directory.`,
   );
 
+  assertUniquePairs(
+    singletonFiles,
+    samePath,
+    (a) =>
+      `Two singletons target the same file: "${a}". Each singleton must own a distinct file.`,
+  );
+
+  // Cross-type: directories and files of different kinds must not overlap.
   assertCrossPairs(
     treeDirs,
     collectionDirs,
@@ -32,6 +48,14 @@ export function assertNoOverlappingPaths({
     isFileInsideDir,
     (singletonFile, treeDir) =>
       `Singleton file "${singletonFile}" sits inside tree directory "${treeDir}". A tree owns its directory exclusively.`,
+  );
+
+  assertCrossPairs(
+    singletonFiles,
+    collectionDirs,
+    isFileInsideDir,
+    (singletonFile, collectionDir) =>
+      `Singleton file "${singletonFile}" sits inside collection directory "${collectionDir}". A collection owns its directory exclusively.`,
   );
 }
 
@@ -65,6 +89,10 @@ function assertCrossPairs(
       }
     }
   }
+}
+
+function samePath(a: string, b: string) {
+  return a == b;
 }
 
 function pathsOverlap(a: string, b: string) {

@@ -1,3 +1,4 @@
+import { QinoConfigMarker } from "../../data";
 import type {
   Collection,
   ExtractSingletonExtension,
@@ -27,16 +28,16 @@ export type QinoConfig = {
 
 export type QinoContext = {
   readonly instanceId: symbol;
-  readonly config: QinoConfig;
-};
+} & QinoConfig;
 
 export function createQino(config: QinoConfig) {
   const ctx: QinoContext = {
     instanceId: Symbol("qino.instance"),
-    config,
+    ...config,
   };
 
   return {
+    [QinoConfigMarker]: ctx,
     createCollection<
       S extends ObjectSchema,
       Ext extends SupportedFileExtension,

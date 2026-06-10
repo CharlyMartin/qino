@@ -1,4 +1,4 @@
-import { QinoMeta } from "../data";
+import { QinoPrimitiveMarker } from "../data";
 import type { AnyCollection, AnySingleton, AnyTree } from "../types";
 
 export function assertQinoPrimitive(
@@ -8,11 +8,11 @@ export function assertQinoPrimitive(
   const isValid =
     typeof value == "object" &&
     value !== null &&
-    QinoMeta in value &&
-    typeof value[QinoMeta] == "object" &&
-    value[QinoMeta] !== null &&
-    "is" in value[QinoMeta] &&
-    typeof value[QinoMeta].is == "string";
+    QinoPrimitiveMarker in value &&
+    typeof value[QinoPrimitiveMarker] == "object" &&
+    value[QinoPrimitiveMarker] !== null &&
+    "is" in value[QinoPrimitiveMarker] &&
+    typeof value[QinoPrimitiveMarker].is == "string";
 
   if (!isValid) {
     throw new Error(msg || `${value} is not a valid Qino primitive`);

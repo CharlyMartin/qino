@@ -5,7 +5,11 @@ import nodePath from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { MARKDOWN_BODY_FIELD_NAME, QinoMeta, QinoPrimitives } from "../../data";
+import {
+  MARKDOWN_BODY_FIELD_NAME,
+  QinoPrimitiveMarker,
+  QinoPrimitives,
+} from "../../data";
 import { createQino } from "../qino/create-qino";
 
 let tmp: string;
@@ -32,7 +36,7 @@ async function writeMd(dir: string, name: string, title: string, body = "") {
 }
 
 describe("createTree", () => {
-  test("stores metadata under the QinoMeta symbol with defaults applied", () => {
+  test("stores metadata under the QinoPrimitiveMarker symbol with defaults applied", () => {
     const tree = createTree({
       directory: "/docs",
       schema: Schema,
@@ -40,7 +44,7 @@ describe("createTree", () => {
       titleField: "title",
     });
 
-    const meta = tree[QinoMeta];
+    const meta = tree[QinoPrimitiveMarker];
     expect(meta.is).toBe(QinoPrimitives.tree);
     expect(meta.directory).toBe("/docs");
     expect(meta.extension).toBe(".md");
@@ -58,7 +62,7 @@ describe("createTree", () => {
       titleField: "title",
       orderFileName: "sidebar.json",
     });
-    expect(tree[QinoMeta].orderFileName).toBe("sidebar.json");
+    expect(tree[QinoPrimitiveMarker].orderFileName).toBe("sidebar.json");
   });
 
   test("getTree() returns the full hierarchical structure", async () => {
@@ -302,7 +306,7 @@ describe("createTree", () => {
     test("accepts an entry object instead of a slug", async () => {
       const tree = await setupNested();
       const entry = await tree.getEntry("introduction");
-      const next = await tree.getNextNode(entry);
+      const next = await tree.getNextNode(entry._meta.slug);
       expect(next?.slug).toBe("guides");
     });
 

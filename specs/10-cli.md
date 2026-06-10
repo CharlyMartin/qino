@@ -25,7 +25,7 @@ What it does today:
    they came from a single `createQino` call).
 5. Verifies every relation target shares that same instance id.
 6. Reads the config (`contentFolder`, `mediaFolder`) from any loaded primitive's
-   `QinoMeta` and verifies both folders exist on disk.
+   `QinoPrimitiveMarker` and verifies both folders exist on disk.
 7. Asserts no overlapping paths between collections / singletons / trees.
 8. Validates each primitive by exercising its getter (`getAll` / `getData` /
    `getTree`) with `resolveRelations: false`. Each file is read and parsed against

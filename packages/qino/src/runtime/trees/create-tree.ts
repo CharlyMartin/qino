@@ -4,7 +4,7 @@ import nodePath from "node:path";
 import {
   DEFAULT_ORDER_FILE_NAME,
   META_FIELD_NAME,
-  QinoMeta,
+  QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data";
 import {
@@ -70,13 +70,12 @@ export function createTree<
   const treeRelations = (relations ?? {}) as Rels;
   const defaultResolve = (resolveRelations ?? true) as ResolveOption;
   const resolvedOrderFileName = orderFileName ?? DEFAULT_ORDER_FILE_NAME;
-  const directoryPath = nodePath.join(ctx.config.contentFolder, directory);
+  const directoryPath = nodePath.join(ctx.contentFolder, directory);
 
   const tree = {
-    [QinoMeta]: {
+    [QinoPrimitiveMarker]: {
       is: QinoPrimitives.tree,
       instanceId: ctx.instanceId,
-      config: ctx.config,
       schema,
       directory,
       extension,
@@ -147,7 +146,7 @@ export function createTree<
     const depth = normalizeDepth(resolveSetting);
 
     const resolved = await resolver.resolveEntry(validatedDataWithMeta, {
-      relations: tree[QinoMeta].relations,
+      relations: tree[QinoPrimitiveMarker].relations,
       depth,
       sourceInstanceId: ctx.instanceId,
     });

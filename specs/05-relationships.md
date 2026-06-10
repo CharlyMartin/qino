@@ -201,14 +201,14 @@ Final shape: `post.author` is a full author whose `mentor` is a full bob (whose 
 
 ### Errors
 
-| Thrown by                         | Condition                             | Carries                                                                              |
-| --------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------ |
-| `parsePath`                       | empty path, empty segment, bare `[*]` | offending path                                                                       |
-| `walkAndSet`                      | array segment hits a non-array value  | segment, actual JS type                                                              |
-| `resolveRelationLeaf`             | leaf is non-string                    | `relationKey`, `sourceFilePath`, actual type                                         |
-| `resolveRelationLeaf`             | leaf is empty string                  | `relationKey`, `sourceFilePath`                                                      |
-| `parseRelationValue` (collection) | value missing prefix or extension     | `relationKey`, `sourceFilePath`, expected, actual                                    |
-| `parseRelationValue` (singleton)  | value ≠ target `file`                 | `relationKey`, `sourceFilePath`, expected, actual                                    |
+| Thrown by                         | Condition                              | Carries                                                                              |
+| --------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------ |
+| `parsePath`                       | empty path, empty segment, bare `[*]`  | offending path                                                                       |
+| `walkAndSet`                      | array segment hits a non-array value   | segment, actual JS type                                                              |
+| `resolveRelationLeaf`             | leaf is non-string                     | `relationKey`, `sourceFilePath`, actual type                                         |
+| `resolveRelationLeaf`             | leaf is empty string                   | `relationKey`, `sourceFilePath`                                                      |
+| `parseRelationValue` (collection) | value missing prefix or extension      | `relationKey`, `sourceFilePath`, expected, actual                                    |
+| `parseRelationValue` (singleton)  | value ≠ target `file`                  | `relationKey`, `sourceFilePath`, expected, actual                                    |
 | `fetchRawTarget`                  | underlying `getOne` / `getData` throws | wraps with `relationKey`, `→ ref`, `sourceFilePath`; chains the original via `cause` |
 
 One intentional non-error: an object-key segment that lands on a non-object value passes through silently. This is by design — it lets a relation declared on an optional intermediate field (e.g. `hero.author` where `hero` is sometimes absent) skip resolution cleanly rather than throwing.
@@ -305,7 +305,7 @@ The output of a getter call is `ResolvedView<Schema, Ext, Rels, R>`, which is `{
    - **`T extends object`** (not a function) → map each key with `JoinPath<PathPrefix, K>`.
    - **Else** → pass through.
 3. **`ResolveTarget<Target, D>`** — depth gate at the boundary. `D extends 0` short-circuits to `string` (raw ref preserved at the type level, matching runtime). Otherwise unwraps the thunk if `Target extends () => infer C`, then defers to `ResolveRelationTarget<C, Dec<D>>` — the static `depth - 1`.
-4. **`ResolveRelationTarget<C, NextD>`** — pattern-matches against `C[QinoMeta]`:
+4. **`ResolveRelationTarget<C, NextD>`** — pattern-matches against `C[QinoPrimitiveMarker]`:
    - has `directory` → it's a collection; yields `{ _meta: EntryMeta<Ext> } & ResolveEntry<S, Rels, NextD>`.
    - has `file` → it's a singleton; yields `{ _meta: SingletonEntryMeta<Ext> } & ResolveEntry<S, Rels, NextD>`.
    - Recurses back into `ResolveEntry` — completing the static analogue of the runtime cycle.

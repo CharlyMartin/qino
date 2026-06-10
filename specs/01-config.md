@@ -25,7 +25,7 @@ export const { createCollection, createSingleton, createTree } = createQino({
 
 `createQino` validates the options, mints an internal instance id, and returns
 factory functions bound to that instance. Every primitive created from these
-factories carries the same instance id on its `QinoMeta` — relations across
+factories carries the same instance id on its `QinoPrimitiveMarker` — relations across
 instances throw at build time and at runtime.
 
 Per-primitive files import from this entry:
@@ -79,5 +79,5 @@ Done when:
 - A consumer can run `qino build` and see schemas + paths + relations validated with
   no JSON artifact written.
 - Missing or invalid `qino/index.ts` produces a clear error at build time.
-- Getters at runtime read paths only from the in-memory `QinoMeta`, never from a
+- Getters at runtime read paths only from the in-memory `QinoPrimitiveMarker`, never from a
   generated file.

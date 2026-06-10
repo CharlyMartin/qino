@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { QinoMeta, QinoPrimitives } from "../../data";
+import { QinoPrimitiveMarker, QinoPrimitives } from "../../data";
 import { createQino } from "./create-qino";
 
 const Schema = z.object({ title: z.string() }).strict();
@@ -17,7 +17,7 @@ describe("createQino", () => {
     expect(typeof qino.createTree).toBe("function");
   });
 
-  test("stamps an instance id onto each primitive's QinoMeta", () => {
+  test("stamps an instance id onto each primitive's QinoPrimitiveMarker", () => {
     const { createCollection, createSingleton, createTree } = createQino({
       contentFolder: "src/content",
       mediaFolder: "public",
@@ -38,10 +38,10 @@ describe("createQino", () => {
       titleField: "title",
     });
 
-    expect(typeof collection[QinoMeta].instanceId).toBe("symbol");
-    expect(collection[QinoMeta].is).toBe(QinoPrimitives.collection);
-    expect(singleton[QinoMeta].is).toBe(QinoPrimitives.singleton);
-    expect(tree[QinoMeta].is).toBe(QinoPrimitives.tree);
+    expect(typeof collection[QinoPrimitiveMarker].instanceId).toBe("symbol");
+    expect(collection[QinoPrimitiveMarker].is).toBe(QinoPrimitives.collection);
+    expect(singleton[QinoPrimitiveMarker].is).toBe(QinoPrimitives.singleton);
+    expect(tree[QinoPrimitiveMarker].is).toBe(QinoPrimitives.tree);
   });
 
   test("primitives from the same instance share the same instance id", () => {
@@ -65,10 +65,12 @@ describe("createQino", () => {
       titleField: "title",
     });
 
-    expect(collection[QinoMeta].instanceId).toBe(
-      singleton[QinoMeta].instanceId,
+    expect(collection[QinoPrimitiveMarker].instanceId).toBe(
+      singleton[QinoPrimitiveMarker].instanceId,
     );
-    expect(singleton[QinoMeta].instanceId).toBe(tree[QinoMeta].instanceId);
+    expect(singleton[QinoPrimitiveMarker].instanceId).toBe(
+      tree[QinoPrimitiveMarker].instanceId,
+    );
   });
 
   test("primitives from different instances have different instance ids", () => {
@@ -84,7 +86,9 @@ describe("createQino", () => {
       schema: Schema,
       extension: ".md",
     });
-    expect(ca[QinoMeta].instanceId).not.toBe(cb[QinoMeta].instanceId);
+    expect(ca[QinoPrimitiveMarker].instanceId).not.toBe(
+      cb[QinoPrimitiveMarker].instanceId,
+    );
   });
 
   test("destructured creators still produce valid primitives", () => {
@@ -97,6 +101,6 @@ describe("createQino", () => {
       schema: Schema,
       extension: ".md",
     });
-    expect(collection[QinoMeta].is).toBe(QinoPrimitives.collection);
+    expect(collection[QinoPrimitiveMarker].is).toBe(QinoPrimitives.collection);
   });
 });

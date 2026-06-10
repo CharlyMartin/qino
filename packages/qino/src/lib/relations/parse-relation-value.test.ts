@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { QinoMeta } from "../../data/globals";
+import { QinoPrimitiveMarker } from "../../data/globals";
 import { makeDummyCollection, makeDummySingleton } from "../../utils/tests";
 import { parseRelationValue } from "./parse-relation-value";
 
@@ -9,21 +9,27 @@ const ctx = { sourceFilePath: "/fixtures/post.json", relationKey: "author" };
 describe("parseRelationValue", () => {
   describe("singleton target", () => {
     test("returns normalized value when it matches meta.file", () => {
-      const meta = makeDummySingleton({ file: "/site/config.json" })[QinoMeta];
+      const meta = makeDummySingleton({ file: "/site/config.json" })[
+        QinoPrimitiveMarker
+      ];
       expect(parseRelationValue("/site/config.json", meta, ctx)).toBe(
         "site/config.json",
       );
     });
 
     test("accepts value without a leading slash", () => {
-      const meta = makeDummySingleton({ file: "/site/config.json" })[QinoMeta];
+      const meta = makeDummySingleton({ file: "/site/config.json" })[
+        QinoPrimitiveMarker
+      ];
       expect(parseRelationValue("site/config.json", meta, ctx)).toBe(
         "site/config.json",
       );
     });
 
     test("throws when value does not match the singleton file", () => {
-      const meta = makeDummySingleton({ file: "/site/config.json" })[QinoMeta];
+      const meta = makeDummySingleton({ file: "/site/config.json" })[
+        QinoPrimitiveMarker
+      ];
       expect(() => parseRelationValue("/site/other.json", meta, ctx)).toThrow(
         /author.*post\.json.*expected value/,
       );
@@ -35,7 +41,7 @@ describe("parseRelationValue", () => {
       const meta = makeDummyCollection({
         directory: "/authors",
         extension: ".json",
-      })[QinoMeta];
+      })[QinoPrimitiveMarker];
       expect(parseRelationValue("/authors/jane.json", meta, ctx)).toBe("jane");
     });
 
@@ -43,7 +49,7 @@ describe("parseRelationValue", () => {
       const meta = makeDummyCollection({
         directory: "/authors",
         extension: ".json",
-      })[QinoMeta];
+      })[QinoPrimitiveMarker];
       expect(parseRelationValue("authors/jane.json", meta, ctx)).toBe("jane");
     });
 
@@ -51,7 +57,7 @@ describe("parseRelationValue", () => {
       const meta = makeDummyCollection({
         directory: "/authors",
         extension: ".json",
-      })[QinoMeta];
+      })[QinoPrimitiveMarker];
       expect(parseRelationValue("/authors/staff/jane.json", meta, ctx)).toBe(
         "staff/jane",
       );
@@ -61,7 +67,7 @@ describe("parseRelationValue", () => {
       const meta = makeDummyCollection({
         directory: "/authors",
         extension: ".json",
-      })[QinoMeta];
+      })[QinoPrimitiveMarker];
       expect(() => parseRelationValue("/posts/jane.json", meta, ctx)).toThrow(
         /expected value under "authors\/"/,
       );
@@ -71,7 +77,7 @@ describe("parseRelationValue", () => {
       const meta = makeDummyCollection({
         directory: "/authors",
         extension: ".json",
-      })[QinoMeta];
+      })[QinoPrimitiveMarker];
       expect(() => parseRelationValue("/authors/jane.md", meta, ctx)).toThrow(
         /expected value ending with "\.json"/,
       );

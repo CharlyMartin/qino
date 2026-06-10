@@ -1,12 +1,17 @@
 #!/usr/bin/env node
-import { runBuild } from "./build";
+import { build } from "./build";
+import { lint } from "./lint";
 
 async function main() {
   const [command] = process.argv.slice(2);
 
   switch (command) {
+    case "lint":
+      await lint();
+      return;
     case "build":
-      await runBuild();
+      await lint();
+      await build();
       return;
     default:
       console.error(

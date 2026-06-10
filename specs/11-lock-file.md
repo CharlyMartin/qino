@@ -9,7 +9,7 @@
 `createQino({...})`), discovers all primitives via the side-effect imports of
 `qino/collections/*`, `qino/singletons/*`, `qino/trees/*`, then validates schemas,
 paths, relations, and (eventually) generates `.d.ts` types. Runtime getters read the
-config from each primitive's in-memory `QinoMeta` — no JSON contract on disk.
+config from each primitive's in-memory `QinoPrimitiveMarker` — no JSON contract on disk.
 
 The rest of this spec describes the **future** lock-file artifact, which will land
 alongside the cloud UI work in `13-cloud-ui.md`.
@@ -48,8 +48,12 @@ committed to the repo, and forward-compatible**.
       "path": "posts",
       "extension": ".md",
       "relations": [
-        { "field": "categories[]", "target": "categories", "cardinality": "many" },
-        { "field": "author",       "target": "authors",    "cardinality": "one"  }
+        {
+          "field": "categories[]",
+          "target": "categories",
+          "cardinality": "many"
+        },
+        { "field": "author", "target": "authors", "cardinality": "one" }
       ]
     }
   }
@@ -60,17 +64,17 @@ This is exactly the shape committed at `apps/blog/qino/qino-lock.json`. Treat it
 
 ## Field reference
 
-| Field                              | Type                            | Notes |
-|------------------------------------|---------------------------------|-------|
-| `qinoVersion`                      | string                          | The version of `qino` that produced this file. Used for migration. |
-| `config.contentFolder`             | string                          | Mirrors `qino/config.ts`. Path relative to repo root. |
-| `config.mediaFolder`               | string                          | Same. |
-| `collections.<id>.path`            | string                          | Relative to `contentFolder`. |
-| `collections.<id>.extension`       | `".md" \| ".mdx" \| ".json"`    | File extension for entries. |
-| `collections.<id>.relations[]`     | array                           | Declared relationships (see `05-relationships.md`). |
-| `relations[].field`                | string                          | Field name in the entry. `[]` suffix for arrays (e.g. `categories[]`). |
-| `relations[].target`               | string                          | Target collection id. |
-| `relations[].cardinality`          | `"one" \| "many"`               | Whether the field resolves to one or many entries. |
+| Field                          | Type                         | Notes                                                                  |
+| ------------------------------ | ---------------------------- | ---------------------------------------------------------------------- |
+| `qinoVersion`                  | string                       | The version of `qino` that produced this file. Used for migration.     |
+| `config.contentFolder`         | string                       | Mirrors `qino/config.ts`. Path relative to repo root.                  |
+| `config.mediaFolder`           | string                       | Same.                                                                  |
+| `collections.<id>.path`        | string                       | Relative to `contentFolder`.                                           |
+| `collections.<id>.extension`   | `".md" \| ".mdx" \| ".json"` | File extension for entries.                                            |
+| `collections.<id>.relations[]` | array                        | Declared relationships (see `05-relationships.md`).                    |
+| `relations[].field`            | string                       | Field name in the entry. `[]` suffix for arrays (e.g. `categories[]`). |
+| `relations[].target`           | string                       | Target collection id.                                                  |
+| `relations[].cardinality`      | `"one" \| "many"`            | Whether the field resolves to one or many entries.                     |
 
 V1 will also include:
 
@@ -84,7 +88,7 @@ V1 will also include:
   it (in favour of in-memory `createQino` config).
 - 🟡 Will be reintroduced behind an explicit opt-in flag when the cloud UI work
   begins. Until then, runtime config and schema validation are driven entirely from
-  the `createQino` instance and per-primitive `QinoMeta`.
+  the `createQino` instance and per-primitive `QinoPrimitiveMarker`.
 
 ## Behaviour (V2)
 
