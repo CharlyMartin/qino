@@ -1,4 +1,4 @@
-import { QinoConfigMarker, QinoPrimitives } from "../../data";
+import { QinoConfigMarker } from "../../data";
 import type {
   Collection,
   ExtractSingletonExtension,
@@ -50,10 +50,7 @@ export function createQino(config: QinoConfig) {
       params: CreateCollectionParams<S, Ext, Rels, DefaultR>,
     ): Collection<S, Ext, Rels, DefaultR> {
       const collection = createCollection(ctx, params);
-      registry.register({
-        kind: QinoPrimitives.collection,
-        path: params.directory,
-      });
+      registry.register(collection);
       return collection;
     },
     createSingleton<
@@ -65,10 +62,7 @@ export function createQino(config: QinoConfig) {
       params: CreateSingletonParams<S, F, Rels, DefaultR>,
     ): Singleton<S, ExtractSingletonExtension<F>, Rels, DefaultR> {
       const singleton = createSingleton(ctx, params);
-      registry.register({
-        kind: QinoPrimitives.singleton,
-        path: params.file,
-      });
+      registry.register(singleton);
       return singleton;
     },
     createTree<
@@ -81,7 +75,7 @@ export function createQino(config: QinoConfig) {
       params: CreateTreeParams<S, Ext, Title, Rels, DefaultR>,
     ): Tree<S, Ext, Title, Rels, DefaultR> {
       const tree = createTree(ctx, params);
-      registry.register({ kind: QinoPrimitives.tree, path: params.directory });
+      registry.register(tree);
       return tree;
     },
   };

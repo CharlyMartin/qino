@@ -31,6 +31,7 @@ export type {
   TreeNode,
 } from "./tree";
 export type {
+  AnyPrimitive,
   GenericPath,
   GetterOptions,
   SupportedFileExtension,
