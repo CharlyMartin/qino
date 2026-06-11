@@ -1,4 +1,4 @@
-export const QinoPrimitiveMarker = Symbol.for("qino.meta");
+export const QinoPrimitiveMarker = Symbol.for("qino.primitive");
 export const QinoConfigMarker = Symbol.for("qino.config");
 
 export const JSON_PATH_ARRAY = "[*]";
