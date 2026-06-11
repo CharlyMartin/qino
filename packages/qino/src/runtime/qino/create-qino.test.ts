@@ -104,3 +104,82 @@ describe("createQino", () => {
     expect(collection[QinoPrimitiveMarker].is).toBe(QinoPrimitives.collection);
   });
 });
+
+describe("createQino path overlap detection", () => {
+  test("allows primitives with disjoint paths", () => {
+    const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
+    expect(() => {
+      qino.createCollection({
+        directory: "/authors",
+        schema: Schema,
+        extension: ".md",
+      });
+      qino.createTree({
+        directory: "/docs",
+        schema: Schema,
+        extension: ".md",
+        titleField: "title",
+      });
+      qino.createSingleton({ file: "/settings.json", schema: Schema });
+    }).not.toThrow();
+  });
+
+  test("throws when a second collection nests inside the first", () => {
+    const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
+    qino.createCollection({
+      directory: "/posts",
+      schema: Schema,
+      extension: ".md",
+    });
+    expect(() =>
+      qino.createCollection({
+        directory: "/posts/featured",
+        schema: Schema,
+        extension: ".md",
+      }),
+    ).toThrow(/Collection directories overlap/);
+  });
+
+  test("throws when a singleton sits inside an existing tree", () => {
+    const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
+    qino.createTree({
+      directory: "/docs",
+      schema: Schema,
+      extension: ".md",
+      titleField: "title",
+    });
+    expect(() =>
+      qino.createSingleton({ file: "/docs/preamble.md", schema: Schema }),
+    ).toThrow(/sits inside tree directory/);
+  });
+
+  test("throws when a tree overlaps an existing collection", () => {
+    const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
+    qino.createCollection({
+      directory: "/docs/api",
+      schema: Schema,
+      extension: ".md",
+    });
+    expect(() =>
+      qino.createTree({
+        directory: "/docs",
+        schema: Schema,
+        extension: ".md",
+        titleField: "title",
+      }),
+    ).toThrow(/overlaps with collection directory/);
+  });
+
+  test("separate instances do not share a registry", () => {
+    const a = createQino({ contentFolder: "c", mediaFolder: "p" });
+    const b = createQino({ contentFolder: "c", mediaFolder: "p" });
+    a.createCollection({ directory: "/posts", schema: Schema, extension: ".md" });
+    expect(() =>
+      b.createCollection({
+        directory: "/posts",
+        schema: Schema,
+        extension: ".md",
+      }),
+    ).not.toThrow();
+  });
+});
