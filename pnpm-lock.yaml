@@ -31,22 +31,22 @@ importers:
         version: 11.11.1
       next:
         specifier: 16.2.4
-        version: 16.2.4(react-dom@19.2.7(react@19.2.4))(react@19.2.4)
+        version: 16.2.4(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       next-mdx-remote:
         specifier: 6.0.0
-        version: 6.0.0(@types/react@19.2.2)(react@19.2.4)
+        version: 6.0.0(@types/react@19.2.2)(react@19.2.7)
       qino:
         specifier: workspace:*
         version: link:../../packages/qino
       react:
-        specifier: 19.2.4
-        version: 19.2.4
+        specifier: 19.2.7
+        version: 19.2.7
       react-dom:
         specifier: 19.2.7
-        version: 19.2.7(react@19.2.4)
+        version: 19.2.7(react@19.2.7)
       react-markdown:
         specifier: 10.1.0
-        version: 10.1.0(@types/react@19.2.2)(react@19.2.4)
+        version: 10.1.0(@types/react@19.2.2)(react@19.2.7)
       rehype-autolink-headings:
         specifier: 7.1.0
         version: 7.1.0
@@ -90,6 +90,9 @@ importers:
       '@standard-schema/spec':
         specifier: 1.1.0
         version: 1.1.0
+      es-toolkit:
+        specifier: ^1.47.1
+        version: 1.47.1
       fast-glob:
         specifier: 3.3.3
         version: 3.3.3
@@ -99,6 +102,9 @@ importers:
       jiti:
         specifier: 2.6.1
         version: 2.6.1
+      pluralize:
+        specifier: 8.0.0
+        version: 8.0.0
       type-fest:
         specifier: 5.6.0
         version: 5.6.0
@@ -109,6 +115,9 @@ importers:
       '@types/node':
         specifier: 22.19.18
         version: 22.19.18
+      '@types/pluralize':
+        specifier: 0.0.33
+        version: 0.0.33
       expect-type:
         specifier: 1.3.0
         version: 1.3.0
@@ -986,6 +995,9 @@ packages:
   '@types/node@22.19.18':
     resolution: {integrity: sha512-9v00a+dn2yWVsYDEunWC4g/TcRKVq3r8N5FuZp7u0SGrPvdN9c2yXI9bBuf5Fl0hNCb+QTIePTn5pJs2pwBOQQ==}
 
+  '@types/pluralize@0.0.33':
+    resolution: {integrity: sha512-JOqsl+ZoCpP4e8TDke9W79FDcSgPAR0l6pixx2JHkhnRjvShyYiAYw2LVsnA7K08Y6DeOnaU6ujmENO4os/cYg==}
+
   '@types/react-dom@19.2.3':
     resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
     peerDependencies:
@@ -1205,6 +1217,9 @@ packages:
 
   es-module-lexer@2.1.0:
     resolution: {integrity: sha512-n27zTYMjYu1aj4MjCWzSP7G9r75utsaoc8m61weK+W8JMBGGQybd43GstCXZ3WNmSFtGT9wi59qQTW6mhTR5LQ==}
+
+  es-toolkit@1.47.1:
+    resolution: {integrity: sha512-5RAqEwf4P4E17p+W75KLOWw/nOvKZzSQpxM32IpI2KZLaVonjTrZ0Ai5ghMaVI9eKC2p8eoQgcBdkEDgzFk6+Q==}
 
   esast-util-from-estree@2.0.0:
     resolution: {integrity: sha512-4CyanoAudUSBAn5K13H4JhsMH6L9ZP7XbLVe/dKybkxMO7eDyLsT8UHl9TRNrU2Gr9nz+FovfSIjuXWJ81uVwQ==}
@@ -1803,6 +1818,10 @@ packages:
     resolution: {integrity: sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==}
     engines: {node: '>=6'}
 
+  pluralize@8.0.0:
+    resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}
+    engines: {node: '>=4'}
+
   postcss-selector-parser@6.0.10:
     resolution: {integrity: sha512-IQ7TZdoaqbT+LCpShg46jnZVlhWD2w6iQYAcYXfHARZ7X1t/UGhhceQDs5X0cGqKvYlHNOuv7Oa1xmb0oQuA3w==}
     engines: {node: '>=4'}
@@ -1852,8 +1871,8 @@ packages:
       '@types/react': '>=18'
       react: '>=18'
 
-  react@19.2.4:
-    resolution: {integrity: sha512-9nfp2hYpCwOjAN+8TZFGhtWEwgvWHXqESH8qT89AT/lWklpLON22Lc8pEtnpsZz7VmawabSU0gCjnj8aC0euHQ==}
+  react@19.2.7:
+    resolution: {integrity: sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ==}
     engines: {node: '>=0.10.0'}
 
   read-yaml-file@1.1.0:
@@ -2719,11 +2738,11 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@mdx-js/react@3.1.1(@types/react@19.2.2)(react@19.2.4)':
+  '@mdx-js/react@3.1.1(@types/react@19.2.2)(react@19.2.7)':
     dependencies:
       '@types/mdx': 2.0.13
       '@types/react': 19.2.2
-      react: 19.2.4
+      react: 19.2.7
 
   '@napi-rs/wasm-runtime@1.1.4(@emnapi/core@1.10.0)(@emnapi/runtime@1.10.0)':
     dependencies:
@@ -3079,6 +3098,8 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
+  '@types/pluralize@0.0.33': {}
+
   '@types/react-dom@19.2.3(@types/react@19.2.2)':
     dependencies:
       '@types/react': 19.2.2
@@ -3253,6 +3274,8 @@ snapshots:
       strip-ansi: 6.0.1
 
   es-module-lexer@2.1.0: {}
+
+  es-toolkit@1.47.1: {}
 
   esast-util-from-estree@2.0.0:
     dependencies:
@@ -4038,12 +4061,12 @@ snapshots:
 
   nanoid@3.3.12: {}
 
-  next-mdx-remote@6.0.0(@types/react@19.2.2)(react@19.2.4):
+  next-mdx-remote@6.0.0(@types/react@19.2.2)(react@19.2.7):
     dependencies:
       '@babel/code-frame': 7.29.7
       '@mdx-js/mdx': 3.1.1
-      '@mdx-js/react': 3.1.1(@types/react@19.2.2)(react@19.2.4)
-      react: 19.2.4
+      '@mdx-js/react': 3.1.1(@types/react@19.2.2)(react@19.2.7)
+      react: 19.2.7
       unist-util-remove: 4.0.0
       unist-util-visit: 5.1.0
       vfile: 6.0.3
@@ -4052,16 +4075,16 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  next@16.2.4(react-dom@19.2.7(react@19.2.4))(react@19.2.4):
+  next@16.2.4(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
       '@next/env': 16.2.4
       '@swc/helpers': 0.5.15
       baseline-browser-mapping: 2.10.8
       caniuse-lite: 1.0.30001761
       postcss: 8.4.31
-      react: 19.2.4
-      react-dom: 19.2.7(react@19.2.4)
-      styled-jsx: 5.1.6(react@19.2.4)
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
+      styled-jsx: 5.1.6(react@19.2.7)
     optionalDependencies:
       '@next/swc-darwin-arm64': 16.2.4
       '@next/swc-darwin-x64': 16.2.4
@@ -4128,6 +4151,8 @@ snapshots:
 
   pify@4.0.1: {}
 
+  pluralize@8.0.0: {}
+
   postcss-selector-parser@6.0.10:
     dependencies:
       cssesc: 3.0.0
@@ -4163,12 +4188,12 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
-  react-dom@19.2.7(react@19.2.4):
+  react-dom@19.2.7(react@19.2.7):
     dependencies:
-      react: 19.2.4
+      react: 19.2.7
       scheduler: 0.27.0
 
-  react-markdown@10.1.0(@types/react@19.2.2)(react@19.2.4):
+  react-markdown@10.1.0(@types/react@19.2.2)(react@19.2.7):
     dependencies:
       '@types/hast': 3.0.4
       '@types/mdast': 4.0.4
@@ -4177,7 +4202,7 @@ snapshots:
       hast-util-to-jsx-runtime: 2.3.6
       html-url-attributes: 3.0.1
       mdast-util-to-hast: 13.2.1
-      react: 19.2.4
+      react: 19.2.7
       remark-parse: 11.0.0
       remark-rehype: 11.1.2
       unified: 11.0.5
@@ -4186,7 +4211,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  react@19.2.4: {}
+  react@19.2.7: {}
 
   read-yaml-file@1.1.0:
     dependencies:
@@ -4483,10 +4508,10 @@ snapshots:
     dependencies:
       inline-style-parser: 0.2.7
 
-  styled-jsx@5.1.6(react@19.2.4):
+  styled-jsx@5.1.6(react@19.2.7):
     dependencies:
       client-only: 0.0.1
-      react: 19.2.4
+      react: 19.2.7
 
   tagged-tag@1.0.0: {}
 
