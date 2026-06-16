@@ -1,3 +1,5 @@
+import path from "node:path";
+
 import { consola } from "consola";
 import pluralize from "pluralize";
 
@@ -9,9 +11,6 @@ import { assertNoOverlappingPaths } from "./assert-no-overlapping-paths";
 import { assertPrimitivesExistence } from "./assert-primitives-existence";
 import { assertRelationInstanceIds } from "./assert-relation-instance-ids";
 
-// instead of throwing errors, use process.exit() with a nice error message formatted with
-// https://github.com/unjs/consola
-
 export async function lint({
   entryFilePath,
   collections,
@@ -19,17 +18,19 @@ export async function lint({
   trees,
   context,
 }: Loaded) {
-  consola.start("qino lint");
-
   // 1. Finds the entry file path
-  consola.success(`entry file found at ${entryFilePath}`);
+  consola.success(`entry file found at "${entryFilePath}"`);
 
   // 2. Ensure user-defined paths exist and are directories
   await assertDirectory(context.contentFolder);
-  consola.success(`content folder found at ${context.contentFolder}`);
+  consola.success(
+    `content folder found at "${path.join(process.cwd(), context.contentFolder)}"`,
+  );
 
   await assertDirectory(context.mediaFolder);
-  consola.success(`media folder found at ${context.mediaFolder}`);
+  consola.success(
+    `media folder found at "${path.join(process.cwd(), context.mediaFolder)}"`,
+  );
 
   const allPrimitives = [...collections, ...trees, ...singletons];
 
@@ -60,9 +61,7 @@ export async function lint({
   }
 
   if (trees.length) {
-    consola.success(
-      `found ${trees.length} ${pluralize("tree", trees.length)}`,
-    );
+    consola.success(`found ${trees.length} ${pluralize("tree", trees.length)}`);
 
     for (const tree of trees) {
       consola.log(`  - ${tree[QinoPrimitiveMarker].directory}`);
@@ -78,6 +77,4 @@ export async function lint({
       consola.log(`  - ${singleton[QinoPrimitiveMarker].file}`);
     }
   }
-
-  consola.success("qino lint done");
 }
