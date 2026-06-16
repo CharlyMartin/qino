@@ -18,10 +18,9 @@ export async function lint({
   trees,
   context,
 }: Loaded) {
-  // 1. Finds the entry file path
   consola.success(`entry file found at "${entryFilePath}"`);
 
-  // 2. Ensure user-defined paths exist and are directories
+  // Ensure user-defined paths exist and are directories
   await assertDirectory(context.contentFolder);
   consola.success(
     `content folder found at "${path.join(process.cwd(), context.contentFolder)}"`,
