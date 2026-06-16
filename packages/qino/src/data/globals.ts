@@ -13,6 +13,8 @@ export const SUPPORTED_CONTENT_EXTENSIONS = [
 
 export const ROOT_FOLDER_NAME = "qino";
 export const ENTRY_FILE_NAME = "index.ts";
+export const GENERATED_DIR_NAME = "_generated";
+export const GENERATED_TYPES_FILE_NAME = "types.d.ts";
 
 export const DEFAULT_ORDER_FILE_NAME = "_order.json";
 export const MAX_RESOLVE_DEPTH = 6;

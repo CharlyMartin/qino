@@ -1,8 +1,6 @@
 import fs from "node:fs/promises";
 import nodePath from "node:path";
 
-import fg from "fast-glob";
-
 import {
   META_FIELD_NAME,
   QinoPrimitiveMarker,
@@ -28,14 +26,16 @@ import type {
 } from "../../types";
 import type { Slug } from "../../types/utils";
 import type { QinoContext } from "../qino/create-qino";
+import { globCollectionPaths } from "./glob-collection-paths";
 
 export type CreateCollectionParams<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
+  Dir extends GenericPath = GenericPath,
 > = {
-  directory: GenericPath;
+  directory: Dir;
   schema: Schema;
   extension: Ext;
   relations?: Rels;
@@ -47,7 +47,11 @@ export function createCollection<
   Ext extends SupportedFileExtension,
   Rels extends Relations<S> = object,
   DefaultR extends ResolveOption = true,
->(ctx: QinoContext, params: CreateCollectionParams<S, Ext, Rels, DefaultR>) {
+  Dir extends GenericPath = GenericPath,
+>(
+  ctx: QinoContext,
+  params: CreateCollectionParams<S, Ext, Rels, DefaultR, Dir>,
+) {
   const { directory, schema, extension, relations, resolveRelations } = params;
 
   const collectionRelations = (relations ?? {}) as Rels;
@@ -67,15 +71,16 @@ export function createCollection<
     },
     getAll,
     getOne,
-  } as const satisfies Collection<S, Ext, Rels, DefaultR>;
+  } as const satisfies Collection<S, Ext, Rels, DefaultR, Dir>;
 
   return collection;
 
   async function getAll<R extends ResolveOption = DefaultR>(
     options?: GetterOptions<R>,
   ): Promise<Array<ResolvedCollectionView<S, Ext, Rels, R>>> {
-    const relFilePaths = await fg(`**/*${extension}`, {
-      cwd: collectionDirectory,
+    const relFilePaths = await globCollectionPaths({
+      absoluteDirPath: collectionDirectory,
+      extension,
     });
 
     const rawEntries = await Promise.all(

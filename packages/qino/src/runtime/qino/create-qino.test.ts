@@ -173,7 +173,11 @@ describe("createQino path overlap detection", () => {
   test("separate instances do not share a registry", () => {
     const a = createQino({ contentFolder: "c", mediaFolder: "p" });
     const b = createQino({ contentFolder: "c", mediaFolder: "p" });
-    a.createCollection({ directory: "/posts", schema: Schema, extension: ".md" });
+    a.createCollection({
+      directory: "/posts",
+      schema: Schema,
+      extension: ".md",
+    });
     expect(() =>
       b.createCollection({
         directory: "/posts",

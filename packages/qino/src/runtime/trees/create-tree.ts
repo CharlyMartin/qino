@@ -40,8 +40,9 @@ export type CreateTreeParams<
   Title extends StringKeys<Schema>,
   Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
+  Dir extends GenericPath = GenericPath,
 > = {
-  directory: GenericPath;
+  directory: Dir;
   schema: Schema;
   extension: Ext;
   titleField: Title;
@@ -56,7 +57,11 @@ export function createTree<
   Title extends StringKeys<S>,
   Rels extends Relations<S> = object,
   DefaultR extends ResolveOption = true,
->(ctx: QinoContext, params: CreateTreeParams<S, Ext, Title, Rels, DefaultR>) {
+  Dir extends GenericPath = GenericPath,
+>(
+  ctx: QinoContext,
+  params: CreateTreeParams<S, Ext, Title, Rels, DefaultR, Dir>,
+) {
   const {
     directory,
     schema,
@@ -89,7 +94,7 @@ export function createTree<
     getEntry,
     getNextNode,
     getPreviousNode,
-  } as const satisfies Tree<S, Ext, Title, Rels, DefaultR>;
+  } as const satisfies Tree<S, Ext, Title, Rels, DefaultR, Dir>;
 
   return tree;
 

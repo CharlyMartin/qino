@@ -5,6 +5,7 @@ import type { MetaFieldName, TreeEntryMeta } from "./entry";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
+import type { SlugFor } from "./slug-registry";
 import type {
   GenericPath,
   GetterOptions,
@@ -48,17 +49,18 @@ export type Tree<
   Title extends StringKeys<Schema>,
   Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
+  Dir extends GenericPath = GenericPath,
 > = {
   readonly [QinoPrimitiveMarker]: TreeMeta<Schema, Ext, Title, Rels>;
   getTree(): Promise<Array<TreeNode>>;
-  getTree(slug: Slug): Promise<TreeNode>;
+  getTree(slug: SlugFor<Dir>): Promise<TreeNode>;
   getFlatTree(): Promise<Array<TreeNode>>;
   getEntry<R extends ResolveOption = DefaultR>(
-    slug: Slug,
+    slug: SlugFor<Dir>,
     options?: GetterOptions<R>,
   ): Promise<ResolvedTreeEntry<Schema, Ext, Rels, R>>;
-  getNextNode(slug: Slug): Promise<TreeNode | null>;
-  getPreviousNode(slug: Slug): Promise<TreeNode | null>;
+  getNextNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
+  getPreviousNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
 };
 
 export type ResolvedTreeEntry<
