@@ -12,7 +12,8 @@
     "test": "turbo run test",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build --filter=qino && changeset publish"
+    "release": "turbo run build --filter=qino && changeset publish",
+    "pack:qino": "pnpm --filter qino run pack"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.15",
