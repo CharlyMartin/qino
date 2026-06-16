@@ -18,7 +18,7 @@ export function toSlugTypeName(directory: string) {
     })
     .join("");
 
-  if (name == "") {
+  if (name == "" || name == "/") {
     throw new Error("name is empty and cannot be used to generate a slug name");
   }
 

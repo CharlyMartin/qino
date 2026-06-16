@@ -5,6 +5,7 @@ import type { CollectionEntryMeta, MetaFieldName } from "./entry";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
+import type { SlugFor } from "./slug-registry";
 import type {
   GenericPath,
   GetterOptions,
@@ -17,13 +18,14 @@ export type Collection<
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
+  Dir extends GenericPath = GenericPath,
 > = {
   readonly [QinoPrimitiveMarker]: CollectionMeta<Schema, Ext, Rels>;
   getAll<R extends ResolveOption = DefaultR>(
     options?: GetterOptions<R>,
   ): Promise<Array<ResolvedCollectionView<Schema, Ext, Rels, R>>>;
   getOne<R extends ResolveOption = DefaultR>(
-    slug: Slug,
+    slug: SlugFor<Dir>,
     options?: GetterOptions<R>,
   ): Promise<ResolvedCollectionView<Schema, Ext, Rels, R>>;
 };

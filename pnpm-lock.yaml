@@ -91,7 +91,7 @@ importers:
         specifier: 1.1.0
         version: 1.1.0
       es-toolkit:
-        specifier: ^1.47.1
+        specifier: 1.47.1
         version: 1.47.1
       fast-glob:
         specifier: 3.3.3

@@ -6,7 +6,7 @@ type GetRelativePathsParams = {
   absoluteDirPath: string;
   extension: SupportedFileExtension;
 };
-// Glog flac collection paths
+
 export async function globCollectionPaths({
   absoluteDirPath,
   extension,
