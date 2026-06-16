@@ -19,6 +19,7 @@
     "README.md"
   ],
   "scripts": {
+    "prepare": "tsdown",
     "build": "tsdown",
     "dev": "tsdown --watch",
     "check-types": "tsc --noEmit",
