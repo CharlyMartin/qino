@@ -1,24 +1,35 @@
 #!/usr/bin/env node
 import { build } from "./build";
+import { check } from "./check";
 import { lint } from "./lint";
+import { load } from "./load";
 
 async function main() {
   const [command] = process.argv.slice(2);
 
   switch (command) {
-    case "lint":
-      await lint();
+    case "lint": {
+      const loaded = await load();
+      await lint(loaded);
       return;
+    }
+    case "check": {
+      const loaded = await load();
+      await check(loaded);
+      return;
+    }
     case "build": {
-      const { collections, trees } = await lint();
-      await build({ collections, trees });
+      const loaded = await load();
+      await lint(loaded);
+      await check(loaded);
+      await build({ collections: loaded.collections, trees: loaded.trees });
       return;
     }
     default:
       console.error(
         command
           ? `Unknown command: ${command}`
-          : `Usage: qino <command>\n\nCommands:\n  build    Validate config, schemas, paths, and relations`,
+          : `Usage: qino <command>\n\nCommands:\n  lint     Validate config, paths, and relations (no content read)\n  check    Validate every content file against its schema\n  build    Run lint + check, then generate types`,
       );
       process.exit(1);
   }
