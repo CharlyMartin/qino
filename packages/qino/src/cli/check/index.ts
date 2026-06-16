@@ -1,10 +1,12 @@
+import { consola } from "consola";
+
 import type { Loaded } from "../load";
 import { validateCollection } from "./validate-collection";
 import { validateSingleton } from "./validate-singleton";
 import { validateTree } from "./validate-tree";
 
 export async function check({ collections, singletons, trees }: Loaded) {
-  console.log("qino check starts...");
+  consola.start("qino check");
 
   await Promise.all([
     ...collections.map(validateCollection),
@@ -12,7 +14,7 @@ export async function check({ collections, singletons, trees }: Loaded) {
     ...trees.map(validateTree),
   ]);
 
-  console.log("🌈 SUCCESS:", "All content passes schema validation.");
+  consola.success("All content passes schema validation.");
 
-  console.log("qino check done!");
+  consola.success("qino check done");
 }

@@ -1,3 +1,4 @@
+import { consola } from "consola";
 import pluralize from "pluralize";
 
 import { QinoPrimitiveMarker } from "../../data";
@@ -18,20 +19,17 @@ export async function lint({
   trees,
   context,
 }: Loaded) {
-  console.log("qino lint starts...");
+  consola.start("qino lint");
 
   // 1. Finds the entry file path
-  console.info("🌈 SUCCESS:", `entry file found at ${entryFilePath}`);
+  consola.success(`entry file found at ${entryFilePath}`);
 
   // 2. Ensure user-defined paths exist and are directories
   await assertDirectory(context.contentFolder);
-  console.info(
-    "🌈 SUCCESS:",
-    `content folder found at ${context.contentFolder}`,
-  );
+  consola.success(`content folder found at ${context.contentFolder}`);
 
   await assertDirectory(context.mediaFolder);
-  console.info("🌈 SUCCESS:", `media folder found at ${context.mediaFolder}`);
+  consola.success(`media folder found at ${context.mediaFolder}`);
 
   const allPrimitives = [...collections, ...trees, ...singletons];
 
@@ -52,37 +50,34 @@ export async function lint({
   assertRelationInstanceIds(allPrimitives, context.instanceId);
 
   if (collections.length) {
-    console.info(
-      "🌈 SUCCESS:",
+    consola.success(
       `found ${collections.length} ${pluralize("collection", collections.length)}`,
     );
 
     for (const collection of collections) {
-      console.info(`  - ${collection[QinoPrimitiveMarker].directory}`);
+      consola.log(`  - ${collection[QinoPrimitiveMarker].directory}`);
     }
   }
 
   if (trees.length) {
-    console.info(
-      "🌈 SUCCESS:",
+    consola.success(
       `found ${trees.length} ${pluralize("tree", trees.length)}`,
     );
 
     for (const tree of trees) {
-      console.info(`  - ${tree[QinoPrimitiveMarker].directory}`);
+      consola.log(`  - ${tree[QinoPrimitiveMarker].directory}`);
     }
   }
 
   if (singletons.length) {
-    console.info(
-      "🌈 SUCCESS:",
+    consola.success(
       `found ${singletons.length} ${pluralize("singleton", singletons.length)}`,
     );
 
     for (const singleton of singletons) {
-      console.info(`  - ${singleton[QinoPrimitiveMarker].file}`);
+      consola.log(`  - ${singleton[QinoPrimitiveMarker].file}`);
     }
   }
 
-  console.log("qino lint done!");
+  consola.success("qino lint done");
 }

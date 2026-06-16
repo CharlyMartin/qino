@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { consola } from "consola";
+
 import { build } from "./build";
 import { check } from "./check";
 import { lint } from "./lint";
@@ -26,7 +28,7 @@ async function main() {
       return;
     }
     default:
-      console.error(
+      consola.error(
         command
           ? `Unknown command: ${command}`
           : `Usage: qino <command>\n\nCommands:\n  lint     Validate config, paths, and relations (no content read)\n  check    Validate every content file against its schema\n  build    Run lint + check, then generate types`,
@@ -37,6 +39,6 @@ async function main() {
 
 main().catch((err) => {
   const message = err instanceof Error ? err.message : String(err);
-  console.error(`Error: ${message}`);
+  consola.error(`Error: ${message}`);
   process.exit(1);
 });
