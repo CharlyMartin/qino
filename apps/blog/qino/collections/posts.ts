@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { qino } from "../";
+import qino from "../";
 import { authorCollection } from "./authors";
 import { categoryCollection } from "./categories";
 
