@@ -1,3 +1,5 @@
+import { consola } from "consola";
+
 import { QinoPrimitiveMarker } from "../../data";
 import type { AnyTree } from "../../types";
 
@@ -8,7 +10,7 @@ export async function validateTree(tree: AnyTree) {
     const nodes = await tree.getTree();
 
     if (nodes.length == 0) {
-      console.warn(`⚠️  Tree "${directory}" is empty.`);
+      consola.warn(`Tree "${directory}" is empty.`);
     }
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause);

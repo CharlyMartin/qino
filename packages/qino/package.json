@@ -40,6 +40,7 @@
   },
   "dependencies": {
     "@standard-schema/spec": "1.1.0",
+    "consola": "3.4.2",
     "es-toolkit": "1.47.1",
     "fast-glob": "3.3.3",
     "gray-matter": "4.0.3",

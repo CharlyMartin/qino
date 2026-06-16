@@ -1,3 +1,5 @@
+import { consola } from "consola";
+
 import { QinoPrimitiveMarker } from "../../data";
 import type { AnyCollection } from "../../types";
 
@@ -8,7 +10,7 @@ export async function validateCollection(collection: AnyCollection) {
     const entries = await collection.getAll({ resolveRelations: false });
 
     if (entries.length == 0) {
-      console.warn(`⚠️  Collection "${directory}" is empty.`);
+      consola.warn(`Collection "${directory}" is empty.`);
     }
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause);

@@ -1,3 +1,4 @@
+import { consola } from "consola";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { makeDummyCollection, makeDummyEntry } from "../../utils/tests";
@@ -9,7 +10,7 @@ describe("validateCollection", () => {
   });
 
   test("resolves when getAll succeeds", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const warn = vi.spyOn(consola, "warn").mockImplementation(() => {});
     const store = new Map([
       ["hello", makeDummyEntry({ slug: "hello", extension: ".md" })],
     ]);
@@ -24,7 +25,7 @@ describe("validateCollection", () => {
   });
 
   test("warns when the collection is empty", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const warn = vi.spyOn(consola, "warn").mockImplementation(() => {});
     const collection = makeDummyCollection({
       directory: "/posts",
       extension: ".md",
@@ -32,7 +33,7 @@ describe("validateCollection", () => {
 
     await validateCollection(collection);
 
-    expect(warn).toHaveBeenCalledWith(`⚠️  Collection "/posts" is empty.`);
+    expect(warn).toHaveBeenCalledWith(`Collection "/posts" is empty.`);
   });
 
   test("wraps getAll errors with the collection directory", async () => {

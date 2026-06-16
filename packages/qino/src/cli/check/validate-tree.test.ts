@@ -1,3 +1,4 @@
+import { consola } from "consola";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
 import { makeDummyNode, makeDummyTree } from "../../utils/tests";
@@ -9,7 +10,7 @@ describe("validateTree", () => {
   });
 
   test("resolves when getTree succeeds", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const warn = vi.spyOn(consola, "warn").mockImplementation(() => {});
     const tree = makeDummyTree({ directory: "/pages", extension: ".md" });
     tree.getTree = (async () => [
       makeDummyNode({ slug: "home", extension: ".md" }),
@@ -20,12 +21,12 @@ describe("validateTree", () => {
   });
 
   test("warns when the tree is empty", async () => {
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const warn = vi.spyOn(consola, "warn").mockImplementation(() => {});
     const tree = makeDummyTree({ directory: "/pages", extension: ".md" });
 
     await validateTree(tree);
 
-    expect(warn).toHaveBeenCalledWith(`⚠️  Tree "/pages" is empty.`);
+    expect(warn).toHaveBeenCalledWith(`Tree "/pages" is empty.`);
   });
 
   test("wraps getTree errors with the tree directory", async () => {
