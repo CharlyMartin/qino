@@ -9,10 +9,11 @@ async function main() {
     case "lint":
       await lint();
       return;
-    case "build":
-      await lint();
-      await build();
+    case "build": {
+      const { collections, trees } = await lint();
+      await build({ collections, trees });
       return;
+    }
     default:
       console.error(
         command

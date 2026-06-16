@@ -2,6 +2,7 @@ import { QinoConfigMarker } from "../../data";
 import type {
   Collection,
   ExtractSingletonExtension,
+  GenericPath,
   ObjectSchema,
   Relations,
   ResolveOption,
@@ -46,9 +47,10 @@ export function createQino(config: QinoConfig) {
       Ext extends SupportedFileExtension,
       Rels extends Relations<S> = object,
       DefaultR extends ResolveOption = true,
+      Dir extends GenericPath = GenericPath,
     >(
-      params: CreateCollectionParams<S, Ext, Rels, DefaultR>,
-    ): Collection<S, Ext, Rels, DefaultR> {
+      params: CreateCollectionParams<S, Ext, Rels, DefaultR, Dir>,
+    ): Collection<S, Ext, Rels, DefaultR, Dir> {
       const collection = createCollection(ctx, params);
       registry.register(collection);
       return collection;
@@ -71,9 +73,10 @@ export function createQino(config: QinoConfig) {
       Title extends StringKeys<S>,
       Rels extends Relations<S> = object,
       DefaultR extends ResolveOption = true,
+      Dir extends GenericPath = GenericPath,
     >(
-      params: CreateTreeParams<S, Ext, Title, Rels, DefaultR>,
-    ): Tree<S, Ext, Title, Rels, DefaultR> {
+      params: CreateTreeParams<S, Ext, Title, Rels, DefaultR, Dir>,
+    ): Tree<S, Ext, Title, Rels, DefaultR, Dir> {
       const tree = createTree(ctx, params);
       registry.register(tree);
       return tree;

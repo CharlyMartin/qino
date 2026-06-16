@@ -32,10 +32,9 @@ export async function lint() {
     singletonFiles: singletons.map((s) => s[QinoPrimitiveMarker].file),
   });
 
-  const qinoConfig = await loadQinoConfig(entryFilePath);
+  const config = await loadQinoConfig(entryFilePath);
 
-  const { instanceId, contentFolder, mediaFolder } =
-    qinoConfig[QinoConfigMarker];
+  const { instanceId, contentFolder, mediaFolder } = config[QinoConfigMarker];
 
   // Ensure config paths exist and are directories
   await assertDirectory(contentFolder);
@@ -58,6 +57,13 @@ export async function lint() {
     "\n",
     "Your Qino set up is all good. Congrats you legend! Enjoy your well-structured content!",
   );
+
+  return {
+    config,
+    collections,
+    trees,
+    singletons,
+  };
 }
 
 // async function validateCollection(collection: AnyCollection) {

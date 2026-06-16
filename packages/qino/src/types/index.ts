@@ -21,6 +21,7 @@ export type {
   Singleton,
   SingletonFile,
 } from "./singleton";
+export type { QinoSlugRegistry, SlugFor } from "./slug-registry";
 export type {
   AnyTree,
   AnyTreeMeta,
