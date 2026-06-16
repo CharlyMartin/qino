@@ -22,6 +22,7 @@
     "prepare": "tsdown",
     "build": "tsdown",
     "dev": "tsdown --watch",
+    "pack": "pnpm pack",
     "check-types": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
