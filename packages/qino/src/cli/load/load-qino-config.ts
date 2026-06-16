@@ -1,10 +1,7 @@
 import { createJiti } from "jiti";
 
-import { ENTRY_FILE_NAME } from "../../data";
+import { ENTRY_FILE_NAME, ROOT_FOLDER_NAME } from "../../data";
 import { isQinoConfig } from "../../utils/is-qino-config";
-
-// Maybe switch to default export for the config, since we expect only one export?
-// fiti: { default: true },
 
 export async function loadQinoConfig(entryFilePath: string) {
   const jiti = createJiti(import.meta.url);
@@ -12,19 +9,14 @@ export async function loadQinoConfig(entryFilePath: string) {
   const importedValue =
     await jiti.import<Record<string, unknown>>(entryFilePath);
 
-  const configs = Object.values(importedValue).filter(isQinoConfig);
+  const config = importedValue.default;
 
-  if (configs.length == 0) {
+  if (!isQinoConfig(config)) {
     throw new Error(
-      `No createQino() instance exported from "${ENTRY_FILE_NAME}". Export one to provide instance here, but not more than one, this is not a circus!`,
+      `No createQino() instance found as the default export of "${ROOT_FOLDER_NAME}/${ENTRY_FILE_NAME}". ` +
+        `Export it with \`export default createQino(...)\`.`,
     );
   }
 
-  if (configs.length > 1) {
-    throw new Error(
-      `Multiple createQino() instances exported from "${ENTRY_FILE_NAME}". Export only one, you crazy mad(wo)man!`,
-    );
-  }
-
-  return configs[0];
+  return config;
 }

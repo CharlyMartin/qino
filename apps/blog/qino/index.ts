@@ -1,6 +1,6 @@
 import { createQino } from "qino";
 
-export const qino = createQino({
+export default createQino({
   contentFolder: "src/content",
   mediaFolder: "public",
 });

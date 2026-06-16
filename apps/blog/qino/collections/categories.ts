@@ -1,6 +1,6 @@
 import z from "zod";
 
-import { qino } from "../";
+import qino from "../";
 
 const CategorySchema = z
   .object({
