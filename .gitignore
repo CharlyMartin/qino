@@ -35,3 +35,8 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# Specs
+specs
+SPECS.md
+STORIES.md
