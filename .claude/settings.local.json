@@ -16,7 +16,9 @@
       "Bash(git merge *)",
       "Bash(/tmp/validate_qino.sh)",
       "Bash(gh pr *)",
-      "Bash(git ls-tree *)"
+      "Bash(git ls-tree *)",
+      "Bash(npm view *)",
+      "Bash(npm diff *)"
     ]
   }
 }

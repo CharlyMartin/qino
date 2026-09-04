@@ -5,15 +5,21 @@ updates:
     schedule:
       interval: weekly
     versioning-strategy: increase
+    ignore:
+      - dependency-name: "@types/node"
 
   - package-ecosystem: npm
     directory: "/apps/blog"
     schedule:
       interval: weekly
     versioning-strategy: increase
+    ignore:
+      - dependency-name: "@types/node"
 
   - package-ecosystem: npm
     directory: "/packages/qino"
     schedule:
       interval: weekly
     versioning-strategy: increase
+    ignore:
+      - dependency-name: "@types/node"
