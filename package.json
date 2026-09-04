@@ -16,7 +16,7 @@
     "pack:qino": "pnpm --filter qino run pack"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.15",
+    "@biomejs/biome": "2.5.0",
     "@changesets/cli": "2.31.0",
     "prettier": "3.8.4",
     "turbo": "2.9.7",
