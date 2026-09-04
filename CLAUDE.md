@@ -11,7 +11,7 @@ Qino is a flat-file Markdown CMS. See `SPECS.md` and `specs/**.md` for the desig
 - pnpm workspaces (`pnpm-workspace.yaml`) + Turborepo (`turbo.json`)
 - `apps/*` — consumer apps (e.g. example/demo Next.js sites that exercise Qino)
 - `packages/*` — publishable libraries (the `qino` core, CLI, schema helpers, etc.)
-- Node `>=18`, package manager pinned to `pnpm@9.0.0`
+- Node `>=22`, package manager pinned to `pnpm@9.0.0`
 
 When adding a new package, place library code in `packages/<name>` and demo/host apps in `apps/<name>`. Each package needs its own `package.json` with `build`, `lint`, `check-types`, and (where relevant) `dev` scripts so Turbo can pick them up.
 
