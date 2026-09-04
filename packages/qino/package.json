@@ -48,7 +48,7 @@
     "jiti": "2.6.1",
     "pluralize": "8.0.0",
     "type-fest": "5.9.0",
-    "zod": "4.4.3"
+    "zod": "4.5.4"
   },
   "devDependencies": {
     "@types/node": ">=22",
