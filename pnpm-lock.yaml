@@ -31,7 +31,7 @@ importers:
         version: 11.11.1
       next:
         specifier: 16.3.4
-        version: 16.3.4(@types/node@20.19.39)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+        version: 16.3.4(@types/node@22.19.18)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       next-mdx-remote:
         specifier: 6.0.0
         version: 6.0.0(@types/react@19.2.2)(react@19.2.7)
@@ -70,8 +70,8 @@ importers:
         specifier: 0.5.20
         version: 0.5.20(tailwindcss@4.3.3)
       '@types/node':
-        specifier: 20.19.39
-        version: 20.19.39
+        specifier: '>=22'
+        version: 22.19.18
       '@types/react':
         specifier: 19.2.2
         version: 19.2.2
@@ -116,7 +116,7 @@ importers:
         version: 4.4.3
     devDependencies:
       '@types/node':
-        specifier: 22.19.18
+        specifier: '>=22'
         version: 22.19.18
       '@types/pluralize':
         specifier: 0.0.33
@@ -1009,9 +1009,6 @@ packages:
 
   '@types/node@12.20.55':
     resolution: {integrity: sha512-J8xLz7q2OFulZ2cyGTLE1TbbZcjpno7FaN6zdJNrgAdrJ+DZzh/uFR6YrTb4C+nXakvud8Q4+rbhoIWlYQbUFQ==}
-
-  '@types/node@20.19.39':
-    resolution: {integrity: sha512-orrrD74MBUyK8jOAD/r0+lfa1I2MO6I+vAkmAWzMYbCcgrN4lCrmK52gRFQq/JRxfYPfonkr4b0jcY7Olqdqbw==}
 
   '@types/node@22.19.18':
     resolution: {integrity: sha512-9v00a+dn2yWVsYDEunWC4g/TcRKVq3r8N5FuZp7u0SGrPvdN9c2yXI9bBuf5Fl0hNCb+QTIePTn5pJs2pwBOQQ==}
@@ -2090,9 +2087,6 @@ packages:
     resolution: {integrity: sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==}
     engines: {node: '>=20'}
 
-  tailwindcss@4.3.1:
-    resolution: {integrity: sha512-hk+TB1m+K8CYNrP6rjQaq/Y+4Zylwpa87mLYBKCunwnnQ9p+fHb7kmSfGqyEJoxF/O6CDyABWVFEafNSYKll+Q==}
-
   tailwindcss@4.3.3:
     resolution: {integrity: sha512-gOhV3P7ufE62QDGg1zVaTgCR+EtPv92k2nIhVcVKcLmxT1sUBsQGhnZj175j+MqRt4zLF7ic+sCYjfhxMxj7YQ==}
 
@@ -3136,10 +3130,6 @@ snapshots:
 
   '@types/node@12.20.55': {}
 
-  '@types/node@20.19.39':
-    dependencies:
-      undici-types: 6.21.0
-
   '@types/node@22.19.18':
     dependencies:
       undici-types: 6.21.0
@@ -4123,7 +4113,7 @@ snapshots:
       - '@types/react'
       - supports-color
 
-  next@16.3.4(@types/node@20.19.39)(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+  next@16.3.4(@types/node@22.19.18)(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
       '@next/env': 16.3.4
       '@swc/helpers': 0.5.23
@@ -4142,7 +4132,7 @@ snapshots:
       '@next/swc-linux-x64-musl': 16.3.4
       '@next/swc-win32-arm64-msvc': 16.3.4
       '@next/swc-win32-x64-msvc': 16.3.4
-      sharp: 0.35.4(@types/node@20.19.39)
+      sharp: 0.35.4(@types/node@22.19.18)
     transitivePeerDependencies:
       - '@babel/core'
       - '@types/node'
@@ -4461,7 +4451,7 @@ snapshots:
 
   semver@7.8.5: {}
 
-  sharp@0.35.4(@types/node@20.19.39):
+  sharp@0.35.4(@types/node@22.19.18):
     dependencies:
       '@img/colour': 1.1.0
       detect-libc: 2.1.2
@@ -4492,7 +4482,7 @@ snapshots:
       '@img/sharp-win32-arm64': 0.35.4
       '@img/sharp-win32-ia32': 0.35.4
       '@img/sharp-win32-x64': 0.35.4
-      '@types/node': 20.19.39
+      '@types/node': 22.19.18
     optional: true
 
   shebang-command@2.0.0:
@@ -4551,8 +4541,6 @@ snapshots:
       react: 19.2.7
 
   tagged-tag@1.0.0: {}
-
-  tailwindcss@4.3.1: {}
 
   tailwindcss@4.3.3: {}
 
