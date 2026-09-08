@@ -1,6 +1,6 @@
 {
   "name": "qino",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Headless Markdown CMS",
   "license": "MIT",
   "type": "module",
@@ -61,7 +61,7 @@
     "remark-parse": "11.0.0",
     "type-fest": "5.9.0",
     "unified": "11.0.5",
-    "zod": "4.4.3"
+    "zod": "4.5.4"
   },
   "devDependencies": {
     "@types/node": ">=22",
