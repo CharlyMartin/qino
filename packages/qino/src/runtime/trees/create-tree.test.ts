@@ -36,6 +36,25 @@ async function writeMd(dir: string, name: string, title: string, body = "") {
 }
 
 describe("createTree", () => {
+  test("adds derived fields to entries while keeping navigation nodes structural", async () => {
+    const docs = nodePath.join(tmp, "docs");
+    await fs.mkdir(docs);
+    await writeMd(docs, "intro", "Introduction", "One");
+
+    const tree = createTree({
+      directory: "/docs",
+      schema: Schema,
+      extension: ".md",
+      titleField: "title",
+      augment: ({ body }) => ({ words: body.trim().split(/\s+/u).length }),
+    });
+
+    await expect(tree.getEntry("intro")).resolves.toMatchObject({ words: 1 });
+
+    const [node] = await tree.getTree();
+    expect(node).not.toHaveProperty("words");
+  });
+
   test("stores metadata under the QinoPrimitiveMarker symbol with defaults applied", () => {
     const tree = createTree({
       directory: "/docs",

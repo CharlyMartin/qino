@@ -8,15 +8,16 @@ import {
   QinoPrimitives,
 } from "../../data";
 import {
+  augmentEntry,
   buildEntryMeta,
   createRelationResolver,
   createResolveCache,
-  transformEntry,
   validate,
 } from "../../lib";
 import { parseFile } from "../../lib/parse/parse-file";
 import { normalizeDepth } from "../../lib/relations/normalize-depth";
 import type {
+  AugmentOutput,
   GenericPath,
   GetterOptions,
   ObjectSchema,
@@ -25,12 +26,11 @@ import type {
   ResolveOption,
   StringKeys,
   SupportedFileExtension,
-  TransformOutput,
   Tree,
   TreeNode,
 } from "../../types";
+import type { EntryAugment } from "../../types/augment";
 import type { TreeEntryMeta } from "../../types/entry";
-import type { EntryTransform } from "../../types/transform";
 import type { Slug } from "../../types/utils";
 import type { QinoContext } from "../qino/create-qino";
 import { findNode } from "./find-node";
@@ -45,7 +45,7 @@ export type CreateTreeParams<
   Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
   Dir extends GenericPath = GenericPath,
-  Derived extends TransformOutput = {},
+  Derived extends AugmentOutput = {},
 > = {
   directory: Dir;
   schema: Schema;
@@ -54,7 +54,7 @@ export type CreateTreeParams<
   orderFileName?: string;
   relations?: Rels;
   resolveRelations?: DefaultR;
-  transform?: EntryTransform<Schema, TreeEntryMeta<Ext>, Derived>;
+  augment?: EntryAugment<Schema, TreeEntryMeta<Ext>, Derived>;
 };
 
 export function createTree<
@@ -64,7 +64,7 @@ export function createTree<
   Rels extends Relations<S> = object,
   DefaultR extends ResolveOption = true,
   Dir extends GenericPath = GenericPath,
-  Derived extends TransformOutput = {},
+  Derived extends AugmentOutput = {},
 >(
   ctx: QinoContext,
   params: CreateTreeParams<S, Ext, Title, Rels, DefaultR, Dir, Derived>,
@@ -77,7 +77,7 @@ export function createTree<
     orderFileName,
     relations,
     resolveRelations,
-    transform,
+    augment,
   } = params;
 
   const treeRelations = (relations ?? {}) as Rels;
@@ -147,15 +147,12 @@ export function createTree<
       }),
     };
 
-    const transformedEntry = await transformEntry(
-      validatedDataWithMeta,
-      transform,
-    );
+    const augmentedEntry = await augmentEntry(validatedDataWithMeta, augment);
 
     const resolveSetting = options?.resolveRelations ?? defaultResolve;
 
     if (resolveSetting === false) {
-      return transformedEntry as ResolvedTreeEntry<S, Ext, Rels, R, Derived>;
+      return augmentedEntry as ResolvedTreeEntry<S, Ext, Rels, R, Derived>;
     }
 
     const cache = createResolveCache();
@@ -163,7 +160,7 @@ export function createTree<
 
     const depth = normalizeDepth(resolveSetting);
 
-    const resolved = await resolver.resolveEntry(transformedEntry, {
+    const resolved = await resolver.resolveEntry(augmentedEntry, {
       relations: tree[QinoPrimitiveMarker].relations,
       depth,
       sourceInstanceId: ctx.instanceId,

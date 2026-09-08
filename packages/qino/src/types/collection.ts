@@ -1,12 +1,12 @@
 import type { Simplify } from "type-fest";
 
 import type { QinoPrimitiveMarker, QinoPrimitives } from "../data";
+import type { AugmentOutput } from "./augment";
 import type { CollectionEntryMeta, MetaFieldName } from "./entry";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
 import type { SlugFor } from "./slug-registry";
-import type { TransformOutput } from "./transform";
 import type {
   GenericPath,
   GetterOptions,
@@ -20,7 +20,7 @@ export type Collection<
   Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
   Dir extends GenericPath = GenericPath,
-  Derived extends TransformOutput = {},
+  Derived extends AugmentOutput = {},
 > = {
   readonly [QinoPrimitiveMarker]: CollectionMeta<Schema, Ext, Rels>;
   getAll<R extends ResolveOption = DefaultR>(
@@ -37,7 +37,7 @@ export type ResolvedCollectionView<
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema>,
   R extends ResolveOption,
-  Derived extends TransformOutput = {},
+  Derived extends AugmentOutput = {},
 > = Simplify<
   { [K in MetaFieldName]: CollectionEntryMeta<Ext> } & ResolveEntry<
     Schema,

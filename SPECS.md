@@ -16,7 +16,7 @@ The full spec is split across topic files in [`specs/`](./specs). Start with the
 | [05-relationships.md](./specs/05-relationships.md) | v1-proposed | Path API, `resolveAncestors` / `resolveDescendants`              |
 | [06-sort.md](./specs/06-sort.md)                   | v1-proposed | `sort` fn, `compareAsc`, `_order.json`                           |
 | [07-assets.md](./specs/07-assets.md)               | v1-proposed | Asset typing, local/remote, filename patterns                    |
-| [08-transform.md](./specs/08-transform.md)         | v1-proposed | Derived fields                                                   |
+| [08-augment.md](./specs/08-augment.md)             | v1-proposed | Derived fields                                                   |
 | [09-timestamps.md](./specs/09-timestamps.md)       | v1-proposed | `published-at` / `updated-at` markers                            |
 | [10-cli.md](./specs/10-cli.md)                     | mixed       | `qino build` (stable), `qino dev` (v1-proposed), generated types |
 | [11-lock-file.md](./specs/11-lock-file.md)         | stable      | `qino-lock.json` shape, schema, write path                       |

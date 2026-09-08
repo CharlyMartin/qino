@@ -1,5 +1,6 @@
 import { QinoConfigMarker } from "../../data";
 import type {
+  AugmentOutput,
   Collection,
   ExtractSingletonExtension,
   GenericPath,
@@ -10,7 +11,6 @@ import type {
   SingletonFile,
   StringKeys,
   SupportedFileExtension,
-  TransformOutput,
   Tree,
 } from "../../types";
 import {
@@ -49,7 +49,7 @@ export function createQino(config: QinoConfig) {
       Rels extends Relations<S> = object,
       DefaultR extends ResolveOption = true,
       Dir extends GenericPath = GenericPath,
-      Derived extends TransformOutput = {},
+      Derived extends AugmentOutput = {},
     >(
       params: CreateCollectionParams<S, Ext, Rels, DefaultR, Dir, Derived>,
     ): Collection<S, Ext, Rels, DefaultR, Dir, Derived> {
@@ -62,7 +62,7 @@ export function createQino(config: QinoConfig) {
       F extends SingletonFile,
       Rels extends Relations<S> = object,
       DefaultR extends ResolveOption = true,
-      Derived extends TransformOutput = {},
+      Derived extends AugmentOutput = {},
     >(
       params: CreateSingletonParams<S, F, Rels, DefaultR, Derived>,
     ): Singleton<S, ExtractSingletonExtension<F>, Rels, DefaultR, Derived> {
@@ -77,7 +77,7 @@ export function createQino(config: QinoConfig) {
       Rels extends Relations<S> = object,
       DefaultR extends ResolveOption = true,
       Dir extends GenericPath = GenericPath,
-      Derived extends TransformOutput = {},
+      Derived extends AugmentOutput = {},
     >(
       params: CreateTreeParams<S, Ext, Title, Rels, DefaultR, Dir, Derived>,
     ): Tree<S, Ext, Title, Rels, DefaultR, Dir, Derived> {

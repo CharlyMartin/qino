@@ -1,4 +1,4 @@
-# Transform
+# Augment
 
 **Status:** stable
 **Version:** v1
@@ -21,7 +21,7 @@ export const { getAll, getOne } = createCollection({
     title: z.string(),
     body: z.string(),
   }),
-  transform: (post) => {
+  augment: (post) => {
     const content = markdown.stats(post.body);
 
     return {
@@ -32,7 +32,7 @@ export const { getAll, getOne } = createCollection({
 });
 ```
 
-The returned entry has the schema fields **plus** the transform's return shape:
+The returned entry has the schema fields **plus** the augment's return shape:
 
 ```ts
 {
@@ -43,8 +43,8 @@ The returned entry has the schema fields **plus** the transform's return shape:
     wordCount: number,
     proseCharacterCount: number,
     sourceCharacterCount: number,
-  },                          // from transform
-  readingMinutes: number,    // from transform
+  },                          // from augment
+  readingMinutes: number,    // from augment
 }
 ```
 
@@ -52,13 +52,13 @@ TypeScript should infer this without explicit annotations.
 
 ## Behaviour
 
-- `transform` is available on collections, singletons, and trees. It applies to every hydrated entry returned by `getAll`, `getOne`, `getData`, or `getEntry`.
-- `transform` runs after schema validation and `_meta` creation, but before relation resolution. It receives the validated, typed entry including its `_meta` object; relation fields still hold their authored values.
-- `transform` may be sync or async.
+- `augment` is available on collections, singletons, and trees. It applies to every hydrated entry returned by `getAll`, `getOne`, `getData`, or `getEntry`.
+- `augment` runs after schema validation and `_meta` creation, but before relation resolution. It receives the validated, typed entry including its `_meta` object; relation fields still hold their authored values.
+- `augment` may be sync or async.
 - Returned fields **merge** into the entry. Conflicts with schema fields or `_meta` are rejected both by TypeScript and at runtime, rather than silently overwriting data.
-- `transform` runs once per `getAll` / `getOne` invocation. No caching across calls in V1 — keep it simple.
-- Tree navigation nodes returned by `getTree` and `getFlatTree` remain structural and do not receive transformed fields.
-- Transform errors include the source file path.
+- `augment` runs once per `getAll` / `getOne` invocation. No caching across calls in V1 — keep it simple.
+- Tree navigation nodes returned by `getTree` and `getFlatTree` remain structural and do not receive augmented fields.
+- Augment errors include the source file path.
 
 ## Markdown stats
 
@@ -76,7 +76,7 @@ The helper first parses as MDX. If the body is not valid MDX, it falls back to M
 
 Done when:
 
-- `transform` returns are merged into entries with correct TS types (no `as` casts in consumer code).
-- Conflicting keys between an entry and transform output fail at compile time and runtime.
-- `transform` errors point at the file that triggered them.
+- `augment` returns are merged into entries with correct TS types (no `as` casts in consumer code).
+- Conflicting keys between an entry and augment output fail at compile time and runtime.
+- `augment` errors point at the file that triggered them.
 - `markdown.stats` has documented and tested Markdown-aware counting semantics.

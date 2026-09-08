@@ -16,7 +16,7 @@ const collection = qino.createCollection({
   directory: "/posts",
   schema,
   extension: ".md",
-  transform: ({ body, _meta }) => ({
+  augment: ({ body, _meta }) => ({
     stats: { wordCount: body.length },
     sourceFile: _meta.fileName,
   }),
@@ -25,7 +25,7 @@ const collection = qino.createCollection({
 const singleton = qino.createSingleton({
   file: "/pages/home.md",
   schema,
-  transform: ({ body }) => ({ stats: { wordCount: body.length } }),
+  augment: ({ body }) => ({ stats: { wordCount: body.length } }),
 });
 
 const tree = qino.createTree({
@@ -33,10 +33,10 @@ const tree = qino.createTree({
   schema,
   extension: ".md",
   titleField: "title",
-  transform: ({ body }) => ({ stats: { wordCount: body.length } }),
+  augment: ({ body }) => ({ stats: { wordCount: body.length } }),
 });
 
-describe("transform type behaviour", () => {
+describe("augment type behaviour", () => {
   test("infers fields returned by every hydrated primitive", async () => {
     const [post] = await collection.getAll();
     const home = await singleton.getData();
@@ -48,13 +48,13 @@ describe("transform type behaviour", () => {
     expectTypeOf(doc.stats.wordCount).toEqualTypeOf<number>();
   });
 
-  test("does not allow transforms to overwrite entry fields", () => {
+  test("does not allow augmentations to overwrite entry fields", () => {
     qino.createCollection({
       directory: "/invalid",
       schema,
       extension: ".md",
-      // @ts-expect-error Transforms may only add fields.
-      transform: () => ({ title: "Replacement" }),
+      // @ts-expect-error Augmentations may only add fields.
+      augment: () => ({ title: "Replacement" }),
     });
   });
 });

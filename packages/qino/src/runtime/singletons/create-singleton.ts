@@ -7,14 +7,15 @@ import {
   QinoPrimitives,
 } from "../../data";
 import {
+  augmentEntry,
   createRelationResolver,
   createResolveCache,
-  transformEntry,
   validate,
 } from "../../lib";
 import { parseFile } from "../../lib/parse/parse-file";
 import { normalizeDepth } from "../../lib/relations/normalize-depth";
 import type {
+  AugmentOutput,
   ExtractSingletonExtension,
   GetterOptions,
   ObjectSchema,
@@ -23,10 +24,9 @@ import type {
   ResolveOption,
   Singleton,
   SingletonFile,
-  TransformOutput,
 } from "../../types";
+import type { EntryAugment } from "../../types/augment";
 import type { SingletonEntryMeta } from "../../types/entry";
-import type { EntryTransform } from "../../types/transform";
 import { extractExtension } from "../../utils/extract-extension";
 import type { QinoContext } from "../qino/create-qino";
 import { buildSingletonMeta } from "./build-singleton-meta";
@@ -36,13 +36,13 @@ export type CreateSingletonParams<
   F extends SingletonFile,
   Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
-  Derived extends TransformOutput = {},
+  Derived extends AugmentOutput = {},
 > = {
   file: F;
   schema: Schema;
   relations?: Rels;
   resolveRelations?: DefaultR;
-  transform?: EntryTransform<
+  augment?: EntryAugment<
     Schema,
     SingletonEntryMeta<ExtractSingletonExtension<F>>,
     Derived
@@ -54,12 +54,12 @@ export function createSingleton<
   F extends SingletonFile,
   Rels extends Relations<S> = object,
   DefaultR extends ResolveOption = true,
-  Derived extends TransformOutput = {},
+  Derived extends AugmentOutput = {},
 >(
   ctx: QinoContext,
   params: CreateSingletonParams<S, F, Rels, DefaultR, Derived>,
 ) {
-  const { file, schema, relations, resolveRelations, transform } = params;
+  const { file, schema, relations, resolveRelations, augment } = params;
 
   type Ext = ExtractSingletonExtension<F>;
   const extension = extractExtension(file) as Ext;
@@ -103,21 +103,12 @@ export function createSingleton<
       }),
     };
 
-    const transformedEntry = await transformEntry(
-      validatedDataWithMeta,
-      transform,
-    );
+    const augmentedEntry = await augmentEntry(validatedDataWithMeta, augment);
 
     const resolveSetting = options?.resolveRelations ?? defaultResolve;
 
     if (resolveSetting === false) {
-      return transformedEntry as ResolvedSingletonView<
-        S,
-        Ext,
-        Rels,
-        R,
-        Derived
-      >;
+      return augmentedEntry as ResolvedSingletonView<S, Ext, Rels, R, Derived>;
     }
 
     const cache = createResolveCache();
@@ -125,7 +116,7 @@ export function createSingleton<
 
     const depth = normalizeDepth(resolveSetting);
 
-    const resolved = await resolver.resolveEntry(transformedEntry, {
+    const resolved = await resolver.resolveEntry(augmentedEntry, {
       relations: singleton[QinoPrimitiveMarker].relations,
       depth,
       sourceInstanceId: ctx.instanceId,

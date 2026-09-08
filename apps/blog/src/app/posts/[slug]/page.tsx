@@ -41,13 +41,18 @@ export default async function PostPage({ params }: PostPageProps) {
         />
       </div>
       <header className="mb-8 flex flex-col gap-4">
-        <time className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-          {new Date(post["created-on"]).toLocaleDateString(undefined, {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          })}
-        </time>
+        <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+          <time>
+            {new Date(post["created-on"]).toLocaleDateString(undefined, {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
+          </time>
+          <span aria-hidden="true">·</span>
+          <span>{post.wordCount} words</span>
+          <span>{post.readingMinutes} min read</span>
+        </div>
         <h1 className="text-4xl font-semibold leading-tight tracking-tight text-zinc-950 dark:text-zinc-50">
           {post.title}
         </h1>

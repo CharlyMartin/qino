@@ -32,7 +32,7 @@ A running log of design decisions. Append-only — supersede with a new entry ra
 - Relationships (Path API)
 - Sort
 - Asset/image typing
-- `transform` (derived fields)
+- `augment` (derived fields)
 - Auto timestamps (API TBD, but ships in V1 if the API lands)
 - CLI: `qino build`, `qino dev`
 - Generated `.d.ts` types
