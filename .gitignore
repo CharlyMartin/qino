@@ -25,7 +25,6 @@ coverage
 .next/
 out/
 dist
-*.tgz
 
 
 # Debug
