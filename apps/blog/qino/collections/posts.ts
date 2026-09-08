@@ -1,3 +1,4 @@
+import { markdown } from "qino/utils";
 import { z } from "zod";
 
 import qino from "../";
@@ -20,6 +21,14 @@ export const postCollection = qino.createCollection({
   directory: "/posts",
   schema: PostSchema,
   extension: ".md",
+  augment: (post) => {
+    const content = markdown.stats(post.body);
+
+    return {
+      ...content,
+      readingMinutes: Math.ceil(content.wordCount / 220),
+    };
+  },
   relations: {
     author: authorCollection,
     "categories[*]": categoryCollection,

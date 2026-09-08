@@ -1,4 +1,10 @@
 export type {
+  AugmentEntry,
+  AugmentOutput,
+  Awaitable,
+  EntryAugment,
+} from "./augment";
+export type {
   AnyCollection,
   AnyCollectionMeta,
   Collection,
@@ -22,12 +28,6 @@ export type {
   SingletonFile,
 } from "./singleton";
 export type { QinoSlugRegistry, SlugFor } from "./slug-registry";
-export type {
-  Awaitable,
-  EntryTransform,
-  TransformEntry,
-  TransformOutput,
-} from "./transform";
 export type {
   AnyTree,
   AnyTreeMeta,

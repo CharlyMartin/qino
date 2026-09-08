@@ -1,29 +1,27 @@
-import type { Awaitable, TransformOutput } from "../../types/transform";
+import type { AugmentOutput, Awaitable } from "../../types/augment";
 
-export async function transformEntry<
+export async function augmentEntry<
   Entry extends Record<string, unknown>,
-  Output extends TransformOutput,
+  Output extends AugmentOutput,
 >(
   entry: Entry & { _meta: { filePath: string } },
-  transform?: (entry: Readonly<Entry>) => Awaitable<Output>,
+  augment?: (entry: Readonly<Entry>) => Awaitable<Output>,
 ) {
-  if (!transform) return entry;
+  if (!augment) return entry;
 
   let output: Output;
 
   try {
-    output = await transform(entry);
+    output = await augment(entry);
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause);
-    throw new Error(`${entry._meta.filePath}: transform failed: ${message}`, {
+    throw new Error(`${entry._meta.filePath}: augment failed: ${message}`, {
       cause: cause instanceof Error ? cause : undefined,
     });
   }
 
   if (typeof output != "object" || output == null || Array.isArray(output)) {
-    throw new Error(
-      `${entry._meta.filePath}: transform must return an object.`,
-    );
+    throw new Error(`${entry._meta.filePath}: augment must return an object.`);
   }
 
   const conflictingKeys = Object.keys(output).filter((key) =>
@@ -32,7 +30,7 @@ export async function transformEntry<
 
   if (conflictingKeys.length > 0) {
     throw new Error(
-      `${entry._meta.filePath}: transform cannot overwrite existing fields: ${conflictingKeys.join(", ")}.`,
+      `${entry._meta.filePath}: augment cannot overwrite existing fields: ${conflictingKeys.join(", ")}.`,
     );
   }
 

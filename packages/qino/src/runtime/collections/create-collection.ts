@@ -7,15 +7,16 @@ import {
   QinoPrimitives,
 } from "../../data";
 import {
+  augmentEntry,
   createRelationResolver,
   createResolveCache,
-  transformEntry,
   validate,
 } from "../../lib";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
 import { parseFile } from "../../lib/parse/parse-file";
 import { normalizeDepth } from "../../lib/relations/normalize-depth";
 import type {
+  AugmentOutput,
   Collection,
   GenericPath,
   GetterOptions,
@@ -24,10 +25,9 @@ import type {
   ResolvedCollectionView,
   ResolveOption,
   SupportedFileExtension,
-  TransformOutput,
 } from "../../types";
+import type { EntryAugment } from "../../types/augment";
 import type { CollectionEntryMeta } from "../../types/entry";
-import type { EntryTransform } from "../../types/transform";
 import type { Slug } from "../../types/utils";
 import type { QinoContext } from "../qino/create-qino";
 import { globCollectionPaths } from "./glob-collection-paths";
@@ -38,14 +38,14 @@ export type CreateCollectionParams<
   Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
   Dir extends GenericPath = GenericPath,
-  Derived extends TransformOutput = {},
+  Derived extends AugmentOutput = {},
 > = {
   directory: Dir;
   schema: Schema;
   extension: Ext;
   relations?: Rels;
   resolveRelations?: DefaultR;
-  transform?: EntryTransform<Schema, CollectionEntryMeta<Ext>, Derived>;
+  augment?: EntryAugment<Schema, CollectionEntryMeta<Ext>, Derived>;
 };
 
 export function createCollection<
@@ -54,19 +54,13 @@ export function createCollection<
   Rels extends Relations<S> = object,
   DefaultR extends ResolveOption = true,
   Dir extends GenericPath = GenericPath,
-  Derived extends TransformOutput = {},
+  Derived extends AugmentOutput = {},
 >(
   ctx: QinoContext,
   params: CreateCollectionParams<S, Ext, Rels, DefaultR, Dir, Derived>,
 ) {
-  const {
-    directory,
-    schema,
-    extension,
-    relations,
-    resolveRelations,
-    transform,
-  } = params;
+  const { directory, schema, extension, relations, resolveRelations, augment } =
+    params;
 
   const collectionRelations = (relations ?? {}) as Rels;
   const defaultResolve = (resolveRelations ?? true) as ResolveOption;
@@ -128,7 +122,7 @@ export function createCollection<
           [META_FIELD_NAME]: meta,
         };
 
-        return transformEntry(entryWithMeta, transform);
+        return augmentEntry(entryWithMeta, augment);
       }),
     );
 
@@ -178,21 +172,12 @@ export function createCollection<
       }),
     };
 
-    const transformedEntry = await transformEntry(
-      validatedDataWithMeta,
-      transform,
-    );
+    const augmentedEntry = await augmentEntry(validatedDataWithMeta, augment);
 
     const resolveSetting = options?.resolveRelations ?? defaultResolve;
 
     if (resolveSetting === false) {
-      return transformedEntry as ResolvedCollectionView<
-        S,
-        Ext,
-        Rels,
-        R,
-        Derived
-      >;
+      return augmentedEntry as ResolvedCollectionView<S, Ext, Rels, R, Derived>;
     }
 
     const cache = createResolveCache();
@@ -200,7 +185,7 @@ export function createCollection<
 
     const depth = normalizeDepth(resolveSetting);
 
-    const resolved = await resolver.resolveEntry(transformedEntry, {
+    const resolved = await resolver.resolveEntry(augmentedEntry, {
       relations: collection[QinoPrimitiveMarker].relations,
       depth,
       sourceInstanceId: ctx.instanceId,
