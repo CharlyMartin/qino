@@ -10,6 +10,7 @@ import type {
   SingletonFile,
   StringKeys,
   SupportedFileExtension,
+  TransformOutput,
   Tree,
 } from "../../types";
 import {
@@ -48,9 +49,10 @@ export function createQino(config: QinoConfig) {
       Rels extends Relations<S> = object,
       DefaultR extends ResolveOption = true,
       Dir extends GenericPath = GenericPath,
+      Derived extends TransformOutput = {},
     >(
-      params: CreateCollectionParams<S, Ext, Rels, DefaultR, Dir>,
-    ): Collection<S, Ext, Rels, DefaultR, Dir> {
+      params: CreateCollectionParams<S, Ext, Rels, DefaultR, Dir, Derived>,
+    ): Collection<S, Ext, Rels, DefaultR, Dir, Derived> {
       const collection = createCollection(ctx, params);
       registry.register(collection);
       return collection;
@@ -60,9 +62,10 @@ export function createQino(config: QinoConfig) {
       F extends SingletonFile,
       Rels extends Relations<S> = object,
       DefaultR extends ResolveOption = true,
+      Derived extends TransformOutput = {},
     >(
-      params: CreateSingletonParams<S, F, Rels, DefaultR>,
-    ): Singleton<S, ExtractSingletonExtension<F>, Rels, DefaultR> {
+      params: CreateSingletonParams<S, F, Rels, DefaultR, Derived>,
+    ): Singleton<S, ExtractSingletonExtension<F>, Rels, DefaultR, Derived> {
       const singleton = createSingleton(ctx, params);
       registry.register(singleton);
       return singleton;
@@ -74,9 +77,10 @@ export function createQino(config: QinoConfig) {
       Rels extends Relations<S> = object,
       DefaultR extends ResolveOption = true,
       Dir extends GenericPath = GenericPath,
+      Derived extends TransformOutput = {},
     >(
-      params: CreateTreeParams<S, Ext, Title, Rels, DefaultR, Dir>,
-    ): Tree<S, Ext, Title, Rels, DefaultR, Dir> {
+      params: CreateTreeParams<S, Ext, Title, Rels, DefaultR, Dir, Derived>,
+    ): Tree<S, Ext, Title, Rels, DefaultR, Dir, Derived> {
       const tree = createTree(ctx, params);
       registry.register(tree);
       return tree;

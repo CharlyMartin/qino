@@ -24,7 +24,7 @@ const PostSchema = z
     categories: z.array(z.string()),
     image: z.string(),
     author: z.string(),
-    markdown: z.string(),
+    body: z.string(),
   })
   .strict();
 
@@ -66,9 +66,9 @@ Every entry returned by `getAll` / `getOne` includes a `_meta` field:
 
 ### Markdown vs JSON
 
-- `.md` and `.mdx` entries are parsed with `gray-matter`. Frontmatter fields are spread; the body is exposed as a `markdown` field on the entry. **The schema must include `markdown: z.string()`** if the body is needed.
+- `.md`, `.mdx`, and `.markdown` entries are parsed with `gray-matter`. Frontmatter fields are spread; the body is exposed as a `body` field on the entry. **The schema must include `body: z.string()`** if the body is needed.
 - `.json` entries are parsed straight as JSON.
-- Markdown → HTML conversion is **not** Qino's job. Consumers render `markdown` with their own MD/MDX pipeline.
+- Markdown → HTML conversion is **not** Qino's job. Consumers render `body` with their own MD/MDX pipeline.
 
 ### `getOne` signature
 
@@ -132,7 +132,7 @@ Done when:
 - `getAll()` returns every entry in the collection folder, validated against the schema.
 - `getOne(slug)` returns one entry by slug, throws on missing file or schema mismatch.
 - `_meta.slug`, `_meta.fileName`, `_meta.filePath` are present on every returned entry.
-- `.md` entries expose body via `markdown` (when present in schema); `.json` entries don't.
+- Markdown entries expose their body via `body` (when present in schema); `.json` entries don't.
 - Schema validation errors point at the file path that failed.
 - Any Standard Schema validator (zod, Valibot, ArkType, …) is accepted; the runtime never calls validator-specific APIs.
 - A `relations` map can declare JSON-path strings into the schema (e.g. `author`, `categories[*]`, `test.foo.bar`) as pointers to other collections; cardinality is derived from the path (`[*]` anywhere → `"many"`, else `"one"`).

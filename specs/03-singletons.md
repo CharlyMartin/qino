@@ -29,7 +29,7 @@ export const homeSingleton = createSingleton({
       subtitle: z.string(),
     }),
     "featured-posts": z.array(z.string()),
-    markdown: z.string(),
+    body: z.string(),
   }),
   relations: {
     "featured-posts[*]": postCollection,
@@ -50,7 +50,7 @@ The extension is inferred from `file`'s suffix — one of `.md` | `.mdx` | `.jso
 
 - The file must exist at the declared path. Missing file → build-time error.
 - `_meta` is `{ fileName, filePath }`. No `slug` — singletons have no slug.
-- `.md` and `.mdx` parse via `gray-matter` and expose the body as `markdown`. `.json` parses straight.
+- `.md`, `.mdx`, and `.markdown` parse via `gray-matter` and expose the body as `body`. `.json` parses straight.
 
 ### Returned shape
 

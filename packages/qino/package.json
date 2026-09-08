@@ -1,6 +1,6 @@
 {
   "name": "qino",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Flat-file Markdown CMS",
   "license": "MIT",
   "type": "module",
@@ -9,6 +9,10 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./utils": {
+      "types": "./src/utils/index.ts",
+      "default": "./src/utils/index.ts"
     }
   },
   "bin": {
@@ -34,6 +38,10 @@
       ".": {
         "types": "./dist/index.d.mts",
         "import": "./dist/index.mjs"
+      },
+      "./utils": {
+        "types": "./dist/utils.d.mts",
+        "import": "./dist/utils.mjs"
       }
     },
     "bin": {
@@ -48,7 +56,11 @@
     "gray-matter": "4.0.3",
     "jiti": "2.6.1",
     "pluralize": "8.0.0",
+    "remark-gfm": "4.0.1",
+    "remark-mdx": "3.1.1",
+    "remark-parse": "11.0.0",
     "type-fest": "5.9.0",
+    "unified": "11.0.5",
     "zod": "4.4.3"
   },
   "devDependencies": {

@@ -23,7 +23,7 @@ import z from "zod";
 const DocsSchema = z
   .object({
     title: z.string(),
-    markdown: z.string(),
+    body: z.string(),
   })
   .strict();
 
@@ -56,9 +56,9 @@ Slugs are globally unique within a tree. Duplicate slugs (e.g. `foo.md` and `foo
 
 ### Markdown vs JSON
 
-- `.md` and `.mdx` entries are parsed with `gray-matter`. Frontmatter fields are spread; the body is exposed as `markdown` inside the validated fields. **The schema must include `markdown: z.string()`** if the body is needed.
+- `.md`, `.mdx`, and `.markdown` entries are parsed with `gray-matter`. Frontmatter fields are spread; the body is exposed as `body` inside the validated fields. **The schema must include `body: z.string()`** if the body is needed.
 - `.json` entries are parsed straight as JSON.
-- Markdown → HTML conversion is **not** Qino's job. Consumers render `data.markdown` with their own MD/MDX pipeline.
+- Markdown → HTML conversion is **not** Qino's job. Consumers render `data.body` with their own MD/MDX pipeline.
 
 ### `titleField`
 
@@ -145,7 +145,7 @@ type TreeEntry = {
     fileName: string;
     filePath: string;
   };
-} & ValidatedFields; // from the schema, e.g. { title: string, markdown: string, author: string, ... }
+} & ValidatedFields; // from the schema, e.g. { title: string, body: string, author: string, ... }
 ```
 
 ## Getters

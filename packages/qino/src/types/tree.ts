@@ -6,6 +6,7 @@ import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
 import type { SlugFor } from "./slug-registry";
+import type { TransformOutput } from "./transform";
 import type {
   GenericPath,
   GetterOptions,
@@ -50,6 +51,7 @@ export type Tree<
   Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
   Dir extends GenericPath = GenericPath,
+  Derived extends TransformOutput = {},
 > = {
   readonly [QinoPrimitiveMarker]: TreeMeta<Schema, Ext, Title, Rels>;
   getTree(): Promise<Array<TreeNode>>;
@@ -58,7 +60,7 @@ export type Tree<
   getEntry<R extends ResolveOption = DefaultR>(
     slug: SlugFor<Dir>,
     options?: GetterOptions<R>,
-  ): Promise<ResolvedTreeEntry<Schema, Ext, Rels, R>>;
+  ): Promise<ResolvedTreeEntry<Schema, Ext, Rels, R, Derived>>;
   getNextNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
   getPreviousNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
 };
@@ -68,12 +70,14 @@ export type ResolvedTreeEntry<
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema>,
   R extends ResolveOption,
+  Derived extends TransformOutput = {},
 > = Simplify<
   { [K in MetaFieldName]: TreeEntryMeta<Ext> } & ResolveEntry<
     Schema,
     Rels,
     NormalizeDepth<R>
-  >
+  > &
+    Derived
 >;
 
 export type AnyTreeMeta = {

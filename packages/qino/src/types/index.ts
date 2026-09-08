@@ -23,6 +23,12 @@ export type {
 } from "./singleton";
 export type { QinoSlugRegistry, SlugFor } from "./slug-registry";
 export type {
+  Awaitable,
+  EntryTransform,
+  TransformEntry,
+  TransformOutput,
+} from "./transform";
+export type {
   AnyTree,
   AnyTreeMeta,
   ResolvedTreeEntry,

@@ -5,6 +5,7 @@ import type { MetaFieldName, SingletonEntryMeta } from "./entry";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
+import type { TransformOutput } from "./transform";
 import type {
   GenericPath,
   GetterOptions,
@@ -41,11 +42,12 @@ export type Singleton<
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
+  Derived extends TransformOutput = {},
 > = {
   readonly [QinoPrimitiveMarker]: SingletonMeta<Schema, Ext, Rels>;
   getData<R extends ResolveOption = DefaultR>(
     options?: GetterOptions<R>,
-  ): Promise<ResolvedSingletonView<Schema, Ext, Rels, R>>;
+  ): Promise<ResolvedSingletonView<Schema, Ext, Rels, R, Derived>>;
 };
 
 export type SingletonFile = {
@@ -68,10 +70,12 @@ export type ResolvedSingletonView<
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema>,
   R extends ResolveOption,
+  Derived extends TransformOutput = {},
 > = Simplify<
   { [K in MetaFieldName]: SingletonEntryMeta<Ext> } & ResolveEntry<
     Schema,
     Rels,
     NormalizeDepth<R>
-  >
+  > &
+    Derived
 >;
