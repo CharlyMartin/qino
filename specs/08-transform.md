@@ -70,6 +70,8 @@ TypeScript should infer this without explicit annotations.
 
 Readable prose includes headings, paragraphs, lists, quotes, table cells, and link labels. It excludes Markdown syntax, link destinations, images and alt text, inline and fenced code, raw HTML, and MDX expressions/components.
 
+The helper first parses as MDX. If the body is not valid MDX, it falls back to Markdown with GFM support, where MDX expressions are treated as ordinary Markdown text. HTML comments (`<!-- ... -->`) are supported and excluded from prose counts; they remain part of `sourceCharacterCount`.
+
 ## Acceptance criteria
 
 Done when:

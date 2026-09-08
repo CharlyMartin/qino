@@ -5,6 +5,8 @@
 
 ## Intent
 
+Maybe `transform` should be called `augment`? It doesn't transform existing fields, it adds new ones.
+
 `transform` (see [08-transform](./08-transform.md)) derives fields from an
 entry, and `resolveRelations` controls how deep relation fields get
 expanded. Both are collection/tree/singleton config, but `resolveRelations`
@@ -12,7 +14,7 @@ has always also been overridable per getter call (`getAll({ resolveRelations:
 2 })`). That flexibility conflicts with `transform`: a `transform`
 function's return type is fixed once at config time and must be valid for
 every possible per-call resolve depth, which is why `transform` currently
-always sees the entry *before* relations are resolved — it can never know
+always sees the entry _before_ relations are resolved — it can never know
 what shape the relation fields will end up in.
 
 Two workarounds don't hold up:
@@ -133,7 +135,7 @@ Done when:
 - The flat `resolveRelations`/`transform` top-level config continues to
   work unchanged and is equivalent to a single implicit `default` view.
 - A collection/tree/singleton can declare `views: Record<string, {
-  resolveRelations?, transform? }>`, and `getAll`/`getOne`/`getEntry`/
+resolveRelations?, transform? }>`, and `getAll`/`getOne`/`getEntry`/
   `getData` accept a `view` option to select one, defaulting to `default`.
 - For a view with `resolveRelations` truthy, `transform`'s parameter type
   reflects the resolved entry shape (relation fields as their resolved
