@@ -1,7 +1,7 @@
 {
   "name": "qino",
-  "version": "0.0.1",
-  "description": "Flat-file Markdown CMS",
+  "version": "0.0.2",
+  "description": "Headless Markdown CMS",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -27,7 +27,7 @@
     "build": "tsdown",
     "dev": "tsdown --watch",
     "pack": "pnpm build && pnpm pack",
-    "pack:test": "pnpm pack --pack-destination ../..",
+    "pack:test": "pnpm build && pnpm pack --pack-destination ../../../portfolio/v4",
     "check-types": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest"
