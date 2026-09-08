@@ -11,6 +11,7 @@ import {
   buildEntryMeta,
   createRelationResolver,
   createResolveCache,
+  transformEntry,
   validate,
 } from "../../lib";
 import { parseFile } from "../../lib/parse/parse-file";
@@ -24,9 +25,12 @@ import type {
   ResolveOption,
   StringKeys,
   SupportedFileExtension,
+  TransformOutput,
   Tree,
   TreeNode,
 } from "../../types";
+import type { TreeEntryMeta } from "../../types/entry";
+import type { EntryTransform } from "../../types/transform";
 import type { Slug } from "../../types/utils";
 import type { QinoContext } from "../qino/create-qino";
 import { findNode } from "./find-node";
@@ -41,6 +45,7 @@ export type CreateTreeParams<
   Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
   Dir extends GenericPath = GenericPath,
+  Derived extends TransformOutput = {},
 > = {
   directory: Dir;
   schema: Schema;
@@ -49,6 +54,7 @@ export type CreateTreeParams<
   orderFileName?: string;
   relations?: Rels;
   resolveRelations?: DefaultR;
+  transform?: EntryTransform<Schema, TreeEntryMeta<Ext>, Derived>;
 };
 
 export function createTree<
@@ -58,9 +64,10 @@ export function createTree<
   Rels extends Relations<S> = object,
   DefaultR extends ResolveOption = true,
   Dir extends GenericPath = GenericPath,
+  Derived extends TransformOutput = {},
 >(
   ctx: QinoContext,
-  params: CreateTreeParams<S, Ext, Title, Rels, DefaultR, Dir>,
+  params: CreateTreeParams<S, Ext, Title, Rels, DefaultR, Dir, Derived>,
 ) {
   const {
     directory,
@@ -70,6 +77,7 @@ export function createTree<
     orderFileName,
     relations,
     resolveRelations,
+    transform,
   } = params;
 
   const treeRelations = (relations ?? {}) as Rels;
@@ -94,7 +102,7 @@ export function createTree<
     getEntry,
     getNextNode,
     getPreviousNode,
-  } as const satisfies Tree<S, Ext, Title, Rels, DefaultR, Dir>;
+  } as const satisfies Tree<S, Ext, Title, Rels, DefaultR, Dir, Derived>;
 
   return tree;
 
@@ -120,7 +128,7 @@ export function createTree<
   async function getEntry<R extends ResolveOption = DefaultR>(
     slug: Slug,
     options?: GetterOptions<R>,
-  ): Promise<ResolvedTreeEntry<S, Ext, Rels, R>> {
+  ): Promise<ResolvedTreeEntry<S, Ext, Rels, R, Derived>> {
     const meta = buildEntryMeta({
       directory: directoryPath,
       relativePath: `${slug}${extension}`,
@@ -139,10 +147,15 @@ export function createTree<
       }),
     };
 
+    const transformedEntry = await transformEntry(
+      validatedDataWithMeta,
+      transform,
+    );
+
     const resolveSetting = options?.resolveRelations ?? defaultResolve;
 
     if (resolveSetting === false) {
-      return validatedDataWithMeta as ResolvedTreeEntry<S, Ext, Rels, R>;
+      return transformedEntry as ResolvedTreeEntry<S, Ext, Rels, R, Derived>;
     }
 
     const cache = createResolveCache();
@@ -150,13 +163,13 @@ export function createTree<
 
     const depth = normalizeDepth(resolveSetting);
 
-    const resolved = await resolver.resolveEntry(validatedDataWithMeta, {
+    const resolved = await resolver.resolveEntry(transformedEntry, {
       relations: tree[QinoPrimitiveMarker].relations,
       depth,
       sourceInstanceId: ctx.instanceId,
     });
 
-    return resolved as ResolvedTreeEntry<S, Ext, Rels, R>;
+    return resolved as ResolvedTreeEntry<S, Ext, Rels, R, Derived>;
   }
 
   async function getNextNode(slug: Slug) {

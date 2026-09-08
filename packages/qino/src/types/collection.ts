@@ -6,6 +6,7 @@ import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
 import type { SlugFor } from "./slug-registry";
+import type { TransformOutput } from "./transform";
 import type {
   GenericPath,
   GetterOptions,
@@ -19,15 +20,16 @@ export type Collection<
   Rels extends Relations<Schema> = object,
   DefaultR extends ResolveOption = true,
   Dir extends GenericPath = GenericPath,
+  Derived extends TransformOutput = {},
 > = {
   readonly [QinoPrimitiveMarker]: CollectionMeta<Schema, Ext, Rels>;
   getAll<R extends ResolveOption = DefaultR>(
     options?: GetterOptions<R>,
-  ): Promise<Array<ResolvedCollectionView<Schema, Ext, Rels, R>>>;
+  ): Promise<Array<ResolvedCollectionView<Schema, Ext, Rels, R, Derived>>>;
   getOne<R extends ResolveOption = DefaultR>(
     slug: SlugFor<Dir>,
     options?: GetterOptions<R>,
-  ): Promise<ResolvedCollectionView<Schema, Ext, Rels, R>>;
+  ): Promise<ResolvedCollectionView<Schema, Ext, Rels, R, Derived>>;
 };
 
 export type ResolvedCollectionView<
@@ -35,12 +37,14 @@ export type ResolvedCollectionView<
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema>,
   R extends ResolveOption,
+  Derived extends TransformOutput = {},
 > = Simplify<
   { [K in MetaFieldName]: CollectionEntryMeta<Ext> } & ResolveEntry<
     Schema,
     Rels,
     NormalizeDepth<R>
-  >
+  > &
+    Derived
 >;
 
 export type CollectionMeta<

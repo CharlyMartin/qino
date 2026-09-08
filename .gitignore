@@ -37,7 +37,3 @@ yarn-error.log*
 .DS_Store
 *.pem
 
-# Specs
-specs
-SPECS.md
-STORIES.md
