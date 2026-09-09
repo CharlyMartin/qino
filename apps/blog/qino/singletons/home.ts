@@ -15,6 +15,7 @@ const HomeSchema = z
 export const homeSingleton = qino.createSingleton({
   file: "/pages/home.md",
   schema: HomeSchema,
+  resolveRelations: true,
   relations: {
     "featured-posts[*]": postCollection,
   },

@@ -11,8 +11,8 @@ export async function fetchTargetEntry(
 ) {
   try {
     return isSingleton(target)
-      ? await target.getData({ resolveRelations: false })
-      : await target.getOne(slug, { resolveRelations: false });
+      ? await target[QinoPrimitiveMarker].readData()
+      : await target[QinoPrimitiveMarker].readOne(slug);
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause);
 

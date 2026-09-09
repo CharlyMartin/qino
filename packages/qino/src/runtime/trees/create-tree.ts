@@ -8,21 +8,19 @@ import {
   QinoPrimitives,
 } from "../../data";
 import {
-  augmentEntry,
+  applyView,
+  assertViewNames,
   buildEntryMeta,
-  createRelationResolver,
-  createResolveCache,
+  parseFile,
+  type RuntimeView,
+  selectView,
   validate,
 } from "../../lib";
-import { parseFile } from "../../lib/parse/parse-file";
-import { normalizeDepth } from "../../lib/relations/normalize-depth";
 import type {
   AugmentOutput,
   GenericPath,
-  GetterOptions,
   ObjectSchema,
   Relations,
-  ResolvedTreeEntry,
   ResolveOption,
   StringKeys,
   SupportedFileExtension,
@@ -32,6 +30,12 @@ import type {
 import type { EntryAugment } from "../../types/augment";
 import type { TreeEntryMeta } from "../../types/entry";
 import type { Slug } from "../../types/utils";
+import type {
+  SelectedView,
+  ViewArguments,
+  ViewSelection,
+  ViewsConfig,
+} from "../../types/views";
 import type { QinoContext } from "../qino/create-qino";
 import { findNode } from "./find-node";
 import { flattenTree } from "./flatten-tree";
@@ -43,9 +47,10 @@ export type CreateTreeParams<
   Ext extends SupportedFileExtension,
   Title extends StringKeys<Schema>,
   Rels extends Relations<Schema> = object,
-  DefaultR extends ResolveOption = true,
+  DefaultR extends ResolveOption = false,
   Dir extends GenericPath = GenericPath,
   Derived extends AugmentOutput = {},
+  Views extends object = object,
 > = {
   directory: Dir;
   schema: Schema;
@@ -54,7 +59,8 @@ export type CreateTreeParams<
   orderFileName?: string;
   relations?: Rels;
   resolveRelations?: DefaultR;
-  augment?: EntryAugment<Schema, TreeEntryMeta<Ext>, Derived>;
+  augment?: EntryAugment<Schema, TreeEntryMeta<Ext>, Derived, Rels, DefaultR>;
+  views?: ViewsConfig<Schema, TreeEntryMeta<Ext>, Rels, Views>;
 };
 
 export function createTree<
@@ -62,12 +68,13 @@ export function createTree<
   Ext extends SupportedFileExtension,
   Title extends StringKeys<S>,
   Rels extends Relations<S> = object,
-  DefaultR extends ResolveOption = true,
+  DefaultR extends ResolveOption = false,
   Dir extends GenericPath = GenericPath,
   Derived extends AugmentOutput = {},
+  const Views extends object = object,
 >(
   ctx: QinoContext,
-  params: CreateTreeParams<S, Ext, Title, Rels, DefaultR, Dir, Derived>,
+  params: CreateTreeParams<S, Ext, Title, Rels, DefaultR, Dir, Derived, Views>,
 ) {
   const {
     directory,
@@ -81,7 +88,10 @@ export function createTree<
   } = params;
 
   const treeRelations = (relations ?? {}) as Rels;
-  const defaultResolve = (resolveRelations ?? true) as ResolveOption;
+  const defaultResolve = (resolveRelations ?? false) as ResolveOption;
+  const views = params.views as Record<string, RuntimeView> | undefined;
+  assertViewNames(views);
+  const defaults = { resolveRelations: defaultResolve, augment };
   const resolvedOrderFileName = orderFileName ?? DEFAULT_ORDER_FILE_NAME;
   const directoryPath = nodePath.join(ctx.contentFolder, directory);
 
@@ -102,7 +112,7 @@ export function createTree<
     getEntry,
     getNextNode,
     getPreviousNode,
-  } as const satisfies Tree<S, Ext, Title, Rels, DefaultR, Dir, Derived>;
+  } as const satisfies Tree<S, Ext, Title, Rels, DefaultR, Dir, Derived, Views>;
 
   return tree;
 
@@ -125,10 +135,7 @@ export function createTree<
     return flattenTree(await getTree());
   }
 
-  async function getEntry<R extends ResolveOption = DefaultR>(
-    slug: Slug,
-    options?: GetterOptions<R>,
-  ): Promise<ResolvedTreeEntry<S, Ext, Rels, R, Derived>> {
+  async function readEntry(slug: Slug) {
     const meta = buildEntryMeta({
       directory: directoryPath,
       relativePath: `${slug}${extension}`,
@@ -137,7 +144,7 @@ export function createTree<
 
     const raw = await fs.readFile(meta.filePath, "utf-8");
 
-    const validatedDataWithMeta = {
+    return {
       [META_FIELD_NAME]: meta,
       ...parseFile({
         schema,
@@ -146,27 +153,29 @@ export function createTree<
         validatorFn: validate,
       }),
     };
+  }
 
-    const augmentedEntry = await augmentEntry(validatedDataWithMeta, augment);
-
-    const resolveSetting = options?.resolveRelations ?? defaultResolve;
-
-    if (resolveSetting === false) {
-      return augmentedEntry as ResolvedTreeEntry<S, Ext, Rels, R, Derived>;
-    }
-
-    const cache = createResolveCache();
-    const resolver = createRelationResolver(cache);
-
-    const depth = normalizeDepth(resolveSetting);
-
-    const resolved = await resolver.resolveEntry(augmentedEntry, {
-      relations: tree[QinoPrimitiveMarker].relations,
-      depth,
-      sourceInstanceId: ctx.instanceId,
-    });
-
-    return resolved as ResolvedTreeEntry<S, Ext, Rels, R, Derived>;
+  async function getEntry<Args extends ViewArguments<Views> = []>(
+    slug: Slug,
+    ...[options]: Args
+  ) {
+    const view = selectView(defaults, views, options);
+    const entry = await readEntry(slug);
+    const [result] = await applyView(
+      [entry],
+      view,
+      treeRelations,
+      ctx.instanceId,
+    );
+    return result as SelectedView<
+      S,
+      TreeEntryMeta<Ext>,
+      Rels,
+      DefaultR,
+      Derived,
+      Views,
+      ViewSelection<Args[0]>
+    >;
   }
 
   async function getNextNode(slug: Slug) {

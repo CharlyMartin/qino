@@ -47,12 +47,21 @@ export function createQino(config: QinoConfig) {
       S extends ObjectSchema,
       Ext extends SupportedFileExtension,
       Rels extends Relations<S> = object,
-      DefaultR extends ResolveOption = true,
+      DefaultR extends ResolveOption = false,
       Dir extends GenericPath = GenericPath,
       Derived extends AugmentOutput = {},
+      const Views extends object = object,
     >(
-      params: CreateCollectionParams<S, Ext, Rels, DefaultR, Dir, Derived>,
-    ): Collection<S, Ext, Rels, DefaultR, Dir, Derived> {
+      params: CreateCollectionParams<
+        S,
+        Ext,
+        Rels,
+        DefaultR,
+        Dir,
+        Derived,
+        Views
+      >,
+    ): Collection<S, Ext, Rels, DefaultR, Dir, Derived, Views> {
       const collection = createCollection(ctx, params);
       registry.register(collection);
       return collection;
@@ -61,11 +70,19 @@ export function createQino(config: QinoConfig) {
       S extends ObjectSchema,
       F extends SingletonFile,
       Rels extends Relations<S> = object,
-      DefaultR extends ResolveOption = true,
+      DefaultR extends ResolveOption = false,
       Derived extends AugmentOutput = {},
+      const Views extends object = object,
     >(
-      params: CreateSingletonParams<S, F, Rels, DefaultR, Derived>,
-    ): Singleton<S, ExtractSingletonExtension<F>, Rels, DefaultR, Derived> {
+      params: CreateSingletonParams<S, F, Rels, DefaultR, Derived, Views>,
+    ): Singleton<
+      S,
+      ExtractSingletonExtension<F>,
+      Rels,
+      DefaultR,
+      Derived,
+      Views
+    > {
       const singleton = createSingleton(ctx, params);
       registry.register(singleton);
       return singleton;
@@ -75,12 +92,22 @@ export function createQino(config: QinoConfig) {
       Ext extends SupportedFileExtension,
       Title extends StringKeys<S>,
       Rels extends Relations<S> = object,
-      DefaultR extends ResolveOption = true,
+      DefaultR extends ResolveOption = false,
       Dir extends GenericPath = GenericPath,
       Derived extends AugmentOutput = {},
+      const Views extends object = object,
     >(
-      params: CreateTreeParams<S, Ext, Title, Rels, DefaultR, Dir, Derived>,
-    ): Tree<S, Ext, Title, Rels, DefaultR, Dir, Derived> {
+      params: CreateTreeParams<
+        S,
+        Ext,
+        Title,
+        Rels,
+        DefaultR,
+        Dir,
+        Derived,
+        Views
+      >,
+    ): Tree<S, Ext, Title, Rels, DefaultR, Dir, Derived, Views> {
       const tree = createTree(ctx, params);
       registry.register(tree);
       return tree;

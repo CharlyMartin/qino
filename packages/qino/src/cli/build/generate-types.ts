@@ -7,7 +7,6 @@ import {
   ROOT_FOLDER_NAME,
 } from "../../data";
 import type { AnyCollection, AnyTree } from "../../types";
-import { collectCollectionSlugs } from "./collect-collection-slugs";
 import { collectTreeSlugs } from "./collect-tree-slugs";
 import { generateTypeNames } from "./generate-type-names";
 import { renderGeneratedTypes } from "./render-generated-types";
@@ -31,7 +30,7 @@ export async function generateTypes({
     ...(await Promise.all(
       collections.map(async (collection) => ({
         directory: collection[QinoPrimitiveMarker].directory,
-        slugs: await collectCollectionSlugs(collection),
+        slugs: await collection.getAllSlugs(),
       })),
     )),
     ...(await Promise.all(

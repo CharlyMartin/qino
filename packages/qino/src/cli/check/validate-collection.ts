@@ -7,7 +7,7 @@ export async function validateCollection(collection: AnyCollection) {
   const { directory } = collection[QinoPrimitiveMarker];
 
   try {
-    const entries = await collection.getAll({ resolveRelations: false });
+    const entries = await collection[QinoPrimitiveMarker].readAll();
 
     if (entries.length == 0) {
       consola.warn(`Collection "${directory}" is empty.`);

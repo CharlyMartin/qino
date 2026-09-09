@@ -70,7 +70,7 @@ describe("createTree", () => {
     expect(meta.titleField).toBe("title");
     expect(meta.orderFileName).toBe("_order.json");
     expect(meta.relations).toEqual({});
-    expect(meta.resolveRelations).toBe(true);
+    expect(meta.resolveRelations).toBe(false);
   });
 
   test("honours a custom orderFileName", () => {
@@ -208,7 +208,7 @@ describe("createTree", () => {
     await expect(tree.getEntry("missing")).rejects.toThrow();
   });
 
-  test("getEntry() with resolveRelations: false skips relation resolution", async () => {
+  test("getEntry() can select a raw view", async () => {
     const docs = nodePath.join(tmp, "docs");
     await fs.mkdir(docs);
     await writeMd(docs, "intro", "Intro");
@@ -218,9 +218,10 @@ describe("createTree", () => {
       schema: Schema,
       extension: ".md",
       titleField: "title",
+      views: { raw: { resolveRelations: false } },
     });
 
-    const entry = await tree.getEntry("intro", { resolveRelations: false });
+    const entry = await tree.getEntry("intro", { view: "raw" });
     expect(entry._meta.slug).toBe("intro");
   });
 

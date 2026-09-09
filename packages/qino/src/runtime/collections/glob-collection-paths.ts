@@ -11,7 +11,7 @@ export async function globCollectionPaths({
   absoluteDirPath,
   extension,
 }: GetRelativePathsParams) {
-  // `*.md`, NOT `**/*.md` -> collections are flat directories, not nested like trees.
+  // `*${extension}`, NOT `**/*${extension}` -> collections are flat directories, not nested like trees.
   const relativeFilePaths = await fg(`*${extension}`, {
     cwd: absoluteDirPath,
   });

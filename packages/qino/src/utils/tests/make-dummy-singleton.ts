@@ -21,7 +21,8 @@ export function makeDummySingleton({
       file,
       extension: ".json" as const,
       relations: {},
-      resolveRelations: true as ResolveOption,
+      resolveRelations: false as ResolveOption,
+      readData: async () => data as never,
     },
     getData: async () => data as never,
   } as AnySingleton;
