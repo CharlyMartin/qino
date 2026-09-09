@@ -27,12 +27,15 @@ What it does today:
 6. Reads the config (`contentFolder`, `mediaFolder`) from any loaded primitive's
    `QinoPrimitiveMarker` and verifies both folders exist on disk.
 7. Asserts no overlapping paths between collections / singletons / trees.
-8. Validates each primitive by exercising its getter (`getAll` / `getData` /
-   `getTree`) with `resolveRelations: false`. Each file is read and parsed against
-   its schema; missing or invalid files fail the build.
+8. Validates each primitive using internal source readers (and structural tree
+   traversal). Each file is read and parsed against its schema; missing or invalid
+   files fail the build. Content relation resolution and all augment callbacks are
+   skipped. Collections use the internal `readAll()` reader for validation.
 
 9. Generates `.d.ts` types (slug unions per collection / tree) into
-   `qino/_generated/types.d.ts` — see "Generated types" below.
+   `qino/_generated/types.d.ts` — see "Generated types" below. Collection slugs
+   come from `getAllSlugs()`, which discovers filenames without reading content.
+   Tree slug discovery is unchanged.
 
 Source of truth: `packages/qino/src/cli/build/index.ts` (codegen in
 `packages/qino/src/cli/build/generate-types.ts`).
@@ -80,6 +83,8 @@ How it wires up:
   getters that take a slug (`getOne`, `getEntry`, `getTree(slug)`,
   `getNextNode`, `getPreviousNode`) type it as `SlugFor<Dir>`, which resolves to
   `QinoSlugRegistry[Dir]` when the registry has an entry and `string` otherwise.
+- Collection `getAllSlugs()` returns `Promise<Array<SlugFor<Dir>>>`, sharing the
+  same registry typing as `getOne`.
 - With no generated file the registry is empty, so every getter accepts any
   `string` (today's behaviour). The generated file augments the registry, so the
   same getters autocomplete known slugs.

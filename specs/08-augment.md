@@ -53,10 +53,11 @@ TypeScript should infer this without explicit annotations.
 ## Behaviour
 
 - `augment` is available on collections, singletons, and trees. It applies to every hydrated entry returned by `getAll`, `getOne`, `getData`, or `getEntry`.
-- `augment` runs after schema validation and `_meta` creation, but before relation resolution. It receives the validated, typed entry including its `_meta` object; relation fields still hold their authored values.
+- `augment` runs after schema validation, `_meta` creation, and the selected view’s relation resolution. Its input type reflects that view’s fixed depth; with `resolveRelations` omitted or `false`, relation fields retain their authored values. Top-level augment defines the implicit default view. See [15-views](./15-views.md).
 - `augment` may be sync or async.
 - Returned fields **merge** into the entry. Conflicts with schema fields or `_meta` are rejected both by TypeScript and at runtime, rather than silently overwriting data.
-- `augment` runs once per `getAll` / `getOne` invocation. No caching across calls in V1 — keep it simple.
+- `augment` runs once per returned entry per getter invocation. No caching across calls in V1 — keep it simple.
+- Embedded relation targets and CLI source validation never execute augment.
 - Tree navigation nodes returned by `getTree` and `getFlatTree` remain structural and do not receive augmented fields.
 - Augment errors include the source file path.
 

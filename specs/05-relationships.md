@@ -83,7 +83,7 @@ At resolve time, for a **collection target** the resolver:
 
 A mismatched prefix, a mismatched extension, or an empty string throws at resolve time with the source `_meta.filePath`, the relation key, and the offending value. Bare slugs (e.g. `author: "jane-doe"`) are **not** accepted — the verbose form is the only valid format. This trades a few extra characters per entry for self-documenting frontmatter and prefix-mismatch detection at the boundary.
 
-For a **singleton target** (see [03-singletons.md](03-singletons.md)), the value must equal the target singleton's `file` exactly (leading `/` is tolerated). The prefix+extension pair collapses to a single equality check because a singleton has exactly one file. On match the resolver calls `targetSingleton.getData({ resolveRelations: false })`; on mismatch it throws naming the expected file, the relation key, and the source file path.
+For a **singleton target** (see [03-singletons.md](03-singletons.md)), the value must equal the target singleton's `file` exactly (leading `/` is tolerated). The prefix+extension pair collapses to a single equality check because a singleton has exactly one file. On match the resolver calls the singleton’s internal source reader; on mismatch it throws naming the expected file, the relation key, and the source file path.
 
 ## Build pipeline guarantees
 
@@ -94,20 +94,23 @@ For a **singleton target** (see [03-singletons.md](03-singletons.md)), the value
 
 ## Resolution
 
-`getAll`, `getOne`, and `getData` all run a single-pass traversal that walks each declared relation, swaps the `string` leaf for the fully-resolved target entry, deduplicates fetches via a per-call cache, and bottoms out at the depth normalized from `resolveRelations`. The result is a fully-typed entry tree where every reachable relation (up to the configured depth) is materialized in-place — no follow-up getter calls, no manual joins.
+When the selected view enables resolution, `getAll`, `getOne`, `getEntry`, and `getData` run a single-pass traversal that walks each declared relation, swaps the `string` leaf for the fully-resolved target entry, deduplicates fetches via a per-call cache, and bottoms out at the depth normalized from `resolveRelations`. The result is a fully-typed entry tree where every reachable relation (up to the configured depth) is materialized in-place — no follow-up getter calls, no manual joins.
 
 ### `resolveRelations` option
 
 Accepts:
 
-- (default) `true` — resolve everything reachable, up to `MAX_RESOLVE_DEPTH` (currently `6`).
+- `true` — resolve everything reachable, up to `MAX_RESOLVE_DEPTH` (currently `6`).
 - `1 | 2 | 3 | …` — resolve up to N levels. Values above 6 clamp to 6; negatives and non-integers floor-and-clamp into `[0, 6]`.
-- `false` — return raw string paths.
+- (default) `false` — return raw string paths.
 
 Settable in two places:
 
-- On `createCollection` / `createSingleton` — collection-wide default for every getter call.
-- On a getter call (`getAll` / `getOne` / `getData`) — overrides the collection default for that call only.
+- On `createCollection` / `createSingleton` / `createTree` — the implicit default view.
+- Inside a named `views` entry — a fixed depth paired with that view’s augment.
+
+Getters accept `{ view: "name" }` to select a declared custom view, or no option
+for the implicit default. Per-call depth overrides are removed; see [15-views](./15-views.md).
 
 > Reverse traversal (an author gaining a `posts` array of every entry that references them) is deferred to v2 — see [14-upstream-resolution.md](14-upstream-resolution.md).
 
@@ -136,7 +139,7 @@ flowchart TD
     Q --> Q1["entryCache = getOrCreateEntryCache(cache, getTargetUniquePath(target))"]
     Q1 --> Q2{"entryCache.get(slug)?"}
     Q2 -- hit --> R["return cached Promise<AnyEntry><br/>(identity preserved · cycle-safe)"]
-    Q2 -- miss --> S["fetchRawTarget(target, slug, ctx)<br/>isSingleton ? getData : getOne<br/>{ resolveRelations: false }"]
+    Q2 -- miss --> S["fetchRawTarget(target, slug, ctx)<br/>isSingleton ? readData : readOne<br/>source only"]
     S --> T["entryCache.set(slug, promise)"]
     T --> U["resolver.resolveEntry(raw, {target.relations, depth-1})"]
     R --> U
@@ -173,11 +176,11 @@ categories: ["categories/a.json", "categories/b.json"]
 
 Trace:
 
-1. `postCollection.getOne("hello", { resolveRelations: 2 })` → `normalizeDepth(2) = 2`. Fresh cache + resolver created.
+1. `postCollection.getOne("hello", { view: "detail" })` with `views.detail.resolveRelations: 2` → `normalizeDepth(2) = 2`. Fresh cache + resolver created.
 2. `resolver.resolveEntry(post, { depth: 2 })`. Iterate post's two relations.
 3. **Relation `author`.** `parsePath("author") = [{kind:"key", name:"author"}]`. `walkAndSet` descends into `obj.author`; no more segments → calls `setLeaf("authors/jane.json")`.
 4. `resolveRelationLeaf` validates non-empty string → `parseRelationValue` strips prefix `/authors/` and extension `.json` → slug `"jane"`. Calls the bound `ctx.resolveTargetReference("jane")` → `resolveTargetReference(authorCollection, "jane", 1, errorCtx)`.
-5. `getOrFetchRawTarget` builds `entryCache` under `getTargetUniquePath = "/authors"`. Miss for `"jane"` → `fetchRawTarget` calls `authorCollection.getOne("jane", { resolveRelations: false })` → raw author. The in-flight Promise is set on `entryCache` _before_ awaiting (cycle-safety pin).
+5. `getOrFetchRawTarget` builds `entryCache` under `getTargetUniquePath = "/authors"`. Miss for `"jane"` → `fetchRawTarget` calls the author collection’s internal `readOne("jane")` → raw author. The in-flight Promise is set on `entryCache` _before_ awaiting (cycle-safety pin).
 6. Re-enters `resolver.resolveEntry(janeRaw, { depth: 1, relations: { mentor: authorCollection } })`. Author has `mentor: "authors/bob.json"` → bound `resolveTargetReference("bob")` with `depth - 1 = 0`.
 7. Cache miss for `("/authors", "bob")` → `fetchRawTarget` returns raw bob. Recursive `resolver.resolveEntry(bobRaw, { depth: 0 })` short-circuits at the `depth <= 0` guard → returns bob as-is. `bob.mentor` stays a `string`.
 8. **Relation `categories[*]`.** Segments `[{key:"categories"}, {array}]`. `walkAndSet` descends into `categories`, then map-recurses each element, each bottoming out at `setLeaf`. Each leaf → bound `resolveTargetReference(slug)` with `depth=1`. Categories have empty `relations`, so the nested `resolver.resolveEntry` finds nothing to walk and returns the raw entry unchanged.
@@ -188,7 +191,7 @@ Final shape: `post.author` is a full author whose `mentor` is a full bob (whose 
 
 1. **Per-call cache.** A fresh `Map<string, Map<string, Promise<AnyEntry>>>` is created by `createResolveCache` at the entry point of every `getAll` / `getOne` / `getData`, then handed to `createRelationResolver(cache)` and closed over for the duration of the call. No state leaks across getter calls; stale data is impossible.
 2. **Promise-based dedup.** `getOrFetchRawTarget` stores the in-flight `fetchRawTarget` Promise on the per-target `entryCache` _before_ awaiting it. Any concurrent or subsequent visitor of the same `(getTargetUniquePath(target), slug)` awaits the same Promise. N visits collapse to one fetch and one resolution pass.
-3. **Cycle safety = identity preservation.** Because the same Promise is returned, the resolved object reference is identical across visits (`===` holds). An author → mentor → original-author cycle terminates: the second visit reuses the first Promise rather than triggering a new fetch. Critical detail: `fetchRawTarget` calls the target getter with `{ resolveRelations: false }`, so the cached value is the _raw_ entry and recursion happens _outside_ the cached fetch — in `resolveTargetReference`, after the await. Caching a half-resolved entry would hand mid-resolution values to other visitors and corrupt the output.
+3. **Cycle safety = identity preservation.** Because the same Promise is returned, the resolved object reference is identical across visits (`===` holds). An author → mentor → original-author cycle terminates: the second visit reuses the first Promise rather than triggering a new fetch. Critical detail: `fetchRawTarget` calls the target’s internal source reader without resolving relations or running augment, so the cached value is the _raw_ entry and recursion happens _outside_ the cached fetch — in `resolveTargetReference`, after the await. Caching a half-resolved entry would hand mid-resolution values to other visitors and corrupt the output.
 
 ### Depth semantics
 
@@ -313,23 +316,26 @@ The output of a getter call is `ResolvedView<Schema, Ext, Rels, R>`, which is `{
 Sketch (mirrors cases in `packages/qino/src/types/resolve.test-d.ts`):
 
 ```ts
-const posts = await postCollection.getAll({ resolveRelations: 2 });
+// Configure views: { detail: { resolveRelations: 2 }, shallow: { resolveRelations: 1 } }
+const posts = await postCollection.getAll({ view: "detail" });
 posts[0].author.mentor; // → full author entry (depth 2 → 1 → 0 at this leaf, resolved)
 posts[0].author.mentor.mentor; // → string (depth exhausted)
 
-const shallow = await postCollection.getAll({ resolveRelations: 1 });
+const shallow = await postCollection.getAll({ view: "shallow" });
 shallow[0].author.mentor; // → string (depth 1 → 0 at this leaf)
 ```
 
-### Per-call vs per-collection default
+### View selection
 
-- `createCollection({ resolveRelations })` becomes the `DefaultR` slot on the returned `Collection<Schema, Ext, Rels, DefaultR>`.
-- `getAll<R extends ResolveOption = DefaultR>` and `getOne<R extends ResolveOption = DefaultR>` each accept their own `R`. Passing `{ resolveRelations: false }` overrides the default with `false` for that call; passing `{ resolveRelations: 2 }` overrides with `2`.
-- The return type is `ResolvedView<Schema, Ext, Rels, R>` using the call's `R` (falling back to `DefaultR`). The IDE shows resolved-vs-raw output exactly matching what runs.
+- Top-level `resolveRelations` defines the implicit default depth, defaulting to `false`. Named views independently default to `false`.
+- Named views fix their own depth and augment. Getter types infer the selected
+  view’s resolved entry plus that augment’s return fields.
+- Augment runs after resolution. Embedded targets contain only schema fields,
+  metadata, and their recursively resolved relations; target augment never applies.
 
 ### Depth ceiling: `MAX_RESOLVE_DEPTH`
 
-- **Type:** `MaxDepth = typeof MAX_RESOLVE_DEPTH = 6`. `Depth = IntClosedRange<0, MaxDepth>`. `ResolveOption = boolean | IntClosedRange<1, MaxDepth>`. Integer literals above 6 are rejected at the call site.
+- **Type:** `MaxDepth = typeof MAX_RESOLVE_DEPTH = 6`. `Depth = IntClosedRange<0, MaxDepth>`. `ResolveOption = boolean | IntClosedRange<1, MaxDepth>`. Integer literals above 6 are rejected in view configuration.
 - **Runtime:** `normalizeDepth` clamps to the same constant.
 - Single source: `packages/qino/src/lib/globals.ts`. Bumping it raises both ceilings together.
 
@@ -343,7 +349,7 @@ shallow[0].author.mentor; // → string (depth 1 → 0 at this leaf)
 Done when:
 
 - A `postCollection` can declare `author: <relation>` and `categories: <relation>` and the lock file reflects both with correct cardinality.
-- `postCollection.getAll()` returns posts whose `author` and `categories` are full entries, not strings (relations resolve by default). Passing `{ resolveRelations: false }` returns the raw string paths instead.
+- `postCollection.getAll()` returns raw reference strings unless the top-level configuration enables resolution. Selecting a view configured with `resolveRelations: true` or a numeric depth expands those references.
 - Broken references surface a clear error pointing at the offending file and field.
-- Depth control (`true | false | 1..6`) works at both the collection default and the per-call override; integer overrides above `MAX_RESOLVE_DEPTH` clamp.
+- Depth control (`true | false | 1..6`) works at both the implicit default and named views; runtime numeric depths above `MAX_RESOLVE_DEPTH` clamp.
 - Compile-time rejection of relation keys whose JSON-path leaf isn't `string`; compile-time resolved-entry typing is transitive up to the configured depth.

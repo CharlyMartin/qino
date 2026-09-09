@@ -72,7 +72,7 @@ Optional. Same JSON-path grammar as collections — `parent.child`, `field[*]`, 
 
 ### `resolveRelations`
 
-Same `true | number | false` semantics as collections/singletons. Settable on `createTree` and overridable per getter call (`getEntries`, `getEntry`).
+Same `true | number | false` semantics as collections/singletons, defaulting to `false`. Set it on `createTree` for the implicit default or inside a named view. `getEntry(slug, { view: "name" })` selects a declared custom view; omitting `view` selects the default. Getter resolution overrides are removed. Structural tree navigation is unaffected. See [15-views](./15-views.md).
 
 ## Content-folder convention
 

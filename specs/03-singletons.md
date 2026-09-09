@@ -37,11 +37,9 @@ export const homeSingleton = createSingleton({
 });
 ```
 
-The returned getter is parameterless except for the optional `{ resolveRelations }` option:
-
 ```ts
 const home = await homeSingleton.getData();
-const homeRaw = await homeSingleton.getData({ resolveRelations: false });
+const homeRaw = await homeSingleton.getData({ view: "raw" });
 ```
 
 The extension is inferred from `file`'s suffix — one of `.md` | `.mdx` | `.json`. No separate `extension` key.
@@ -67,10 +65,10 @@ The extension is inferred from `file`'s suffix — one of `.md` | `.mdx` | `.jso
 ### `getData` signature
 
 ```ts
-getData({ resolveRelations? })
+getData({ view? })
 ```
 
-Same `resolveRelations` semantics as collection getters — `true` / `number` / `false`, settable both on `createSingleton` and per-call.
+Set `resolveRelations` (`true` / `number` / `false`, default `false`) on `createSingleton` for the implicit default, or inside a named view. Getters select a declared view; they cannot override its depth. Omitting `view` selects the top-level default, and `"default"` is reserved. See [15-views](./15-views.md).
 
 ### `relations`
 

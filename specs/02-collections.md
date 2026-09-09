@@ -5,7 +5,7 @@
 
 ## Intent
 
-A collection is a folder of similarly-shaped entries — typically `posts/*.md`, `authors/*.json`, `categories/*.json`. `createCollection` defines the shape and returns getters that read from disk and validate.
+A collection is a folder of similarly-shaped entries — typically `posts/*.md`, `authors/*.json`, `categories/*.json`. `createCollection` defines the shape and returns getters for filename discovery or reading and validating content.
 
 ## API
 
@@ -49,6 +49,27 @@ Source of truth: `packages/qino/src/runtime/collections/create-collection.ts`.
 
 Slug = relative path inside `directory`, minus the file extension: `/posts/hello.md` → slug `hello`
 
+### Filename discovery
+
+```ts
+getAllSlugs(): Promise<Array<SlugFor<Dir>>>
+```
+
+This parameterless getter calls `globCollectionPaths`, removes only the configured
+trailing extension, and sorts with `.sort()`. Collections are flat: nested files,
+hidden files, and files with other extensions are excluded. Empty or missing
+directories return `[]`, preserving the existing glob behavior. Dots elsewhere in
+filenames remain part of the slug.
+
+Discovery does not read or parse content, validate schemas, resolve relations, or
+run augment callbacks or views. Malformed content still yields a slug. The return
+type uses the collection's generated slug registry, falling back to `string[]`
+when its directory is unregistered.
+
+`getAll()` and `getOne()` read and validate content before applying the selected
+view. The internal `readAll()` remains the source reader for CLI validation;
+CLI collection slug generation uses `getAllSlugs()`.
+
 ### Returned shape
 
 Every entry returned by `getAll` / `getOne` includes a `_meta` field:
@@ -73,7 +94,7 @@ Every entry returned by `getAll` / `getOne` includes a `_meta` field:
 ### `getOne` signature
 
 ```ts
-getOne(slug: string)
+getOne(slug: string, options?: { view?: CustomViewName })
 ```
 
 Positional, not object form. (The earlier draft of the spec used `getOne({ slug })` — that's not what shipped.)
@@ -118,7 +139,7 @@ getAll({
 })
 ```
 
-None of these are implemented yet. `getAll()` today takes no arguments.
+These query options are not implemented yet. `getAll({ view })` selects a declared named view; `getAll()` uses the implicit top-level default. See [15-views](./15-views.md).
 
 ## Open questions
 
@@ -129,6 +150,7 @@ None of these are implemented yet. `getAll()` today takes no arguments.
 
 Done when:
 
+- `getAllSlugs()` returns sorted, typed slugs from filenames without reading content or running callbacks.
 - `getAll()` returns every entry in the collection folder, validated against the schema.
 - `getOne(slug)` returns one entry by slug, throws on missing file or schema mismatch.
 - `_meta.slug`, `_meta.fileName`, `_meta.filePath` are present on every returned entry.

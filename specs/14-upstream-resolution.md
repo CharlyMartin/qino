@@ -11,10 +11,19 @@ Reverse traversal of relations: a target entry exposes the entries that referenc
 
 ## Sketch (not v1)
 
-A symmetric getter option `resolveAncestors` mirroring `resolveRelations`'s shape — `true` / `number` / `false`, settable both on `createCollection` and per-call:
+A proposed config option `resolveAncestors` mirroring `resolveRelations`'s shape — `true` / `number` / `false`, settable at the top level of `createCollection` or within a named view. Getters select the configured behavior through `{ view }`, following [15-views](./15-views.md); they do not override resolution per call. Upstream resolution is not implemented in v1.
 
 ```ts
-const authors = await authorCollection.getAll({ resolveAncestors: true });
+const authorCollection = qino.createCollection({
+  directory: "/authors",
+  extension: ".json",
+  schema: AuthorSchema,
+  views: {
+    withPosts: { resolveAncestors: true }, // proposed v2 configuration
+  },
+});
+
+const authors = await authorCollection.getAll({ view: "withPosts" });
 // each author gains a `posts` field — array of every post that references them
 ```
 
@@ -52,16 +61,17 @@ The v1 shorthand (`relations: { author: authorCollection }`) is forward-compatib
 
 ## Open questions (held)
 
-- Default for `resolveAncestors` — `false` (opt-in, since sibling traversal cost is real) vs `true` (consistency with `resolveRelations`)?
+- Default for `resolveAncestors` — `false` would match the opt-in default of `resolveRelations`.
 - Generated `.d.ts` types for upstream-resolved entries: build-time emitted bundle vs. runtime conditional types against the registry.
 - Performance ceiling for sibling-relation scans at large collection counts — when do we need indexing rather than linear scans over relation edges?
-- Should `resolveAncestors` and `resolveRelations` compose freely on the same call (i.e. an author with `posts` resolved, where each post has its `categories` resolved), or is mixing them too expensive in practice?
+- Should `resolveAncestors` and `resolveRelations` compose freely within the same top-level configuration or named view (i.e. an author with `posts` resolved, where each post has its `categories` resolved), or is mixing them too expensive in practice?
 
 ## Acceptance criteria (when v2 lands)
 
 Done when:
 
-- A `postCollection` with `author: authorCollection` causes `authorCollection.getAll({ resolveAncestors: true })` to return authors with a `posts` array of full post entries.
+- A `postCollection` with `author: authorCollection` causes `authorCollection.getAll({ view: "withPosts" })` to return authors with a `posts` array of full post entries when that view configures `resolveAncestors: true`.
+- Top-level `resolveAncestors: true` provides the same upstream traversal for `authorCollection.getAll()` without a view selection.
 - Two-relation-same-target without explicit `inverse` throws at build time with a message pointing at the source collection and the colliding field names.
 - The explicit `inverse` object form coexists with the v1 shorthand on the same `relations` map.
 - Cycles between upstream and downstream resolution are safe — same object identity, no re-fetch.

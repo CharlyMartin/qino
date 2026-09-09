@@ -11,6 +11,7 @@ import type {
   GetterOptions,
   SupportedFileExtension,
 } from "./utils";
+import type { SelectedView, ViewArguments, ViewSelection } from "./views";
 
 export type SingletonMeta<
   Schema extends ObjectSchema,
@@ -24,11 +25,14 @@ export type SingletonMeta<
   readonly extension: Ext;
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
+  readonly readData: () => Promise<
+    ResolvedSingletonView<Schema, Ext, Rels, false>
+  >;
 };
 
 export type AnySingleton = {
   readonly [QinoPrimitiveMarker]: SingletonMeta<ObjectSchema>;
-  getData(options?: GetterOptions): Promise<
+  getData(options?: GetterOptions<undefined>): Promise<
     Record<string, unknown> & {
       [K in MetaFieldName]: SingletonEntryMeta<SupportedFileExtension>;
     }
@@ -41,13 +45,24 @@ export type Singleton<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema> = object,
-  DefaultR extends ResolveOption = true,
+  DefaultR extends ResolveOption = false,
   Derived extends AugmentOutput = {},
+  Views extends object = object,
 > = {
   readonly [QinoPrimitiveMarker]: SingletonMeta<Schema, Ext, Rels>;
-  getData<R extends ResolveOption = DefaultR>(
-    options?: GetterOptions<R>,
-  ): Promise<ResolvedSingletonView<Schema, Ext, Rels, R, Derived>>;
+  getData<Args extends ViewArguments<Views> = []>(
+    ...args: Args
+  ): Promise<
+    SelectedView<
+      Schema,
+      SingletonEntryMeta<Ext>,
+      Rels,
+      DefaultR,
+      Derived,
+      Views,
+      ViewSelection<Args[0]>
+    >
+  >;
 };
 
 export type SingletonFile = {

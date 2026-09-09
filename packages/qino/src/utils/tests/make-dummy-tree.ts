@@ -28,7 +28,7 @@ export function makeDummyTree({
       titleField: "title",
       orderFileName: "_order.json",
       relations: {},
-      resolveRelations: true as ResolveOption,
+      resolveRelations: false as ResolveOption,
     },
     getTree: (async () => []) as never,
     getFlatTree: async () => [],

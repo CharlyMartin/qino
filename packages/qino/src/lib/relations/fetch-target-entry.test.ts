@@ -12,7 +12,7 @@ const ctx = { sourceFilePath: "/fixtures/post.json", relationKey: "author" };
 
 describe("fetchTargetEntry", () => {
   describe("collection target", () => {
-    test("delegates to getOne with resolveRelations: false and returns the entry", async () => {
+    test("delegates to the source reader and returns the entry", async () => {
       const entry = makeDummyEntry({
         slug: "alice",
         extension: ".json",
@@ -23,15 +23,15 @@ describe("fetchTargetEntry", () => {
         extension: ".json",
         store: new Map([["alice", entry]]),
       });
-      const spy = vi.spyOn(target, "getOne");
+      const spy = vi.spyOn(target[QinoPrimitiveMarker], "readOne");
 
       const result = await fetchTargetEntry(target, "alice", ctx);
 
       expect(result).toBe(entry);
-      expect(spy).toHaveBeenCalledWith("alice", { resolveRelations: false });
+      expect(spy).toHaveBeenCalledWith("alice");
     });
 
-    test("wraps a getOne error with the collection directory and slug", async () => {
+    test("wraps a source read error with the collection directory and slug", async () => {
       const target = makeDummyCollection({
         directory: "/authors",
         extension: ".json",
@@ -48,7 +48,9 @@ describe("fetchTargetEntry", () => {
         extension: ".json",
       });
       const original = new Error("disk failure");
-      vi.spyOn(target, "getOne").mockRejectedValueOnce(original);
+      vi.spyOn(target[QinoPrimitiveMarker], "readOne").mockRejectedValueOnce(
+        original,
+      );
 
       const err = await fetchTargetEntry(target, "alice", ctx).catch(
         (e: unknown) => e,
@@ -63,7 +65,9 @@ describe("fetchTargetEntry", () => {
         directory: "/authors",
         extension: ".json",
       });
-      vi.spyOn(target, "getOne").mockRejectedValueOnce("boom");
+      vi.spyOn(target[QinoPrimitiveMarker], "readOne").mockRejectedValueOnce(
+        "boom",
+      );
 
       const err = await fetchTargetEntry(target, "alice", ctx).catch(
         (e: unknown) => e,
@@ -75,23 +79,23 @@ describe("fetchTargetEntry", () => {
   });
 
   describe("singleton target", () => {
-    test("delegates to getData with resolveRelations: false and returns the data", async () => {
+    test("delegates to the source reader and returns the data", async () => {
       const data = { siteName: "Qino" };
       const target = makeDummySingleton({
         file: "/config/site.json",
         data,
       });
-      const spy = vi.spyOn(target, "getData");
+      const spy = vi.spyOn(target[QinoPrimitiveMarker], "readData");
 
       const result = await fetchTargetEntry(target, "ignored", ctx);
 
       expect(result).toEqual(data);
-      expect(spy).toHaveBeenCalledWith({ resolveRelations: false });
+      expect(spy).toHaveBeenCalledWith();
     });
 
-    test("wraps a getData error with the singleton file path", async () => {
+    test("wraps a source read error with the singleton file path", async () => {
       const target = makeDummySingleton({ file: "/config/site.json" });
-      vi.spyOn(target, "getData").mockRejectedValueOnce(
+      vi.spyOn(target[QinoPrimitiveMarker], "readData").mockRejectedValueOnce(
         new Error("parse error"),
       );
 
@@ -102,7 +106,9 @@ describe("fetchTargetEntry", () => {
 
     test("uses targetMeta.file (not directory) in the wrapped message", async () => {
       const target = makeDummySingleton({ file: "/config/site.json" });
-      vi.spyOn(target, "getData").mockRejectedValueOnce(new Error("nope"));
+      vi.spyOn(target[QinoPrimitiveMarker], "readData").mockRejectedValueOnce(
+        new Error("nope"),
+      );
 
       const err = await fetchTargetEntry(target, "ignored", ctx).catch(
         (e: unknown) => e,

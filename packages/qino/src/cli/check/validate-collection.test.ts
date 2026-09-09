@@ -1,6 +1,7 @@
 import { consola } from "consola";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
+import { QinoPrimitiveMarker } from "../../data";
 import { makeDummyCollection, makeDummyEntry } from "../../utils/tests";
 import { validateCollection } from "./validate-collection";
 
@@ -9,7 +10,7 @@ describe("validateCollection", () => {
     vi.restoreAllMocks();
   });
 
-  test("resolves when getAll succeeds", async () => {
+  test("resolves when source reading succeeds", async () => {
     const warn = vi.spyOn(consola, "warn").mockImplementation(() => {});
     const store = new Map([
       ["hello", makeDummyEntry({ slug: "hello", extension: ".md" })],
@@ -36,14 +37,14 @@ describe("validateCollection", () => {
     expect(warn).toHaveBeenCalledWith(`Collection "/posts" is empty.`);
   });
 
-  test("wraps getAll errors with the collection directory", async () => {
+  test("wraps source reading errors with the collection directory", async () => {
     const collection = makeDummyCollection({
       directory: "/posts",
       extension: ".md",
     });
-    collection.getAll = (async () => {
-      throw new Error("bad frontmatter");
-    }) as typeof collection.getAll;
+    vi.spyOn(collection[QinoPrimitiveMarker], "readAll").mockRejectedValue(
+      new Error("bad frontmatter"),
+    );
 
     await expect(validateCollection(collection)).rejects.toThrow(
       `Collection "/posts" failed validation: bad frontmatter`,

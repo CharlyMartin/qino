@@ -1,15 +1,10 @@
-import type { Simplify } from "type-fest";
-
-import type { MetaFieldName } from "./entry";
-import type { ObjectSchema, ValidatedOutput } from "./schema";
+import type { ResolveOption } from "./resolve";
+import type { ObjectSchema } from "./schema";
+import type { ViewEntry } from "./views";
 
 export type AugmentOutput = Record<string, unknown>;
 
 export type Awaitable<Value> = Value | Promise<Value>;
-
-export type AugmentEntry<Schema extends ObjectSchema, Meta> = Simplify<
-  { [Key in MetaFieldName]: Meta } & ValidatedOutput<Schema>
->;
 
 type NoConflictingKeys<Entry, Output extends AugmentOutput> = Output &
   Record<Extract<keyof Entry, keyof Output>, never>;
@@ -18,6 +13,8 @@ export type EntryAugment<
   Schema extends ObjectSchema,
   Meta,
   Output extends AugmentOutput,
+  Rels = object,
+  R extends ResolveOption = false,
 > = (
-  entry: Readonly<AugmentEntry<Schema, Meta>>,
-) => Awaitable<NoConflictingKeys<AugmentEntry<Schema, Meta>, Output>>;
+  entry: Readonly<ViewEntry<Schema, Meta, Rels, R>>,
+) => Awaitable<NoConflictingKeys<ViewEntry<Schema, Meta, Rels, R>, Output>>;

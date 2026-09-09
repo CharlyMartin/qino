@@ -13,6 +13,7 @@ import type {
   Slug,
   SupportedFileExtension,
 } from "./utils";
+import type { SelectedView, ViewArguments, ViewSelection } from "./views";
 
 export type StringKeys<Schema extends ObjectSchema> = {
   [K in keyof ValidatedOutput<Schema> &
@@ -49,18 +50,29 @@ export type Tree<
   Ext extends SupportedFileExtension,
   Title extends StringKeys<Schema>,
   Rels extends Relations<Schema> = object,
-  DefaultR extends ResolveOption = true,
+  DefaultR extends ResolveOption = false,
   Dir extends GenericPath = GenericPath,
   Derived extends AugmentOutput = {},
+  Views extends object = object,
 > = {
   readonly [QinoPrimitiveMarker]: TreeMeta<Schema, Ext, Title, Rels>;
   getTree(): Promise<Array<TreeNode>>;
   getTree(slug: SlugFor<Dir>): Promise<TreeNode>;
   getFlatTree(): Promise<Array<TreeNode>>;
-  getEntry<R extends ResolveOption = DefaultR>(
+  getEntry<Args extends ViewArguments<Views> = []>(
     slug: SlugFor<Dir>,
-    options?: GetterOptions<R>,
-  ): Promise<ResolvedTreeEntry<Schema, Ext, Rels, R, Derived>>;
+    ...args: Args
+  ): Promise<
+    SelectedView<
+      Schema,
+      TreeEntryMeta<Ext>,
+      Rels,
+      DefaultR,
+      Derived,
+      Views,
+      ViewSelection<Args[0]>
+    >
+  >;
   getNextNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
   getPreviousNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
 };
@@ -99,7 +111,7 @@ export type AnyTree = {
   getFlatTree(): Promise<Array<TreeNode>>;
   getEntry(
     slug: Slug,
-    options?: GetterOptions,
+    options?: GetterOptions<undefined>,
   ): Promise<
     Record<string, unknown> & {
       [K in MetaFieldName]: TreeEntryMeta<SupportedFileExtension>;

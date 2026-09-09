@@ -38,6 +38,19 @@ const typedGuides = createTree({
 });
 
 describe("typed slugs", () => {
+  test("getAllSlugs returns the registered slug union without parameters", () => {
+    expectTypeOf(typedPosts.getAllSlugs).parameters.toEqualTypeOf<[]>();
+    expectTypeOf(typedPosts.getAllSlugs).returns.toEqualTypeOf<
+      Promise<Array<"hello-world" | "second-post">>
+    >();
+  });
+
+  test("getAllSlugs falls back to string for an unregistered directory", () => {
+    expectTypeOf(untypedPosts.getAllSlugs).returns.toEqualTypeOf<
+      Promise<Array<string>>
+    >();
+  });
+
   test("a registered collection narrows getOne's slug to the union", () => {
     expectTypeOf(typedPosts.getOne)
       .parameter(0)

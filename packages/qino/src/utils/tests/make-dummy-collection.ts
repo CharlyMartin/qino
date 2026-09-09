@@ -33,9 +33,16 @@ export function makeDummyCollection({
       directory,
       extension,
       relations,
-      resolveRelations: true as ResolveOption,
+      resolveRelations: false as ResolveOption,
+      readAll: async () => Array.from(store.values()) as never,
+      readOne: async (slug: Slug) => {
+        const found = store.get(slug);
+        if (!found) throw new Error(`ENOENT: ${directory}/${slug}`);
+        return found as never;
+      },
     },
     getAll: async () => Array.from(store.values()) as never,
+    getAllSlugs: async () => Array.from(store.keys()).sort(),
     getOne: async (slug: Slug) => {
       const found = store.get(slug);
       if (!found) throw new Error(`ENOENT: ${directory}/${slug}`);

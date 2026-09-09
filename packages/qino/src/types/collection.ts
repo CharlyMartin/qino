@@ -13,23 +13,48 @@ import type {
   Slug,
   SupportedFileExtension,
 } from "./utils";
+import type { SelectedView, ViewArguments, ViewSelection } from "./views";
 
 export type Collection<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema> = object,
-  DefaultR extends ResolveOption = true,
+  DefaultR extends ResolveOption = false,
   Dir extends GenericPath = GenericPath,
   Derived extends AugmentOutput = {},
+  Views extends object = object,
 > = {
   readonly [QinoPrimitiveMarker]: CollectionMeta<Schema, Ext, Rels>;
-  getAll<R extends ResolveOption = DefaultR>(
-    options?: GetterOptions<R>,
-  ): Promise<Array<ResolvedCollectionView<Schema, Ext, Rels, R, Derived>>>;
-  getOne<R extends ResolveOption = DefaultR>(
+  getAllSlugs(): Promise<Array<SlugFor<Dir>>>;
+  getAll<Args extends ViewArguments<Views> = []>(
+    ...args: Args
+  ): Promise<
+    Array<
+      SelectedView<
+        Schema,
+        CollectionEntryMeta<Ext>,
+        Rels,
+        DefaultR,
+        Derived,
+        Views,
+        ViewSelection<Args[0]>
+      >
+    >
+  >;
+  getOne<Args extends ViewArguments<Views> = []>(
     slug: SlugFor<Dir>,
-    options?: GetterOptions<R>,
-  ): Promise<ResolvedCollectionView<Schema, Ext, Rels, R, Derived>>;
+    ...args: Args
+  ): Promise<
+    SelectedView<
+      Schema,
+      CollectionEntryMeta<Ext>,
+      Rels,
+      DefaultR,
+      Derived,
+      Views,
+      ViewSelection<Args[0]>
+    >
+  >;
 };
 
 export type ResolvedCollectionView<
@@ -59,11 +84,18 @@ export type CollectionMeta<
   readonly extension: Ext;
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
+  readonly readAll: () => Promise<
+    Array<ResolvedCollectionView<Schema, Ext, Rels, false>>
+  >;
+  readonly readOne: (
+    slug: Slug,
+  ) => Promise<ResolvedCollectionView<Schema, Ext, Rels, false>>;
 };
 
 export type AnyCollection = {
   readonly [QinoPrimitiveMarker]: CollectionMeta<ObjectSchema>;
-  getAll(options?: GetterOptions): Promise<
+  getAllSlugs(): Promise<Array<Slug>>;
+  getAll(options?: GetterOptions<undefined>): Promise<
     Array<
       Record<string, unknown> & {
         [K in MetaFieldName]: CollectionEntryMeta<SupportedFileExtension>;
@@ -72,7 +104,7 @@ export type AnyCollection = {
   >;
   getOne(
     slug: Slug,
-    options?: GetterOptions,
+    options?: GetterOptions<undefined>,
   ): Promise<
     Record<string, unknown> & {
       [K in MetaFieldName]: CollectionEntryMeta<SupportedFileExtension>;

@@ -1,5 +1,4 @@
 export type {
-  AugmentEntry,
   AugmentOutput,
   Awaitable,
   EntryAugment,
@@ -43,3 +42,4 @@ export type {
   GetterOptions,
   SupportedFileExtension,
 } from "./utils";
+export type { ViewConfig, ViewsConfig } from "./views";

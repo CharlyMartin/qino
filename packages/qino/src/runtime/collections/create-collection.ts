@@ -7,28 +7,34 @@ import {
   QinoPrimitives,
 } from "../../data";
 import {
-  augmentEntry,
-  createRelationResolver,
-  createResolveCache,
+  applyView,
+  assertViewNames,
+  buildEntryMeta,
+  parseFile,
+  type RuntimeView,
+  selectView,
   validate,
 } from "../../lib";
-import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
-import { parseFile } from "../../lib/parse/parse-file";
-import { normalizeDepth } from "../../lib/relations/normalize-depth";
 import type {
   AugmentOutput,
   Collection,
   GenericPath,
-  GetterOptions,
   ObjectSchema,
   Relations,
-  ResolvedCollectionView,
   ResolveOption,
+  SlugFor,
   SupportedFileExtension,
 } from "../../types";
 import type { EntryAugment } from "../../types/augment";
 import type { CollectionEntryMeta } from "../../types/entry";
 import type { Slug } from "../../types/utils";
+import type {
+  SelectedView,
+  ViewArguments,
+  ViewSelection,
+  ViewsConfig,
+} from "../../types/views";
+import { removeExtension } from "../../utils/remove-extension";
 import type { QinoContext } from "../qino/create-qino";
 import { globCollectionPaths } from "./glob-collection-paths";
 
@@ -36,35 +42,45 @@ export type CreateCollectionParams<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema> = object,
-  DefaultR extends ResolveOption = true,
+  DefaultR extends ResolveOption = false,
   Dir extends GenericPath = GenericPath,
   Derived extends AugmentOutput = {},
+  Views extends object = object,
 > = {
   directory: Dir;
   schema: Schema;
   extension: Ext;
   relations?: Rels;
   resolveRelations?: DefaultR;
-  augment?: EntryAugment<Schema, CollectionEntryMeta<Ext>, Derived>;
+  augment?: EntryAugment<
+    Schema,
+    CollectionEntryMeta<Ext>,
+    Derived,
+    Rels,
+    DefaultR
+  >;
+  views?: ViewsConfig<Schema, CollectionEntryMeta<Ext>, Rels, Views>;
 };
 
 export function createCollection<
   S extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<S> = object,
-  DefaultR extends ResolveOption = true,
+  DefaultR extends ResolveOption = false,
   Dir extends GenericPath = GenericPath,
   Derived extends AugmentOutput = {},
+  const Views extends object = object,
 >(
   ctx: QinoContext,
-  params: CreateCollectionParams<S, Ext, Rels, DefaultR, Dir, Derived>,
+  params: CreateCollectionParams<S, Ext, Rels, DefaultR, Dir, Derived, Views>,
 ) {
   const { directory, schema, extension, relations, resolveRelations, augment } =
     params;
-
   const collectionRelations = (relations ?? {}) as Rels;
-  const defaultResolve = (resolveRelations ?? true) as ResolveOption;
-
+  const defaultResolve = resolveRelations ?? false;
+  const views = params.views as Record<string, RuntimeView> | undefined;
+  assertViewNames(views);
+  const defaults = { resolveRelations: defaultResolve, augment };
   const collectionDirectory = nodePath.join(ctx.contentFolder, directory);
 
   const collection = {
@@ -76,120 +92,96 @@ export function createCollection<
       extension,
       relations: collectionRelations,
       resolveRelations: defaultResolve,
+      readAll,
+      readOne,
     },
     getAll,
+    getAllSlugs,
     getOne,
-  } as const satisfies Collection<S, Ext, Rels, DefaultR, Dir, Derived>;
+  } as const satisfies Collection<S, Ext, Rels, DefaultR, Dir, Derived, Views>;
 
   return collection;
 
-  async function getAll<R extends ResolveOption = DefaultR>(
-    options?: GetterOptions<R>,
-  ): Promise<Array<ResolvedCollectionView<S, Ext, Rels, R, Derived>>> {
-    const relFilePaths = await globCollectionPaths({
+  async function getAllSlugs() {
+    const paths = await globCollectionPaths({
       absoluteDirPath: collectionDirectory,
       extension,
     });
 
-    const rawEntries = await Promise.all(
-      relFilePaths.map(async (relPath) => {
-        const meta = buildEntryMeta({
-          directory: collectionDirectory,
-          relativePath: relPath,
-          extension,
-        });
-
-        const rawFileData = await fs.readFile(
-          nodePath.join(collectionDirectory, relPath),
-          "utf-8",
-        );
-
-        return { meta, raw: rawFileData };
-      }),
-    );
-
-    const validatedDataWithMeta = await Promise.all(
-      rawEntries.map(async ({ meta, raw }) => {
-        const validatedData = parseFile({
-          schema,
-          data: raw,
-          filePath: meta.filePath,
-          validatorFn: validate,
-        });
-
-        const entryWithMeta = {
-          ...validatedData,
-          [META_FIELD_NAME]: meta,
-        };
-
-        return augmentEntry(entryWithMeta, augment);
-      }),
-    );
-
-    const resolveSetting = options?.resolveRelations ?? defaultResolve;
-
-    if (resolveSetting === false) {
-      return validatedDataWithMeta as unknown as Array<
-        ResolvedCollectionView<S, Ext, Rels, R, Derived>
-      >;
-    }
-
-    const cache = createResolveCache();
-    const resolver = createRelationResolver(cache);
-
-    const depth = normalizeDepth(resolveSetting);
-
-    const resolved = await Promise.all(
-      validatedDataWithMeta.map((entry) =>
-        resolver.resolveEntry(entry, {
-          relations: collection[QinoPrimitiveMarker].relations,
-          depth,
-          sourceInstanceId: ctx.instanceId,
-        }),
-      ),
-    );
-    return resolved as Array<ResolvedCollectionView<S, Ext, Rels, R, Derived>>;
+    return paths.map((path) => removeExtension(path) as SlugFor<Dir>).sort();
   }
 
-  async function getOne<R extends ResolveOption = DefaultR>(
-    slug: Slug,
-    options?: GetterOptions<R>,
-  ): Promise<ResolvedCollectionView<S, Ext, Rels, R, Derived>> {
+  async function readOne(slug: Slug) {
     const meta = buildEntryMeta({
       directory: collectionDirectory,
       relativePath: `${slug}${extension}`,
       extension,
     });
-
     const data = await fs.readFile(meta.filePath, "utf-8");
-    const validatedDataWithMeta = {
-      [META_FIELD_NAME]: meta,
+    return {
       ...parseFile({
         schema,
         data,
         filePath: meta.filePath,
         validatorFn: validate,
       }),
+      [META_FIELD_NAME]: meta,
     };
+  }
 
-    const augmentedEntry = await augmentEntry(validatedDataWithMeta, augment);
-
-    const resolveSetting = options?.resolveRelations ?? defaultResolve;
-
-    if (resolveSetting === false) {
-      return augmentedEntry as ResolvedCollectionView<S, Ext, Rels, R, Derived>;
-    }
-
-    const cache = createResolveCache();
-    const resolver = createRelationResolver(cache);
-
-    const depth = normalizeDepth(resolveSetting);
-
-    const resolved = await resolver.resolveEntry(augmentedEntry, {
-      relations: collection[QinoPrimitiveMarker].relations,
-      depth,
-      sourceInstanceId: ctx.instanceId,
+  async function readAll() {
+    const paths = await globCollectionPaths({
+      absoluteDirPath: collectionDirectory,
+      extension,
     });
-    return resolved as ResolvedCollectionView<S, Ext, Rels, R, Derived>;
+    return Promise.all(
+      paths.map((path) => readOne(path.slice(0, -extension.length))),
+    );
+  }
+
+  async function getAll<Args extends ViewArguments<Views> = []>(
+    ...[options]: Args
+  ) {
+    const view = selectView(defaults, views, options);
+    const entries = await readAll();
+    return (await applyView(
+      entries,
+      view,
+      collectionRelations,
+      ctx.instanceId,
+    )) as Array<
+      SelectedView<
+        S,
+        CollectionEntryMeta<Ext>,
+        Rels,
+        DefaultR,
+        Derived,
+        Views,
+        ViewSelection<Args[0]>
+      >
+    >;
+  }
+
+  async function getOne<Args extends ViewArguments<Views> = []>(
+    slug: Slug,
+    ...[options]: Args
+  ) {
+    const view = selectView(defaults, views, options);
+    const entry = await readOne(slug);
+    const [result] = await applyView(
+      [entry],
+      view,
+      collectionRelations,
+      ctx.instanceId,
+    );
+    return result as SelectedView<
+      S,
+      CollectionEntryMeta<Ext>,
+      Rels,
+      DefaultR,
+      Derived,
+      Views,
+      ViewSelection<Args[0]>
+    >;
   }
 }

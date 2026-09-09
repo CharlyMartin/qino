@@ -41,6 +41,12 @@ const categoryCollection = createCollection({
 });
 
 const postCollection = createCollection({
+  views: {
+    raw: { resolveRelations: false },
+    shallow: { resolveRelations: 1 },
+    deep: { resolveRelations: 2 },
+    full: { resolveRelations: true },
+  },
   directory: "/posts",
   schema: PostSchema,
   extension: ".md",
@@ -52,36 +58,37 @@ const postCollection = createCollection({
 
 describe("resolveRelations type behaviour", () => {
   test("false keeps strings", async () => {
-    const posts = await postCollection.getAll({ resolveRelations: false });
+    const posts = await postCollection.getAll({ view: "raw" });
     expectTypeOf(posts[0].author).toEqualTypeOf<string>();
     expectTypeOf(posts[0].categories).toEqualTypeOf<Array<string>>();
   });
 
   test("depth 1 resolves top-level relations to full entries", async () => {
-    const posts = await postCollection.getAll({ resolveRelations: 1 });
+    const posts = await postCollection.getAll({ view: "shallow" });
     expectTypeOf(posts[0].author.name).toEqualTypeOf<string>();
     expectTypeOf(posts[0].author._meta.slug).toEqualTypeOf<string>();
     expectTypeOf(posts[0].categories[0].name).toEqualTypeOf<string>();
   });
 
   test("true defaults to MaxDepth and resolves relations", async () => {
-    const posts = await postCollection.getAll({ resolveRelations: true });
+    const posts = await postCollection.getAll({ view: "full" });
     expectTypeOf(posts[0].author.name).toEqualTypeOf<string>();
     expectTypeOf(posts[0].categories[0].name).toEqualTypeOf<string>();
   });
 
-  test("default (no option) resolves (default is true)", async () => {
+  test("default (no option) keeps raw references", async () => {
     const posts = await postCollection.getAll();
-    expectTypeOf(posts[0].author.name).toEqualTypeOf<string>();
+    expectTypeOf(posts[0].author).toEqualTypeOf<string>();
+    expectTypeOf(posts[0].categories).toEqualTypeOf<Array<string>>();
   });
 
   test("getOne mirrors getAll's behaviour", async () => {
     const raw = await postCollection.getOne("hello", {
-      resolveRelations: false,
+      view: "raw",
     });
     expectTypeOf(raw.author).toEqualTypeOf<string>();
     const resolved = await postCollection.getOne("hello", {
-      resolveRelations: 1,
+      view: "shallow",
     });
     expectTypeOf(resolved.author.name).toEqualTypeOf<string>();
   });
@@ -89,6 +96,12 @@ describe("resolveRelations type behaviour", () => {
 
 describe("collection-level default", () => {
   const postCollectionDefaultFalse = createCollection({
+    views: {
+      raw: { resolveRelations: false },
+      shallow: { resolveRelations: 1 },
+      deep: { resolveRelations: 2 },
+      full: { resolveRelations: true },
+    },
     directory: "/posts-raw",
     schema: PostSchema,
     extension: ".md",
@@ -104,9 +117,9 @@ describe("collection-level default", () => {
     expectTypeOf(posts[0].author).toEqualTypeOf<string>();
   });
 
-  test("per-call option overrides collection-level default", async () => {
+  test("named view is independent of collection-level default", async () => {
     const posts = await postCollectionDefaultFalse.getAll({
-      resolveRelations: 1,
+      view: "shallow",
     });
     expectTypeOf(posts[0].author.name).toEqualTypeOf<string>();
   });
@@ -135,6 +148,12 @@ describe("transitive depth (chained collections)", () => {
     relations: { lead: seniorCollection },
   });
   const chainedPostCollection = createCollection({
+    views: {
+      raw: { resolveRelations: false },
+      shallow: { resolveRelations: 1 },
+      deep: { resolveRelations: 2 },
+      full: { resolveRelations: true },
+    },
     directory: "/chained-posts",
     schema: ChainedPostSchema,
     extension: ".md",
@@ -142,13 +161,13 @@ describe("transitive depth (chained collections)", () => {
   });
 
   test("depth 1: top-level editor resolves; editor.lead stays string", async () => {
-    const posts = await chainedPostCollection.getAll({ resolveRelations: 1 });
+    const posts = await chainedPostCollection.getAll({ view: "shallow" });
     expectTypeOf(posts[0].editor.name).toEqualTypeOf<string>();
     expectTypeOf(posts[0].editor.lead).toEqualTypeOf<string>();
   });
 
   test("depth 2: editor.lead also resolves to a Senior entry", async () => {
-    const posts = await chainedPostCollection.getAll({ resolveRelations: 2 });
+    const posts = await chainedPostCollection.getAll({ view: "deep" });
     expectTypeOf(posts[0].editor.name).toEqualTypeOf<string>();
     expectTypeOf(posts[0].editor.lead.name).toEqualTypeOf<string>();
   });
@@ -163,6 +182,12 @@ describe("singletons", () => {
     .strict();
 
   const homeSingleton = createSingleton({
+    views: {
+      raw: { resolveRelations: false },
+      shallow: { resolveRelations: 1 },
+      deep: { resolveRelations: 2 },
+      full: { resolveRelations: true },
+    },
     file: "/pages/home.md",
     schema: HomeSchema,
     relations: {
@@ -171,7 +196,7 @@ describe("singletons", () => {
   });
 
   test("_meta has fileName and filePath but no slug", async () => {
-    const home = await homeSingleton.getData({ resolveRelations: false });
+    const home = await homeSingleton.getData({ view: "raw" });
     const meta = home._meta;
     expectTypeOf(meta.fileName).toEqualTypeOf<`${string}.md`>();
     expectTypeOf(meta.filePath).toEqualTypeOf<`${string}.md`>();
@@ -179,12 +204,12 @@ describe("singletons", () => {
   });
 
   test("resolveRelations: false keeps strings", async () => {
-    const home = await homeSingleton.getData({ resolveRelations: false });
+    const home = await homeSingleton.getData({ view: "raw" });
     expectTypeOf(home["featured-posts"]).toEqualTypeOf<Array<string>>();
   });
 
   test("depth 1 resolves featured-posts to full Post entries", async () => {
-    const home = await homeSingleton.getData({ resolveRelations: 1 });
+    const home = await homeSingleton.getData({ view: "shallow" });
     expectTypeOf(home["featured-posts"][0].title).toEqualTypeOf<string>();
     expectTypeOf(home["featured-posts"][0]._meta.slug).toEqualTypeOf<string>();
   });
@@ -202,6 +227,12 @@ describe("collection → singleton relation", () => {
     .strict();
 
   const fooCollection = createCollection({
+    views: {
+      raw: { resolveRelations: false },
+      shallow: { resolveRelations: 1 },
+      deep: { resolveRelations: 2 },
+      full: { resolveRelations: true },
+    },
     directory: "/foos",
     schema: FooSchema,
     extension: ".json",
@@ -209,7 +240,7 @@ describe("collection → singleton relation", () => {
   });
 
   test("depth 1: collection → singleton resolves to singleton shape", async () => {
-    const foos = await fooCollection.getAll({ resolveRelations: 1 });
+    const foos = await fooCollection.getAll({ view: "shallow" });
     const foo = foos[0];
     expectTypeOf(foo.siteConfig.siteName).toEqualTypeOf<string>();
     expectTypeOf<keyof typeof foo.siteConfig._meta>().toEqualTypeOf<
@@ -218,7 +249,7 @@ describe("collection → singleton relation", () => {
   });
 
   test("resolveRelations: false keeps the relation as a string", async () => {
-    const foos = await fooCollection.getAll({ resolveRelations: false });
+    const foos = await fooCollection.getAll({ view: "raw" });
     expectTypeOf(foos[0].siteConfig).toEqualTypeOf<string>();
   });
 });

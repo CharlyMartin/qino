@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from "vitest";
 
+import { QinoPrimitiveMarker } from "../../data";
 import {
   DUMMY_INSTANCE_ID,
   makeDummyCollection,
@@ -226,7 +227,7 @@ describe("createRelationResolver", () => {
         extension: ".json",
         store: authors,
       });
-      const getOneSpy = vi.spyOn(target, "getOne");
+      const getOneSpy = vi.spyOn(target[QinoPrimitiveMarker], "readOne");
       const resolver = createRelationResolver(createResolveCache());
 
       const [a, b] = await Promise.all([
@@ -273,8 +274,8 @@ describe("createRelationResolver", () => {
         extension: ".json",
         store: new Map([["alice", aliceEditor]]),
       });
-      const authorsSpy = vi.spyOn(authors, "getOne");
-      const editorsSpy = vi.spyOn(editors, "getOne");
+      const authorsSpy = vi.spyOn(authors[QinoPrimitiveMarker], "readOne");
+      const editorsSpy = vi.spyOn(editors[QinoPrimitiveMarker], "readOne");
 
       const resolver = createRelationResolver(createResolveCache());
 
