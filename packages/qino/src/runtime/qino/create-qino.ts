@@ -22,7 +22,6 @@ import {
   createSingleton,
 } from "../singletons/create-singleton";
 import { type CreateTreeParams, createTree } from "../trees/create-tree";
-import { createPathRegistry } from "./create-path-registry";
 
 export type QinoConfig = {
   readonly contentFolder: string;
@@ -38,8 +37,6 @@ export function createQino(config: QinoConfig) {
     instanceId: Symbol("qino.instance"),
     ...config,
   };
-
-  const registry = createPathRegistry();
 
   return {
     [QinoConfigMarker]: ctx,
@@ -62,9 +59,7 @@ export function createQino(config: QinoConfig) {
         Views
       >,
     ): Collection<S, Ext, Rels, DefaultR, Dir, Derived, Views> {
-      const collection = createCollection(ctx, params);
-      registry.register(collection);
-      return collection;
+      return createCollection(ctx, params);
     },
     createSingleton<
       S extends ObjectSchema,
@@ -83,9 +78,7 @@ export function createQino(config: QinoConfig) {
       Derived,
       Views
     > {
-      const singleton = createSingleton(ctx, params);
-      registry.register(singleton);
-      return singleton;
+      return createSingleton(ctx, params);
     },
     createTree<
       S extends ObjectSchema,
@@ -108,9 +101,7 @@ export function createQino(config: QinoConfig) {
         Views
       >,
     ): Tree<S, Ext, Title, Rels, DefaultR, Dir, Derived, Views> {
-      const tree = createTree(ctx, params);
-      registry.register(tree);
-      return tree;
+      return createTree(ctx, params);
     },
   };
 }

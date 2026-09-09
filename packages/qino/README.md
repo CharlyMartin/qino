@@ -2,6 +2,14 @@
 
 Flat-file Markdown CMS. See [`SPECS.md`](../../SPECS.md) for the design intent.
 
+## Path validation
+
+Run `qino lint` or `qino build` to detect duplicate or overlapping collection,
+tree, and singleton paths. Importing definitions does not check path conflicts,
+so hot reload can recreate definitions on the same Qino instance without stale
+registrations. Include either command in your build or CI workflow to enforce
+path ownership.
+
 ## Views
 
 Collections, trees, and singletons can expose different shapes of the same content:

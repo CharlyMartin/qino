@@ -43,6 +43,16 @@ describe("assertNoOverlappingPaths", () => {
     ).toThrow(/Collection directories overlap/);
   });
 
+  test("throws when two tree directories are equal", () => {
+    expect(() =>
+      assertNoOverlappingPaths({
+        collectionDirs: [],
+        singletonFiles: [],
+        treeDirs: ["/docs", "/docs"],
+      }),
+    ).toThrow(/Tree directories overlap/);
+  });
+
   test("throws when one tree directory is a prefix of another", () => {
     expect(() =>
       assertNoOverlappingPaths({
