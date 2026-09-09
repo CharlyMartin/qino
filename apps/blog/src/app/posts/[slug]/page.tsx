@@ -13,13 +13,14 @@ type PostPageProps = {
 };
 
 export async function generateStaticParams() {
-  return postCollection.getAllSlugs();
+  const slugs = await postCollection.getAllSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
 export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params;
 
-  const post = await postCollection.getOne(slug);
+  const post = await postCollection.getOne(slug, { view: "withReadingTime" });
 
   return (
     <article className="mx-auto w-full max-w-3xl px-6 py-16">

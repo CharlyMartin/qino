@@ -105,85 +105,105 @@ describe("createQino", () => {
   });
 });
 
-describe("createQino path overlap detection", () => {
-  test("allows primitives with disjoint paths", () => {
+describe("createQino definition reloads", () => {
+  test("recreates a collection with updated metadata on the same instance", () => {
     const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
-    expect(() => {
-      qino.createCollection({
-        directory: "/authors",
-        schema: Schema,
-        extension: ".md",
-      });
-      qino.createTree({
-        directory: "/docs",
-        schema: Schema,
-        extension: ".md",
-        titleField: "title",
-      });
-      qino.createSingleton({ file: "/settings.json", schema: Schema });
-    }).not.toThrow();
+    const UpdatedSchema = Schema.extend({ description: z.string() });
+    const original = qino.createCollection({
+      directory: "/posts",
+      extension: ".md",
+      schema: Schema,
+      resolveRelations: true,
+    });
+    const reloaded = qino.createCollection({
+      directory: "/posts",
+      extension: ".md",
+      schema: UpdatedSchema,
+      resolveRelations: false,
+    });
+    const before = original[QinoPrimitiveMarker];
+    const after = reloaded[QinoPrimitiveMarker];
+
+    expect(reloaded).not.toBe(original);
+    expect(after.instanceId).toBe(before.instanceId);
+    expect(after.schema).toBe(UpdatedSchema);
+    expect(after.resolveRelations).toBe(false);
+    expect(before.schema).toBe(Schema);
+    expect(before.resolveRelations).toBe(true);
   });
 
-  test("throws when a second collection nests inside the first", () => {
+  test("recreates a singleton with updated metadata on the same instance", () => {
+    const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
+    const UpdatedSchema = Schema.extend({ description: z.string() });
+    const original = qino.createSingleton({
+      file: "/settings.json",
+      schema: Schema,
+      resolveRelations: true,
+    });
+    const reloaded = qino.createSingleton({
+      file: "/settings.json",
+      schema: UpdatedSchema,
+      resolveRelations: false,
+    });
+    const before = original[QinoPrimitiveMarker];
+    const after = reloaded[QinoPrimitiveMarker];
+
+    expect(reloaded).not.toBe(original);
+    expect(after.instanceId).toBe(before.instanceId);
+    expect(after.schema).toBe(UpdatedSchema);
+    expect(after.resolveRelations).toBe(false);
+    expect(before.schema).toBe(Schema);
+    expect(before.resolveRelations).toBe(true);
+  });
+
+  test("recreates a tree with updated metadata on the same instance", () => {
+    const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
+    const UpdatedSchema = Schema.extend({ description: z.string() });
+    const original = qino.createTree({
+      directory: "/docs",
+      extension: ".md",
+      titleField: "title",
+      schema: Schema,
+      resolveRelations: true,
+    });
+    const reloaded = qino.createTree({
+      directory: "/docs",
+      extension: ".md",
+      titleField: "title",
+      schema: UpdatedSchema,
+      resolveRelations: false,
+    });
+    const before = original[QinoPrimitiveMarker];
+    const after = reloaded[QinoPrimitiveMarker];
+
+    expect(reloaded).not.toBe(original);
+    expect(after.instanceId).toBe(before.instanceId);
+    expect(after.schema).toBe(UpdatedSchema);
+    expect(after.resolveRelations).toBe(false);
+    expect(before.schema).toBe(Schema);
+    expect(before.resolveRelations).toBe(true);
+  });
+
+  test("allows a directory change and reuse of the previous directory", () => {
     const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
     qino.createCollection({
       directory: "/posts",
       schema: Schema,
       extension: ".md",
     });
-    expect(() =>
-      qino.createCollection({
-        directory: "/posts/featured",
-        schema: Schema,
-        extension: ".md",
-      }),
-    ).toThrow(/Collection directories overlap/);
-  });
-
-  test("throws when a singleton sits inside an existing tree", () => {
-    const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
-    qino.createTree({
-      directory: "/docs",
+    const moved = qino.createCollection({
+      directory: "/articles",
+      schema: Schema,
+      extension: ".md",
+    });
+    const replacement = qino.createTree({
+      directory: "/posts",
       schema: Schema,
       extension: ".md",
       titleField: "title",
     });
-    expect(() =>
-      qino.createSingleton({ file: "/docs/preamble.md", schema: Schema }),
-    ).toThrow(/sits inside tree directory/);
-  });
 
-  test("throws when a tree overlaps an existing collection", () => {
-    const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
-    qino.createCollection({
-      directory: "/docs/api",
-      schema: Schema,
-      extension: ".md",
-    });
-    expect(() =>
-      qino.createTree({
-        directory: "/docs",
-        schema: Schema,
-        extension: ".md",
-        titleField: "title",
-      }),
-    ).toThrow(/overlaps with collection directory/);
-  });
-
-  test("separate instances do not share a registry", () => {
-    const a = createQino({ contentFolder: "c", mediaFolder: "p" });
-    const b = createQino({ contentFolder: "c", mediaFolder: "p" });
-    a.createCollection({
-      directory: "/posts",
-      schema: Schema,
-      extension: ".md",
-    });
-    expect(() =>
-      b.createCollection({
-        directory: "/posts",
-        schema: Schema,
-        extension: ".md",
-      }),
-    ).not.toThrow();
+    expect(moved[QinoPrimitiveMarker].directory).toBe("/articles");
+    expect(replacement[QinoPrimitiveMarker].directory).toBe("/posts");
   });
 });

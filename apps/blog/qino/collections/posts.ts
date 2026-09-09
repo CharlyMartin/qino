@@ -25,12 +25,17 @@ export const postCollection = qino.createCollection({
     author: authorCollection,
     "categories[*]": categoryCollection,
   },
-  augment: (post) => {
-    const content = markdown.stats(post.body);
-    return {
-      ...content,
-      readingMinutes: Math.ceil(content.wordCount / 220),
-    };
+  resolveRelations: 1,
+  views: {
+    withReadingTime: {
+      resolveRelations: 1,
+      augment: (post) => {
+        const content = markdown.stats(post.body);
+        return {
+          ...content,
+          readingMinutes: Math.ceil(content.wordCount / 220),
+        };
+      },
+    },
   },
-  resolveRelations: true,
 });

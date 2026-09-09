@@ -9,8 +9,7 @@ export type PrimitivePath = {
 };
 
 // Returns a human-readable message when the two primitives own conflicting
-// paths, or null when they are disjoint. Shared by the CLI lint (all pairs) and
-// the runtime registry (incremental), so the rules live in one place.
+// paths, or null when they are disjoint. Used by the CLI lint's all-pairs pass.
 export function describePathConflict(a: PrimitivePath, b: PrimitivePath) {
   if (a.kind == b.kind) {
     if (a.kind == QinoPrimitives.collection) {
