@@ -1,6 +1,6 @@
 # Collections
 
-**Status:** stable (core), v1-proposed (advanced options)
+**Status:** stable
 **Version:** v1
 
 ## Intent
@@ -124,35 +124,31 @@ The proposed lock file records `field` (the path string), `target`, `kind` (`"co
 
 Relation values in content files are stored in verbose form (`author: "authors/jane-doe.json"`, not bare slugs) — see [05-relationships.md → Relation value format](05-relationships.md#relation-value-format).
 
-## Getter options (`[v1-proposed]`)
+## Getter options
 
-The shape under consideration for `getAll`:
+`getAll({ view })` selects a declared named view; `getAll()` uses the implicit
+top-level default. `getOne(slug, { view })` selects the same entry shape and
+throws if the selected view’s filter excludes it. Sorting only applies to `getAll()`. See [15-views](./15-views.md).
 
-```ts
-getAll({
-  first?: number,
-  last?: number,
-  sort?: (a, b) => number,           // see 06-sort.md
-  filter?: (entry) => boolean,
-  resolveDescendants?: number | true, // see 05-relationships.md
-  resolveAncestors?: number | true,
-})
-```
+## Filter and sort
 
-These query options are not implemented yet. `getAll({ view })` selects a declared named view; `getAll()` uses the implicit top-level default. See [15-views](./15-views.md).
+`createCollection` accepts `filter(entry): boolean` and `sort(a, b): number`.
+Custom views configure their own callbacks with the collection's view helper.
+The order is validation → relation resolution → augment → filter → sort.
+Callbacks receive the selected view's augmented entry shape. Filtering applies
+to both `getAll()` and `getOne()`; sorting only applies to `getAll()`. They are synchronous and cannot be overridden at getter call sites.
+Absent callbacks preserve all entries and discovery order. See
+[06-sort](./06-sort.md) for examples and complete behavior.
 
-## Open questions
-
-- Filter signature: single fn, array of fns, predicate object?
-- Default sort if none provided — file order? Creation date? Stable but undefined?
+Pagination remains a future consideration.
 
 ## Acceptance criteria
 
 Done when:
 
 - `getAllSlugs()` returns sorted, typed slugs from filenames without reading content or running callbacks.
-- `getAll()` returns every entry in the collection folder, validated against the schema.
-- `getOne(slug)` returns one entry by slug, throws on missing file or schema mismatch.
+- `getAll()` validates every entry, then returns the selected view’s filtered and sorted results.
+- `getOne(slug)` returns one entry by slug, throws on missing file, schema mismatch, or exclusion by the selected view’s filter.
 - `_meta.slug`, `_meta.fileName`, `_meta.filePath` are present on every returned entry.
 - Markdown entries expose their body via `body` (when present in schema); `.json` entries don't.
 - Schema validation errors point at the file path that failed.

@@ -3,3 +3,28 @@ title: Singletons
 ---
 
 A single, well-known content file like `home.md` or `site-config.json`.
+
+## Custom views
+
+Use `views: (view) => ({ name: view({ ... }) })`, the same syntax as collections.
+This helper offers only `resolveRelations` and `augment`. Filtering and sorting
+are unavailable and are rejected by TypeScript and at runtime.
+
+```ts
+views: (view) => ({
+  preview: view({
+    resolveRelations: false,
+    augment: (entry) => ({ label: entry.title.toUpperCase() }),
+  }),
+  raw: view({}),
+});
+```
+
+This example assumes a schema with a `title` string. Callback inputs, augmented
+fields, and view names are inferred. Select `preview` with
+`getData({ view: "preview" })`.
+
+The factory runs once at creation. Each custom view is independent. Root settings
+still define the implicit default view, and `views` can be omitted entirely.
+The old `views: { name: { ... } }` form is no longer supported; each named
+configuration must be wrapped in `view(...)`.

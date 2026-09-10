@@ -9,6 +9,7 @@ export type {
   Collection,
   ResolvedCollectionView,
 } from "./collection";
+export type { CollectionViewFactory } from "./collection-views";
 export type {
   AnyEntry,
   CollectionEntryMeta,
@@ -42,4 +43,4 @@ export type {
   GetterOptions,
   SupportedFileExtension,
 } from "./utils";
-export type { ViewConfig, ViewsConfig } from "./views";
+export type { ViewConfig, ViewFactory, ViewsConfig } from "./views";

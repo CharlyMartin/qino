@@ -42,12 +42,12 @@ const categoryCollection = createCollection({
 });
 
 const postCollection = createCollection({
-  views: {
-    raw: { resolveRelations: false },
-    shallow: { resolveRelations: 1 },
-    deep: { resolveRelations: 2 },
-    full: { resolveRelations: true },
-  },
+  views: (view) => ({
+    raw: view({ resolveRelations: false }),
+    shallow: view({ resolveRelations: 1 }),
+    deep: view({ resolveRelations: 2 }),
+    full: view({ resolveRelations: true }),
+  }),
   directory: "/posts",
   schema: PostSchema,
   extension: ".md",
@@ -97,12 +97,12 @@ describe("resolveRelations type behaviour", () => {
 
 describe("collection-level default", () => {
   const postCollectionDefaultFalse = createCollection({
-    views: {
-      raw: { resolveRelations: false },
-      shallow: { resolveRelations: 1 },
-      deep: { resolveRelations: 2 },
-      full: { resolveRelations: true },
-    },
+    views: (view) => ({
+      raw: view({ resolveRelations: false }),
+      shallow: view({ resolveRelations: 1 }),
+      deep: view({ resolveRelations: 2 }),
+      full: view({ resolveRelations: true }),
+    }),
     directory: "/posts-raw",
     schema: PostSchema,
     extension: ".md",
@@ -149,12 +149,12 @@ describe("transitive depth (chained collections)", () => {
     relations: { lead: seniorCollection },
   });
   const chainedPostCollection = createCollection({
-    views: {
-      raw: { resolveRelations: false },
-      shallow: { resolveRelations: 1 },
-      deep: { resolveRelations: 2 },
-      full: { resolveRelations: true },
-    },
+    views: (view) => ({
+      raw: view({ resolveRelations: false }),
+      shallow: view({ resolveRelations: 1 }),
+      deep: view({ resolveRelations: 2 }),
+      full: view({ resolveRelations: true }),
+    }),
     directory: "/chained-posts",
     schema: ChainedPostSchema,
     extension: ".md",
@@ -183,12 +183,12 @@ describe("singletons", () => {
     .strict();
 
   const homeSingleton = createSingleton({
-    views: {
-      raw: { resolveRelations: false },
-      shallow: { resolveRelations: 1 },
-      deep: { resolveRelations: 2 },
-      full: { resolveRelations: true },
-    },
+    views: (view) => ({
+      raw: view({ resolveRelations: false }),
+      shallow: view({ resolveRelations: 1 }),
+      deep: view({ resolveRelations: 2 }),
+      full: view({ resolveRelations: true }),
+    }),
     file: "/pages/home.md",
     schema: HomeSchema,
     relations: {
@@ -228,12 +228,12 @@ describe("collection → singleton relation", () => {
     .strict();
 
   const fooCollection = createCollection({
-    views: {
-      raw: { resolveRelations: false },
-      shallow: { resolveRelations: 1 },
-      deep: { resolveRelations: 2 },
-      full: { resolveRelations: true },
-    },
+    views: (view) => ({
+      raw: view({ resolveRelations: false }),
+      shallow: view({ resolveRelations: 1 }),
+      deep: view({ resolveRelations: 2 }),
+      full: view({ resolveRelations: true }),
+    }),
     directory: "/foos",
     schema: FooSchema,
     extension: ".json",
@@ -267,12 +267,12 @@ describe("all primitive relation pairs", () => {
     schema: z.object({ title: z.string(), site: z.string() }),
     relations: { site: singleton },
     augment: () => ({ derived: true }),
-    views: {
-      detail: {
+    views: (view) => ({
+      detail: view({
         resolveRelations: true,
         augment: () => ({ viewDerived: true }),
-      },
-    },
+      }),
+    }),
   });
   const config = {
     schema: z.object({
@@ -288,24 +288,37 @@ describe("all primitive relation pairs", () => {
       doc: tree,
       "links[*].doc": () => tree,
     },
-    views: {
-      raw: {},
-      shallow: { resolveRelations: 1 as const },
-      deep: { resolveRelations: 2 as const },
-    },
   };
   const posts = createCollection({
     ...config,
+    views: (view) => ({
+      raw: view({}),
+      shallow: view({ resolveRelations: 1 as const }),
+      deep: view({ resolveRelations: 2 as const }),
+    }),
     directory: "/related-posts",
     extension: ".json",
   });
   const docs = createTree({
     ...config,
+    views: (view) => ({
+      raw: view({}),
+      shallow: view({ resolveRelations: 1 as const }),
+      deep: view({ resolveRelations: 2 as const }),
+    }),
     directory: "/related-docs",
     extension: ".json",
     titleField: "title",
   });
-  const home = createSingleton({ ...config, file: "/related-home.json" });
+  const home = createSingleton({
+    ...config,
+    views: (view) => ({
+      raw: view({}),
+      shallow: view({ resolveRelations: 1 as const }),
+      deep: view({ resolveRelations: 2 as const }),
+    }),
+    file: "/related-home.json",
+  });
 
   test("every source infers collection, singleton, and tree entries", async () => {
     const entries = [

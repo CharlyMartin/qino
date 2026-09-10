@@ -96,7 +96,7 @@ Used in every file in `specs/`:
 - [03-pages.md](03-pages.md) — `createPage` (v1-proposed)
 - [04-trees.md](04-trees.md) — `createTree` (v1-proposed)
 - [05-relationships.md](05-relationships.md) — Path API, resolve (v1-proposed)
-- [06-sort.md](06-sort.md) — sort (v1-proposed)
+- [06-sort.md](06-sort.md) — collection filtering and sorting (stable)
 - [07-assets.md](07-assets.md) — asset typing (v1-proposed)
 - [08-augment.md](08-augment.md) — derived fields (v1-proposed)
 - [09-timestamps.md](09-timestamps.md) — published/updated (v1-proposed)

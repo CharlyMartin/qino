@@ -322,7 +322,7 @@ The output of a getter call is `ResolvedView<Schema, Ext, Rels, R>`, which is `{
 Sketch (mirrors cases in `packages/qino/src/types/resolve.test-d.ts`):
 
 ```ts
-// Configure views: { detail: { resolveRelations: 2 }, shallow: { resolveRelations: 1 } }
+// Configure views: (view) => ({ detail: view({ resolveRelations: 2 }), shallow: view({ resolveRelations: 1 }) })
 const posts = await postCollection.getAll({ view: "detail" });
 posts[0].author.mentor; // → full author entry (depth 2 → 1 → 0 at this leaf, resolved)
 posts[0].author.mentor.mentor; // → string (depth exhausted)

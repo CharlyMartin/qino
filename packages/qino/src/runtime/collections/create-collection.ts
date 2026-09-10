@@ -8,10 +8,9 @@ import {
 } from "../../data";
 import {
   applyView,
-  assertViewNames,
   buildEntryMeta,
+  buildViews,
   parseFile,
-  type RuntimeView,
   selectView,
   validate,
 } from "../../lib";
@@ -26,9 +25,15 @@ import type {
   SupportedFileExtension,
 } from "../../types";
 import type { EntryAugment } from "../../types/augment";
+import type {
+  CollectionDefaultCallbacks,
+  CollectionViewDefinition,
+  CollectionViewFactory,
+} from "../../types/collection-views";
 import type { CollectionEntryMeta } from "../../types/entry";
 import type { Slug } from "../../types/utils";
 import type {
+  ConfiguredViews,
   SelectedView,
   ViewArguments,
   ViewSelection,
@@ -59,8 +64,18 @@ export type CreateCollectionParams<
     Rels,
     DefaultR
   >;
-  views?: ViewsConfig<Schema, CollectionEntryMeta<Ext>, Rels, Views>;
-};
+  views?: ViewsConfig<
+    Views,
+    CollectionViewFactory<Schema, CollectionEntryMeta<Ext>, Rels>,
+    CollectionViewDefinition
+  >;
+} & CollectionDefaultCallbacks<
+  Schema,
+  CollectionEntryMeta<Ext>,
+  Rels,
+  DefaultR,
+  Derived
+>;
 
 export function createCollection<
   S extends ObjectSchema,
@@ -78,9 +93,13 @@ export function createCollection<
     params;
   const collectionRelations = (relations ?? {}) as Rels;
   const defaultResolve = resolveRelations ?? false;
-  const views = params.views as Record<string, RuntimeView> | undefined;
-  assertViewNames(views);
-  const defaults = { resolveRelations: defaultResolve, augment };
+  const views = buildViews(params.views, "collection");
+  const defaults = {
+    resolveRelations: defaultResolve,
+    augment,
+    filter: params.filter,
+    sort: params.sort,
+  };
   const collectionDirectory = nodePath.join(ctx.contentFolder, directory);
 
   const collection = {
@@ -98,7 +117,15 @@ export function createCollection<
     getAll,
     getAllSlugs,
     getOne,
-  } as const satisfies Collection<S, Ext, Rels, DefaultR, Dir, Derived, Views>;
+  } as const satisfies Collection<
+    S,
+    Ext,
+    Rels,
+    DefaultR,
+    Dir,
+    Derived,
+    ConfiguredViews<Views>
+  >;
 
   return collection;
 
@@ -139,34 +166,50 @@ export function createCollection<
     );
   }
 
-  async function getAll<Args extends ViewArguments<Views> = []>(
-    ...[options]: Args
-  ) {
-    const view = selectView(defaults, views, options);
+  async function getAll<
+    Args extends ViewArguments<ConfiguredViews<Views>> = [],
+  >(...[options]: Args) {
+    const view = selectView(
+      defaults,
+      views,
+      options,
+    ) as CollectionViewDefinition;
     const entries = await readAll();
-    return (await applyView(
+    const augmented = await applyView(
       entries,
       view,
       collectionRelations,
       ctx.instanceId,
-    )) as Array<
+    );
+    const { filter, sort } = view;
+    const filtered = filter
+      ? augmented.filter((entry) => filter(entry as never))
+      : augmented;
+    return (
+      sort
+        ? filtered.toSorted((a, b) => sort(a as never, b as never))
+        : filtered
+    ) as Array<
       SelectedView<
         S,
         CollectionEntryMeta<Ext>,
         Rels,
         DefaultR,
         Derived,
-        Views,
+        ConfiguredViews<Views>,
         ViewSelection<Args[0]>
       >
     >;
   }
 
-  async function getOne<Args extends ViewArguments<Views> = []>(
-    slug: Slug,
-    ...[options]: Args
-  ) {
-    const view = selectView(defaults, views, options);
+  async function getOne<
+    Args extends ViewArguments<ConfiguredViews<Views>> = [],
+  >(slug: Slug, ...[options]: Args) {
+    const view = selectView(
+      defaults,
+      views,
+      options,
+    ) as CollectionViewDefinition;
     const entry = await readOne(slug);
     const [result] = await applyView(
       [entry],
@@ -174,13 +217,18 @@ export function createCollection<
       collectionRelations,
       ctx.instanceId,
     );
+    if (view.filter && !view.filter(result as never)) {
+      throw new Error(
+        `Entry "${slug}" in collection "${directory}" is excluded by view "${options?.view ?? "default"}".`,
+      );
+    }
     return result as SelectedView<
       S,
       CollectionEntryMeta<Ext>,
       Rels,
       DefaultR,
       Derived,
-      Views,
+      ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;
   }

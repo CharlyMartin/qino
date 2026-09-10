@@ -13,6 +13,14 @@ A singleton is a single, well-known content file with its own role in the consum
 
 The name `createSingleton` describes the structural property (exactly one, fixed path) rather than a use case, so it covers `home`, `siteConfig`, `seoDefaults`, etc. equally well.
 
+## Custom views
+
+Declare custom views with `views: (view) => ({ detail: view({ ... }) })`.
+The helper accepts only `resolveRelations` and `augment`; it does not offer
+filter or sort. Unsupported callbacks, object-form `views`, and definitions
+not created by `view()` are rejected. Root configuration remains the implicit
+default, and custom views inherit no settings. See [15-views](./15-views.md).
+
 ## API
 
 ```ts

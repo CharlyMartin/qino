@@ -13,6 +13,14 @@ Distinct from a sorted collection because:
 - Order is explicit, set by an `_order.json` file per node.
 - Mutations from the cloud UI (drag-to-reorder, nest/unnest) need a stable representation.
 
+## Custom views
+
+Declare custom views with `views: (view) => ({ detail: view({ ... }) })`.
+The helper accepts only `resolveRelations` and `augment`; it does not offer
+filter or sort. Unsupported callbacks, object-form `views`, and definitions
+not created by `view()` are rejected. Root configuration remains the implicit
+default, and custom views inherit no settings. See [15-views](./15-views.md).
+
 ## API
 
 ```ts
@@ -246,7 +254,7 @@ The `qino/trees/` folder is **optional** — projects with no trees skip it with
 
 - **Cloud-UI reorder write path** — drag-to-reorder in the dashboard commits to `_order.json` on a branch. Moves must keep `foo.<ext>` and `foo/` paired across reparenting/rename. Wire-format and conflict resolution deferred to V2.
 - **`_order.json` metadata** — should `_order.json` eventually support per-entry metadata (e.g. `hidden: true`, `external: "https://..."`)? Defer until a real consumer needs it; if added, the bare-filename form must remain valid.
-- **Getter options parity** — collections plan a `getAll({ first, last, sort, filter, ... })` shape. Whether `getEntries` grows analogous options (filter by predicate before hydrating, limit by depth) is open.
+- **Future tree filtering** — consider predicates for hiding drafts or excluding entries from navigation. Filtering is out of scope for now. Decide whether excluding a parent removes its entire subtree or preserves/promotes its children, and how predicates interact with entry hydration and views. Trees continue to use `_order.json` for sorting. Collection filter/sort callbacks do not apply to trees.
 
 ## Acceptance criteria
 

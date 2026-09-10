@@ -61,7 +61,7 @@ JSON (not TS) so the cloud UI can read/edit it from GitHub.
 Lock down media filenames so they aren't all `IMG_2391_final_v2.png`:
 
 ```ts
-image: z.qino().asset(".jpg").local().name("a-regexp-pattern")
+image: z.qino().asset(".jpg").local().name("a-regexp-pattern");
 ```
 
 ## Relation API alternatives
@@ -93,4 +93,4 @@ Not yet specified. Possible: a `draft: boolean` frontmatter field that getters f
 
 ## Search / filter depth
 
-`getAll({ filter, sort, first, last })` is on the table but the filter/sort signatures aren't pinned.
+Collection `filter` and `sort` callbacks are configured at creation time, on the default or a custom view; see [06-sort](06-sort.md). Getter overrides are not supported. Pagination remains a future idea.

@@ -57,4 +57,4 @@ Done when:
 - An editor can sign in, see a project's collections, edit a post, and publish via Mode A or Mode B.
 - The cloud UI never reads code from the project — only `qino-lock.json` and content files.
 - The asset picker filters by the declarations in `07-assets.md`.
-- Custom-ordered collections (`06-sort.md`) can be reordered via drag-and-drop, persisting to the JSON order file.
+- Trees can be reordered via drag-and-drop, persisting to `_order.json`. Collection order files are deferred; current collection sorting uses callbacks (`06-sort.md`).

@@ -50,8 +50,7 @@ export const { getAll, getOne } = createCollection({
 });
 ```
 
-A `views` object is additive, for collections that need more than one
-shape:
+An optional `views` factory defines named shapes on collections, trees, and singletons:
 
 ```ts
 export const { getAll, getOne } = createCollection({
@@ -59,17 +58,17 @@ export const { getAll, getOne } = createCollection({
   extension: ".md",
   schema: z.object({ title: z.string(), body: z.string(), author: z.string() }),
   relations: { author: () => authorCollection },
-  views: {
-    listing: {
+  views: (view) => ({
+    listing: view({
       resolveRelations: false,
-    },
-    detail: {
+    }),
+    detail: view({
       resolveRelations: true,
       augment: (post) => ({
         readingMinutes: Math.ceil(markdown.stats(post.body).wordCount / 220),
       }),
-    },
-  },
+    }),
+  }),
 });
 
 const posts = await getAll({ view: "listing" }); // post.author is a raw content-path string
@@ -82,6 +81,42 @@ config, even when named views exist. This is the implicit default view.
 Only declared custom view names autocomplete and type-check. Unknown names
 also fail at runtime.
 
+## Required primitive-specific helpers
+
+All three primitives require the same helper syntax for custom views:
+
+```ts
+// Before (no longer supported)
+views: {
+  detail: { resolveRelations: 1 },
+}
+
+// After
+views: (view) => ({
+  detail: view({ resolveRelations: 1 }),
+  empty: view({}),
+})
+```
+
+This is a breaking syntax change. `views` is optional; root settings still define
+the implicit default view. When supplied, the factory must synchronously return
+named views, each created by the helper. It runs once during primitive creation.
+Legacy object-form views and unwrapped definitions fail in TypeScript and at runtime.
+
+The supplied helper exposes only the options supported by its primitive:
+
+| Option             | Collection | Tree | Singleton |
+| ------------------ | ---------- | ---- | --------- |
+| `resolveRelations` | Yes        | Yes  | Yes       |
+| `augment`          | Yes        | Yes  | Yes       |
+| `filter`           | Yes        | No   | No        |
+| `sort`             | Yes        | No   | No        |
+
+Tree and singleton helpers omit filter and sort from autocomplete and reject them
+in TypeScript and at runtime. Tree sorting still uses `_order.json`; tree filtering
+remains future work. Each helper infers its primitive's schema, metadata, resolved
+relations, and augmented fields. Views inherit no root or sibling settings.
+
 ## Behaviour
 
 - A view is `{ resolveRelations?: ResolveOption; augment?: EntryAugment<...> }`.
@@ -92,6 +127,9 @@ also fail at runtime.
   inherit from the flat/default config either. Each view falls back to the
   same baseline defaults (`resolveRelations: false`, no augment), not to
   whatever a sibling view or the top-level flat config specifies.
+- Explicit `undefined` in getter options is treated as omission. Non-undefined
+  overrides, including `null`, are rejected. Tree/singleton view validation
+  likewise ignores undefined filter/sort values but rejects actual values.
 - `resolveRelations` is no longer overridable at any getter call site,
   including primitives without named views. The `view` name is the only per-call knob; it selects a
   config-time-fixed `{ resolveRelations, augment }` pair.
@@ -109,6 +147,24 @@ also fail at runtime.
 - Available on `createCollection`, `createTree`, and `createSingleton`
   alike.
 
+## Collection listing callbacks
+
+Collections additionally support top-level `filter` and `sort` callbacks. To
+configure them in custom views with fully inferred augmented entry types, use
+`views: (view) => ({ listing: view({ resolveRelations, augment, filter, sort }) })`.
+All four options are optional. The factory runs once at collection creation;
+`view` only constructs a configuration and does not load entries or run callbacks.
+Every custom view must use the helper, even without filter or sort.
+
+For `getAll()`, the selected view runs relation resolution → augment → filter →
+sort. Filter and sort are synchronous and receive the augmented entry shape.
+Named views inherit neither top-level callbacks nor other settings. `getOne`
+uses the same view's resolution, augmentation, and filter. An excluded entry
+throws an error naming the slug, collection, and view. This also applies to the
+implicit default view. Sorting only runs for `getAll()`.
+Trees and singletons use the same helper syntax but expose only resolution and augmentation.
+See [06-sort](./06-sort.md).
+
 ## Implementation decisions
 
 - Removing getter resolution overrides is an intentional breaking change.
@@ -123,7 +179,7 @@ also fail at runtime.
   default/named augments. Existing relation configuration checks remain.
 - Relation loading also uses source readers, ensuring target views and augments
   never execute or contribute derived fields.
-- View callbacks may be synchronous or asynchronous. Existing conflict checks
+- Augment callbacks may be synchronous or asynchronous; factories, filters, and comparators are synchronous. Existing conflict checks
   and file-specific augment errors apply.
 
 ## Acceptance criteria
@@ -131,8 +187,7 @@ also fail at runtime.
 Done when:
 
 - The flat `resolveRelations`/`augment` top-level config remains supported and is equivalent to a single implicit `default` view.
-- A collection/tree/singleton can declare `views: Record<string, {
-resolveRelations?, augment? }>`, and `getAll`/`getOne`/`getEntry`/
+- A collection/tree/singleton can declare `views: (view) => ({ name: view({ resolveRelations, augment }) })`, and `getAll`/`getOne`/`getEntry`/
   `getData` accept a `view` option to select one, using the implicit default when `view` is omitted. Explicit `"default"`
   and undeclared view names are rejected.
 - Omitting resolution keeps references raw in both getter results and augment
@@ -142,3 +197,6 @@ resolveRelations?, augment? }>`, and `getAll`/`getOne`/`getEntry`/
   types, not raw slugs), inferred without `as` casts.
 - Nested relation resolution behavior and types are unchanged from
   [08-augment](./08-augment.md).
+
+- Legacy object-form views and unwrapped definitions fail at compile time and runtime.
+- Only collection helpers offer filter/sort; tree and singleton helpers reject them.

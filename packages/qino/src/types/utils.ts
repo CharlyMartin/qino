@@ -13,6 +13,8 @@ export type GenericPath = `/${string}`;
 export type GetterOptions<View extends string | undefined = string> = {
   view?: View;
   resolveRelations?: never;
+  filter?: never;
+  sort?: never;
 };
 
 export type Slug = string;

@@ -14,7 +14,7 @@ The full spec is split across topic files in [`specs/`](./specs). Start with the
 | [03-pages.md](./specs/03-pages.md)                             | v1-proposed | `createPage` — single-file content                               |
 | [04-trees.md](./specs/04-trees.md)                             | v1-proposed | `createTree` — hierarchical/ordered content                      |
 | [05-relationships.md](./specs/05-relationships.md)             | v1-proposed | Path API, `resolveAncestors` / `resolveDescendants`              |
-| [06-sort.md](./specs/06-sort.md)                               | v1-proposed | `sort` fn, `compareAsc`, `_order.json`                           |
+| [06-sort.md](./specs/06-sort.md)                               | stable      | Collection `filter` / `sort`, typed view helper                  |
 | [07-assets.md](./specs/07-assets.md)                           | v1-proposed | Asset typing, local/remote, filename patterns                    |
 | [08-augment.md](./specs/08-augment.md)                         | v1-proposed | Derived fields                                                   |
 | [09-timestamps.md](./specs/09-timestamps.md)                   | v1-proposed | `published-at` / `updated-at` markers                            |
