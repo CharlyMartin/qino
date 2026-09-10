@@ -3,3 +3,44 @@ title: Collections
 ---
 
 A flat, schema-validated set of entries in a directory.
+
+Configure `filter` and `sort` when creating a collection, either at the top level
+or in an independent custom view. Import `createQino` from `qino` and `z` from
+`zod`, and create `qino` with your content and media folders.
+
+```ts
+const posts = qino.createCollection({
+  directory: "/posts",
+  extension: ".md",
+  schema: z.object({ title: z.string(), draft: z.boolean() }),
+  augment: (entry) => ({ titleLength: entry.title.length }),
+  filter: (entry) => !entry.draft,
+  sort: (a, b) => a.titleLength - b.titleLength,
+  views: (view) => ({
+    alphabetical: view({
+      augment: (entry) => ({ label: entry.title.toLowerCase() }),
+      filter: (entry) => !entry.draft && entry.label.length > 0,
+      sort: (a, b) => a.label.localeCompare(b.label),
+    }),
+    all: view({}),
+  }),
+});
+
+await posts.getAll(); // Default filter and sort.
+await posts.getAll({ view: "alphabetical" }); // Independent view callbacks.
+await posts.getAll({ view: "all" }); // Every entry, in discovery order.
+```
+
+The order for `getAll()` is validation, relation resolution, augmentation,
+filtering, then sorting. Both callbacks are synchronous and receive the selected
+view's fully augmented entries. The `view` helper infers these fields without
+annotations. The helper syntax is required for every custom view, including
+views that only resolve relations or augment entries.
+Custom views inherit no top-level settings.
+
+Getters accept view selection, not callback overrides. `getOne(slug, { view })`
+runs the selected view’s filter after augmentation and throws if it excludes the
+entry. The error names the slug, collection, and view. Omitting `view` applies
+the default filter. Sorting only runs for `getAll()`. Slug discovery, relation
+loading, and CLI validation bypass filtering and sorting. Trees use `_order.json`; tree filtering is deferred.
+Singletons have neither callback.

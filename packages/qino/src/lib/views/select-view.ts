@@ -15,9 +15,18 @@ export function selectView(
   views: Record<string, RuntimeView> | undefined,
   options?: GetterOptions<string | undefined>,
 ) {
-  if (options && "resolveRelations" in options) {
+  if (typeof options?.resolveRelations != "undefined") {
     throw new Error(
       "Getter resolveRelations is no longer supported. Configure it in a view and select that view instead.",
+    );
+  }
+
+  if (
+    typeof options?.filter != "undefined" ||
+    typeof options?.sort != "undefined"
+  ) {
+    throw new Error(
+      "Getter filter and sort are not supported. Configure them on the collection or in a view instead.",
     );
   }
 

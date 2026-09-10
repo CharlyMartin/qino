@@ -15,7 +15,7 @@ export default defineConfig({
   format: ["esm"],
   dts: true,
   clean: true,
-  target: "node18",
+  target: "node22",
   define: {
     __QINO_VERSION__: JSON.stringify(pkg.version),
   },

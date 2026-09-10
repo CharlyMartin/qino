@@ -5,7 +5,8 @@ import nodePath from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 
-import { MARKDOWN_BODY_FIELD_NAME } from "../../data";
+import { validateCollection } from "../../cli/check/validate-collection";
+import { MARKDOWN_BODY_FIELD_NAME, QinoPrimitiveMarker } from "../../data";
 import { createQino } from "../qino/create-qino";
 
 let tmp: string;
@@ -172,7 +173,7 @@ describe("getAllSlugs", () => {
       relations: { author: relation },
       resolveRelations: true,
       augment,
-      views: { detail: { resolveRelations: true, augment } },
+      views: (view) => ({ detail: view({ resolveRelations: true, augment }) }),
     });
     const readFile = vi
       .spyOn(fs, "readFile")
@@ -183,5 +184,243 @@ describe("getAllSlugs", () => {
     expect(validate).not.toHaveBeenCalled();
     expect(relation).not.toHaveBeenCalled();
     expect(augment).not.toHaveBeenCalled();
+  });
+});
+
+describe("collection filter and sort", () => {
+  test("constructs helper views once and keeps view-name validation", async () => {
+    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const created = vi.fn();
+    const collection = qino.createCollection({
+      directory: "/posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      views: (view) => {
+        created();
+        return { listing: view({ filter: () => true }) };
+      },
+    });
+    expect(created).toHaveBeenCalledTimes(1);
+    await collection.getAll({ view: "listing" });
+    await collection.getAll({ view: "listing" });
+    expect(created).toHaveBeenCalledTimes(1);
+    await expect(
+      collection.getAll({ view: "missing" } as never),
+    ).rejects.toThrow(/Unknown view/);
+    expect(() =>
+      qino.createCollection({
+        directory: "/posts",
+        extension: ".md",
+        schema: z.object({ title: z.string() }),
+        views: (() => ({ default: {} })) as never,
+      }),
+    ).toThrow(/reserved/);
+  });
+
+  test("awaits all augmentation, filters before sorting, and keeps views independent", async () => {
+    await writeMd("a.md", "Long title");
+    await writeMd("b.md", "Draft");
+    await writeMd("c.md", "Short");
+    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const events: string[] = [];
+    const collection = qino.createCollection({
+      directory: "/posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      augment: async (entry) => {
+        await Promise.resolve();
+        events.push(`augment:${entry._meta.slug}`);
+        return { length: entry.title.length };
+      },
+      filter: (entry) => {
+        expect(
+          events.filter((event) => event.startsWith("augment:")),
+        ).toHaveLength(3);
+        events.push(`filter:${entry._meta.slug}`);
+        return entry.title != "Draft" && entry.length > 0;
+      },
+      sort: (a, b) => {
+        expect(
+          events.filter((event) => event.startsWith("filter:")),
+        ).toHaveLength(3);
+        expect([a.title, b.title]).not.toContain("Draft");
+        events.push("sort");
+        return a.length - b.length;
+      },
+      views: (view) => ({
+        baseline: view({}),
+        drafts: view({
+          augment: (entry) => ({ draft: entry.title == "Draft" }),
+          filter: (entry) => entry.draft,
+        }),
+        descending: view({ sort: (a, b) => b.title.length - a.title.length }),
+      }),
+    });
+    expect((await collection.getAll()).map((entry) => entry.title)).toEqual([
+      "Short",
+      "Long title",
+    ]);
+    const baseline = await collection.getAll({ view: "baseline" });
+    expect(baseline).toHaveLength(3);
+    expect(baseline[0]).not.toHaveProperty("length");
+    expect(
+      (await collection.getAll({ view: "drafts" })).map((entry) => entry.title),
+    ).toEqual(["Draft"]);
+    expect((await collection.getAll({ view: "descending" }))[0].title).toBe(
+      "Long title",
+    );
+    expect(events.filter((event) => event.startsWith("augment:"))).toHaveLength(
+      3,
+    );
+  });
+
+  test("does not run listing callbacks for source reads, slug discovery, or CLI validation", async () => {
+    await writeMd("draft.md", "Draft");
+    const callback = vi.fn(() => {
+      throw new Error("Listing callback must not run");
+    });
+    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const collection = qino.createCollection({
+      directory: "/posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      filter: callback,
+      sort: callback,
+      views: (view) => ({
+        listing: view({ filter: callback, sort: callback }),
+      }),
+    });
+    expect((await collection[QinoPrimitiveMarker].readOne("draft")).title).toBe(
+      "Draft",
+    );
+    expect(await collection.getAllSlugs()).toEqual(["draft"]);
+    expect(await collection[QinoPrimitiveMarker].readAll()).toHaveLength(1);
+    await validateCollection(collection);
+    expect(callback).not.toHaveBeenCalled();
+  });
+
+  test("keeps equal comparisons stable and leaves later reads unaffected", async () => {
+    await writeMd("a.md", "A");
+    await writeMd("b.md", "B");
+    await writeMd("c.md", "C");
+    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const collection = qino.createCollection({
+      directory: "/posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      views: (view) => ({
+        tied: view({ sort: () => 0 }),
+        reverse: view({ sort: (a, b) => b.title.localeCompare(a.title) }),
+      }),
+    });
+    const original = await collection.getAll();
+    expect(await collection.getAll({ view: "tied" })).toEqual(original);
+    expect(
+      (await collection.getAll({ view: "reverse" })).map(
+        (entry) => entry.title,
+      ),
+    ).toEqual(["C", "B", "A"]);
+    expect(await collection.getAll()).toEqual(original);
+  });
+
+  test("handles empty and fully filtered collections without comparing entries", async () => {
+    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const filter = vi.fn(() => false);
+    const sort = vi.fn(() => 0);
+    const collection = qino.createCollection({
+      directory: "/posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      filter,
+      sort,
+    });
+    expect(await collection.getAll()).toEqual([]);
+    expect(filter).not.toHaveBeenCalled();
+    await writeMd("draft.md", "Draft");
+    expect(await collection.getAll()).toEqual([]);
+    expect(filter).toHaveBeenCalledTimes(1);
+    expect(sort).not.toHaveBeenCalled();
+    await expect(collection.getOne("draft")).rejects.toThrow(
+      'Entry "draft" in collection "/posts" is excluded by view "default".',
+    );
+  });
+
+  test.each([
+    "filter",
+    "sort",
+  ] as const)("propagates %s failures", async (callback) => {
+    await writeMd("a.md", "A");
+    await writeMd("b.md", "B");
+    const failure = new Error(`${callback} failed`);
+    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const collection = qino.createCollection({
+      directory: "/posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      [callback]: () => {
+        throw failure;
+      },
+    });
+    await expect(collection.getAll()).rejects.toBe(failure);
+    if (callback == "filter") {
+      await expect(collection.getOne("a")).rejects.toBe(failure);
+    }
+  });
+
+  test.each([
+    undefined,
+    "highlight",
+  ] as const)("getOne applies the %s view's filter after augment without sorting", async (view) => {
+    await writeMd("highlighted.md", "Highlighted");
+    await writeMd("ordinary.md", "Ordinary");
+    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const sort = vi.fn(() => {
+      throw new Error("Single entries must not sort");
+    });
+    const collection = qino.createCollection({
+      directory: "/posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      augment: async (entry) => ({ highlight: entry.title == "Highlighted" }),
+      filter: (entry) => entry.highlight,
+      sort,
+      views: (defineView) => ({
+        highlight: defineView({
+          augment: async (entry) => ({
+            highlight: entry.title == "Highlighted",
+          }),
+          filter: (entry) => entry.highlight,
+          sort,
+        }),
+        all: defineView({}),
+      }),
+    });
+    await expect(
+      collection.getOne("highlighted", { view }),
+    ).resolves.toMatchObject({ highlight: true });
+    await expect(collection.getOne("ordinary", { view })).rejects.toThrow(
+      `Entry "ordinary" in collection "/posts" is excluded by view "${view ?? "default"}".`,
+    );
+    await expect(
+      collection.getOne("ordinary", { view: "all" }),
+    ).resolves.toMatchObject({ title: "Ordinary" });
+    expect(sort).not.toHaveBeenCalled();
+  });
+
+  test("validates excluded content and rejects getter callbacks", async () => {
+    await writeMd("invalid.md", "Invalid");
+    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const collection = qino.createCollection({
+      directory: "/posts",
+      extension: ".md",
+      schema: z.object({ missing: z.string() }),
+      filter: () => false,
+    });
+    await expect(collection.getAll()).rejects.toThrow(/Validation failed/);
+    for (const options of [{ filter: () => true }, { sort: () => 0 }]) {
+      await expect(collection.getAll(options as never)).rejects.toThrow(
+        /Getter filter and sort are not supported/,
+      );
+    }
   });
 });

@@ -1,0 +1,165 @@
+import { expectTypeOf, test } from "vitest";
+import { z } from "zod";
+
+import { createQino } from "../runtime/qino/create-qino";
+
+const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
+const schema = z.object({ title: z.string(), author: z.string() });
+const authors = qino.createCollection({
+  directory: "/authors",
+  extension: ".json",
+  schema: z.object({ name: z.string() }),
+});
+
+test("infers post-augment inputs independently for default and named views", async () => {
+  const posts = qino.createCollection({
+    directory: "/posts",
+    extension: ".json",
+    schema,
+    relations: { author: authors },
+    resolveRelations: true,
+    augment: async (entry) => ({ label: entry.author.name }),
+    filter: (entry) => {
+      expectTypeOf(entry.label).toEqualTypeOf<string>();
+      expectTypeOf(entry.author.name).toEqualTypeOf<string>();
+      expectTypeOf(entry._meta.slug).toEqualTypeOf<string>();
+      // @ts-expect-error Callback entries are readonly.
+      entry.title = "replacement";
+      return entry.label.length > 0;
+    },
+    sort: (a, b) => a.label.localeCompare(b.label),
+    views: (view) => ({
+      raw: view({
+        augment: (entry) => ({ length: entry.author.length }),
+        filter: (entry) => {
+          expectTypeOf(entry.author).toEqualTypeOf<string>();
+          expectTypeOf(entry.length).toEqualTypeOf<number>();
+          // @ts-expect-error Default augment is not inherited.
+          entry.label;
+          return entry.length > 0;
+        },
+        sort: (a, b) => b.length - a.length,
+      }),
+      resolved: view({
+        resolveRelations: 1,
+        augment: async (entry) => ({ name: entry.author.name }),
+        filter: (entry) => entry.name == entry.author.name,
+        sort: (a, b) => a.name.localeCompare(b.name),
+      }),
+      plain: view({
+        filter: (entry) => entry.title.length > 0,
+        sort: (a, b) => a.author.localeCompare(b.author),
+      }),
+      empty: view({}),
+    }),
+  });
+  expectTypeOf((await posts.getAll())[0].label).toEqualTypeOf<string>();
+  expectTypeOf(
+    (await posts.getAll({ view: "raw" }))[0].length,
+  ).toEqualTypeOf<number>();
+  expectTypeOf(
+    (await posts.getAll({ view: "resolved" }))[0].name,
+  ).toEqualTypeOf<string>();
+  expectTypeOf(
+    (await posts.getAll({ view: "empty" }))[0].author,
+  ).toEqualTypeOf<string>();
+  type Options = NonNullable<Parameters<typeof posts.getAll>[0]>;
+  expectTypeOf<Options["view"]>().toEqualTypeOf<
+    "raw" | "resolved" | "plain" | "empty" | undefined
+  >();
+  const options: { view?: "raw" } = {};
+  const entry = await posts.getOne("hello", options);
+  // @ts-expect-error An optional selection can return the default view.
+  entry.length;
+  // @ts-expect-error Callbacks can only be configured at creation.
+  posts.getAll({ view: "raw", filter: () => true });
+  // @ts-expect-error Callbacks can only be configured at creation.
+  posts.getAll({ sort: () => 0 });
+});
+
+test("rejects reserved factory view names and conflicting helper augmentation", () => {
+  qino.createCollection({
+    directory: "/posts",
+    extension: ".json",
+    schema,
+    // @ts-expect-error The default view is reserved in factory syntax too.
+    views: (view) => ({ default: view({}) }),
+  });
+  qino.createCollection({
+    directory: "/posts",
+    extension: ".json",
+    schema,
+    // @ts-expect-error A factory must return valid view definitions even without the helper.
+    views: () => ({ invalid: { filter: async () => true } }),
+  });
+  qino.createCollection({
+    directory: "/posts",
+    extension: ".json",
+    schema,
+    views: (view) => ({
+      invalid: view({
+        // @ts-expect-error Augmentation cannot overwrite schema fields.
+        augment: () => ({ title: "replacement" }),
+      }),
+    }),
+  });
+});
+
+test("requires synchronous boolean predicates and numeric comparators", () => {
+  qino.createCollection({
+    directory: "/posts",
+    extension: ".json",
+    schema,
+    // @ts-expect-error A predicate must return boolean.
+    filter: () => 1,
+    // @ts-expect-error A comparator must return number.
+    sort: () => "asc",
+    views: (view) => ({
+      invalid: view({
+        // @ts-expect-error Async predicates are unsupported.
+        filter: async () => true,
+        // @ts-expect-error Async comparators are unsupported.
+        sort: async () => 0,
+      }),
+    }),
+  });
+});
+
+test("does not expose callbacks on trees or singletons", () => {
+  qino.createTree({
+    directory: "/docs",
+    extension: ".json",
+    titleField: "title",
+    schema,
+    // @ts-expect-error Tree filtering is deferred.
+    filter: () => true,
+  });
+  qino.createSingleton({
+    file: "/home.json",
+    schema,
+    // @ts-expect-error Singletons cannot sort.
+    sort: () => 0,
+  });
+  qino.createTree({
+    directory: "/docs",
+    extension: ".json",
+    titleField: "title",
+    schema,
+    views: (view) => ({
+      listing: view({
+        // @ts-expect-error Tree views cannot filter.
+        filter: () => true,
+      }),
+    }),
+  });
+  qino.createSingleton({
+    file: "/home.json",
+    schema,
+    views: (view) => ({
+      listing: view({
+        // @ts-expect-error Singleton views cannot sort.
+        sort: () => 0,
+      }),
+    }),
+  });
+});

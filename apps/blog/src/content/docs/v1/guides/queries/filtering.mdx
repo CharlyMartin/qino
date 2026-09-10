@@ -2,4 +2,29 @@
 title: Filtering
 ---
 
-Narrow down results with a predicate after fetching.
+Configure a synchronous `filter: (entry) => boolean` on `createCollection`.
+Return `true` to retain an entry. The predicate runs after relation resolution
+and augmentation, before sorting, so it can use derived fields.
+
+For an independent custom view, use the helper supplied to `views`:
+
+```ts
+views: (view) => ({
+  published: view({
+    augment: (entry) => ({ visible: !entry.draft }),
+    filter: (entry) => entry.visible,
+  }),
+});
+```
+
+Here the collection schema includes `draft: z.boolean()`. Select this view with
+`getAll({ view: "published" })`. A custom view does not inherit the default view's
+filter, sort, augmentation, or relation settings.
+
+Filtering applies to `getAll()` and `getOne(slug, { view })`. A single-entry read
+throws if the selected view excludes the entry, with an error naming the slug,
+collection, and view. Omitting `view` uses the default filter. An independent
+view without a filter can read every entry. Slug discovery, relations, and CLI
+validation retain access to all entries. Invalid content still fails validation.
+Getters do not accept predicates, and async predicates are unsupported. Trees
+and singletons currently have no filtering callback.

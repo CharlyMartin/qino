@@ -2,4 +2,24 @@
 title: Sorting
 ---
 
-Ordering entries by frontmatter fields.
+Configure a synchronous `sort: (a, b) => number` on `createCollection`, or in a
+custom view using the `view` helper. The comparator follows JavaScript's
+`Array.toSorted`: return a negative number for `a` first, positive for `b` first,
+and zero for equal order. Ties preserve relative order.
+
+```ts
+views: (view) => ({
+  alphabetical: view({
+    augment: (entry) => ({ label: entry.title.toLowerCase() }),
+    sort: (a, b) => a.label.localeCompare(b.label),
+  }),
+});
+```
+
+Here the collection schema includes `title: z.string()`. Select this view with
+`getAll({ view: "alphabetical" })`. Sorting runs after augmentation and filtering,
+and only compares retained entries. Custom views inherit no default callbacks.
+Without a comparator, the result retains discovery order.
+
+Sorting creates a new array and only affects `getAll()`. Getters do not accept
+comparator overrides. Trees use `_order.json` ordering; singletons do not sort.

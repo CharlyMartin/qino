@@ -8,9 +8,8 @@ import {
 } from "../../data";
 import {
   applyView,
-  assertViewNames,
+  buildViews,
   parseFile,
-  type RuntimeView,
   selectView,
   validate,
 } from "../../lib";
@@ -26,8 +25,10 @@ import type {
 import type { EntryAugment } from "../../types/augment";
 import type { SingletonEntryMeta } from "../../types/entry";
 import type {
+  ConfiguredViews,
   SelectedView,
   ViewArguments,
+  ViewFactory,
   ViewSelection,
   ViewsConfig,
 } from "../../types/views";
@@ -55,10 +56,8 @@ export type CreateSingletonParams<
     DefaultR
   >;
   views?: ViewsConfig<
-    Schema,
-    SingletonEntryMeta<ExtractSingletonExtension<F>>,
-    Rels,
-    Views
+    Views,
+    ViewFactory<Schema, SingletonEntryMeta<ExtractSingletonExtension<F>>, Rels>
   >;
 };
 
@@ -79,8 +78,7 @@ export function createSingleton<
   const extension = extractExtension(file) as Ext;
   const singletonRelations = (relations ?? {}) as Rels;
   const defaultResolve = (resolveRelations ?? false) as ResolveOption;
-  const views = params.views as Record<string, RuntimeView> | undefined;
-  assertViewNames(views);
+  const views = buildViews(params.views, "singleton");
   const defaults = { resolveRelations: defaultResolve, augment };
 
   const absoluteFilePath = nodePath.join(
@@ -100,7 +98,14 @@ export function createSingleton<
       readData,
     },
     getData,
-  } as const satisfies Singleton<S, Ext, Rels, DefaultR, Derived, Views>;
+  } as const satisfies Singleton<
+    S,
+    Ext,
+    Rels,
+    DefaultR,
+    Derived,
+    ConfiguredViews<Views>
+  >;
 
   return singleton;
 
@@ -120,9 +125,9 @@ export function createSingleton<
     };
   }
 
-  async function getData<Args extends ViewArguments<Views> = []>(
-    ...[options]: Args
-  ) {
+  async function getData<
+    Args extends ViewArguments<ConfiguredViews<Views>> = [],
+  >(...[options]: Args) {
     const view = selectView(defaults, views, options);
     const entry = await readData();
     const [result] = await applyView(
@@ -137,7 +142,7 @@ export function createSingleton<
       Rels,
       DefaultR,
       Derived,
-      Views,
+      ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;
   }

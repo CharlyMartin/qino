@@ -13,6 +13,7 @@ import type {
   SupportedFileExtension,
   Tree,
 } from "../../types";
+import type { ConfiguredViews } from "../../types/views";
 import {
   type CreateCollectionParams,
   createCollection,
@@ -58,7 +59,15 @@ export function createQino(config: QinoConfig) {
         Derived,
         Views
       >,
-    ): Collection<S, Ext, Rels, DefaultR, Dir, Derived, Views> {
+    ): Collection<
+      S,
+      Ext,
+      Rels,
+      DefaultR,
+      Dir,
+      Derived,
+      ConfiguredViews<Views>
+    > {
       return createCollection(ctx, params);
     },
     createSingleton<
@@ -76,7 +85,7 @@ export function createQino(config: QinoConfig) {
       Rels,
       DefaultR,
       Derived,
-      Views
+      ConfiguredViews<Views>
     > {
       return createSingleton(ctx, params);
     },
@@ -100,7 +109,16 @@ export function createQino(config: QinoConfig) {
         Derived,
         Views
       >,
-    ): Tree<S, Ext, Title, Rels, DefaultR, Dir, Derived, Views> {
+    ): Tree<
+      S,
+      Ext,
+      Title,
+      Rels,
+      DefaultR,
+      Dir,
+      Derived,
+      ConfiguredViews<Views>
+    > {
       return createTree(ctx, params);
     },
   };

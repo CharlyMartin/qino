@@ -3,6 +3,35 @@ import { describe, expect, test } from "vitest";
 import { selectView } from "./select-view";
 
 describe("selectView", () => {
+  test("treats explicit undefined override fields as omitted, including spreads", () => {
+    const omitted = {
+      resolveRelations: undefined,
+      filter: undefined,
+      sort: undefined,
+    };
+    const defaults = {};
+    const detail = {};
+    expect(selectView(defaults, { detail }, { ...omitted })).toBe(defaults);
+    expect(
+      selectView(defaults, { detail }, { view: "detail", ...omitted }),
+    ).toBe(detail);
+  });
+
+  test.each([
+    "resolveRelations",
+    "filter",
+    "sort",
+  ])("rejects non-undefined %s values", (key) => {
+    for (const value of [null, false, 0, () => true]) {
+      expect(() =>
+        selectView({}, { detail: {} }, {
+          view: "detail",
+          [key]: value,
+        } as never),
+      ).toThrow(/supported/);
+    }
+  });
+
   test("uses the default only when view is omitted", () => {
     const defaults = { resolveRelations: false as const };
     const views = { detail: {} };

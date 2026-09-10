@@ -218,7 +218,7 @@ describe("createTree", () => {
       schema: Schema,
       extension: ".md",
       titleField: "title",
-      views: { raw: { resolveRelations: false } },
+      views: (view) => ({ raw: view({ resolveRelations: false }) }),
     });
 
     const entry = await tree.getEntry("intro", { view: "raw" });

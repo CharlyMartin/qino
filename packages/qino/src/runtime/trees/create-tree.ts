@@ -9,10 +9,9 @@ import {
 } from "../../data";
 import {
   applyView,
-  assertViewNames,
   buildEntryMeta,
+  buildViews,
   parseFile,
-  type RuntimeView,
   selectView,
   validate,
 } from "../../lib";
@@ -31,8 +30,10 @@ import type { EntryAugment } from "../../types/augment";
 import type { TreeEntryMeta } from "../../types/entry";
 import type { Slug } from "../../types/utils";
 import type {
+  ConfiguredViews,
   SelectedView,
   ViewArguments,
+  ViewFactory,
   ViewSelection,
   ViewsConfig,
 } from "../../types/views";
@@ -60,7 +61,7 @@ export type CreateTreeParams<
   relations?: Rels;
   resolveRelations?: DefaultR;
   augment?: EntryAugment<Schema, TreeEntryMeta<Ext>, Derived, Rels, DefaultR>;
-  views?: ViewsConfig<Schema, TreeEntryMeta<Ext>, Rels, Views>;
+  views?: ViewsConfig<Views, ViewFactory<Schema, TreeEntryMeta<Ext>, Rels>>;
 };
 
 export function createTree<
@@ -89,8 +90,7 @@ export function createTree<
 
   const treeRelations = (relations ?? {}) as Rels;
   const defaultResolve = (resolveRelations ?? false) as ResolveOption;
-  const views = params.views as Record<string, RuntimeView> | undefined;
-  assertViewNames(views);
+  const views = buildViews(params.views, "tree");
   const defaults = { resolveRelations: defaultResolve, augment };
   const resolvedOrderFileName = orderFileName ?? DEFAULT_ORDER_FILE_NAME;
   const directoryPath = nodePath.join(ctx.contentFolder, directory);
@@ -113,7 +113,16 @@ export function createTree<
     getEntry,
     getNextNode,
     getPreviousNode,
-  } as const satisfies Tree<S, Ext, Title, Rels, DefaultR, Dir, Derived, Views>;
+  } as const satisfies Tree<
+    S,
+    Ext,
+    Title,
+    Rels,
+    DefaultR,
+    Dir,
+    Derived,
+    ConfiguredViews<Views>
+  >;
 
   return tree;
 
@@ -156,10 +165,9 @@ export function createTree<
     };
   }
 
-  async function getEntry<Args extends ViewArguments<Views> = []>(
-    slug: Slug,
-    ...[options]: Args
-  ) {
+  async function getEntry<
+    Args extends ViewArguments<ConfiguredViews<Views>> = [],
+  >(slug: Slug, ...[options]: Args) {
     const view = selectView(defaults, views, options);
     const entry = await readEntry(slug);
     const [result] = await applyView(
@@ -174,7 +182,7 @@ export function createTree<
       Rels,
       DefaultR,
       Derived,
-      Views,
+      ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;
   }
