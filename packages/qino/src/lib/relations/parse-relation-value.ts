@@ -1,12 +1,12 @@
 import { QinoPrimitives } from "../../data";
-import type { AnyCollectionMeta, AnySingletonMeta } from "../../types";
+import type { AnyPrimitiveMeta } from "../../types/utils";
 import { removeLeadingSlash } from "../../utils";
 
 export type Context = { sourceFilePath: string; relationKey: string };
 
 export function parseRelationValue(
   value: string,
-  targetMeta: AnyCollectionMeta | AnySingletonMeta,
+  targetMeta: AnyPrimitiveMeta,
   ctx: Context,
 ) {
   const normalized = removeLeadingSlash(value);
@@ -28,13 +28,13 @@ export function parseRelationValue(
 
   if (!normalized.startsWith(expectedPrefix)) {
     throw new Error(
-      `Relation "${ctx.relationKey}" in ${ctx.sourceFilePath}: expected value under "${expectedPrefix}" (target collection "${targetMeta.directory}"), got "${value}".`,
+      `Relation "${ctx.relationKey}" in ${ctx.sourceFilePath}: expected value under "${expectedPrefix}" (target ${targetMeta.is} "${targetMeta.directory}"), got "${value}".`,
     );
   }
 
   if (!normalized.endsWith(expectedExt)) {
     throw new Error(
-      `Relation "${ctx.relationKey}" in ${ctx.sourceFilePath}: expected value ending with "${expectedExt}" (target collection "${targetMeta.directory}"), got "${value}".`,
+      `Relation "${ctx.relationKey}" in ${ctx.sourceFilePath}: expected value ending with "${expectedExt}" (target ${targetMeta.is} "${targetMeta.directory}"), got "${value}".`,
     );
   }
 

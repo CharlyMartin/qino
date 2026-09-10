@@ -2,8 +2,9 @@ import { describe, expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
 import { createQino } from "../runtime/qino/create-qino";
+import type { TreeEntryMeta } from "./entry";
 
-const { createCollection, createSingleton } = createQino({
+const { createCollection, createSingleton, createTree } = createQino({
   contentFolder: "src/content",
   mediaFolder: "public",
 });
@@ -251,5 +252,97 @@ describe("collection → singleton relation", () => {
   test("resolveRelations: false keeps the relation as a string", async () => {
     const foos = await fooCollection.getAll({ view: "raw" });
     expectTypeOf(foos[0].siteConfig).toEqualTypeOf<string>();
+  });
+});
+
+describe("all primitive relation pairs", () => {
+  const singleton = createSingleton({
+    file: "/site.json",
+    schema: z.object({ siteName: z.string() }),
+  });
+  const tree = createTree({
+    directory: "/docs",
+    extension: ".md",
+    titleField: "title",
+    schema: z.object({ title: z.string(), site: z.string() }),
+    relations: { site: singleton },
+    augment: () => ({ derived: true }),
+    views: {
+      detail: {
+        resolveRelations: true,
+        augment: () => ({ viewDerived: true }),
+      },
+    },
+  });
+  const config = {
+    schema: z.object({
+      title: z.string(),
+      author: z.string(),
+      site: z.string(),
+      doc: z.string(),
+      links: z.array(z.object({ doc: z.string() })),
+    }),
+    relations: {
+      author: authorCollection,
+      site: () => singleton,
+      doc: tree,
+      "links[*].doc": () => tree,
+    },
+    views: {
+      raw: {},
+      shallow: { resolveRelations: 1 as const },
+      deep: { resolveRelations: 2 as const },
+    },
+  };
+  const posts = createCollection({
+    ...config,
+    directory: "/related-posts",
+    extension: ".json",
+  });
+  const docs = createTree({
+    ...config,
+    directory: "/related-docs",
+    extension: ".json",
+    titleField: "title",
+  });
+  const home = createSingleton({ ...config, file: "/related-home.json" });
+
+  test("every source infers collection, singleton, and tree entries", async () => {
+    const entries = [
+      await posts.getOne("hello", { view: "shallow" }),
+      await docs.getEntry("hello", { view: "shallow" }),
+      await home.getData({ view: "shallow" }),
+    ];
+    for (const entry of entries) {
+      expectTypeOf(entry.author.name).toEqualTypeOf<string>();
+      expectTypeOf(entry.site.siteName).toEqualTypeOf<string>();
+      expectTypeOf(entry.doc.title).toEqualTypeOf<string>();
+      expectTypeOf(entry.doc._meta).toEqualTypeOf<TreeEntryMeta<".md">>();
+      expectTypeOf(entry.doc.site).toEqualTypeOf<string>();
+      expectTypeOf(entry.links[0].doc).toEqualTypeOf<typeof entry.doc>();
+      // @ts-expect-error Embedded tree targets do not include augment fields.
+      entry.doc.derived;
+      // @ts-expect-error Embedded tree targets do not apply their named views.
+      entry.doc.viewDerived;
+    }
+  });
+
+  test("raw references and deeper tree relations respect the selected depth", async () => {
+    for (const entry of [
+      await posts.getOne("hello", { view: "raw" }),
+      await docs.getEntry("hello", { view: "raw" }),
+      await home.getData({ view: "raw" }),
+    ]) {
+      expectTypeOf(entry.doc).toEqualTypeOf<string>();
+      expectTypeOf(entry.links[0].doc).toEqualTypeOf<string>();
+    }
+    for (const entry of [
+      await posts.getOne("hello", { view: "deep" }),
+      await docs.getEntry("hello", { view: "deep" }),
+      await home.getData({ view: "deep" }),
+    ]) {
+      expectTypeOf(entry.doc.site.siteName).toEqualTypeOf<string>();
+      expectTypeOf(entry.links[0].doc.site.siteName).toEqualTypeOf<string>();
+    }
   });
 });

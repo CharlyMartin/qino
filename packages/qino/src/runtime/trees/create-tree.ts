@@ -106,6 +106,7 @@ export function createTree<
       orderFileName: resolvedOrderFileName,
       relations: treeRelations,
       resolveRelations: defaultResolve,
+      readEntry,
     },
     getTree,
     getFlatTree,

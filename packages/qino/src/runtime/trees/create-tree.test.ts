@@ -338,3 +338,43 @@ describe("createTree", () => {
     });
   });
 });
+
+test("relations load nested Markdown tree entries without navigation or target augment", async () => {
+  const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+  const dir = nodePath.join(tmp, "docs/guides");
+  await fs.mkdir(dir, { recursive: true });
+  await writeMd(dir, "setup", "Setup", "Installation instructions");
+  // A malformed sibling must not affect reading the referenced entry.
+  await fs.writeFile(nodePath.join(dir, "broken.md"), "---\ntitle: [\n---");
+  const docs = qino.createTree({
+    directory: "/docs",
+    extension: ".md",
+    titleField: "title",
+    schema: Schema,
+    augment: () => {
+      throw new Error("Target augment must not run");
+    },
+  });
+  const reference = { doc: "docs/guides/setup.md" };
+  await fs.writeFile(
+    nodePath.join(tmp, "home.json"),
+    JSON.stringify(reference),
+  );
+  const home = qino.createSingleton({
+    file: "/home.json",
+    schema: z.object({ doc: z.string() }),
+    relations: { doc: docs },
+    resolveRelations: true,
+  });
+  const entry = await home.getData();
+  expect(entry.doc).toMatchObject({
+    title: "Setup",
+    body: "\nInstallation instructions",
+    _meta: {
+      slug: "guides/setup",
+      fileName: "setup.md",
+      filePath: nodePath.join(dir, "setup.md"),
+    },
+  });
+  expect(entry.doc).not.toHaveProperty("children");
+});

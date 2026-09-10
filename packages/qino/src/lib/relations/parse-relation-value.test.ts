@@ -1,7 +1,11 @@
 import { describe, expect, test } from "vitest";
 
 import { QinoPrimitiveMarker } from "../../data/globals";
-import { makeDummyCollection, makeDummySingleton } from "../../utils/tests";
+import {
+  makeDummyCollection,
+  makeDummySingleton,
+  makeDummyTree,
+} from "../../utils/tests";
 import { parseRelationValue } from "./parse-relation-value";
 
 const ctx = { sourceFilePath: "/fixtures/post.json", relationKey: "author" };
@@ -82,5 +86,28 @@ describe("parseRelationValue", () => {
         /expected value ending with "\.json"/,
       );
     });
+  });
+});
+
+describe("tree target", () => {
+  const meta = makeDummyTree({ directory: "/docs", extension: ".md" })[
+    QinoPrimitiveMarker
+  ];
+
+  test.each([
+    "docs/guides/setup.md",
+    "/docs/guides/setup.md",
+  ])("preserves the nested slug in %s", (value) => {
+    expect(parseRelationValue(value, meta, ctx)).toBe("guides/setup");
+  });
+
+  test.each([
+    "setup",
+    "other/setup.md",
+    "docs/setup.json",
+  ])("rejects invalid reference %s with tree and source context", (value) => {
+    expect(() => parseRelationValue(value, meta, ctx)).toThrow(
+      /author.*post\.json.*target tree "\/docs"/,
+    );
   });
 });

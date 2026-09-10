@@ -1,7 +1,5 @@
-import type { AnyCollection } from "./collection";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
-import type { AnySingleton } from "./singleton";
-import type { JsonPathArray } from "./utils";
+import type { AnyPrimitive, JsonPathArray } from "./utils";
 
 export type RelationPath<T, Prefix extends string = ""> =
   NonNullable<T> extends string
@@ -17,10 +15,7 @@ export type RelationPath<T, Prefix extends string = ""> =
           }[keyof NonNullable<T> & string]
         : never;
 
-export type RelationTarget =
-  | AnyCollection
-  | AnySingleton
-  | (() => AnyCollection | AnySingleton);
+export type RelationTarget = AnyPrimitive | (() => AnyPrimitive);
 
 export type Relations<Schema extends ObjectSchema> = {
   [P in RelationPath<ValidatedOutput<Schema>>]?: RelationTarget;

@@ -1,10 +1,5 @@
 import { QinoPrimitiveMarker } from "../../data";
-import type {
-  AnyCollection,
-  AnyEntry,
-  AnySingleton,
-  RelationTarget,
-} from "../../types";
+import type { AnyEntry, AnyPrimitive, RelationTarget } from "../../types";
 import type { Slug } from "../../types/utils";
 import { isSingleton } from "../../utils/is-singleton";
 import type { ResolveCache } from "./create-resolve-cache";
@@ -76,7 +71,7 @@ export function createRelationResolver(cache: ResolveCache) {
   }
 
   async function resolveTargetReference(
-    target: AnyCollection | AnySingleton,
+    target: AnyPrimitive,
     slug: Slug,
     depth: number,
     sourceInstanceId: symbol,
@@ -92,7 +87,7 @@ export function createRelationResolver(cache: ResolveCache) {
   }
 
   async function getOrFetchRawTarget(
-    target: AnyCollection | AnySingleton,
+    target: AnyPrimitive,
     slug: Slug,
     ctx: RelationErrorContext,
   ) {
@@ -121,7 +116,7 @@ function getOrCreateEntryCache(cache: ResolveCache, cacheKey: string) {
   return entryCache;
 }
 
-function getTargetUniquePath(target: AnyCollection | AnySingleton) {
+function getTargetUniquePath(target: AnyPrimitive) {
   return isSingleton(target)
     ? target[QinoPrimitiveMarker].file
     : target[QinoPrimitiveMarker].directory;

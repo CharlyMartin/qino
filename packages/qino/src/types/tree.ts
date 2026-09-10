@@ -43,6 +43,9 @@ export type TreeMeta<
   readonly orderFileName: string;
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
+  readonly readEntry: (
+    slug: Slug,
+  ) => Promise<ResolvedTreeEntry<Schema, Ext, Rels, false>>;
 };
 
 export type Tree<
@@ -92,6 +95,7 @@ export type ResolvedTreeEntry<
     Derived
 >;
 
+// Check types
 export type AnyTreeMeta = {
   readonly is: (typeof QinoPrimitives)["tree"];
   readonly instanceId: symbol;
@@ -102,6 +106,11 @@ export type AnyTreeMeta = {
   readonly orderFileName: string;
   readonly relations: Relations<ObjectSchema>;
   readonly resolveRelations: ResolveOption;
+  readonly readEntry: (slug: Slug) => Promise<
+    Record<string, unknown> & {
+      [K in MetaFieldName]: TreeEntryMeta<SupportedFileExtension>;
+    }
+  >;
 };
 
 export type AnyTree = {

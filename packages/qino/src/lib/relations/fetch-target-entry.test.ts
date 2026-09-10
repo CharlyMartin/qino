@@ -5,6 +5,7 @@ import {
   makeDummyCollection,
   makeDummyEntry,
   makeDummySingleton,
+  makeDummyTree,
 } from "../../utils/tests";
 import { fetchTargetEntry } from "./fetch-target-entry";
 
@@ -118,5 +119,32 @@ describe("fetchTargetEntry", () => {
       expect((err as Error).message).toContain("/config/site.json");
       expect((err as Error).message).not.toContain("/ignored");
     });
+  });
+});
+
+describe("tree target", () => {
+  test("reads a nested entry through the raw source reader", async () => {
+    const entry = makeDummyEntry({
+      slug: "guides/setup",
+      extension: ".md",
+      fields: { title: "Setup" },
+    });
+    const target = makeDummyTree({
+      directory: "/docs",
+      extension: ".md",
+      store: new Map([["guides/setup", entry]]),
+    });
+    const read = vi.spyOn(target[QinoPrimitiveMarker], "readEntry");
+    const publicRead = vi.spyOn(target, "getEntry");
+    expect(await fetchTargetEntry(target, "guides/setup", ctx)).toBe(entry);
+    expect(read).toHaveBeenCalledWith("guides/setup");
+    expect(publicRead).not.toHaveBeenCalled();
+  });
+
+  test("wraps missing tree entries with the source, field, and target path", async () => {
+    const target = makeDummyTree({ directory: "/docs", extension: ".md" });
+    await expect(
+      fetchTargetEntry(target, "guides/missing", ctx),
+    ).rejects.toThrow(/author.*\/docs\/guides\/missing.*post\.json.*ENOENT/);
   });
 });
