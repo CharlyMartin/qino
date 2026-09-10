@@ -62,6 +62,49 @@ Resolution now defaults to `false` for the implicit default and all named views.
 If existing code requires expanded relations, add `resolveRelations: true` or a
 numeric depth to that configuration.
 
+## Relations
+
+Collections, trees, and singletons can each reference any of the three types:
+
+| Source → Target | Collection | Tree | Singleton |
+| --------------- | ---------- | ---- | --------- |
+| Collection      | Yes        | Yes  | Yes       |
+| Tree            | Yes        | Yes  | Yes       |
+| Singleton       | Yes        | Yes  | Yes       |
+
+Declare a target directly or with a lazy function for forward references:
+
+```ts
+const docs = qino.createTree({
+  directory: "/docs",
+  extension: ".md",
+  titleField: "title",
+  schema: z.object({ title: z.string(), body: z.string() }),
+});
+
+const home = qino.createSingleton({
+  file: "/home.json",
+  schema: z.object({
+    featuredDoc: z.string(),
+    relatedDocs: z.array(z.string()),
+  }),
+  relations: { featuredDoc: docs, "relatedDocs[*]": () => docs },
+  resolveRelations: 1,
+});
+```
+
+In `home.json`, store references such as `"featuredDoc": "docs/guides/setup.md"`.
+A tree target resolves to that file's content and `_meta` (including the nested
+slug `guides/setup`), without children or navigation data. The directory and
+extension must match the target; a leading `/` is optional. Singleton references
+must match the singleton's configured file.
+
+Relations resolve only when enabled on the source's default or named view.
+Numeric depths allow 1–6 relation hops; `true` means 6. Embedded targets bypass
+their own views and augment callbacks. All related primitives must belong to the
+same `createQino()` instance. Relations are directional; reverse links are not
+created automatically.
+
 ## Collection slugs
 
 ```ts

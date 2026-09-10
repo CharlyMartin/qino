@@ -50,123 +50,152 @@ afterEach(async () => {
 });
 
 describe.each([
-  "collection one",
-  "collection all",
+  "collection",
   "tree",
   "singleton",
-])("%s views", (kind) => {
-  test("resolves before augmenting, keeps views independent, and bypasses target augments", async () => {
-    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-    const targetAugment = vi.fn(() => {
-      throw new Error("Target augment must not execute");
+])("%s target", (targetKind) => {
+  describe.each([
+    "collection one",
+    "collection all",
+    "tree",
+    "singleton",
+  ])("%s views", (kind) => {
+    test("resolves before augmenting, keeps views independent, and bypasses target augments", async () => {
+      const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+      const targetAugment = vi.fn(() => {
+        throw new Error("Target augment must not execute");
+      });
+      const senior = qino.createSingleton({
+        file: "/senior.json",
+        schema: z.object({ name: z.string() }),
+        augment: targetAugment,
+        views: { broken: { augment: targetAugment } },
+      });
+      const authorConfig = {
+        schema: z.object({ name: z.string(), lead: z.string() }),
+        relations: { lead: senior },
+        resolveRelations: false,
+        augment: targetAugment,
+        views: { broken: { augment: targetAugment } },
+      };
+      const authors =
+        targetKind == "tree"
+          ? qino.createTree({
+              ...authorConfig,
+              directory: "/authors",
+              extension: ".json",
+              titleField: "name",
+            })
+          : targetKind == "singleton"
+            ? qino.createSingleton({
+                ...authorConfig,
+                file: "/authors/alice.json",
+              })
+            : qino.createCollection({
+                ...authorConfig,
+                directory: "/authors",
+                extension: ".json",
+              });
+      const defaultAugment = vi.fn((entry: { author: string }) => ({
+        defaultSlug: entry.author,
+      }));
+      const rawAugment = vi.fn((entry: { author: string }) => ({
+        slugLength: entry.author.length,
+      }));
+      const detailAugment = vi.fn(
+        async (entry: {
+          author: { name: string; lead: { name: string } };
+        }) => ({
+          label: `${entry.author.name} / ${entry.author.lead.name}`,
+        }),
+      );
+      const config = {
+        schema: z.object({ title: z.string(), author: z.string() }),
+        relations: { author: () => authors },
+        augment: defaultAugment,
+        views: {
+          raw: { augment: rawAugment },
+          shallow: { resolveRelations: 1 as const },
+          detail: { resolveRelations: 2 as const, augment: detailAugment },
+          baseline: {},
+        },
+      };
+      const collection = qino.createCollection({
+        ...config,
+        directory: "/posts",
+        extension: ".json",
+      });
+      const tree = qino.createTree({
+        ...config,
+        directory: "/docs",
+        extension: ".json",
+        titleField: "title",
+      });
+      const singleton = qino.createSingleton({ ...config, file: "/home.json" });
+      const readers = {
+        "collection one": async (
+          options?: GetterOptions<keyof typeof config.views>,
+        ) => [await collection.getOne("hello", options)],
+        "collection all": (
+          options?: GetterOptions<keyof typeof config.views>,
+        ) => collection.getAll(options),
+        tree: async (options?: GetterOptions<keyof typeof config.views>) => [
+          await tree.getEntry("hello", options),
+        ],
+        singleton: async (
+          options?: GetterOptions<keyof typeof config.views>,
+        ) => [await singleton.getData(options)],
+      };
+      const read = readers[kind as keyof typeof readers];
+      const defaultEntries = await read();
+      expect(defaultEntries[0]).toMatchObject({
+        author: "/authors/alice.json",
+        defaultSlug: "/authors/alice.json",
+      });
+      const raw = await read({ view: "raw" });
+      expect(raw[0]).toMatchObject({
+        author: "/authors/alice.json",
+        slugLength: 19,
+      });
+      expect(raw[0]).not.toHaveProperty("defaultSlug");
+      const shallow = await read({ view: "shallow" });
+      expect(shallow[0]).toMatchObject({
+        author: { name: "Alice", lead: "/senior.json" },
+      });
+      const detail = await read({ view: "detail" });
+      expect(detail[0]).toMatchObject({
+        author: { lead: { name: "Senior" } },
+        label: "Alice / Senior",
+      });
+      expect(detail[0]).not.toHaveProperty("defaultSlug");
+      expect(detailAugment).toHaveBeenCalledTimes(detail.length);
+      const baseline = await read({ view: "baseline" });
+      expect(baseline[0]).toMatchObject({ author: "/authors/alice.json" });
+      expect(baseline[0]).not.toHaveProperty("label");
+      expect(baseline[0]).not.toHaveProperty("defaultSlug");
+      expect(defaultAugment).toHaveBeenCalledTimes(defaultEntries.length);
+      expect(rawAugment).toHaveBeenCalledTimes(raw.length);
+      expect(targetAugment).not.toHaveBeenCalled();
+      await read({ view: "detail" });
+      expect(detailAugment).toHaveBeenCalledTimes(detail.length * 2);
+      await expect(read({ view: "missing" } as never)).rejects.toThrow(
+        /Unknown view/,
+      );
+      await expect(read({ view: "default" } as never)).rejects.toThrow(
+        /implicit/,
+      );
+      await expect(read({ resolveRelations: false } as never)).rejects.toThrow(
+        /no longer supported/,
+      );
+      expect(await tree.getFlatTree()).toEqual([
+        expect.objectContaining({
+          slug: "hello",
+          title: "Hello",
+          children: [],
+        }),
+      ]);
+      expect((await tree.getTree())[0]).not.toHaveProperty("defaultSlug");
     });
-    const senior = qino.createSingleton({
-      file: "/senior.json",
-      schema: z.object({ name: z.string() }),
-      augment: targetAugment,
-      views: { broken: { augment: targetAugment } },
-    });
-    const authors = qino.createCollection({
-      directory: "/authors",
-      extension: ".json",
-      schema: z.object({ name: z.string(), lead: z.string() }),
-      relations: { lead: senior },
-      resolveRelations: false,
-      augment: targetAugment,
-      views: { broken: { augment: targetAugment } },
-    });
-    const defaultAugment = vi.fn((entry: { author: string }) => ({
-      defaultSlug: entry.author,
-    }));
-    const rawAugment = vi.fn((entry: { author: string }) => ({
-      slugLength: entry.author.length,
-    }));
-    const detailAugment = vi.fn(
-      async (entry: { author: { name: string; lead: { name: string } } }) => ({
-        label: `${entry.author.name} / ${entry.author.lead.name}`,
-      }),
-    );
-    const config = {
-      schema: z.object({ title: z.string(), author: z.string() }),
-      relations: { author: () => authors },
-      augment: defaultAugment,
-      views: {
-        raw: { augment: rawAugment },
-        shallow: { resolveRelations: 1 as const },
-        detail: { resolveRelations: 2 as const, augment: detailAugment },
-        baseline: {},
-      },
-    };
-    const collection = qino.createCollection({
-      ...config,
-      directory: "/posts",
-      extension: ".json",
-    });
-    const tree = qino.createTree({
-      ...config,
-      directory: "/docs",
-      extension: ".json",
-      titleField: "title",
-    });
-    const singleton = qino.createSingleton({ ...config, file: "/home.json" });
-    const readers = {
-      "collection one": async (
-        options?: GetterOptions<keyof typeof config.views>,
-      ) => [await collection.getOne("hello", options)],
-      "collection all": (options?: GetterOptions<keyof typeof config.views>) =>
-        collection.getAll(options),
-      tree: async (options?: GetterOptions<keyof typeof config.views>) => [
-        await tree.getEntry("hello", options),
-      ],
-      singleton: async (options?: GetterOptions<keyof typeof config.views>) => [
-        await singleton.getData(options),
-      ],
-    };
-    const read = readers[kind as keyof typeof readers];
-    const defaultEntries = await read();
-    expect(defaultEntries[0]).toMatchObject({
-      author: "/authors/alice.json",
-      defaultSlug: "/authors/alice.json",
-    });
-    const raw = await read({ view: "raw" });
-    expect(raw[0]).toMatchObject({
-      author: "/authors/alice.json",
-      slugLength: 19,
-    });
-    expect(raw[0]).not.toHaveProperty("defaultSlug");
-    const shallow = await read({ view: "shallow" });
-    expect(shallow[0]).toMatchObject({
-      author: { name: "Alice", lead: "/senior.json" },
-    });
-    const detail = await read({ view: "detail" });
-    expect(detail[0]).toMatchObject({
-      author: { lead: { name: "Senior" } },
-      label: "Alice / Senior",
-    });
-    expect(detail[0]).not.toHaveProperty("defaultSlug");
-    expect(detailAugment).toHaveBeenCalledTimes(detail.length);
-    const baseline = await read({ view: "baseline" });
-    expect(baseline[0]).toMatchObject({ author: "/authors/alice.json" });
-    expect(baseline[0]).not.toHaveProperty("label");
-    expect(baseline[0]).not.toHaveProperty("defaultSlug");
-    expect(defaultAugment).toHaveBeenCalledTimes(defaultEntries.length);
-    expect(rawAugment).toHaveBeenCalledTimes(raw.length);
-    expect(targetAugment).not.toHaveBeenCalled();
-    await read({ view: "detail" });
-    expect(detailAugment).toHaveBeenCalledTimes(detail.length * 2);
-    await expect(read({ view: "missing" } as never)).rejects.toThrow(
-      /Unknown view/,
-    );
-    await expect(read({ view: "default" } as never)).rejects.toThrow(
-      /implicit/,
-    );
-    await expect(read({ resolveRelations: false } as never)).rejects.toThrow(
-      /no longer supported/,
-    );
-    expect(await tree.getFlatTree()).toEqual([
-      expect.objectContaining({ slug: "hello", title: "Hello", children: [] }),
-    ]);
-    expect((await tree.getTree())[0]).not.toHaveProperty("defaultSlug");
   });
 });
 

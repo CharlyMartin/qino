@@ -1,10 +1,15 @@
 import type { IntClosedRange, Simplify, Subtract } from "type-fest";
 
-import type { MAX_RESOLVE_DEPTH, QinoPrimitiveMarker } from "../data";
+import type {
+  MAX_RESOLVE_DEPTH,
+  QinoPrimitiveMarker,
+  QinoPrimitives,
+} from "../data";
 import type {
   CollectionEntryMeta,
   MetaFieldName,
   SingletonEntryMeta,
+  TreeEntryMeta,
 } from "./entry";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
 import type { JsonPathArray, SupportedFileExtension } from "./utils";
@@ -57,6 +62,7 @@ type ResolveTarget<Target, D extends Depth> = D extends 0
 
 type ResolveRelationTarget<C, NextD extends Depth> = C extends {
   readonly [QinoPrimitiveMarker]: {
+    is: infer Kind;
     schema: infer S;
     extension: infer Ext;
     relations: infer Rels;
@@ -67,7 +73,9 @@ type ResolveRelationTarget<C, NextD extends Depth> = C extends {
     ? S extends ObjectSchema
       ? Simplify<
           {
-            [K in MetaFieldName]: CollectionEntryMeta<Ext>;
+            [K in MetaFieldName]: Kind extends (typeof QinoPrimitives)["tree"]
+              ? TreeEntryMeta<Ext>
+              : CollectionEntryMeta<Ext>;
           } & ResolveEntry<S, Rels, NextD>
         >
       : never

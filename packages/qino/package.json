@@ -1,7 +1,7 @@
 {
   "name": "qino",
-  "version": "0.0.6",
-  "description": "Headless Markdown CMS",
+  "version": "0.0.7",
+  "description": "The modern headless Markdown CMS",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,

@@ -68,7 +68,7 @@ The same value appears in two places on a hydrated node: at the top-level `title
 
 ### `relations`
 
-Optional. Same JSON-path grammar as collections — `parent.child`, `field[*]`, with `[*]` anywhere making the relation `cardinality: "many"`. Targets can be any collection or singleton, or a thunk for forward refs. See [05-relationships.md](05-relationships.md).
+Optional. Same JSON-path grammar as collections — `parent.child`, `field[*]`, with `[*]` anywhere making the relation `cardinality: "many"`. Targets can be any collection, tree, or singleton, or a thunk for forward refs. See [05-relationships.md](05-relationships.md).
 
 ### `resolveRelations`
 
@@ -228,7 +228,7 @@ API to be defined.
 }
 ```
 
-The `kind` discriminator on each relation tells consumers reading the lock file whether the target is a collection or a singleton — same convention as on collections and singletons.
+The `kind` discriminator on each relation tells consumers reading the lock file whether the target is a collection, tree, or singleton — same convention as on collections and singletons.
 
 ## Build pipeline
 

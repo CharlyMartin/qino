@@ -72,11 +72,11 @@ Set `resolveRelations` (`true` / `number` / `false`, default `false`) on `create
 
 ### `relations`
 
-Optional. Same JSON-path grammar as collections (`a.b`, `field[*]`, with `[*]` anywhere → `cardinality: "many"`). Targets can be **any collection or any singleton**, or a thunk `() => target` for forward refs.
+Optional. Same JSON-path grammar as collections (`a.b`, `field[*]`, with `[*]` anywhere → `cardinality: "many"`). Targets can be **any collection, tree, or singleton**, or a thunk `() => target` for forward refs.
 
 For collection targets, the relation value format is the same as in [05-relationships.md](05-relationships.md): `<directory>/<slug><extension>` (verbose form; leading `/` tolerated).
 
-For **singleton targets**, the value must equal the target singleton's `file` (leading `/` tolerated). This is the singleton analogue of the prefix+extension check used for collection targets — collapsed to a single equality because a singleton has exactly one file:
+For **singleton targets**, the value must equal the target singleton's `file` (leading `/` tolerated). This is the singleton analogue of the prefix+extension check used for collection and tree targets — collapsed to a single equality because a singleton has exactly one file:
 
 ```yaml
 # src/content/pages/about.md frontmatter
@@ -100,7 +100,7 @@ A value that doesn't match throws at resolve time naming the expected file, the 
 
 The extension is intentionally not stored — it's derivable from `file`'s suffix (one of `.md` | `.mdx` | `.json`), the same way `createSingleton` derives it at runtime.
 
-The `kind` discriminator on each relation tells consumers reading the lock file whether the target is a collection or another singleton. The same `kind` is emitted in collection relations (see [02-collections.md](02-collections.md) and [05-relationships.md](05-relationships.md)).
+The `kind` discriminator on each relation tells consumers reading the lock file whether the target is a collection, tree, or singleton. The same `kind` is emitted in collection relations (see [02-collections.md](02-collections.md) and [05-relationships.md](05-relationships.md)).
 
 ## Build pipeline
 
@@ -114,4 +114,4 @@ Done when:
 - Singletons appear in `qino-lock.json` under `singletons.<file>`.
 - Missing singleton files fail at build time, not runtime.
 - Relations declared on a singleton resolve at read time the same way as on collections.
-- Relations on collections or singletons can target other singletons; the relation value format is an exact-equality check against the target's `file`.
+- Relations on collections, trees, or singletons can target other singletons; the relation value format is an exact-equality check against the target's `file`.

@@ -51,9 +51,15 @@ committed to the repo, and forward-compatible**.
         {
           "field": "categories[]",
           "target": "categories",
+          "kind": "collection",
           "cardinality": "many"
         },
-        { "field": "author", "target": "authors", "cardinality": "one" }
+        {
+          "field": "author",
+          "target": "authors",
+          "kind": "collection",
+          "cardinality": "one"
+        }
       ]
     }
   }
@@ -64,17 +70,18 @@ This is exactly the shape committed at `apps/blog/qino/qino-lock.json`. Treat it
 
 ## Field reference
 
-| Field                          | Type                         | Notes                                                                  |
-| ------------------------------ | ---------------------------- | ---------------------------------------------------------------------- |
-| `qinoVersion`                  | string                       | The version of `qino` that produced this file. Used for migration.     |
-| `config.contentFolder`         | string                       | Mirrors `qino/config.ts`. Path relative to repo root.                  |
-| `config.mediaFolder`           | string                       | Same.                                                                  |
-| `collections.<id>.path`        | string                       | Relative to `contentFolder`.                                           |
-| `collections.<id>.extension`   | `".md" \| ".mdx" \| ".json"` | File extension for entries.                                            |
-| `collections.<id>.relations[]` | array                        | Declared relationships (see `05-relationships.md`).                    |
-| `relations[].field`            | string                       | Field name in the entry. `[]` suffix for arrays (e.g. `categories[]`). |
-| `relations[].target`           | string                       | Target collection id.                                                  |
-| `relations[].cardinality`      | `"one" \| "many"`            | Whether the field resolves to one or many entries.                     |
+| Field                          | Type                                        | Notes                                                                  |
+| ------------------------------ | ------------------------------------------- | ---------------------------------------------------------------------- |
+| `qinoVersion`                  | string                                      | The version of `qino` that produced this file. Used for migration.     |
+| `config.contentFolder`         | string                                      | Mirrors `qino/config.ts`. Path relative to repo root.                  |
+| `config.mediaFolder`           | string                                      | Same.                                                                  |
+| `collections.<id>.path`        | string                                      | Relative to `contentFolder`.                                           |
+| `collections.<id>.extension`   | `".md" \| ".mdx" \| ".json"`                | File extension for entries.                                            |
+| `collections.<id>.relations[]` | array                                       | Declared relationships (see `05-relationships.md`).                    |
+| `relations[].field`            | string                                      | Field name in the entry. `[]` suffix for arrays (e.g. `categories[]`). |
+| `relations[].target`           | string                                      | Target collection, tree, or singleton id.                              |
+| `relations[].kind`             | `"collection"` \| `"tree"` \| `"singleton"` | Selects the target section.                                            |
+| `relations[].cardinality`      | `"one" \| "many"`                           | Whether the field resolves to one or many entries.                     |
 
 V1 will also include:
 

@@ -1,7 +1,9 @@
 import { QinoPrimitiveMarker, QinoPrimitives } from "../../data/globals";
 import type {
+  AnyEntry,
   AnyTree,
   GenericPath,
+  RelationTarget,
   ResolveOption,
   SupportedFileExtension,
 } from "../../types";
@@ -11,12 +13,16 @@ type MakeDummyTreeOptions = {
   directory: GenericPath;
   extension: SupportedFileExtension;
   instanceId?: symbol;
+  store?: Map<string, AnyEntry>;
+  relations?: Record<string, RelationTarget | undefined>;
 };
 
 export function makeDummyTree({
   directory,
   extension,
   instanceId = DUMMY_INSTANCE_ID,
+  store = new Map(),
+  relations = {},
 }: MakeDummyTreeOptions) {
   return {
     [QinoPrimitiveMarker]: {
@@ -27,8 +33,13 @@ export function makeDummyTree({
       extension,
       titleField: "title",
       orderFileName: "_order.json",
-      relations: {},
+      relations,
       resolveRelations: false as ResolveOption,
+      readEntry: async (slug: string) => {
+        const found = store.get(slug);
+        if (!found) throw new Error(`ENOENT: ${directory}/${slug}`);
+        return found as never;
+      },
     },
     getTree: (async () => []) as never,
     getFlatTree: async () => [],

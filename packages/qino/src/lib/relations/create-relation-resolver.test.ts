@@ -1,11 +1,13 @@
 import { describe, expect, test, vi } from "vitest";
 
 import { QinoPrimitiveMarker } from "../../data";
+import type { RelationTarget } from "../../types";
 import {
   DUMMY_INSTANCE_ID,
   makeDummyCollection,
   makeDummyEntry,
   makeDummySingleton,
+  makeDummyTree,
 } from "../../utils/tests";
 import { createRelationResolver } from "./create-relation-resolver";
 import { createResolveCache } from "./create-resolve-cache";
@@ -424,5 +426,81 @@ describe("createRelationResolver", () => {
         avatar: { url: "https://example.com/portrait.png" },
       });
     });
+  });
+});
+
+describe("tree references", () => {
+  test("deduplicates nested and array references, follows cross-kind cycles, and stops at depth", async () => {
+    const treeEntry = makeDummyEntry({
+      slug: "guides/setup",
+      extension: ".md",
+      fields: { title: "Setup", post: "posts/hello.json" },
+    });
+    const post = makeDummyEntry({
+      slug: "hello",
+      extension: ".json",
+      fields: { doc: "docs/guides/setup.md" },
+    });
+    const treeRelations: Record<string, RelationTarget> = {};
+    const docs = makeDummyTree({
+      directory: "/docs",
+      extension: ".md",
+      store: new Map([["guides/setup", treeEntry]]),
+      relations: treeRelations,
+    });
+    const posts = makeDummyCollection({
+      directory: "/posts",
+      extension: ".json",
+      store: new Map([["hello", post]]),
+      relations: { doc: () => docs },
+    });
+    treeRelations.post = posts;
+    const read = vi.spyOn(docs[QinoPrimitiveMarker], "readEntry");
+    const source = makeDummyEntry({
+      slug: "source",
+      extension: ".json",
+      fields: {
+        links: ["docs/guides/setup.md", "/docs/guides/setup.md"],
+        section: { doc: "docs/guides/setup.md" },
+      },
+    });
+    const result = await createRelationResolver(
+      createResolveCache(),
+    ).resolveEntry(source, {
+      relations: { "links[*]": docs, "section.doc": () => docs },
+      depth: 3,
+      sourceInstanceId,
+    });
+    const resolved = {
+      title: "Setup",
+      post: { doc: { title: "Setup", post: "posts/hello.json" } },
+    };
+    expect(result).toMatchObject({
+      links: [resolved, resolved],
+      section: { doc: resolved },
+    });
+    expect(read).toHaveBeenCalledTimes(1);
+    expect(treeEntry.post).toBe("posts/hello.json");
+    expect(post.doc).toBe("docs/guides/setup.md");
+  });
+
+  test("rejects tree targets from a different instance", async () => {
+    const docs = makeDummyTree({
+      directory: "/docs",
+      extension: ".md",
+      instanceId: Symbol("other"),
+    });
+    const source = makeDummyEntry({
+      slug: "source",
+      extension: ".json",
+      fields: { doc: "docs/setup.md" },
+    });
+    await expect(
+      createRelationResolver(createResolveCache()).resolveEntry(source, {
+        relations: { doc: () => docs },
+        depth: 1,
+        sourceInstanceId,
+      }),
+    ).rejects.toThrow(/doc.*source.json.*different createQino/);
   });
 });

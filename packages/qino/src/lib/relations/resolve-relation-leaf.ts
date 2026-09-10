@@ -1,11 +1,10 @@
-import type { AnyCollectionMeta, AnySingletonMeta } from "../../types";
-import type { Slug } from "../../types/utils";
+import type { AnyPrimitiveMeta, Slug } from "../../types/utils";
 import { parseRelationValue } from "./parse-relation-value";
 
 type Context = {
   relationKey: string;
   sourceFilePath: string;
-  targetMeta: AnyCollectionMeta | AnySingletonMeta;
+  targetMeta: AnyPrimitiveMeta;
   resolveTargetReference: (slug: Slug) => Promise<Record<string, unknown>>;
 };
 

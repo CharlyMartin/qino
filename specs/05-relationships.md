@@ -15,7 +15,7 @@ Three things the developer must be able to express:
 
 ## API
 
-Relations are declared on `createCollection` via a `relations` map. Schemas stay vanilla — no augmentation, no custom helpers. The target's path and extension are read off the referenced collection (single source of truth).
+Relations are declared on `createCollection`, `createTree`, or `createSingleton` via a `relations` map. Schemas stay vanilla — no augmentation, no custom helpers. The target's path and extension are read off the referenced primitive (single source of truth).
 
 ```ts
 import { createCollection } from "qino";
@@ -44,7 +44,7 @@ export const postCollection = createCollection({
 
 ### How the three things are expressed
 
-1. **String → another collection.** The value at the relation key (`author: authorCollection`) is the target collection. Its path and extension live on the target — Qino reads them at build time.
+1. **String → a collection, tree, or singleton.** The value at the relation key (`author: authorCollection`) is the target primitive. Its path and extension live on the target — Qino reads them at build time.
 2. **Target extension.** Carried by the referenced collection's `extension` field; not redeclared.
 3. **Cardinality.** Derived purely from the relation key (the JSON path). Any `[*]` anywhere in the key → `"many"`; otherwise `"one"`. `[*]` is transitive — `articles[*].author` is `"many"` even though the leaf is a single field. No build-time data scan is needed.
 
@@ -61,11 +61,11 @@ The relation key is type-checked against the schema's output shape (string leave
 ]
 ```
 
-`field` is the relation key verbatim — `[*]` segments preserved. `kind` is `"collection"` or `"singleton"` depending on what the relation points at; consumers reading the lock file use it to decide whether to look up the target in the `collections` or `singletons` section. `cardinality` is derived from the path itself (no data scan); the consumer never writes either of these by hand.
+`field` is the relation key verbatim — `[*]` segments preserved. `kind` is `"collection"`, `"tree"`, or `"singleton"` depending on what the relation points at; consumers reading the lock file use it to decide whether to look up the target in the `collections`, `trees`, or `singletons` section. `cardinality` is derived from the path itself (no data scan); the consumer never writes either of these by hand.
 
 ## Relation value format
 
-A relation field in a content file stores the **full path of the target entry relative to `contentFolder`**: the target collection's folder, the slug, and the target's extension.
+A relation field in a content file stores the **full path of the target entry relative to `contentFolder`**: the target collection or tree's folder, the slug, and the target's extension.
 
 ```yaml
 # src/content/posts/hello.md frontmatter
@@ -75,13 +75,19 @@ categories:
   - "categories/philosophy.json"
 ```
 
-At resolve time, for a **collection target** the resolver:
+At resolve time, for a **collection or tree target** the resolver:
 
-1. Asserts the value is under the target collection's `directory` (leading `/` is tolerated on the value).
-2. Asserts the value ends with the target collection's `extension`.
-3. Strips both and passes the remaining slug to `targetCollection.getOne(slug)`.
+1. Asserts the value is under the target's `directory` (leading `/` is tolerated on the value).
+2. Asserts the value ends with the target's `extension`.
+3. Strips both and passes the remaining slug to the target's internal `readOne(slug)` (collection) or `readEntry(slug)` (tree).
 
 A mismatched prefix, a mismatched extension, or an empty string throws at resolve time with the source `_meta.filePath`, the relation key, and the offending value. Bare slugs (e.g. `author: "jane-doe"`) are **not** accepted — the verbose form is the only valid format. This trades a few extra characters per entry for self-documenting frontmatter and prefix-mismatch detection at the boundary.
+
+For a **tree target**, `docs/guides/setup.md` resolves the entry with slug
+`guides/setup`. The result contains schema fields and `TreeEntryMeta`, with no
+children or navigation data. Reading the target bypasses its views and augment;
+the source view's remaining depth controls its outgoing relations. All three
+primitive types can be sources and targets, including tree-to-tree references.
 
 For a **singleton target** (see [03-singletons.md](03-singletons.md)), the value must equal the target singleton's `file` exactly (leading `/` is tolerated). The prefix+extension pair collapses to a single equality check because a singleton has exactly one file. On match the resolver calls the singleton’s internal source reader; on mismatch it throws naming the expected file, the relation key, and the source file path.
 
@@ -139,7 +145,7 @@ flowchart TD
     Q --> Q1["entryCache = getOrCreateEntryCache(cache, getTargetUniquePath(target))"]
     Q1 --> Q2{"entryCache.get(slug)?"}
     Q2 -- hit --> R["return cached Promise<AnyEntry><br/>(identity preserved · cycle-safe)"]
-    Q2 -- miss --> S["fetchRawTarget(target, slug, ctx)<br/>isSingleton ? readData : readOne<br/>source only"]
+    Q2 -- miss --> S["fetchRawTarget(target, slug, ctx)<br/>singleton: readData · tree: readEntry · collection: readOne<br/>source only"]
     S --> T["entryCache.set(slug, promise)"]
     T --> U["resolver.resolveEntry(raw, {target.relations, depth-1})"]
     R --> U
@@ -149,7 +155,7 @@ flowchart TD
 Three properties to internalize from this graph:
 
 - **Depth decrements once per relation boundary** — bound into the per-relation `resolveTargetReference(slug)` closure as `depth - 1`, not per JSON-path segment. `articles[*].author` walks array+field within a single hop and only spends one depth unit when `author` is dereferenced.
-- **The cache is per-call**, fresh on every `getAll` / `getOne` / `getData` invocation. Two-level: outer keyed by `getTargetUniquePath(target)` (`meta.directory` for collections, `meta.file` for singletons), inner keyed by slug → `Promise<AnyEntry>`.
+- **The cache is per-call**, fresh on every `getAll` / `getOne` / `getEntry` / `getData` invocation. Two-level: outer keyed by `getTargetUniquePath(target)` (`meta.directory` for collections and trees, `meta.file` for singletons), inner keyed by slug → `Promise<AnyEntry>`.
 - **Recursion is owned by one resolver**: `resolver.resolveEntry → resolveTargetReference → getOrFetchRawTarget → resolver.resolveEntry`. The leaf helpers (`resolveRelationLeaf`, `parseRelationValue`, `fetchRawTarget`) are pure of recursion — they validate, parse, or fetch and hand back. Cycle safety comes from `getOrFetchRawTarget` storing the Promise _before_ it settles (see [Cache, identity, and cycles](#cache-identity-and-cycles)).
 
 ### Worked example: depth=2
@@ -204,15 +210,15 @@ Final shape: `post.author` is a full author whose `mentor` is a full bob (whose 
 
 ### Errors
 
-| Thrown by                         | Condition                              | Carries                                                                              |
-| --------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------ |
-| `parsePath`                       | empty path, empty segment, bare `[*]`  | offending path                                                                       |
-| `walkAndSet`                      | array segment hits a non-array value   | segment, actual JS type                                                              |
-| `resolveRelationLeaf`             | leaf is non-string                     | `relationKey`, `sourceFilePath`, actual type                                         |
-| `resolveRelationLeaf`             | leaf is empty string                   | `relationKey`, `sourceFilePath`                                                      |
-| `parseRelationValue` (collection) | value missing prefix or extension      | `relationKey`, `sourceFilePath`, expected, actual                                    |
-| `parseRelationValue` (singleton)  | value ≠ target `file`                  | `relationKey`, `sourceFilePath`, expected, actual                                    |
-| `fetchRawTarget`                  | underlying `getOne` / `getData` throws | wraps with `relationKey`, `→ ref`, `sourceFilePath`; chains the original via `cause` |
+| Thrown by                              | Condition                              | Carries                                                                              |
+| -------------------------------------- | -------------------------------------- | ------------------------------------------------------------------------------------ |
+| `parsePath`                            | empty path, empty segment, bare `[*]`  | offending path                                                                       |
+| `walkAndSet`                           | array segment hits a non-array value   | segment, actual JS type                                                              |
+| `resolveRelationLeaf`                  | leaf is non-string                     | `relationKey`, `sourceFilePath`, actual type                                         |
+| `resolveRelationLeaf`                  | leaf is empty string                   | `relationKey`, `sourceFilePath`                                                      |
+| `parseRelationValue` (collection/tree) | value missing prefix or extension      | `relationKey`, `sourceFilePath`, expected, actual                                    |
+| `parseRelationValue` (singleton)       | value ≠ target `file`                  | `relationKey`, `sourceFilePath`, expected, actual                                    |
+| `fetchRawTarget`                       | underlying `getOne` / `getData` throws | wraps with `relationKey`, `→ ref`, `sourceFilePath`; chains the original via `cause` |
 
 One intentional non-error: an object-key segment that lands on a non-object value passes through silently. This is by design — it lets a relation declared on an optional intermediate field (e.g. `hero.author` where `hero` is sometimes absent) skip resolution cleanly rather than throwing.
 

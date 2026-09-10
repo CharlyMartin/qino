@@ -1,24 +1,31 @@
-import { QinoPrimitiveMarker } from "../../data";
-import type { AnyCollection, AnySingleton } from "../../types";
+import { QinoPrimitiveMarker, QinoPrimitives } from "../../data";
+import type { AnyPrimitive } from "../../types";
 import type { Slug } from "../../types/utils";
-import { isSingleton } from "../../utils/is-singleton";
 import type { RelationErrorContext } from "./create-relation-resolver";
 
 export async function fetchTargetEntry(
-  target: AnyCollection | AnySingleton,
+  target: AnyPrimitive,
   slug: Slug,
   ctx: RelationErrorContext,
 ) {
+  const meta = target[QinoPrimitiveMarker];
+
   try {
-    return isSingleton(target)
-      ? await target[QinoPrimitiveMarker].readData()
-      : await target[QinoPrimitiveMarker].readOne(slug);
+    switch (meta.is) {
+      case QinoPrimitives.singleton:
+        return await meta.readData();
+      case QinoPrimitives.tree:
+        return await meta.readEntry(slug);
+      case QinoPrimitives.collection:
+        return await meta.readOne(slug);
+    }
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause);
 
-    const errorRef = isSingleton(target)
-      ? target[QinoPrimitiveMarker].file
-      : `${target[QinoPrimitiveMarker].directory}/${slug}`;
+    const errorRef =
+      meta.is == QinoPrimitives.singleton
+        ? meta.file
+        : `${meta.directory}/${slug}`;
 
     throw new Error(
       `Failed to resolve relation "${ctx.relationKey}" → ${errorRef} (from ${ctx.sourceFilePath}): ${message}`,
