@@ -27,7 +27,7 @@ import type {
   TreeNode,
 } from "../../types";
 import type { EntryAugment } from "../../types/augment";
-import type { TreeEntryMeta } from "../../types/entry";
+import type { TreeEntryMeta } from "../../types/tree";
 import type { Slug } from "../../types/utils";
 import type {
   ConfiguredViews,

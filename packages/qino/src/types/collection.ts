@@ -1,8 +1,11 @@
 import type { Simplify } from "type-fest";
 
-import type { QinoPrimitiveMarker, QinoPrimitives } from "../data";
+import type {
+  META_FIELD_NAME,
+  QinoPrimitiveMarker,
+  QinoPrimitives,
+} from "../data";
 import type { AugmentOutput } from "./augment";
-import type { CollectionEntryMeta, MetaFieldName } from "./entry";
 import type { PrimitiveInference } from "./infer";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
@@ -15,6 +18,14 @@ import type {
   SupportedFileExtension,
 } from "./utils";
 import type { SelectedView, ViewArguments, ViewSelection } from "./views";
+
+export type CollectionEntryMeta<
+  Ext extends SupportedFileExtension = SupportedFileExtension,
+> = {
+  slug: Slug;
+  fileName: `${string}${Ext}`;
+  filePath: `${string}${Ext}`;
+};
 
 export type Collection<
   Schema extends ObjectSchema,
@@ -72,7 +83,7 @@ export type ResolvedCollectionView<
   R extends ResolveOption,
   Derived extends AugmentOutput = {},
 > = Simplify<
-  { [K in MetaFieldName]: CollectionEntryMeta<Ext> } & ResolveEntry<
+  { [K in typeof META_FIELD_NAME]: CollectionEntryMeta<Ext> } & ResolveEntry<
     Schema,
     Rels,
     NormalizeDepth<R>
@@ -106,7 +117,7 @@ export type AnyCollection = {
   getAll(options?: GetterOptions<undefined>): Promise<
     Array<
       Record<string, unknown> & {
-        [K in MetaFieldName]: CollectionEntryMeta<SupportedFileExtension>;
+        [K in typeof META_FIELD_NAME]: CollectionEntryMeta;
       }
     >
   >;
@@ -115,7 +126,7 @@ export type AnyCollection = {
     options?: GetterOptions<undefined>,
   ): Promise<
     Record<string, unknown> & {
-      [K in MetaFieldName]: CollectionEntryMeta<SupportedFileExtension>;
+      [K in typeof META_FIELD_NAME]: CollectionEntryMeta;
     }
   >;
 };

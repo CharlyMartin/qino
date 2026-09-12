@@ -7,15 +7,10 @@ export type {
   AnyCollection,
   AnyCollectionMeta,
   Collection,
+  CollectionEntryMeta,
   ResolvedCollectionView,
 } from "./collection";
 export type { CollectionViewFactory } from "./collection-views";
-export type {
-  AnyEntry,
-  CollectionEntryMeta,
-  SingletonEntryMeta,
-  TreeEntryMeta,
-} from "./entry";
 export type { Infer } from "./infer";
 export type { Relations, RelationTarget } from "./relations";
 export type { ResolveOption } from "./resolve";
@@ -26,6 +21,7 @@ export type {
   ExtractSingletonExtension,
   ResolvedSingletonView,
   Singleton,
+  SingletonEntryMeta,
   SingletonFile,
 } from "./singleton";
 export type { QinoSlugRegistry, SlugFor } from "./slug-registry";
@@ -35,10 +31,12 @@ export type {
   ResolvedTreeEntry,
   StringKeys,
   Tree,
+  TreeEntryMeta,
   TreeMeta,
   TreeNode,
 } from "./tree";
 export type {
+  AnyEntry,
   AnyPrimitive,
   GenericPath,
   GetterOptions,

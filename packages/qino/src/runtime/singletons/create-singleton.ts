@@ -23,7 +23,7 @@ import type {
   SingletonFile,
 } from "../../types";
 import type { EntryAugment } from "../../types/augment";
-import type { SingletonEntryMeta } from "../../types/entry";
+import type { SingletonEntryMeta } from "../../types/singleton";
 import type {
   ConfiguredViews,
   SelectedView,

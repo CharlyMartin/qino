@@ -1,7 +1,19 @@
-import type { JSON_PATH_ARRAY, SUPPORTED_CONTENT_EXTENSIONS } from "../data";
-import type { AnyCollection, AnyCollectionMeta } from "./collection";
-import type { AnySingleton, AnySingletonMeta } from "./singleton";
-import type { AnyTree, AnyTreeMeta } from "./tree";
+import type {
+  JSON_PATH_ARRAY,
+  META_FIELD_NAME,
+  SUPPORTED_CONTENT_EXTENSIONS,
+} from "../data";
+import type {
+  AnyCollection,
+  AnyCollectionMeta,
+  CollectionEntryMeta,
+} from "./collection";
+import type {
+  AnySingleton,
+  AnySingletonMeta,
+  SingletonEntryMeta,
+} from "./singleton";
+import type { AnyTree, AnyTreeMeta, TreeEntryMeta } from "./tree";
 
 export type SupportedFileExtension =
   (typeof SUPPORTED_CONTENT_EXTENSIONS)[number];
@@ -17,10 +29,17 @@ export type GetterOptions<View extends string | undefined = string> = {
   sort?: never;
 };
 
-export type Slug = string;
+export type Slug<S extends string = string> = S;
 
 export type AnyPrimitive = AnyCollection | AnySingleton | AnyTree;
 export type AnyPrimitiveMeta =
   | AnyCollectionMeta
   | AnySingletonMeta
   | AnyTreeMeta;
+
+export type AnyEntry = Record<string, unknown> & {
+  [K in typeof META_FIELD_NAME]:
+    | CollectionEntryMeta
+    | SingletonEntryMeta
+    | TreeEntryMeta;
+};

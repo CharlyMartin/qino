@@ -1,8 +1,11 @@
 import type { Simplify } from "type-fest";
 
-import type { QinoPrimitiveMarker, QinoPrimitives } from "../data";
+import type {
+  META_FIELD_NAME,
+  QinoPrimitiveMarker,
+  QinoPrimitives,
+} from "../data";
 import type { AugmentOutput } from "./augment";
-import type { MetaFieldName, TreeEntryMeta } from "./entry";
 import type { PrimitiveInference } from "./infer";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
@@ -15,6 +18,14 @@ import type {
   SupportedFileExtension,
 } from "./utils";
 import type { SelectedView, ViewArguments, ViewSelection } from "./views";
+
+export type TreeEntryMeta<
+  Ext extends SupportedFileExtension = SupportedFileExtension,
+> = {
+  slug: Slug;
+  fileName: `${string}${Ext}`;
+  filePath: `${string}${Ext}`;
+};
 
 export type StringKeys<Schema extends ObjectSchema> = {
   [K in keyof ValidatedOutput<Schema> &
@@ -95,7 +106,7 @@ export type ResolvedTreeEntry<
   R extends ResolveOption,
   Derived extends AugmentOutput = {},
 > = Simplify<
-  { [K in MetaFieldName]: TreeEntryMeta<Ext> } & ResolveEntry<
+  { [K in typeof META_FIELD_NAME]: TreeEntryMeta<Ext> } & ResolveEntry<
     Schema,
     Rels,
     NormalizeDepth<R>
@@ -114,10 +125,10 @@ export type AnyTreeMeta = {
   readonly orderFileName: string;
   readonly relations: Relations<ObjectSchema>;
   readonly resolveRelations: ResolveOption;
-  readonly readEntry: (slug: Slug) => Promise<
-    Record<string, unknown> & {
-      [K in MetaFieldName]: TreeEntryMeta<SupportedFileExtension>;
-    }
+  readonly readEntry: (
+    slug: Slug,
+  ) => Promise<
+    Record<string, unknown> & { [K in typeof META_FIELD_NAME]: TreeEntryMeta }
   >;
 };
 
@@ -130,9 +141,7 @@ export type AnyTree = {
     slug: Slug,
     options?: GetterOptions<undefined>,
   ): Promise<
-    Record<string, unknown> & {
-      [K in MetaFieldName]: TreeEntryMeta<SupportedFileExtension>;
-    }
+    Record<string, unknown> & { [K in typeof META_FIELD_NAME]: TreeEntryMeta }
   >;
   getNextNode(slug: Slug): Promise<TreeNode | null>;
   getPreviousNode(slug: Slug): Promise<TreeNode | null>;

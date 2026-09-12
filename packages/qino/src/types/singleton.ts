@@ -1,8 +1,11 @@
 import type { Simplify } from "type-fest";
 
-import type { QinoPrimitiveMarker, QinoPrimitives } from "../data";
+import type {
+  META_FIELD_NAME,
+  QinoPrimitiveMarker,
+  QinoPrimitives,
+} from "../data";
 import type { AugmentOutput } from "./augment";
-import type { MetaFieldName, SingletonEntryMeta } from "./entry";
 import type { PrimitiveInference } from "./infer";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
@@ -13,6 +16,13 @@ import type {
   SupportedFileExtension,
 } from "./utils";
 import type { SelectedView, ViewArguments, ViewSelection } from "./views";
+
+export type SingletonEntryMeta<
+  Ext extends SupportedFileExtension = SupportedFileExtension,
+> = {
+  fileName: `${string}${Ext}`;
+  filePath: `${string}${Ext}`;
+};
 
 export type SingletonMeta<
   Schema extends ObjectSchema,
@@ -35,7 +45,7 @@ export type AnySingleton = {
   readonly [QinoPrimitiveMarker]: SingletonMeta<ObjectSchema>;
   getData(options?: GetterOptions<undefined>): Promise<
     Record<string, unknown> & {
-      [K in MetaFieldName]: SingletonEntryMeta<SupportedFileExtension>;
+      [K in typeof META_FIELD_NAME]: SingletonEntryMeta;
     }
   >;
 };
@@ -95,7 +105,7 @@ export type ResolvedSingletonView<
   R extends ResolveOption,
   Derived extends AugmentOutput = {},
 > = Simplify<
-  { [K in MetaFieldName]: SingletonEntryMeta<Ext> } & ResolveEntry<
+  { [K in typeof META_FIELD_NAME]: SingletonEntryMeta<Ext> } & ResolveEntry<
     Schema,
     Rels,
     NormalizeDepth<R>

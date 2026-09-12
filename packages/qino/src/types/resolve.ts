@@ -2,16 +2,14 @@ import type { IntClosedRange, Simplify, Subtract } from "type-fest";
 
 import type {
   MAX_RESOLVE_DEPTH,
+  META_FIELD_NAME,
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../data";
-import type {
-  CollectionEntryMeta,
-  MetaFieldName,
-  SingletonEntryMeta,
-  TreeEntryMeta,
-} from "./entry";
+import type { CollectionEntryMeta } from "./collection";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
+import type { SingletonEntryMeta } from "./singleton";
+import type { TreeEntryMeta } from "./tree";
 import type { JsonPathArray, SupportedFileExtension } from "./utils";
 
 export type MaxDepth = typeof MAX_RESOLVE_DEPTH;
@@ -73,7 +71,7 @@ type ResolveRelationTarget<C, NextD extends Depth> = C extends {
     ? S extends ObjectSchema
       ? Simplify<
           {
-            [K in MetaFieldName]: Kind extends (typeof QinoPrimitives)["tree"]
+            [K in typeof META_FIELD_NAME]: Kind extends (typeof QinoPrimitives)["tree"]
               ? TreeEntryMeta<Ext>
               : CollectionEntryMeta<Ext>;
           } & ResolveEntry<S, Rels, NextD>
@@ -92,7 +90,7 @@ type ResolveRelationTarget<C, NextD extends Depth> = C extends {
       ? S extends ObjectSchema
         ? Simplify<
             {
-              [K in MetaFieldName]: SingletonEntryMeta<Ext>;
+              [K in typeof META_FIELD_NAME]: SingletonEntryMeta<Ext>;
             } & ResolveEntry<S, Rels, NextD>
           >
         : never
