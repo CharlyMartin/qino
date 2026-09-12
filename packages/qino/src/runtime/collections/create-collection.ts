@@ -25,12 +25,12 @@ import type {
   SupportedFileExtension,
 } from "../../types";
 import type { EntryAugment } from "../../types/augment";
+import type { CollectionEntryMeta } from "../../types/collection";
 import type {
   CollectionDefaultCallbacks,
   CollectionViewDefinition,
   CollectionViewFactory,
 } from "../../types/collection-views";
-import type { CollectionEntryMeta } from "../../types/entry";
 import type { Slug } from "../../types/utils";
 import type {
   ConfiguredViews,

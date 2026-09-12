@@ -1,13 +1,12 @@
-import type {
-  CollectionEntryMeta,
-  CollectionViewFactory,
-  SingletonEntryMeta,
-  TreeEntryMeta,
-  ViewFactory,
-} from "qino";
 import { createQino } from "qino";
 import { expectTypeOf, test } from "vitest";
 import { z } from "zod";
+
+import type { CollectionEntryMeta } from "./collection";
+import type { CollectionViewFactory } from "./collection-views";
+import type { SingletonEntryMeta } from "./singleton";
+import type { TreeEntryMeta } from "./tree";
+import type { ViewFactory } from "./views";
 
 const schema = z.object({ title: z.string(), body: z.string() });
 const qino = createQino({ contentFolder: "content", mediaFolder: "public" });

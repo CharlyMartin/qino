@@ -2,7 +2,7 @@ import { describe, expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
 import { createQino } from "../runtime/qino/create-qino";
-import type { TreeEntryMeta } from "./entry";
+import type { TreeEntryMeta } from "./tree";
 
 const { createCollection, createSingleton, createTree } = createQino({
   contentFolder: "src/content",
