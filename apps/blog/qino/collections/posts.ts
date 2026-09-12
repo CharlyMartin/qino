@@ -1,4 +1,4 @@
-import { jsonFileNameSchema, markdown } from "qino/utils";
+import { markdown } from "qino/utils";
 import { z } from "zod";
 
 import qino from "../";
@@ -10,9 +10,9 @@ const PostSchema = z
     title: z.string(),
     "created-on": z.string(),
     "updated-on": z.string(),
-    categories: z.array(jsonFileNameSchema),
+    categories: z.array(z.string()),
     image: z.string(),
-    author: jsonFileNameSchema,
+    author: z.string(),
     body: z.string(),
   })
   .strict();
