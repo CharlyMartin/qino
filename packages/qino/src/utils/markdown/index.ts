@@ -1,2 +1,4 @@
 export type { MarkdownStats } from "./stats";
-export { stats } from "./stats";
+
+import { stats } from "./stats";
+export const markdown = { stats } as const;
