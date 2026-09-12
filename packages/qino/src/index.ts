@@ -3,6 +3,7 @@ export type {
   Collection,
   CollectionEntryMeta,
   CollectionViewFactory,
+  Infer,
   QinoSlugRegistry,
   Singleton,
   SingletonEntryMeta,

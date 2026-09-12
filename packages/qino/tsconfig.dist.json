@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "qino": ["./dist/index.d.mts"]
+    }
+  },
+  "include": ["src/types/infer.test-d.ts"]
+}

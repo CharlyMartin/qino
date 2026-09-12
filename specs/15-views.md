@@ -81,6 +81,34 @@ config, even when named views exist. This is the implicit default view.
 Only declared custom view names autocomplete and type-check. Unknown names
 also fail at runtime.
 
+## Output type inference
+
+The public type-only `Infer` helper exposes the default entry output and each
+declared named view output for a collection, tree, or singleton:
+
+```ts
+import type { Infer } from "qino";
+
+type PostTypes = Infer<typeof postCollection>;
+type Post = PostTypes["output"];
+type DetailPost = PostTypes["views"]["detail"];
+```
+
+Each output matches the corresponding getter result, including validated schema
+output, relation resolution, awaited augmentation, and primitive-specific
+`_meta`. Collection output represents one entry rather than an array; tree output
+represents a content entry rather than a navigation node. Named views retain
+their independent settings and existing embedded relation semantics.
+
+Only declared custom names appear in `views`. With omitted or empty views its
+key set is empty, and the implicit default is accessed exclusively through
+`output`. Invalid primitive inputs and unknown view names are compile-time
+errors. The descriptor has no runtime representation and cannot collide with
+content fields named `output` or `views`, which remain inside the entry type.
+
+Inference requires the original primitive type. Widening to an internal generic
+primitive type erases this metadata, so `Infer` returns `never`.
+
 ## Required primitive-specific helpers
 
 All three primitives require the same helper syntax for custom views:

@@ -3,6 +3,7 @@ import type { Simplify } from "type-fest";
 import type { QinoPrimitiveMarker, QinoPrimitives } from "../data";
 import type { AugmentOutput } from "./augment";
 import type { MetaFieldName, SingletonEntryMeta } from "./entry";
+import type { PrimitiveInference } from "./infer";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
@@ -48,7 +49,14 @@ export type Singleton<
   DefaultR extends ResolveOption = false,
   Derived extends AugmentOutput = {},
   Views extends object = object,
-> = {
+> = PrimitiveInference<
+  Schema,
+  SingletonEntryMeta<Ext>,
+  Rels,
+  DefaultR,
+  Derived,
+  Views
+> & {
   readonly [QinoPrimitiveMarker]: SingletonMeta<Schema, Ext, Rels>;
   getData<Args extends ViewArguments<Views> = []>(
     ...args: Args

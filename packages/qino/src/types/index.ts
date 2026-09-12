@@ -16,6 +16,7 @@ export type {
   SingletonEntryMeta,
   TreeEntryMeta,
 } from "./entry";
+export type { Infer } from "./infer";
 export type { Relations, RelationTarget } from "./relations";
 export type { ResolveOption } from "./resolve";
 export type { ObjectSchema } from "./schema";

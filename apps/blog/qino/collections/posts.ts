@@ -1,3 +1,4 @@
+import type { Infer } from "qino";
 import { markdown } from "qino/utils";
 import { z } from "zod";
 
@@ -39,3 +40,6 @@ export const postCollection = qino.createCollection({
     }),
   }),
 });
+
+type PostConfig = Infer<typeof postCollection>;
+export type Post = PostConfig["output"];

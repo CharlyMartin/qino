@@ -33,7 +33,7 @@
     "pack:test": "pnpm build && pnpm pack --pack-destination ../../../portfolio/v4",
     "check-types": "tsc --noEmit",
     "test": "vitest run",
-    "test:dist": "node --input-type=module -e \"await import('./dist/index.mjs'); await import('./dist/utils.mjs')\"",
+    "test:dist": "tsc --project tsconfig.dist.json && node --input-type=module -e \"await import('./dist/index.mjs'); await import('./dist/utils.mjs')\"",
     "test:watch": "vitest"
   },
   "publishConfig": {
