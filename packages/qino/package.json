@@ -1,6 +1,6 @@
 {
   "name": "qino",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "The modern headless Markdown CMS",
   "license": "MIT",
   "type": "module",
@@ -33,6 +33,7 @@
     "pack:test": "pnpm build && pnpm pack --pack-destination ../../../portfolio/v4",
     "check-types": "tsc --noEmit",
     "test": "vitest run",
+    "test:dist": "node --input-type=module -e \"await import('./dist/index.mjs'); await import('./dist/utils.mjs')\"",
     "test:watch": "vitest"
   },
   "publishConfig": {
@@ -58,6 +59,7 @@
     "fast-glob": "3.3.3",
     "gray-matter": "4.0.3",
     "jiti": "2.6.1",
+    "js-yaml": "3.14.2",
     "pluralize": "8.0.0",
     "remark-gfm": "4.0.1",
     "remark-mdx": "3.1.1",
@@ -67,6 +69,7 @@
     "zod": "4.5.4"
   },
   "devDependencies": {
+    "@types/js-yaml": "3.12.10",
     "@types/node": ">=22",
     "@types/pluralize": "0.0.33",
     "expect-type": "1.4.0",
