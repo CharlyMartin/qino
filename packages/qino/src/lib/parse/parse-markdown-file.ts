@@ -3,6 +3,7 @@ import matter from "gray-matter";
 
 import { MARKDOWN_BODY_FIELD_NAME } from "../../data";
 import type { ValidateParams, validate } from "../validate";
+import { parseYaml } from "./parse-yaml";
 
 type ParseMarkdownFileParams<S extends StandardSchemaV1> = ValidateParams<S> & {
   data: string;
@@ -15,7 +16,7 @@ export function parseMarkdownFile<S extends StandardSchemaV1>({
   filePath,
   validatorFn,
 }: ParseMarkdownFileParams<S>) {
-  const parsed = matter(data);
+  const parsed = matter(data, { engines: { yaml: parseYaml } });
   const augmentedData = {
     ...parsed.data,
     [MARKDOWN_BODY_FIELD_NAME]: parsed.content,
