@@ -3,6 +3,7 @@ import type { Simplify } from "type-fest";
 import type { QinoPrimitiveMarker, QinoPrimitives } from "../data";
 import type { AugmentOutput } from "./augment";
 import type { MetaFieldName, TreeEntryMeta } from "./entry";
+import type { PrimitiveInference } from "./infer";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
@@ -57,7 +58,14 @@ export type Tree<
   Dir extends GenericPath = GenericPath,
   Derived extends AugmentOutput = {},
   Views extends object = object,
-> = {
+> = PrimitiveInference<
+  Schema,
+  TreeEntryMeta<Ext>,
+  Rels,
+  DefaultR,
+  Derived,
+  Views
+> & {
   readonly [QinoPrimitiveMarker]: TreeMeta<Schema, Ext, Title, Rels>;
   getTree(): Promise<Array<TreeNode>>;
   getTree(slug: SlugFor<Dir>): Promise<TreeNode>;

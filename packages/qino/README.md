@@ -62,6 +62,26 @@ Resolution now defaults to `false` for the implicit default and all named views.
 If existing code requires expanded relations, add `resolveRelations: true` or a
 numeric depth to that configuration.
 
+### Inferring output types
+
+Use the type-only `Infer` helper with a collection, tree, or singleton:
+
+```ts
+import type { Infer } from "qino";
+
+type PostTypes = Infer<typeof posts>;
+type Post = PostTypes["output"];
+type DetailPost = PostTypes["views"]["detail"];
+```
+
+Outputs match getter results, including schema transformations, resolved
+relations, awaited augmentation, and `_meta`. Each output describes one content
+entry; use `Array<Post>` for a list. `views` contains only declared named views.
+The descriptor exists only in TypeScript.
+
+See the [output inference specification](../../specs/15-views.md#output-type-inference)
+for default-view behavior and other details.
+
 ### Required view helpers
 
 All three primitives require the same helper syntax for custom views:

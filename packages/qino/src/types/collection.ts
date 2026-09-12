@@ -3,6 +3,7 @@ import type { Simplify } from "type-fest";
 import type { QinoPrimitiveMarker, QinoPrimitives } from "../data";
 import type { AugmentOutput } from "./augment";
 import type { CollectionEntryMeta, MetaFieldName } from "./entry";
+import type { PrimitiveInference } from "./infer";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
@@ -23,7 +24,14 @@ export type Collection<
   Dir extends GenericPath = GenericPath,
   Derived extends AugmentOutput = {},
   Views extends object = object,
-> = {
+> = PrimitiveInference<
+  Schema,
+  CollectionEntryMeta<Ext>,
+  Rels,
+  DefaultR,
+  Derived,
+  Views
+> & {
   readonly [QinoPrimitiveMarker]: CollectionMeta<Schema, Ext, Rels>;
   getAllSlugs(): Promise<Array<SlugFor<Dir>>>;
   getAll<Args extends ViewArguments<Views> = []>(
