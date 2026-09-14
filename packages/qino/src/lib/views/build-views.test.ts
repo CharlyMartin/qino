@@ -6,7 +6,7 @@ import { defineView } from "./define-view";
 describe.each([
   "collection",
   "tree",
-  "singleton",
+  "item",
 ] as const)("%s view construction", (primitive) => {
   test("allows omitted views and evaluates the factory once", () => {
     expect(buildViews(undefined, primitive)).toBeUndefined();
@@ -50,7 +50,7 @@ describe.each([
 
 test.each([
   "tree",
-  "singleton",
+  "item",
 ] as const)("%s rejects a collection helper result containing unsupported options", (primitive) => {
   for (const override of [
     { filter: () => true },
@@ -70,7 +70,7 @@ test.each([
 
 test.each([
   "tree",
-  "singleton",
+  "item",
 ] as const)("%s accepts spread undefined options in marked definitions", (primitive) => {
   const detail = {
     ...defineView({}, primitive),
@@ -85,7 +85,7 @@ test.each([
 test.each([
   "collection",
   "tree",
-  "singleton",
+  "item",
 ] as const)("%s requires an own default view", (primitive) => {
   for (const result of [{}, { detail: defineView({}, primitive) }]) {
     expect(() => buildViews(() => result, primitive)).toThrow(

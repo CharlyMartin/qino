@@ -10,8 +10,7 @@ export async function load() {
   const rootDirPath = await getRootDirPath();
   const entryFilePath = getEntryFilePath(rootDirPath);
 
-  const { collections, singletons, trees } =
-    await loadQinoPrimitives(rootDirPath);
+  const { collections, items, trees } = await loadQinoPrimitives(rootDirPath);
 
   const config = await loadQinoConfig(entryFilePath);
 
@@ -19,7 +18,7 @@ export async function load() {
     entryFilePath,
     context: config[QinoConfigMarker],
     collections,
-    singletons,
+    items,
     trees,
   };
 }

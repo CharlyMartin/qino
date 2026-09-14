@@ -1,11 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { isTree } from "./is-tree";
-import {
-  makeDummyCollection,
-  makeDummySingleton,
-  makeDummyTree,
-} from "./tests";
+import { makeDummyCollection, makeDummyItem, makeDummyTree } from "./tests";
 
 describe("isTree", () => {
   test("returns true for a tree", () => {
@@ -20,7 +16,7 @@ describe("isTree", () => {
     ).toBe(false);
   });
 
-  test("returns false for a singleton", () => {
-    expect(isTree(makeDummySingleton({ file: "/config.json" }))).toBe(false);
+  test("returns false for an item", () => {
+    expect(isTree(makeDummyItem({ file: "/config.json" }))).toBe(false);
   });
 });

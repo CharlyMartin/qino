@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import type { CollectionEntryMeta } from "./collection";
 import type { CollectionViewFactory } from "./collection-views";
-import type { SingletonEntryMeta } from "./singleton";
+import type { ItemEntryMeta } from "./item";
 import type { TreeEntryMeta } from "./tree";
 import type { ViewFactory } from "./views";
 
@@ -36,8 +36,8 @@ function treePreview(
   return view({ augment: (entry) => ({ source: entry._meta.slug }) });
 }
 
-function singletonPreview(
-  view: ViewFactory<typeof schema, SingletonEntryMeta<".json">, object>,
+function itemPreview(
+  view: ViewFactory<typeof schema, ItemEntryMeta<".json">, object>,
 ) {
   expectTypeOf<keyof Parameters<typeof view>[0]>().toEqualTypeOf<
     "resolveRelations" | "augment"
@@ -46,23 +46,23 @@ function singletonPreview(
 }
 
 test("public factory types support reusable views with inferred getter results", async () => {
-  const posts = qino.createCollection({
+  const posts = qino.defineCollection({
     directory: "/posts",
     extension: ".md",
     schema,
     views: (view) => ({ default: view({}), reading: withReadingTime(view) }),
   });
-  const tree = qino.createTree({
+  const tree = qino.defineTree({
     directory: "/docs",
     extension: ".md",
     titleField: "title",
     schema,
     views: (view) => ({ default: view({}), preview: treePreview(view) }),
   });
-  const home = qino.createSingleton({
+  const home = qino.defineItem({
     file: "/home.json",
     schema,
-    views: (view) => ({ default: view({}), preview: singletonPreview(view) }),
+    views: (view) => ({ default: view({}), preview: itemPreview(view) }),
   });
   const omitted = {
     filter: undefined,

@@ -32,8 +32,8 @@ async function writeMd(dir: string, name: string, title: string) {
 }
 
 function makeTree() {
-  const { createTree } = createQino({ contentFolder: tmp, mediaFolder: tmp });
-  return createTree({
+  const { defineTree } = createQino({ contentFolder: tmp, mediaFolder: tmp });
+  return defineTree({
     directory: "/guides",
     schema: Schema,
     extension: ".md",

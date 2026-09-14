@@ -12,7 +12,7 @@ const HomeSchema = z
   })
   .strict();
 
-export const homeSingleton = qino.createSingleton({
+export const homeItem = qino.defineItem({
   file: "/pages/home.md",
   schema: HomeSchema,
   relations: {

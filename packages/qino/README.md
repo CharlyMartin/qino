@@ -5,25 +5,25 @@ Flat-file Markdown CMS. Requires Node.js 22 or newer. See [`SPECS.md`](../../SPE
 ## Path validation
 
 Run `qino lint` or `qino build` to detect duplicate or overlapping collection,
-tree, and singleton paths. Importing definitions does not check path conflicts,
+tree, and item paths. Importing definitions does not check path conflicts,
 so hot reload can recreate definitions on the same Qino instance without stale
 registrations. Include either command in your build or CI workflow to enforce
 path ownership.
 
 ## Views
 
-Collections, trees, and singletons can expose different shapes of the same content:
+Collections, trees, and items can expose different shapes of the same content:
 
 ```ts
 const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
 
-const authors = qino.createCollection({
+const authors = qino.defineCollection({
   directory: "/authors",
   extension: ".json",
   schema: z.object({ name: z.string() }),
 });
 
-const posts = qino.createCollection({
+const posts = qino.defineCollection({
   directory: "/posts",
   extension: ".md",
   schema: z.object({ title: z.string(), body: z.string(), author: z.string() }),
@@ -65,7 +65,7 @@ accept view selection only, with no per-call resolution or callback overrides.
 
 ### Inferring output types
 
-Use the type-only `Infer` helper with a collection, tree, or singleton:
+Use the type-only `Infer` helper with a collection, tree, or item:
 
 ```ts
 import type { Infer } from "qino";
@@ -109,14 +109,14 @@ Legacy object-form views and unwrapped definitions fail in TypeScript and at run
 
 The supplied helper exposes only the options supported by its primitive:
 
-| Option             | Collection | Tree | Singleton |
-| ------------------ | ---------- | ---- | --------- |
-| `resolveRelations` | Yes        | Yes  | Yes       |
-| `augment`          | Yes        | Yes  | Yes       |
-| `filter`           | Yes        | No   | No        |
-| `sort`             | Yes        | No   | No        |
+| Option             | Collection | Tree | Item |
+| ------------------ | ---------- | ---- | ---- |
+| `resolveRelations` | Yes        | Yes  | Yes  |
+| `augment`          | Yes        | Yes  | Yes  |
+| `filter`           | Yes        | No   | No   |
+| `sort`             | Yes        | No   | No   |
 
-Tree and singleton helpers omit filter and sort from autocomplete and reject them
+Tree and item helpers omit filter and sort from autocomplete and reject them
 in TypeScript and at runtime. Tree sorting still uses `_order.json`; tree filtering
 remains future work. Each helper infers its primitive's schema, metadata, resolved
 relations, and augmented fields. Views inherit no sibling settings, including those of `default`.
@@ -132,7 +132,7 @@ import { markdown } from "qino/utils";
 import { z } from "zod";
 
 const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
-const posts = qino.createCollection({
+const posts = qino.defineCollection({
   directory: "/posts",
   extension: ".md",
   schema: z.object({
@@ -158,7 +158,7 @@ const entries = await posts.getMany({ view: "highlight" });
 
 Spreading preserves the base's settings; independent `view({})` calls start from
 baseline behavior. TypeScript checks callback compatibility when overriding
-settings such as relation depth. Tree and singleton helpers support the same
+settings such as relation depth. Tree and item helpers support the same
 reuse pattern for resolution and augmentation.
 
 Spread replaces callbacks; it does not compose them or merge their outputs.
@@ -180,7 +180,7 @@ are cleared because the replacement augmentation supplies a different shape.
 Explicit `undefined` in getter options is treated as omission, including when
 options are spread. Actual per-call resolution, filter, and sort overrides still
 throw. Runtime checks likewise ignore undefined filter/sort values in tree and
-singleton definitions while rejecting any supplied value, including `null`.
+item definitions while rejecting any supplied value, including `null`.
 
 ## Collection filtering and sorting
 
@@ -190,7 +190,7 @@ augmentation for both `getMany()` and `getOne()`. Sorting follows filtering for
 `getMany()` only.
 
 ```ts
-const posts = qino.createCollection({
+const posts = qino.defineCollection({
   directory: "/posts",
   extension: ".md",
   schema: z.object({ title: z.string(), draft: z.boolean() }),
@@ -228,29 +228,29 @@ The error names the slug, collection, and view. Omitting `view` uses the default
 filter; an independent view without a filter can read every entry.
 Slug discovery, CLI validation, and relation loading bypass both callbacks. Getters accept view selection, not
 filter or sort overrides. Trees keep `_order.json` ordering; tree filtering is
-future work. Singletons have neither callback.
+future work. Items have neither callback.
 
 ## Relations
 
-Collections, trees, and singletons can each reference any of the three types:
+Collections, trees, and items can each reference any of the three types:
 
-| Source → Target | Collection | Tree | Singleton |
-| --------------- | ---------- | ---- | --------- |
-| Collection      | Yes        | Yes  | Yes       |
-| Tree            | Yes        | Yes  | Yes       |
-| Singleton       | Yes        | Yes  | Yes       |
+| Source → Target | Collection | Tree | Item |
+| --------------- | ---------- | ---- | ---- |
+| Collection      | Yes        | Yes  | Yes  |
+| Tree            | Yes        | Yes  | Yes  |
+| Item            | Yes        | Yes  | Yes  |
 
 Declare a target directly or with a lazy function for forward references:
 
 ```ts
-const docs = qino.createTree({
+const docs = qino.defineTree({
   directory: "/docs",
   extension: ".md",
   titleField: "title",
   schema: z.object({ title: z.string(), body: z.string() }),
 });
 
-const home = qino.createSingleton({
+const home = qino.defineItem({
   views: (view) => ({
     default: view({
       resolveRelations: 1,
@@ -268,8 +268,8 @@ const home = qino.createSingleton({
 In `home.json`, store references such as `"featuredDoc": "docs/guides/setup.md"`.
 A tree target resolves to that file's content and `_meta` (including the nested
 slug `guides/setup`), without children or navigation data. The directory and
-extension must match the target; a leading `/` is optional. Singleton references
-must match the singleton's configured file.
+extension must match the target; a leading `/` is optional. Item references
+must match the item's configured file.
 
 Relations resolve only when enabled on the source's default or named view.
 Numeric depths allow 1–6 relation hops; `true` means 6. Embedded targets bypass

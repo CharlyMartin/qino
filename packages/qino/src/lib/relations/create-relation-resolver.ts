@@ -1,7 +1,7 @@
 import { QinoPrimitiveMarker } from "../../data";
 import type { AnyEntry, AnyPrimitive, RelationTarget } from "../../types";
 import type { Slug } from "../../types/utils";
-import { isSingleton } from "../../utils/is-singleton";
+import { isItem } from "../../utils/is-item";
 import type { ResolveCache } from "./create-resolve-cache";
 import { fetchTargetEntry } from "./fetch-target-entry";
 import { parsePath } from "./parse-path";
@@ -117,7 +117,7 @@ function getOrCreateEntryCache(cache: ResolveCache, cacheKey: string) {
 }
 
 function getTargetUniquePath(target: AnyPrimitive) {
-  return isSingleton(target)
+  return isItem(target)
     ? target[QinoPrimitiveMarker].file
     : target[QinoPrimitiveMarker].directory;
 }

@@ -7,7 +7,7 @@ import { z } from "zod";
 
 import { collectTreeSlugs } from "../cli/build/collect-tree-slugs";
 import { validateCollection } from "../cli/check/validate-collection";
-import { validateSingleton } from "../cli/check/validate-singleton";
+import { validateItem } from "../cli/check/validate-item";
 import { validateTree } from "../cli/check/validate-tree";
 import { createQino } from "./qino/create-qino";
 
@@ -48,23 +48,19 @@ afterEach(async () => {
   await fs.rm(tmp, { recursive: true, force: true });
 });
 
-describe.each([
-  "collection",
-  "tree",
-  "singleton",
-])("%s target", (targetKind) => {
+describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
   describe.each([
     "collection one",
     "collection all",
     "tree",
-    "singleton",
+    "item",
   ])("%s views", (kind) => {
     test("resolves before augmenting, keeps views independent, and bypasses target augments", async () => {
       const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
       const targetAugment = vi.fn(() => {
         throw new Error("Target augment must not execute");
       });
-      const senior = qino.createSingleton({
+      const senior = qino.defineItem({
         file: "/senior.json",
         schema: z.object({ name: z.string() }),
         views: (view) => ({
@@ -84,7 +80,7 @@ describe.each([
       };
       const authors =
         targetKind == "tree"
-          ? qino.createTree({
+          ? qino.defineTree({
               ...authorConfig,
               views: (view) => ({
                 default: view({ ...authorConfigView }),
@@ -94,8 +90,8 @@ describe.each([
               extension: ".json",
               titleField: "name",
             })
-          : targetKind == "singleton"
-            ? qino.createSingleton({
+          : targetKind == "item"
+            ? qino.defineItem({
                 ...authorConfig,
                 views: (view) => ({
                   default: view({ ...authorConfigView }),
@@ -103,7 +99,7 @@ describe.each([
                 }),
                 file: "/authors/alice.json",
               })
-            : qino.createCollection({
+            : qino.defineCollection({
                 ...authorConfig,
                 views: (view) => ({
                   default: view({ ...authorConfigView }),
@@ -132,7 +128,7 @@ describe.each([
         schema: z.object({ title: z.string(), author: z.string() }),
         relations: { author: () => authors },
       };
-      const collection = qino.createCollection({
+      const collection = qino.defineCollection({
         ...config,
         views: (view) => ({
           default: view({ ...configView }),
@@ -147,7 +143,7 @@ describe.each([
         directory: "/posts",
         extension: ".json",
       });
-      const tree = qino.createTree({
+      const tree = qino.defineTree({
         ...config,
         views: (view) => ({
           default: view({ ...configView }),
@@ -163,7 +159,7 @@ describe.each([
         extension: ".json",
         titleField: "title",
       });
-      const singleton = qino.createSingleton({
+      const item = qino.defineItem({
         ...config,
         views: (view) => ({
           default: view({ ...configView }),
@@ -187,9 +183,9 @@ describe.each([
         tree: async (
           options?: NonNullable<Parameters<typeof collection.getMany>[0]>,
         ) => [await tree.getEntry("hello", options)],
-        singleton: async (
+        item: async (
           options?: NonNullable<Parameters<typeof collection.getMany>[0]>,
-        ) => [await singleton.getData(options)],
+        ) => [await item.getData(options)],
       };
       const read = readers[kind as keyof typeof readers];
       const defaultEntries = await read();
@@ -244,7 +240,7 @@ describe.each([
 
 test("default getters preserve references and run augment without loading targets", async () => {
   const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-  const authors = qino.createCollection({
+  const authors = qino.defineCollection({
     directory: "/authors",
     extension: ".json",
     schema: z.object({ name: z.string() }),
@@ -257,20 +253,20 @@ test("default getters preserve references and run augment without loading target
     schema: z.object({ title: z.string(), author: z.string() }),
     relations: { author: authors },
   };
-  const collection = qino.createCollection({
+  const collection = qino.defineCollection({
     views: (view) => ({ default: view({ ...configView }) }),
     ...config,
     directory: "/posts",
     extension: ".json",
   });
-  const tree = qino.createTree({
+  const tree = qino.defineTree({
     views: (view) => ({ default: view({ ...configView }) }),
     ...config,
     directory: "/docs",
     extension: ".json",
     titleField: "title",
   });
-  const singleton = qino.createSingleton({
+  const item = qino.defineItem({
     views: (view) => ({ default: view({ ...configView }) }),
     ...config,
     file: "/home.json",
@@ -279,7 +275,7 @@ test("default getters preserve references and run augment without loading target
     await collection.getOne("hello"),
     ...(await collection.getMany()),
     await tree.getEntry("hello"),
-    await singleton.getData(),
+    await item.getData(),
   ]) {
     expect(entry).toMatchObject({
       author: "/authors/alice.json",
@@ -294,7 +290,7 @@ test("collection listing callbacks receive resolved augmented entries and bypass
   const targetSort = vi.fn(() => {
     throw new Error("Target sort must not run");
   });
-  const authors = qino.createCollection({
+  const authors = qino.defineCollection({
     views: (view) => ({
       default: view({
         filter: targetFilter,
@@ -305,7 +301,7 @@ test("collection listing callbacks receive resolved augmented entries and bypass
     extension: ".json",
     schema: z.object({ name: z.string() }),
   });
-  const collection = qino.createCollection({
+  const collection = qino.defineCollection({
     directory: "/posts",
     extension: ".json",
     schema: z.object({ title: z.string(), author: z.string() }),
@@ -346,7 +342,7 @@ test("collection listing callbacks receive resolved augmented entries and bypass
 
 test("explicit resolution on the default runs before augmenting on every primitive", async () => {
   const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-  const authors = qino.createCollection({
+  const authors = qino.defineCollection({
     directory: "/authors",
     extension: ".json",
     schema: z.object({ name: z.string() }),
@@ -361,20 +357,20 @@ test("explicit resolution on the default runs before augmenting on every primiti
     schema: z.object({ title: z.string(), author: z.string() }),
     relations: { author: authors },
   };
-  const collection = qino.createCollection({
+  const collection = qino.defineCollection({
     ...config,
     views: (view) => ({ default: view({ ...configView }), raw: view({}) }),
     directory: "/posts",
     extension: ".json",
   });
-  const tree = qino.createTree({
+  const tree = qino.defineTree({
     ...config,
     views: (view) => ({ default: view({ ...configView }), raw: view({}) }),
     directory: "/docs",
     extension: ".json",
     titleField: "title",
   });
-  const singleton = qino.createSingleton({
+  const item = qino.defineItem({
     ...config,
     views: (view) => ({ default: view({ ...configView }), raw: view({}) }),
     file: "/home.json",
@@ -383,7 +379,7 @@ test("explicit resolution on the default runs before augmenting on every primiti
     await collection.getOne("hello"),
     ...(await collection.getMany()),
     await tree.getEntry("hello"),
-    await singleton.getData(),
+    await item.getData(),
   ]) {
     expect(entry).toMatchObject({ author: { name: "Alice" }, name: "Alice" });
   }
@@ -391,7 +387,7 @@ test("explicit resolution on the default runs before augmenting on every primiti
     await collection.getOne("hello", { view: "raw" }),
     ...(await collection.getMany({ view: "raw" })),
     await tree.getEntry("hello", { view: "raw" }),
-    await singleton.getData({ view: "raw" }),
+    await item.getData({ view: "raw" }),
   ]) {
     expect(entry.author).toBe("/authors/alice.json");
     expect(entry).not.toHaveProperty("name");
@@ -400,7 +396,7 @@ test("explicit resolution on the default runs before augmenting on every primiti
 
 test("CLI validation and slug generation skip views and relation resolution", async () => {
   const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-  const authors = qino.createCollection({
+  const authors = qino.defineCollection({
     directory: "/authors",
     extension: ".json",
     schema: z.object({ name: z.string() }),
@@ -416,7 +412,7 @@ test("CLI validation and slug generation skip views and relation resolution", as
     schema: z.object({ title: z.string(), author: z.string() }),
     relations: { author: authors },
   };
-  const collection = qino.createCollection({
+  const collection = qino.defineCollection({
     ...config,
     views: (view) => ({
       default: view({ ...configView }),
@@ -425,7 +421,7 @@ test("CLI validation and slug generation skip views and relation resolution", as
     directory: "/posts",
     extension: ".json",
   });
-  const tree = qino.createTree({
+  const tree = qino.defineTree({
     ...config,
     views: (view) => ({
       default: view({ ...configView }),
@@ -435,7 +431,7 @@ test("CLI validation and slug generation skip views and relation resolution", as
     extension: ".json",
     titleField: "title",
   });
-  const singleton = qino.createSingleton({
+  const item = qino.defineItem({
     ...config,
     views: (view) => ({
       default: view({ ...configView }),
@@ -445,7 +441,7 @@ test("CLI validation and slug generation skip views and relation resolution", as
   });
   await validateCollection(collection);
   await validateTree(tree);
-  await validateSingleton(singleton);
+  await validateItem(item);
   expect(await collection.getAllSlugs()).toEqual(["hello", "second"]);
   expect(await collectTreeSlugs(tree)).toEqual(["hello"]);
   expect(augment).not.toHaveBeenCalled();
@@ -462,14 +458,12 @@ test("CLI validation and slug generation skip views and relation resolution", as
     /failed validation/,
   );
   await expect(validateTree(tree)).rejects.toThrow(/failed validation/);
-  await expect(validateSingleton(singleton)).rejects.toThrow(
-    /failed validation/,
-  );
+  await expect(validateItem(item)).rejects.toThrow(/failed validation/);
 });
 
 test("view errors retain the source path and reject conflicting output at runtime", async () => {
   const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-  const collection = qino.createCollection({
+  const collection = qino.defineCollection({
     directory: "/posts",
     extension: ".json",
     schema: z.object({ title: z.string() }),
@@ -494,7 +488,7 @@ test("view errors retain the source path and reject conflicting output at runtim
     /hello.json: augment must return an object/,
   );
   expect(() =>
-    qino.createSingleton({
+    qino.defineItem({
       file: "/reserved.json",
       schema: z.object({}),
       views: (view) => ({ detail: view({}) }) as never,
@@ -505,7 +499,7 @@ test("view errors retain the source path and reject conflicting output at runtim
 test.each([
   "collection",
   "tree",
-  "singleton",
+  "item",
 ] as const)("%s validates optional views and root settings", async (kind) => {
   const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
   const config = {
@@ -513,21 +507,21 @@ test.each([
   };
   const create = (options: object) => {
     if (kind == "collection")
-      return qino.createCollection({
+      return qino.defineCollection({
         ...config,
         directory: "/posts",
         extension: ".json",
         ...options,
       });
     if (kind == "tree")
-      return qino.createTree({
+      return qino.defineTree({
         ...config,
         directory: "/docs",
         extension: ".json",
         titleField: "title",
         ...options,
       });
-    return qino.createSingleton({ ...config, file: "/home.json", ...options });
+    return qino.defineItem({ ...config, file: "/home.json", ...options });
   };
   const baseline = create({});
   const read = (options?: never) => {
@@ -560,7 +554,7 @@ test.each([
 
 test("spread reuse preserves default augmentation and sort while adding a custom filter", async () => {
   const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-  const posts = qino.createCollection({
+  const posts = qino.defineCollection({
     directory: "/posts",
     extension: ".json",
     schema: z.object({ title: z.string() }),

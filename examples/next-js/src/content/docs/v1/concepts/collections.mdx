@@ -9,7 +9,7 @@ Root view settings are not supported. Import `createQino` from `qino` and `z` fr
 `zod`, and create `qino` with your content and media folders.
 
 ```ts
-const posts = qino.createCollection({
+const posts = qino.defineCollection({
   directory: "/posts",
   extension: ".md",
   schema: z.object({ title: z.string(), draft: z.boolean() }),
@@ -48,4 +48,4 @@ runs the selected view’s filter after augmentation and throws if it excludes t
 entry. The error names the slug, collection, and view. Omitting `view` applies
 the default filter. Sorting only runs for `getMany()`. Slug discovery, relation
 loading, and CLI validation bypass filtering and sorting. Trees use `_order.json`; tree filtering is deferred.
-Singletons have neither callback.
+Items have neither callback.

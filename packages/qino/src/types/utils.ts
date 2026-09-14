@@ -8,11 +8,7 @@ import type {
   AnyCollectionMeta,
   CollectionEntryMeta,
 } from "./collection";
-import type {
-  AnySingleton,
-  AnySingletonMeta,
-  SingletonEntryMeta,
-} from "./singleton";
+import type { AnyItem, AnyItemMeta, ItemEntryMeta } from "./item";
 import type { AnyTree, AnyTreeMeta, TreeEntryMeta } from "./tree";
 
 export type SupportedFileExtension =
@@ -31,15 +27,12 @@ export type GetterOptions<View extends string | undefined = string> = {
 
 export type Slug<S extends string = string> = S;
 
-export type AnyPrimitive = AnyCollection | AnySingleton | AnyTree;
-export type AnyPrimitiveMeta =
-  | AnyCollectionMeta
-  | AnySingletonMeta
-  | AnyTreeMeta;
+export type AnyPrimitive = AnyCollection | AnyItem | AnyTree;
+export type AnyPrimitiveMeta = AnyCollectionMeta | AnyItemMeta | AnyTreeMeta;
 
 export type AnyEntry = Record<string, unknown> & {
   [K in typeof META_FIELD_NAME]:
     | CollectionEntryMeta
-    | SingletonEntryMeta
+    | ItemEntryMeta
     | TreeEntryMeta;
 };

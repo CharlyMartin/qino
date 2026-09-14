@@ -41,7 +41,7 @@ import { removeExtension } from "../../utils/remove-extension";
 import type { QinoContext } from "../qino/create-qino";
 import { globCollectionPaths } from "./glob-collection-paths";
 
-export type CreateCollectionParams<
+export type DefineCollectionParams<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema> = object,
@@ -59,13 +59,13 @@ export type CreateCollectionParams<
   >;
 } & RootViewSettings;
 
-export function createCollection<
+export function defineCollection<
   S extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<S> = object,
   Dir extends GenericPath = GenericPath,
   const Views extends object = object,
->(ctx: QinoContext, params: CreateCollectionParams<S, Ext, Rels, Dir, Views>) {
+>(ctx: QinoContext, params: DefineCollectionParams<S, Ext, Rels, Dir, Views>) {
   const { directory, schema, extension, relations } = params;
   const collectionRelations = (relations ?? {}) as Rels;
   assertNoRootViewSettings(params);

@@ -11,26 +11,26 @@ declare module "qino" {
   }
 }
 
-const { createCollection, createTree } = createQino({
+const { defineCollection, defineTree } = createQino({
   contentFolder: "src/content",
   mediaFolder: "public",
 });
 
 const Schema = z.object({ title: z.string() }).strict();
 
-const typedPosts = createCollection({
+const typedPosts = defineCollection({
   directory: "/typed-posts",
   schema: Schema,
   extension: ".md",
 });
 
-const untypedPosts = createCollection({
+const untypedPosts = defineCollection({
   directory: "/untyped-posts",
   schema: Schema,
   extension: ".md",
 });
 
-const typedGuides = createTree({
+const typedGuides = defineTree({
   directory: "/typed-guides",
   schema: Schema,
   extension: ".md",

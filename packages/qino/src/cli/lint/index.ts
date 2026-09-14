@@ -14,7 +14,7 @@ import { assertRelationInstanceIds } from "./assert-relation-instance-ids";
 export async function lint({
   entryFilePath,
   collections,
-  singletons,
+  items,
   trees,
   context,
 }: Loaded) {
@@ -31,7 +31,7 @@ export async function lint({
     `media folder found at "${path.join(process.cwd(), context.mediaFolder)}"`,
   );
 
-  const allPrimitives = [...collections, ...trees, ...singletons];
+  const allPrimitives = [...collections, ...trees, ...items];
 
   // Ensure at least one primitive exists
   assertPrimitivesExistence(allPrimitives);
@@ -40,7 +40,7 @@ export async function lint({
   assertNoOverlappingPaths({
     collectionDirs: collections.map((c) => c[QinoPrimitiveMarker].directory),
     treeDirs: trees.map((t) => t[QinoPrimitiveMarker].directory),
-    singletonFiles: singletons.map((s) => s[QinoPrimitiveMarker].file),
+    itemFiles: items.map((s) => s[QinoPrimitiveMarker].file),
   });
 
   // Ensure all primitives belong to the same Qino instance
@@ -67,13 +67,11 @@ export async function lint({
     }
   }
 
-  if (singletons.length) {
-    consola.success(
-      `found ${singletons.length} ${pluralize("singleton", singletons.length)}`,
-    );
+  if (items.length) {
+    consola.success(`found ${items.length} ${pluralize("item", items.length)}`);
 
-    for (const singleton of singletons) {
-      consola.log(`  - ${singleton[QinoPrimitiveMarker].file}`);
+    for (const item of items) {
+      consola.log(`  - ${item[QinoPrimitiveMarker].file}`);
     }
   }
 }

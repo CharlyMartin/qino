@@ -14,16 +14,16 @@ class Price {
   }
 }
 
-const { createCollection } = createQino({
+const { defineCollection } = createQino({
   contentFolder: "content",
   mediaFolder: "public",
 });
-const authors = createCollection({
+const authors = defineCollection({
   directory: "/authors",
   extension: ".json",
   schema: z.object({ name: z.string() }),
 });
-const articles = createCollection({
+const articles = defineCollection({
   directory: "/articles",
   extension: ".md",
   schema: z.object({

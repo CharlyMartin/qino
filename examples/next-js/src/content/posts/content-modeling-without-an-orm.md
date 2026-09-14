@@ -17,14 +17,14 @@ A typical setup:
 content/
   blog/        -> a collection
   authors/     -> another collection, referenced by blog posts
-  pages/       -> singletons
+  pages/       -> items
 ```
 
 Relationships are slugs. A post says `author: jane` in its frontmatter, and the loader resolves that against `authors/jane.md` at build time.
 
 ## Why this works
 
-- The schema is *visible*. You can see your data model with `tree`.
+- The schema is _visible_. You can see your data model with `tree`.
 - Relationships are explicit, not magic.
 - There's no migration step when a field is added — only old files without it.
 

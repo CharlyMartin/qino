@@ -25,13 +25,13 @@ export function describePathConflict(a: PrimitivePath, b: PrimitivePath) {
     }
 
     return samePath(a.path, b.path)
-      ? `Two singletons target the same file: "${a.path}". Each singleton must own a distinct file.`
+      ? `Two items target the same file: "${a.path}". Each item must own a distinct file.`
       : null;
   }
 
   const treeDir = pickPath(a, b, QinoPrimitives.tree);
   const collectionDir = pickPath(a, b, QinoPrimitives.collection);
-  const singletonFile = pickPath(a, b, QinoPrimitives.singleton);
+  const itemFile = pickPath(a, b, QinoPrimitives.item);
 
   if (treeDir && collectionDir) {
     return pathsOverlap(treeDir, collectionDir)
@@ -39,15 +39,15 @@ export function describePathConflict(a: PrimitivePath, b: PrimitivePath) {
       : null;
   }
 
-  if (singletonFile && treeDir) {
-    return isFileInsideDir(singletonFile, treeDir)
-      ? `Singleton file "${singletonFile}" sits inside tree directory "${treeDir}". A tree owns its directory exclusively.`
+  if (itemFile && treeDir) {
+    return isFileInsideDir(itemFile, treeDir)
+      ? `Item file "${itemFile}" sits inside tree directory "${treeDir}". A tree owns its directory exclusively.`
       : null;
   }
 
-  if (singletonFile && collectionDir) {
-    return isFileInsideDir(singletonFile, collectionDir)
-      ? `Singleton file "${singletonFile}" sits inside collection directory "${collectionDir}". A collection owns its directory exclusively.`
+  if (itemFile && collectionDir) {
+    return isFileInsideDir(itemFile, collectionDir)
+      ? `Item file "${itemFile}" sits inside collection directory "${collectionDir}". A collection owns its directory exclusively.`
       : null;
   }
 

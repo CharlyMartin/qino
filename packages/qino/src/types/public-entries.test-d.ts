@@ -1,7 +1,7 @@
 import type {
   AnyEntry,
   CollectionEntryMeta,
-  SingletonEntryMeta,
+  ItemEntryMeta,
   TreeEntryMeta,
 } from "qino";
 import { expectTypeOf, test } from "vitest";
@@ -14,7 +14,7 @@ test("public metadata types preserve extension-specific fields", () => {
     fileName: `${string}.md`;
     filePath: `${string}.md`;
   }>();
-  expectTypeOf<SingletonEntryMeta<".json">>().toEqualTypeOf<{
+  expectTypeOf<ItemEntryMeta<".json">>().toEqualTypeOf<{
     fileName: `${string}.json`;
     filePath: `${string}.json`;
   }>();
@@ -32,7 +32,7 @@ test("AnyEntry accepts each primitive entry and requires file metadata", () => {
   }>().toExtend<AnyEntry>();
   expectTypeOf<{
     title: string;
-    [META_FIELD_NAME]: SingletonEntryMeta<".json">;
+    [META_FIELD_NAME]: ItemEntryMeta<".json">;
   }>().toExtend<AnyEntry>();
   expectTypeOf<{
     title: string;

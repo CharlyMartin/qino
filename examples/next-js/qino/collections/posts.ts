@@ -18,7 +18,7 @@ const PostSchema = z
   })
   .strict();
 
-export const postCollection = qino.createCollection({
+export const postCollection = qino.defineCollection({
   directory: "/posts",
   schema: PostSchema,
   extension: ".md",

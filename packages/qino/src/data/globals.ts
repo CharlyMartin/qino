@@ -28,6 +28,6 @@ export const SUPPORTED_CODE_EXTENSIONS = [
 
 export const QinoPrimitives = {
   collection: "collection",
-  singleton: "singleton",
+  item: "item",
   tree: "tree",
 } as const;

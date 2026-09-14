@@ -11,16 +11,16 @@ export function parseRelationValue(
 ) {
   const normalized = removeLeadingSlash(value);
 
-  if (targetMeta.is == QinoPrimitives.singleton) {
+  if (targetMeta.is == QinoPrimitives.item) {
     const expected = removeLeadingSlash(targetMeta.file);
 
     if (normalized != expected) {
       throw new Error(
-        `Relation "${ctx.relationKey}" in ${ctx.sourceFilePath}: expected value "${expected}" (target singleton "${targetMeta.file}"), got "${value}".`,
+        `Relation "${ctx.relationKey}" in ${ctx.sourceFilePath}: expected value "${expected}" (target item "${targetMeta.file}"), got "${value}".`,
       );
     }
 
-    return normalized; // value is irrelevant for singletons, since they always resolve to the same file
+    return normalized; // value is irrelevant for items, since they always resolve to the same file
   }
 
   const expectedPrefix = `${removeLeadingSlash(targetMeta.directory)}/`;

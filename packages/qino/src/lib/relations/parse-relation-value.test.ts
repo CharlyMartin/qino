@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { QinoPrimitiveMarker } from "../../data/globals";
 import {
   makeDummyCollection,
-  makeDummySingleton,
+  makeDummyItem,
   makeDummyTree,
 } from "../../utils/tests";
 import { parseRelationValue } from "./parse-relation-value";
@@ -11,9 +11,9 @@ import { parseRelationValue } from "./parse-relation-value";
 const ctx = { sourceFilePath: "/fixtures/post.json", relationKey: "author" };
 
 describe("parseRelationValue", () => {
-  describe("singleton target", () => {
+  describe("item target", () => {
     test("returns normalized value when it matches meta.file", () => {
-      const meta = makeDummySingleton({ file: "/site/config.json" })[
+      const meta = makeDummyItem({ file: "/site/config.json" })[
         QinoPrimitiveMarker
       ];
       expect(parseRelationValue("/site/config.json", meta, ctx)).toBe(
@@ -22,7 +22,7 @@ describe("parseRelationValue", () => {
     });
 
     test("accepts value without a leading slash", () => {
-      const meta = makeDummySingleton({ file: "/site/config.json" })[
+      const meta = makeDummyItem({ file: "/site/config.json" })[
         QinoPrimitiveMarker
       ];
       expect(parseRelationValue("site/config.json", meta, ctx)).toBe(
@@ -30,8 +30,8 @@ describe("parseRelationValue", () => {
       );
     });
 
-    test("throws when value does not match the singleton file", () => {
-      const meta = makeDummySingleton({ file: "/site/config.json" })[
+    test("throws when value does not match the item file", () => {
+      const meta = makeDummyItem({ file: "/site/config.json" })[
         QinoPrimitiveMarker
       ];
       expect(() => parseRelationValue("/site/other.json", meta, ctx)).toThrow(
