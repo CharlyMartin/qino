@@ -6,7 +6,7 @@ import {
   DUMMY_INSTANCE_ID,
   makeDummyCollection,
   makeDummyEntry,
-  makeDummySingleton,
+  makeDummyItem,
   makeDummyTree,
 } from "../../utils/tests";
 import { createRelationResolver } from "./create-relation-resolver";
@@ -86,8 +86,8 @@ describe("createRelationResolver", () => {
       expect(result.author).toMatchObject({ name: "Alice" });
     });
 
-    test("resolves a singleton reference via getData", async () => {
-      const target = makeDummySingleton({
+    test("resolves an item reference via getData", async () => {
+      const target = makeDummyItem({
         file: "/config/site.json",
         data: { siteName: "Qino" },
       });

@@ -17,8 +17,8 @@ export function makeDummyQino({
       instanceId,
       ...config,
     },
-    createCollection: (() => {}) as never,
-    createSingleton: (() => {}) as never,
-    createTree: (() => {}) as never,
+    defineCollection: (() => {}) as never,
+    defineItem: (() => {}) as never,
+    defineTree: (() => {}) as never,
   } as AnyQinoConfig;
 }

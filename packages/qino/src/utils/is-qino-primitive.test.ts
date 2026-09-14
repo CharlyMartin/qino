@@ -3,8 +3,8 @@ import { describe, expect, test } from "vitest";
 import { isQinoPrimitive } from "./is-qino-primitive";
 import {
   makeDummyCollection,
+  makeDummyItem,
   makeDummyQino,
-  makeDummySingleton,
   makeDummyTree,
 } from "./tests";
 
@@ -17,10 +17,8 @@ describe("isQinoPrimitive", () => {
     ).toBe(true);
   });
 
-  test("returns true for a singleton", () => {
-    expect(isQinoPrimitive(makeDummySingleton({ file: "/config.json" }))).toBe(
-      true,
-    );
+  test("returns true for an item", () => {
+    expect(isQinoPrimitive(makeDummyItem({ file: "/config.json" }))).toBe(true);
   });
 
   test("returns true for a tree", () => {

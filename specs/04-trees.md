@@ -25,7 +25,7 @@ behavior. Root view settings are forbidden, and custom views inherit no settings
 
 ```ts
 // qino/trees/docs.ts
-import { createTree } from "qino";
+import { defineTree } from "qino";
 import z from "zod";
 
 const DocsSchema = z
@@ -35,7 +35,7 @@ const DocsSchema = z
   })
   .strict();
 
-export const docsTree = createTree({
+export const docsTree = defineTree({
   directory: "/docs", // relative to config.contentFolder; must start with "/"
   schema: DocsSchema,
   extension: ".md", // ".md" | ".mdx" | ".json"
@@ -48,7 +48,7 @@ Any [Standard Schema](https://standardschema.dev)–compatible validator works. 
 
 A tree's `directory` is **exclusive** — no other tree or collection may share or overlap it. Declaring two trees on overlapping paths → build error.
 
-Source of truth (when implemented): `packages/qino/src/runtime/trees/create-tree.ts`.
+Source of truth (when implemented): `packages/qino/src/runtime/trees/define-tree.ts`.
 
 ## Behaviour
 
@@ -76,11 +76,11 @@ The same value appears in two places on a hydrated node: at the top-level `title
 
 ### `relations`
 
-Optional. Same JSON-path grammar as collections — `parent.child`, `field[*]`, with `[*]` anywhere making the relation `cardinality: "many"`. Targets can be any collection, tree, or singleton, or a thunk for forward refs. See [05-relationships.md](05-relationships.md).
+Optional. Same JSON-path grammar as collections — `parent.child`, `field[*]`, with `[*]` anywhere making the relation `cardinality: "many"`. Targets can be any collection, tree, or item, or a thunk for forward refs. See [05-relationships.md](05-relationships.md).
 
 ### `resolveRelations`
 
-Same `true | number | false` semantics as collections/singletons, defaulting to `false`. Set it inside `views.default` or a custom view; root view settings are forbidden. `getEntry(slug, { view: "name" })` selects a declared custom view; omitting `view` selects the declared default, or baseline behavior without views. Explicit `"default"` selection is allowed when declared. Getter resolution overrides are removed. Structural tree navigation is unaffected. See [15-views](./15-views.md).
+Same `true | number | false` semantics as collections/items, defaulting to `false`. Set it inside `views.default` or a custom view; root view settings are forbidden. `getEntry(slug, { view: "name" })` selects a declared custom view; omitting `view` selects the declared default, or baseline behavior without views. Explicit `"default"` selection is allowed when declared. Getter resolution overrides are removed. Structural tree navigation is unaffected. See [15-views](./15-views.md).
 
 ## Content-folder convention
 
@@ -130,7 +130,7 @@ One file per node (root and each subfolder). Optional.
 
 `TreeNode` skeletons (returned by `getTree`) use flat meta — `slug`, `title`, `fileName`, `filePath`, and `children` are top-level siblings — because tree nodes are walked and terse top-level keys read better in traversal code.
 
-`TreeEntry` (returned by `getEntry`) uses the same `_meta` + spread layout as collections and singletons. `getEntry` is a leaf-level read, so consistency with the other primitives wins here.
+`TreeEntry` (returned by `getEntry`) uses the same `_meta` + spread layout as collections and items. `getEntry` is a leaf-level read, so consistency with the other primitives wins here.
 
 `TreeNode` (skeleton, returned by `getTree`):
 
@@ -236,7 +236,7 @@ API to be defined.
 }
 ```
 
-The `kind` discriminator on each relation tells consumers reading the lock file whether the target is a collection, tree, or singleton — same convention as on collections and singletons.
+The `kind` discriminator on each relation tells consumers reading the lock file whether the target is a collection, tree, or item — same convention as on collections and items.
 
 ## Build pipeline
 
@@ -260,7 +260,7 @@ The `qino/trees/` folder is **optional** — projects with no trees skip it with
 
 Done when:
 
-- `createTree` is implemented with at least one canonical example in `examples/docs/` (to be created).
+- `defineTree` is implemented with at least one canonical example in `examples/docs/` (to be created).
 - `getTree()` returns root-level `TreeNode[]` with full nesting; `getTree(slug)` returns a single `TreeNode`; both throw on invalid slugs.
 - `getEntry(slug)` returns a single `Entry`; throws on missing slug or schema mismatch with the offending file path in the error.
 - Slug derivation produces unique slugs across the tree; duplicate slugs fail at build.

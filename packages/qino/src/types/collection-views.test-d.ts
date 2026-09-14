@@ -5,14 +5,14 @@ import { createQino } from "../runtime/qino/create-qino";
 
 const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
 const schema = z.object({ title: z.string(), author: z.string() });
-const authors = qino.createCollection({
+const authors = qino.defineCollection({
   directory: "/authors",
   extension: ".json",
   schema: z.object({ name: z.string() }),
 });
 
 test("infers post-augment inputs independently for default and named views", async () => {
-  const posts = qino.createCollection({
+  const posts = qino.defineCollection({
     directory: "/posts",
     extension: ".json",
     schema,
@@ -80,21 +80,21 @@ test("infers post-augment inputs independently for default and named views", asy
 });
 
 test("rejects missing default views and conflicting helper augmentation", () => {
-  qino.createCollection({
+  qino.defineCollection({
     directory: "/posts",
     extension: ".json",
     schema,
     // @ts-expect-error Factories must declare a default view.
     views: (view) => ({ other: view({}) }),
   });
-  qino.createCollection({
+  qino.defineCollection({
     directory: "/posts",
     extension: ".json",
     schema,
     // @ts-expect-error A factory must return valid view definitions even without the helper.
     views: () => ({ invalid: { filter: async () => true } }),
   });
-  qino.createCollection({
+  qino.defineCollection({
     directory: "/posts",
     extension: ".json",
     schema,
@@ -109,7 +109,7 @@ test("rejects missing default views and conflicting helper augmentation", () => 
 });
 
 test("requires synchronous boolean predicates and numeric comparators", () => {
-  qino.createCollection({
+  qino.defineCollection({
     directory: "/posts",
     extension: ".json",
     schema,
@@ -130,8 +130,8 @@ test("requires synchronous boolean predicates and numeric comparators", () => {
   });
 });
 
-test("does not expose callbacks on trees or singletons", () => {
-  qino.createTree({
+test("does not expose callbacks on trees or items", () => {
+  qino.defineTree({
     views: (view) => ({
       default: view({
         // @ts-expect-error Tree filtering is deferred.
@@ -143,17 +143,17 @@ test("does not expose callbacks on trees or singletons", () => {
     titleField: "title",
     schema,
   });
-  qino.createSingleton({
+  qino.defineItem({
     views: (view) => ({
       default: view({
-        // @ts-expect-error Singletons cannot sort.
+        // @ts-expect-error Items cannot sort.
         sort: () => 0,
       }),
     }),
     file: "/home.json",
     schema,
   });
-  qino.createTree({
+  qino.defineTree({
     directory: "/docs",
     extension: ".json",
     titleField: "title",
@@ -166,13 +166,13 @@ test("does not expose callbacks on trees or singletons", () => {
       }),
     }),
   });
-  qino.createSingleton({
+  qino.defineItem({
     file: "/home.json",
     schema,
     views: (view) => ({
       default: view({}),
       listing: view({
-        // @ts-expect-error Singleton views cannot sort.
+        // @ts-expect-error Item views cannot sort.
         sort: () => 0,
       }),
     }),

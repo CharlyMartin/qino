@@ -15,10 +15,10 @@ Three things the developer must be able to express:
 
 ## API
 
-Relations are declared on `createCollection`, `createTree`, or `createSingleton` via a `relations` map. Schemas stay vanilla — no augmentation, no custom helpers. The target's path and extension are read off the referenced primitive (single source of truth).
+Relations are declared on `defineCollection`, `defineTree`, or `defineItem` via a `relations` map. Schemas stay vanilla — no augmentation, no custom helpers. The target's path and extension are read off the referenced primitive (single source of truth).
 
 ```ts
-import { createCollection } from "qino";
+import { defineCollection } from "qino";
 import z from "zod";
 import { authorCollection } from "./authors";
 import { categoryCollection } from "./categories";
@@ -29,7 +29,7 @@ const PostSchema = z.object({
   categories: z.array(z.string()), // 1:n
 });
 
-export const postCollection = createCollection({
+export const postCollection = defineCollection({
   directory: "/posts",
   schema: PostSchema,
   extension: ".md",
@@ -44,7 +44,7 @@ export const postCollection = createCollection({
 
 ### How the three things are expressed
 
-1. **String → a collection, tree, or singleton.** The value at the relation key (`author: authorCollection`) is the target primitive. Its path and extension live on the target — Qino reads them at build time.
+1. **String → a collection, tree, or item.** The value at the relation key (`author: authorCollection`) is the target primitive. Its path and extension live on the target — Qino reads them at build time.
 2. **Target extension.** Carried by the referenced collection's `extension` field; not redeclared.
 3. **Cardinality.** Derived purely from the relation key (the JSON path). Any `[*]` anywhere in the key → `"many"`; otherwise `"one"`. `[*]` is transitive — `articles[*].author` is `"many"` even though the leaf is a single field. No build-time data scan is needed.
 
@@ -61,7 +61,7 @@ The relation key is type-checked against the schema's output shape (string leave
 ]
 ```
 
-`field` is the relation key verbatim — `[*]` segments preserved. `kind` is `"collection"`, `"tree"`, or `"singleton"` depending on what the relation points at; consumers reading the lock file use it to decide whether to look up the target in the `collections`, `trees`, or `singletons` section. `cardinality` is derived from the path itself (no data scan); the consumer never writes either of these by hand.
+`field` is the relation key verbatim — `[*]` segments preserved. `kind` is `"collection"`, `"tree"`, or `"item"` depending on what the relation points at; consumers reading the lock file use it to decide whether to look up the target in the `collections`, `trees`, or `items` section. `cardinality` is derived from the path itself (no data scan); the consumer never writes either of these by hand.
 
 ## Relation value format
 
@@ -89,7 +89,7 @@ children or navigation data. Reading the target bypasses its views and augment;
 the source view's remaining depth controls its outgoing relations. All three
 primitive types can be sources and targets, including tree-to-tree references.
 
-For a **singleton target** (see [03-singletons.md](03-singletons.md)), the value must equal the target singleton's `file` exactly (leading `/` is tolerated). The prefix+extension pair collapses to a single equality check because a singleton has exactly one file. On match the resolver calls the singleton’s internal source reader; on mismatch it throws naming the expected file, the relation key, and the source file path.
+For an **item target** (see [03-items.md](03-items.md)), the value must equal the target item's `file` exactly (leading `/` is tolerated). The prefix+extension pair collapses to a single equality check because an item has exactly one file. On match the resolver calls the item’s internal source reader; on mismatch it throws naming the expected file, the relation key, and the source file path.
 
 ## Build pipeline guarantees
 
@@ -137,13 +137,13 @@ flowchart TD
     K --> I
     L --> I
     M --> N["resolveRelationLeaf(leaf, ctx)<br/>assert string · non-empty"]
-    N --> O["parseRelationValue(leaf, target) → slug<br/>(prefix+ext check, or singleton equality)"]
+    N --> O["parseRelationValue(leaf, target) → slug<br/>(prefix+ext check, or item equality)"]
     O --> P["ctx.resolveTargetReference(slug)<br/>= resolveTargetReference(target, slug, depth-1, errorCtx)"]
     P --> Q["getOrFetchRawTarget(target, slug, ctx)"]
     Q --> Q1["entryCache = getOrCreateEntryCache(cache, getTargetUniquePath(target))"]
     Q1 --> Q2{"entryCache.get(slug)?"}
     Q2 -- hit --> R["return cached Promise<AnyEntry><br/>(identity preserved · cycle-safe)"]
-    Q2 -- miss --> S["fetchRawTarget(target, slug, ctx)<br/>singleton: readData · tree: readEntry · collection: readOne<br/>source only"]
+    Q2 -- miss --> S["fetchRawTarget(target, slug, ctx)<br/>item: readData · tree: readEntry · collection: readOne<br/>source only"]
     S --> T["entryCache.set(slug, promise)"]
     T --> U["resolver.resolveEntry(raw, {target.relations, depth-1})"]
     R --> U
@@ -153,7 +153,7 @@ flowchart TD
 Three properties to internalize from this graph:
 
 - **Depth decrements once per relation boundary** — bound into the per-relation `resolveTargetReference(slug)` closure as `depth - 1`, not per JSON-path segment. `articles[*].author` walks array+field within a single hop and only spends one depth unit when `author` is dereferenced.
-- **The cache is per-call**, fresh on every `getMany` / `getOne` / `getEntry` / `getData` invocation. Two-level: outer keyed by `getTargetUniquePath(target)` (`meta.directory` for collections and trees, `meta.file` for singletons), inner keyed by slug → `Promise<AnyEntry>`.
+- **The cache is per-call**, fresh on every `getMany` / `getOne` / `getEntry` / `getData` invocation. Two-level: outer keyed by `getTargetUniquePath(target)` (`meta.directory` for collections and trees, `meta.file` for items), inner keyed by slug → `Promise<AnyEntry>`.
 - **Recursion is owned by one resolver**: `resolver.resolveEntry → resolveTargetReference → getOrFetchRawTarget → resolver.resolveEntry`. The leaf helpers (`resolveRelationLeaf`, `parseRelationValue`, `fetchRawTarget`) are pure of recursion — they validate, parse, or fetch and hand back. Cycle safety comes from `getOrFetchRawTarget` storing the Promise _before_ it settles (see [Cache, identity, and cycles](#cache-identity-and-cycles)).
 
 ### Worked example: depth=2
@@ -215,7 +215,7 @@ Final shape: `post.author` is a full author whose `mentor` is a full bob (whose 
 | `resolveRelationLeaf`                  | leaf is non-string                     | `relationKey`, `sourceFilePath`, actual type                                         |
 | `resolveRelationLeaf`                  | leaf is empty string                   | `relationKey`, `sourceFilePath`                                                      |
 | `parseRelationValue` (collection/tree) | value missing prefix or extension      | `relationKey`, `sourceFilePath`, expected, actual                                    |
-| `parseRelationValue` (singleton)       | value ≠ target `file`                  | `relationKey`, `sourceFilePath`, expected, actual                                    |
+| `parseRelationValue` (item)            | value ≠ target `file`                  | `relationKey`, `sourceFilePath`, expected, actual                                    |
 | `fetchRawTarget`                       | underlying `getOne` / `getData` throws | wraps with `relationKey`, `→ ref`, `sourceFilePath`; chains the original via `cause` |
 
 One intentional non-error: an object-key segment that lands on a non-object value passes through silently. This is by design — it lets a relation declared on an optional intermediate field (e.g. `hero.author` where `hero` is sometimes absent) skip resolution cleanly rather than throwing.
@@ -238,7 +238,7 @@ flowchart LR
     S["Schema (StandardSchemaV1)"] --> VO["ValidatedOutput<Schema>"]
     VO --> RP["RelationPath<ValidatedOutput>"]
     RP --> RT["Relations<Schema><br/>keys constrained"]
-    RT -. createCollection .-> CM["CollectionMeta / SingletonMeta"]
+    RT -. defineCollection .-> CM["CollectionMeta / ItemMeta"]
     CM --> GR["getter return type"]
     R["ResolveOption (boolean | 1..6)"] --> ND["NormalizeDepth<R><br/>true→6, false→0, n→n"]
     ND --> RE["ResolveEntry<S, Rels, D>"]
@@ -249,7 +249,7 @@ flowchart LR
     RTG -. D extends 0 .-> Str["string"]
     RTG -. else .-> Rec["ResolveRelationTarget<C, Dec<D>>"]
     Rec --> RE
-    RE --> RV2["ResolvedView / ResolvedSingletonView"]
+    RE --> RV2["ResolvedView / ResolvedItemView"]
     RV2 --> GR
 ```
 
@@ -281,7 +281,7 @@ Compile-error example:
 ```ts
 const Schema = z.object({ slug: z.string(), publishedAt: z.date() });
 
-createCollection({
+defineCollection({
   // ...
   relations: {
     slug: authorCollection, // ok — slug is string
@@ -314,7 +314,7 @@ The output of a getter call is `ResolvedView<Schema, Ext, Rels, R>`, which is `{
 3. **`ResolveTarget<Target, D>`** — depth gate at the boundary. `D extends 0` short-circuits to `string` (raw ref preserved at the type level, matching runtime). Otherwise unwraps the thunk if `Target extends () => infer C`, then defers to `ResolveRelationTarget<C, Dec<D>>` — the static `depth - 1`.
 4. **`ResolveRelationTarget<C, NextD>`** — pattern-matches against `C[QinoPrimitiveMarker]`:
    - has `directory` → it's a collection; yields `{ _meta: EntryMeta<Ext> } & ResolveEntry<S, Rels, NextD>`.
-   - has `file` → it's a singleton; yields `{ _meta: SingletonEntryMeta<Ext> } & ResolveEntry<S, Rels, NextD>`.
+   - has `file` → it's an item; yields `{ _meta: ItemEntryMeta<Ext> } & ResolveEntry<S, Rels, NextD>`.
    - Recurses back into `ResolveEntry` — completing the static analogue of the runtime cycle.
 
 Sketch (mirrors cases in `packages/qino/src/types/resolve.test-d.ts`):

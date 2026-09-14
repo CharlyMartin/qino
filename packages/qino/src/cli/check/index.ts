@@ -2,13 +2,13 @@ import { consola } from "consola";
 
 import type { Loaded } from "../load";
 import { validateCollection } from "./validate-collection";
-import { validateSingleton } from "./validate-singleton";
+import { validateItem } from "./validate-item";
 import { validateTree } from "./validate-tree";
 
-export async function check({ collections, singletons, trees }: Loaded) {
+export async function check({ collections, items, trees }: Loaded) {
   await Promise.all([
     ...collections.map(validateCollection),
-    ...singletons.map(validateSingleton),
+    ...items.map(validateItem),
     ...trees.map(validateTree),
   ]);
 

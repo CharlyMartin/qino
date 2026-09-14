@@ -4,7 +4,7 @@ import { z } from "zod";
 import { createQino } from "../runtime/qino/create-qino";
 
 const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
-const senior = qino.createSingleton({
+const senior = qino.defineItem({
   views: (view) => ({
     default: view({
       augment: () => ({ privateDerived: true }),
@@ -13,7 +13,7 @@ const senior = qino.createSingleton({
   file: "/senior.json",
   schema: z.object({ name: z.string() }),
 });
-const authors = qino.createCollection({
+const authors = qino.defineCollection({
   views: (view) => ({
     default: view({
       augment: () => ({ privateDerived: true }),
@@ -26,7 +26,7 @@ const authors = qino.createCollection({
 });
 const schema = z.object({ title: z.string(), author: z.string() });
 
-const posts = qino.createCollection({
+const posts = qino.defineCollection({
   directory: "/posts",
   extension: ".json",
   schema,
@@ -53,7 +53,7 @@ const posts = qino.createCollection({
   }),
 });
 
-const tree = qino.createTree({
+const tree = qino.defineTree({
   directory: "/docs",
   extension: ".md",
   titleField: "title",
@@ -73,7 +73,7 @@ const tree = qino.createTree({
     }),
   }),
 });
-const home = qino.createSingleton({
+const home = qino.defineItem({
   file: "/home.json",
   schema,
   relations: { author: authors },
@@ -93,7 +93,7 @@ const home = qino.createSingleton({
 
 describe("views inference", () => {
   test("offers only primitive-specific helper options", () => {
-    qino.createTree({
+    qino.defineTree({
       directory: "/docs",
       extension: ".md",
       titleField: "title",
@@ -107,19 +107,19 @@ describe("views inference", () => {
         return { default: view({}), empty: view({}) };
       },
     });
-    qino.createSingleton({
+    qino.defineItem({
       file: "/home.json",
       schema,
       views: (view) => {
         expectTypeOf<keyof Parameters<typeof view>[0]>().toEqualTypeOf<
           "resolveRelations" | "augment"
         >();
-        // @ts-expect-error Singleton views cannot filter.
+        // @ts-expect-error Item views cannot filter.
         view({ filter: () => true });
         return { default: view({}), empty: view({}) };
       },
     });
-    qino.createCollection({
+    qino.defineCollection({
       directory: "/posts",
       extension: ".md",
       schema,
@@ -133,14 +133,14 @@ describe("views inference", () => {
   });
 
   test("requires helper factories and marked definitions for every primitive", () => {
-    qino.createCollection({
+    qino.defineCollection({
       directory: "/posts",
       extension: ".md",
       schema,
       // @ts-expect-error Legacy object views are no longer supported.
       views: { detail: {} },
     });
-    qino.createTree({
+    qino.defineTree({
       directory: "/docs",
       extension: ".md",
       titleField: "title",
@@ -148,20 +148,20 @@ describe("views inference", () => {
       // @ts-expect-error Legacy object views are no longer supported.
       views: { detail: {} },
     });
-    qino.createSingleton({
+    qino.defineItem({
       file: "/home.json",
       schema,
       // @ts-expect-error Legacy object views are no longer supported.
       views: { detail: {} },
     });
-    qino.createCollection({
+    qino.defineCollection({
       directory: "/posts",
       extension: ".md",
       schema,
       // @ts-expect-error Each definition must come from the helper.
       views: () => ({ detail: { resolveRelations: false } }),
     });
-    qino.createTree({
+    qino.defineTree({
       directory: "/docs",
       extension: ".md",
       titleField: "title",
@@ -169,13 +169,13 @@ describe("views inference", () => {
       // @ts-expect-error Each definition must come from the helper.
       views: () => ({ detail: { resolveRelations: false } }),
     });
-    qino.createSingleton({
+    qino.defineItem({
       file: "/home.json",
       schema,
       // @ts-expect-error Each definition must come from the helper.
       views: () => ({ detail: { resolveRelations: false } }),
     });
-    qino.createSingleton({
+    qino.defineItem({
       file: "/home.json",
       schema,
       // @ts-expect-error Factories must be synchronous.
@@ -184,7 +184,7 @@ describe("views inference", () => {
   });
 
   test("omitted top-level resolution gives every augment raw references", async () => {
-    const collection = qino.createCollection({
+    const collection = qino.defineCollection({
       views: (view) => ({
         default: view({
           augment: (entry) => ({ authorSlug: entry.author.toUpperCase() }),
@@ -195,7 +195,7 @@ describe("views inference", () => {
       schema,
       relations: { author: authors },
     });
-    const docs = qino.createTree({
+    const docs = qino.defineTree({
       views: (view) => ({
         default: view({
           augment: (entry) => ({ authorSlug: entry.author.toUpperCase() }),
@@ -207,7 +207,7 @@ describe("views inference", () => {
       schema,
       relations: { author: authors },
     });
-    const page = qino.createSingleton({
+    const page = qino.defineItem({
       views: (view) => ({
         default: view({
           augment: (entry) => ({ authorSlug: entry.author.toUpperCase() }),
@@ -320,7 +320,7 @@ describe("views inference", () => {
     authors.getOne("alice", { resolveRelations: false });
     // @ts-expect-error Tree view names are restricted.
     tree.getEntry("hello", { view: "missing" });
-    // @ts-expect-error Singleton view names are restricted.
+    // @ts-expect-error Item view names are restricted.
     home.getData({ view: "missing" });
     const entry = await posts.getOne("hello", { view: "empty" });
     // @ts-expect-error Named views do not inherit the default augmentation.
@@ -328,21 +328,21 @@ describe("views inference", () => {
     const resolved = await posts.getOne("hello", { view: "detail" });
     // @ts-expect-error Nested targets never include augmentation.
     resolved.author.privateDerived;
-    // @ts-expect-error Nested singleton targets never include augmentation.
+    // @ts-expect-error Nested item targets never include augmentation.
     resolved.author.lead.privateDerived;
     // @ts-expect-error Unselected views do not contribute fields.
     entry.leadName;
   });
 
   test("rejects missing defaults and conflicting output fields", () => {
-    qino.createCollection({
+    qino.defineCollection({
       directory: "/reserved",
       extension: ".json",
       schema,
       // @ts-expect-error A default view is required when views are supplied.
       views: (view) => ({ other: view({}) }),
     });
-    qino.createCollection({
+    qino.defineCollection({
       directory: "/conflict",
       extension: ".json",
       schema,

@@ -3,14 +3,14 @@ import { describe, expect, test } from "vitest";
 import {
   DUMMY_INSTANCE_ID,
   makeDummyCollection,
-  makeDummySingleton,
+  makeDummyItem,
   makeDummyTree,
 } from "../../utils/tests";
 import { assertRelationInstanceIds } from "./assert-relation-instance-ids";
 
 describe("assertRelationInstanceIds", () => {
   test("does not throw when relation targets share the instance id", () => {
-    const author = makeDummySingleton({ file: "/author.json" });
+    const author = makeDummyItem({ file: "/author.json" });
     const primitives = [
       makeDummyCollection({
         directory: "/posts",
@@ -35,7 +35,7 @@ describe("assertRelationInstanceIds", () => {
   });
 
   test("throws when a relation target has a different instance id", () => {
-    const author = makeDummySingleton({
+    const author = makeDummyItem({
       file: "/author.json",
       instanceId: Symbol.for("qino.tests.other"),
     });
@@ -53,7 +53,7 @@ describe("assertRelationInstanceIds", () => {
   });
 
   test("resolves lazy relation targets", () => {
-    const author = makeDummySingleton({
+    const author = makeDummyItem({
       file: "/author.json",
       instanceId: Symbol.for("qino.tests.other"),
     });

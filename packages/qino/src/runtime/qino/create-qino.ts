@@ -1,26 +1,23 @@
 import { QinoConfigMarker } from "../../data";
 import type {
   Collection,
-  ExtractSingletonExtension,
+  ExtractItemExtension,
   GenericPath,
+  Item,
+  ItemFile,
   ObjectSchema,
   Relations,
-  Singleton,
-  SingletonFile,
   StringKeys,
   SupportedFileExtension,
   Tree,
 } from "../../types";
 import type { ConfiguredViews } from "../../types/views";
 import {
-  type CreateCollectionParams,
-  createCollection,
-} from "../collections/create-collection";
-import {
-  type CreateSingletonParams,
-  createSingleton,
-} from "../singletons/create-singleton";
-import { type CreateTreeParams, createTree } from "../trees/create-tree";
+  type DefineCollectionParams,
+  defineCollection,
+} from "../collections/define-collection";
+import { type DefineItemParams, defineItem } from "../items/define-item";
+import { type DefineTreeParams, defineTree } from "../trees/define-tree";
 
 export type QinoConfig = {
   readonly contentFolder: string;
@@ -39,33 +36,28 @@ export function createQino(config: QinoConfig) {
 
   return {
     [QinoConfigMarker]: ctx,
-    createCollection<
+    defineCollection<
       S extends ObjectSchema,
       Ext extends SupportedFileExtension,
       Rels extends Relations<S> = object,
       Dir extends GenericPath = GenericPath,
       const Views extends object = object,
     >(
-      params: CreateCollectionParams<S, Ext, Rels, Dir, Views>,
+      params: DefineCollectionParams<S, Ext, Rels, Dir, Views>,
     ): Collection<S, Ext, Rels, Dir, ConfiguredViews<Views>> {
-      return createCollection(ctx, params);
+      return defineCollection(ctx, params);
     },
-    createSingleton<
+    defineItem<
       S extends ObjectSchema,
-      F extends SingletonFile,
+      F extends ItemFile,
       Rels extends Relations<S> = object,
       const Views extends object = object,
     >(
-      params: CreateSingletonParams<S, F, Rels, Views>,
-    ): Singleton<
-      S,
-      ExtractSingletonExtension<F>,
-      Rels,
-      ConfiguredViews<Views>
-    > {
-      return createSingleton(ctx, params);
+      params: DefineItemParams<S, F, Rels, Views>,
+    ): Item<S, ExtractItemExtension<F>, Rels, ConfiguredViews<Views>> {
+      return defineItem(ctx, params);
     },
-    createTree<
+    defineTree<
       S extends ObjectSchema,
       Ext extends SupportedFileExtension,
       Title extends StringKeys<S>,
@@ -73,9 +65,9 @@ export function createQino(config: QinoConfig) {
       Dir extends GenericPath = GenericPath,
       const Views extends object = object,
     >(
-      params: CreateTreeParams<S, Ext, Title, Rels, Dir, Views>,
+      params: DefineTreeParams<S, Ext, Title, Rels, Dir, Views>,
     ): Tree<S, Ext, Title, Rels, Dir, ConfiguredViews<Views>> {
-      return createTree(ctx, params);
+      return defineTree(ctx, params);
     },
   };
 }

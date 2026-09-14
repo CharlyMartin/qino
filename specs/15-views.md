@@ -12,7 +12,7 @@ spread; views never inherit settings from other views.
 
 ## Configuration
 
-`views` is optional on `createCollection`, `createTree`, and `createSingleton`.
+`views` is optional on `defineCollection`, `defineTree`, and `defineItem`.
 Without views, getters return validated content with `_meta`, raw relation
 references, and no augmentation, filtering, or sorting.
 
@@ -22,7 +22,7 @@ be created with the supplied `view` helper. The factory executes once during
 primitive creation; constructing a view does not load content or run callbacks.
 
 ```ts
-const posts = qino.createCollection({
+const posts = qino.defineCollection({
   directory: "/posts",
   extension: ".md",
   schema: z.object({
@@ -49,15 +49,15 @@ whether or not views are configured. Structural settings such as schema,
 relations, paths, and tree ordering remain at the root. Root settings whose value
 is explicitly `undefined` are treated as omitted.
 
-| Option             | Collection | Tree | Singleton |
-| ------------------ | ---------- | ---- | --------- |
-| `resolveRelations` | Yes        | Yes  | Yes       |
-| `augment`          | Yes        | Yes  | Yes       |
-| `filter`           | Yes        | No   | No        |
-| `sort`             | Yes        | No   | No        |
+| Option             | Collection | Tree | Item |
+| ------------------ | ---------- | ---- | ---- |
+| `resolveRelations` | Yes        | Yes  | Yes  |
+| `augment`          | Yes        | Yes  | Yes  |
+| `filter`           | Yes        | No   | No   |
+| `sort`             | Yes        | No   | No   |
 
 All view options are optional. An empty `view({})` leaves relations unresolved
-and adds no callbacks. Tree and singleton helpers reject filter and sort in
+and adds no callbacks. Tree and item helpers reject filter and sort in
 TypeScript and at runtime, including collection helper results passed to them.
 Undefined values are treated as omitted; supplied values such as `null` are rejected.
 

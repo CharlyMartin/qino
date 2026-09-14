@@ -12,18 +12,18 @@ export type {
 } from "./collection";
 export type { CollectionViewFactory } from "./collection-views";
 export type { Infer } from "./infer";
+export type {
+  AnyItem,
+  AnyItemMeta,
+  ExtractItemExtension,
+  Item,
+  ItemEntryMeta,
+  ItemFile,
+  ResolvedItemView,
+} from "./item";
 export type { Relations, RelationTarget } from "./relations";
 export type { ResolveOption } from "./resolve";
 export type { ObjectSchema } from "./schema";
-export type {
-  AnySingleton,
-  AnySingletonMeta,
-  ExtractSingletonExtension,
-  ResolvedSingletonView,
-  Singleton,
-  SingletonEntryMeta,
-  SingletonFile,
-} from "./singleton";
 export type { QinoSlugRegistry, SlugFor } from "./slug-registry";
 export type {
   AnyTree,

@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { QinoPrimitiveMarker } from "../../data/globals";
-import { makeDummyCollection, makeDummySingleton } from "../../utils/tests";
+import { makeDummyCollection, makeDummyItem } from "../../utils/tests";
 import { resolveRelationLeaf } from "./resolve-relation-leaf";
 
 const baseCtx = () => ({
@@ -53,8 +53,8 @@ describe("resolveRelationLeaf", () => {
     expect(result).toMatchObject({ slug: "alice" });
   });
 
-  test("parses a singleton reference and delegates target resolution", async () => {
-    const targetMeta = makeDummySingleton({
+  test("parses an item reference and delegates target resolution", async () => {
+    const targetMeta = makeDummyItem({
       file: "/config/site.json",
       data: { siteName: "Qino" },
     })[QinoPrimitiveMarker];

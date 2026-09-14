@@ -1,21 +1,21 @@
 import { QinoPrimitiveMarker, QinoPrimitives } from "../../data/globals";
-import type { AnySingleton, GenericPath, ResolveOption } from "../../types";
+import type { AnyItem, GenericPath, ResolveOption } from "../../types";
 import { DUMMY_INSTANCE_ID } from "./dummy-config";
 
-type MakeDummySingletonOptions = {
+type MakeDummyItemOptions = {
   file: GenericPath;
   data?: Record<string, unknown>;
   instanceId?: symbol;
 };
 
-export function makeDummySingleton({
+export function makeDummyItem({
   file,
   data = {},
   instanceId = DUMMY_INSTANCE_ID,
-}: MakeDummySingletonOptions) {
+}: MakeDummyItemOptions) {
   return {
     [QinoPrimitiveMarker]: {
-      is: QinoPrimitives.singleton,
+      is: QinoPrimitives.item,
       instanceId,
       schema: {} as never,
       file,
@@ -25,5 +25,5 @@ export function makeDummySingleton({
       readData: async () => data as never,
     },
     getData: async () => data as never,
-  } as AnySingleton;
+  } as AnyItem;
 }

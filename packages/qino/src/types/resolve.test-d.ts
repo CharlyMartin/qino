@@ -4,7 +4,7 @@ import { z } from "zod";
 import { createQino } from "../runtime/qino/create-qino";
 import type { TreeEntryMeta } from "./tree";
 
-const { createCollection, createSingleton, createTree } = createQino({
+const { defineCollection, defineItem, defineTree } = createQino({
   contentFolder: "src/content",
   mediaFolder: "public",
 });
@@ -29,19 +29,19 @@ const PostSchema = z
   })
   .strict();
 
-const authorCollection = createCollection({
+const authorCollection = defineCollection({
   directory: "/authors",
   schema: AuthorSchema,
   extension: ".json",
 });
 
-const categoryCollection = createCollection({
+const categoryCollection = defineCollection({
   directory: "/categories",
   schema: CategorySchema,
   extension: ".json",
 });
 
-const postCollection = createCollection({
+const postCollection = defineCollection({
   views: (view) => ({
     default: view({}),
     raw: view({ resolveRelations: false }),
@@ -102,7 +102,7 @@ describe("non-relation subtrees are left untouched", () => {
     y: { start: Date; end?: Date },
   ) => x.start.getTime() - y.start.getTime();
 
-  const articles = createCollection({
+  const articles = defineCollection({
     directory: "/articles",
     schema: ArticleSchema,
     extension: ".md",
@@ -208,7 +208,7 @@ describe("resolveRelations type behaviour", () => {
 });
 
 describe("collection-level default", () => {
-  const postCollectionDefaultFalse = createCollection({
+  const postCollectionDefaultFalse = defineCollection({
     views: (view) => ({
       default: view({
         resolveRelations: false,
@@ -251,18 +251,18 @@ describe("transitive depth (chained collections)", () => {
     .object({ title: z.string(), editor: z.string() })
     .strict();
 
-  const seniorCollection = createCollection({
+  const seniorCollection = defineCollection({
     directory: "/seniors",
     schema: SeniorSchema,
     extension: ".json",
   });
-  const editorCollection = createCollection({
+  const editorCollection = defineCollection({
     directory: "/editors",
     schema: EditorSchema,
     extension: ".json",
     relations: { lead: seniorCollection },
   });
-  const chainedPostCollection = createCollection({
+  const chainedPostCollection = defineCollection({
     views: (view) => ({
       default: view({}),
       raw: view({ resolveRelations: false }),
@@ -289,7 +289,7 @@ describe("transitive depth (chained collections)", () => {
   });
 });
 
-describe("singletons", () => {
+describe("items", () => {
   const HomeSchema = z
     .object({
       title: z.string(),
@@ -297,7 +297,7 @@ describe("singletons", () => {
     })
     .strict();
 
-  const homeSingleton = createSingleton({
+  const homeItem = defineItem({
     views: (view) => ({
       default: view({}),
       raw: view({ resolveRelations: false }),
@@ -313,7 +313,7 @@ describe("singletons", () => {
   });
 
   test("_meta has fileName and filePath but no slug", async () => {
-    const home = await homeSingleton.getData({ view: "raw" });
+    const home = await homeItem.getData({ view: "raw" });
     const meta = home._meta;
     expectTypeOf(meta.fileName).toEqualTypeOf<`${string}.md`>();
     expectTypeOf(meta.filePath).toEqualTypeOf<`${string}.md`>();
@@ -321,20 +321,20 @@ describe("singletons", () => {
   });
 
   test("resolveRelations: false keeps strings", async () => {
-    const home = await homeSingleton.getData({ view: "raw" });
+    const home = await homeItem.getData({ view: "raw" });
     expectTypeOf(home["featured-posts"]).toEqualTypeOf<Array<string>>();
   });
 
   test("depth 1 resolves featured-posts to full Post entries", async () => {
-    const home = await homeSingleton.getData({ view: "shallow" });
+    const home = await homeItem.getData({ view: "shallow" });
     expectTypeOf(home["featured-posts"][0].title).toEqualTypeOf<string>();
     expectTypeOf(home["featured-posts"][0]._meta.slug).toEqualTypeOf<string>();
   });
 });
 
-describe("collection → singleton relation", () => {
+describe("collection → item relation", () => {
   const ConfigSchema = z.object({ siteName: z.string() }).strict();
-  const configSingleton = createSingleton({
+  const configItem = defineItem({
     file: "/config/site.json",
     schema: ConfigSchema,
   });
@@ -343,7 +343,7 @@ describe("collection → singleton relation", () => {
     .object({ title: z.string(), siteConfig: z.string() })
     .strict();
 
-  const fooCollection = createCollection({
+  const fooCollection = defineCollection({
     views: (view) => ({
       default: view({}),
       raw: view({ resolveRelations: false }),
@@ -354,10 +354,10 @@ describe("collection → singleton relation", () => {
     directory: "/foos",
     schema: FooSchema,
     extension: ".json",
-    relations: { siteConfig: configSingleton },
+    relations: { siteConfig: configItem },
   });
 
-  test("depth 1: collection → singleton resolves to singleton shape", async () => {
+  test("depth 1: collection → item resolves to item shape", async () => {
     const foos = await fooCollection.getMany({ view: "shallow" });
     const foo = foos[0];
     expectTypeOf(foo.siteConfig.siteName).toEqualTypeOf<string>();
@@ -373,16 +373,16 @@ describe("collection → singleton relation", () => {
 });
 
 describe("all primitive relation pairs", () => {
-  const singleton = createSingleton({
+  const item = defineItem({
     file: "/site.json",
     schema: z.object({ siteName: z.string() }),
   });
-  const tree = createTree({
+  const tree = defineTree({
     directory: "/docs",
     extension: ".md",
     titleField: "title",
     schema: z.object({ title: z.string(), site: z.string() }),
-    relations: { site: singleton },
+    relations: { site: item },
     views: (view) => ({
       default: view({
         augment: () => ({ derived: true }),
@@ -403,12 +403,12 @@ describe("all primitive relation pairs", () => {
     }),
     relations: {
       author: authorCollection,
-      site: () => singleton,
+      site: () => item,
       doc: tree,
       "links[*].doc": () => tree,
     },
   };
-  const posts = createCollection({
+  const posts = defineCollection({
     ...config,
     views: (view) => ({
       default: view({}),
@@ -419,7 +419,7 @@ describe("all primitive relation pairs", () => {
     directory: "/related-posts",
     extension: ".json",
   });
-  const docs = createTree({
+  const docs = defineTree({
     ...config,
     views: (view) => ({
       default: view({}),
@@ -431,7 +431,7 @@ describe("all primitive relation pairs", () => {
     extension: ".json",
     titleField: "title",
   });
-  const home = createSingleton({
+  const home = defineItem({
     ...config,
     views: (view) => ({
       default: view({}),
@@ -442,7 +442,7 @@ describe("all primitive relation pairs", () => {
     file: "/related-home.json",
   });
 
-  test("every source infers collection, singleton, and tree entries", async () => {
+  test("every source infers collection, item, and tree entries", async () => {
     const entries = [
       await posts.getOne("hello", { view: "shallow" }),
       await docs.getEntry("hello", { view: "shallow" }),

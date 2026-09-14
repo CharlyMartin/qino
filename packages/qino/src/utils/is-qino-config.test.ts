@@ -3,8 +3,8 @@ import { describe, expect, test } from "vitest";
 import { isQinoConfig } from "./is-qino-config";
 import {
   makeDummyCollection,
+  makeDummyItem,
   makeDummyQino,
-  makeDummySingleton,
   makeDummyTree,
 } from "./tests";
 
@@ -21,10 +21,8 @@ describe("isQinoConfig", () => {
     ).toBe(false);
   });
 
-  test("returns false for a singleton", () => {
-    expect(isQinoConfig(makeDummySingleton({ file: "/config.json" }))).toBe(
-      false,
-    );
+  test("returns false for an item", () => {
+    expect(isQinoConfig(makeDummyItem({ file: "/config.json" }))).toBe(false);
   });
 
   test("returns false for a tree", () => {

@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import {
   DUMMY_INSTANCE_ID,
   makeDummyCollection,
-  makeDummySingleton,
+  makeDummyItem,
 } from "../../utils/tests";
 import { assertInstanceIdsMatch } from "./assert-instance-ids-match";
 
@@ -11,7 +11,7 @@ describe("assertInstanceIdsMatch", () => {
   test("does not throw when all instance ids match", () => {
     const primitives = [
       makeDummyCollection({ directory: "/posts", extension: ".md" }),
-      makeDummySingleton({ file: "/settings.json" }),
+      makeDummyItem({ file: "/settings.json" }),
     ];
 
     expect(() =>
@@ -26,7 +26,7 @@ describe("assertInstanceIdsMatch", () => {
   test("throws when a primitive has a different instance id", () => {
     const primitives = [
       makeDummyCollection({ directory: "/posts", extension: ".md" }),
-      makeDummySingleton({
+      makeDummyItem({
         file: "/settings.json",
         instanceId: Symbol.for("qino.tests.other"),
       }),

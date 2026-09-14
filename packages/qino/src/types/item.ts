@@ -17,54 +17,52 @@ import type {
 } from "./utils";
 import type { SelectedView, ViewArguments, ViewSelection } from "./views";
 
-export type SingletonEntryMeta<
+export type ItemEntryMeta<
   Ext extends SupportedFileExtension = SupportedFileExtension,
 > = {
   fileName: `${string}${Ext}`;
   filePath: `${string}${Ext}`;
 };
 
-export type SingletonMeta<
+export type ItemMeta<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension = SupportedFileExtension,
   Rels extends Relations<Schema> = Relations<Schema>,
 > = {
-  readonly is: (typeof QinoPrimitives)["singleton"];
+  readonly is: (typeof QinoPrimitives)["item"];
   readonly instanceId: symbol;
   readonly schema: Schema;
   readonly file: GenericPath;
   readonly extension: Ext;
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
-  readonly readData: () => Promise<
-    ResolvedSingletonView<Schema, Ext, Rels, false>
-  >;
+  readonly readData: () => Promise<ResolvedItemView<Schema, Ext, Rels, false>>;
 };
 
-export type AnySingleton = {
-  readonly [QinoPrimitiveMarker]: SingletonMeta<ObjectSchema>;
+export type AnyItem = {
+  readonly [QinoPrimitiveMarker]: ItemMeta<ObjectSchema>;
   getData(options?: GetterOptions<undefined>): Promise<
     Record<string, unknown> & {
-      [K in typeof META_FIELD_NAME]: SingletonEntryMeta;
+      [K in typeof META_FIELD_NAME]: ItemEntryMeta;
     }
   >;
 };
 
-export type AnySingletonMeta = AnySingleton[typeof QinoPrimitiveMarker];
+export type AnyItemMeta = AnyItem[typeof QinoPrimitiveMarker];
 
-export type Singleton<
+export type Item<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema> = object,
   Views extends object = object,
-> = PrimitiveInference<Schema, SingletonEntryMeta<Ext>, Rels, Views> & {
-  readonly [QinoPrimitiveMarker]: SingletonMeta<Schema, Ext, Rels>;
+> = PrimitiveInference<Schema, ItemEntryMeta<Ext>, Rels, Views> & {
+  readonly [QinoPrimitiveMarker]: ItemMeta<Schema, Ext, Rels>;
   getData<Args extends ViewArguments<Views> = []>(
     ...args: Args
   ): Promise<
     SelectedView<
       Schema,
-      SingletonEntryMeta<Ext>,
+      ItemEntryMeta<Ext>,
       Rels,
       Views,
       ViewSelection<Args[0]>
@@ -72,29 +70,28 @@ export type Singleton<
   >;
 };
 
-export type SingletonFile = {
+export type ItemFile = {
   [Ext in SupportedFileExtension]: `${GenericPath}${Ext}`;
 }[SupportedFileExtension];
 
-export type ExtractSingletonExtension<F extends string> =
-  F extends `${string}.json`
-    ? ".json"
-    : F extends `${string}.mdx`
-      ? ".mdx"
-      : F extends `${string}.markdown`
-        ? ".markdown"
-        : F extends `${string}.md`
-          ? ".md"
-          : never;
+export type ExtractItemExtension<F extends string> = F extends `${string}.json`
+  ? ".json"
+  : F extends `${string}.mdx`
+    ? ".mdx"
+    : F extends `${string}.markdown`
+      ? ".markdown"
+      : F extends `${string}.md`
+        ? ".md"
+        : never;
 
-export type ResolvedSingletonView<
+export type ResolvedItemView<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema>,
   R extends ResolveOption,
   Derived extends AugmentOutput = {},
 > = Simplify<
-  { [K in typeof META_FIELD_NAME]: SingletonEntryMeta<Ext> } & ResolveEntry<
+  { [K in typeof META_FIELD_NAME]: ItemEntryMeta<Ext> } & ResolveEntry<
     Schema,
     Rels,
     NormalizeDepth<R>

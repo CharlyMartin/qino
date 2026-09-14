@@ -20,7 +20,7 @@ type GenerateTypesParams = {
 /**
  * Generates `qino/_generated/types.d.ts` with a slug union per collection and tree,
  * augmenting `QinoSlugRegistry` so getters autocomplete known slugs.
- * Singletons are skipped — `getData()` takes no slug.
+ * Items are skipped — `getData()` takes no slug.
  */
 export async function generateTypes({
   collections = [],

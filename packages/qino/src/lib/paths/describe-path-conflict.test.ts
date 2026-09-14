@@ -12,7 +12,7 @@ describe("describePathConflict", () => {
     ).toBeNull();
     expect(
       describePathConflict(
-        { kind: "singleton", path: "/pages/home.md" },
+        { kind: "item", path: "/pages/home.md" },
         { kind: "collection", path: "/authors" },
       ),
     ).toBeNull();
@@ -45,13 +45,13 @@ describe("describePathConflict", () => {
     ).toMatch(/Tree directories overlap.*\/docs.*\/docs\/api/);
   });
 
-  test("flags singletons targeting the same file", () => {
+  test("flags items targeting the same file", () => {
     expect(
       describePathConflict(
-        { kind: "singleton", path: "/settings.json" },
-        { kind: "singleton", path: "/settings.json" },
+        { kind: "item", path: "/settings.json" },
+        { kind: "item", path: "/settings.json" },
       ),
-    ).toMatch(/Two singletons target the same file.*\/settings\.json/);
+    ).toMatch(/Two items target the same file.*\/settings\.json/);
   });
 
   test("flags tree directory overlapping a collection directory regardless of arg order", () => {
@@ -70,32 +70,32 @@ describe("describePathConflict", () => {
     ).toMatch(message);
   });
 
-  test("flags a singleton file inside a tree directory", () => {
+  test("flags an item file inside a tree directory", () => {
     expect(
       describePathConflict(
-        { kind: "singleton", path: "/docs/preamble.md" },
+        { kind: "item", path: "/docs/preamble.md" },
         { kind: "tree", path: "/docs" },
       ),
     ).toMatch(
-      /Singleton file "\/docs\/preamble\.md" sits inside tree directory "\/docs"/,
+      /Item file "\/docs\/preamble\.md" sits inside tree directory "\/docs"/,
     );
   });
 
-  test("flags a singleton file inside a collection directory", () => {
+  test("flags an item file inside a collection directory", () => {
     expect(
       describePathConflict(
-        { kind: "singleton", path: "/posts/intro.md" },
+        { kind: "item", path: "/posts/intro.md" },
         { kind: "collection", path: "/posts" },
       ),
     ).toMatch(
-      /Singleton file "\/posts\/intro\.md" sits inside collection directory "\/posts"/,
+      /Item file "\/posts\/intro\.md" sits inside collection directory "\/posts"/,
     );
   });
 
-  test("allows a singleton sharing a prefix but not inside the tree", () => {
+  test("allows an item sharing a prefix but not inside the tree", () => {
     expect(
       describePathConflict(
-        { kind: "singleton", path: "/docs-extra.md" },
+        { kind: "item", path: "/docs-extra.md" },
         { kind: "tree", path: "/docs" },
       ),
     ).toBeNull();

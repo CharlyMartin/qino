@@ -15,13 +15,13 @@ Convention from the brainstorm:
 ## API (sketch — not finalised)
 
 ```ts
-import { createCollection } from "qino";
+import { defineCollection } from "qino";
 import z from "zod";
 
 const PostSchema = z.object({
   title: z.string(),
   "published-on": z.qino().publishedOn(),
-  "updated-on":   z.qino().updatedOn(),
+  "updated-on": z.qino().updatedOn(),
 });
 ```
 
@@ -33,7 +33,7 @@ import { publishedOn, updatedOn } from "qino";
 const PostSchema = z.object({
   title: z.string(),
   "published-on": publishedOn(),
-  "updated-on":   updatedOn(),
+  "updated-on": updatedOn(),
 });
 ```
 

@@ -2,18 +2,18 @@ import {
   type Collection,
   createQino,
   type Infer,
-  type Singleton,
+  type Item,
   type Tree,
 } from "qino";
 import { expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
 const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
-const site = qino.createSingleton({
+const site = qino.defineItem({
   file: "/site.json",
   schema: z.object({ name: z.string() }),
 });
-const authors = qino.createCollection({
+const authors = qino.defineCollection({
   directory: "/authors",
   extension: ".json",
   schema: z.object({ name: z.string(), site: z.string() }),
@@ -33,7 +33,7 @@ const schema = z.object({
   output: z.string(),
   views: z.number(),
 });
-const posts = qino.createCollection({
+const posts = qino.defineCollection({
   directory: "/posts",
   extension: ".md",
   schema,
@@ -109,8 +109,8 @@ test("views preserve independent augmentation and relation depths", async () => 
   expectTypeOf<Views["full"]["author"]["targetViewDerived"]>();
 });
 
-test("singleton inference matches getters and singleton metadata", async () => {
-  const home = qino.createSingleton({
+test("item inference matches getters and item metadata", async () => {
+  const home = qino.defineItem({
     file: "/home.mdx",
     schema,
     relations: { author: authors },
@@ -148,7 +148,7 @@ test("singleton inference matches getters and singleton metadata", async () => {
 });
 
 test("tree inference describes content entries and their views", async () => {
-  const docs = qino.createTree({
+  const docs = qino.defineTree({
     directory: "/docs",
     extension: ".markdown",
     titleField: "title",
@@ -188,18 +188,18 @@ test("tree inference describes content entries and their views", async () => {
 });
 
 test("omitted views have no keys", () => {
-  const collection = qino.createCollection({
+  const collection = qino.defineCollection({
     directory: "/plain",
     extension: ".json",
     schema,
   });
-  const tree = qino.createTree({
+  const tree = qino.defineTree({
     directory: "/plain-docs",
     extension: ".md",
     titleField: "title",
     schema,
   });
-  const empty = qino.createSingleton({
+  const empty = qino.defineItem({
     file: "/empty.json",
     schema,
   });
@@ -228,8 +228,7 @@ test("rejects invalid inputs and unknown view names", () => {
 test("supports generics constrained by public primitive aliases", () => {
   type CollectionOutput<P extends Collection<typeof schema, ".md">> =
     Infer<P>["output"];
-  type SingletonOutput<P extends Singleton<typeof schema, ".json">> =
-    Infer<P>["output"];
+  type ItemOutput<P extends Item<typeof schema, ".json">> = Infer<P>["output"];
   type TreeOutput<P extends Tree<typeof schema, ".mdx", "title">> =
     Infer<P>["output"];
   type Highlight<P extends typeof posts> = Infer<P>["views"]["highlight"];
@@ -238,7 +237,7 @@ test("supports generics constrained by public primitive aliases", () => {
     CollectionOutput<Collection<typeof schema, ".md">>["count"]
   >().toEqualTypeOf<number>();
   expectTypeOf<
-    SingletonOutput<Singleton<typeof schema, ".json">>["count"]
+    ItemOutput<Item<typeof schema, ".json">>["count"]
   >().toEqualTypeOf<number>();
   expectTypeOf<
     TreeOutput<Tree<typeof schema, ".mdx", "title">>["count"]

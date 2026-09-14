@@ -7,8 +7,8 @@ import type {
   QinoPrimitives,
 } from "../data";
 import type { CollectionEntryMeta } from "./collection";
+import type { ItemEntryMeta } from "./item";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
-import type { SingletonEntryMeta } from "./singleton";
 import type { TreeEntryMeta } from "./tree";
 import type { JsonPathArray, SupportedFileExtension } from "./utils";
 
@@ -101,7 +101,7 @@ type ResolveRelationTarget<C, NextD extends Depth> = C extends {
       ? S extends ObjectSchema
         ? Simplify<
             {
-              [K in typeof META_FIELD_NAME]: SingletonEntryMeta<Ext>;
+              [K in typeof META_FIELD_NAME]: ItemEntryMeta<Ext>;
             } & ResolveEntry<S, Rels, NextD>
           >
         : never

@@ -7,7 +7,7 @@ describe("assertNoOverlappingPaths", () => {
     expect(() =>
       assertNoOverlappingPaths({
         collectionDirs: ["/authors"],
-        singletonFiles: ["/pages/home.md"],
+        itemFiles: ["/pages/home.md"],
         treeDirs: ["/docs"],
       }),
     ).not.toThrow();
@@ -17,7 +17,7 @@ describe("assertNoOverlappingPaths", () => {
     expect(() =>
       assertNoOverlappingPaths({
         collectionDirs: [],
-        singletonFiles: [],
+        itemFiles: [],
         treeDirs: [],
       }),
     ).not.toThrow();
@@ -27,7 +27,7 @@ describe("assertNoOverlappingPaths", () => {
     expect(() =>
       assertNoOverlappingPaths({
         collectionDirs: ["/posts", "/posts/featured"],
-        singletonFiles: [],
+        itemFiles: [],
         treeDirs: [],
       }),
     ).toThrow(/Collection directories overlap.*\/posts.*\/posts\/featured/);
@@ -37,7 +37,7 @@ describe("assertNoOverlappingPaths", () => {
     expect(() =>
       assertNoOverlappingPaths({
         collectionDirs: ["/posts", "/posts"],
-        singletonFiles: [],
+        itemFiles: [],
         treeDirs: [],
       }),
     ).toThrow(/Collection directories overlap/);
@@ -47,7 +47,7 @@ describe("assertNoOverlappingPaths", () => {
     expect(() =>
       assertNoOverlappingPaths({
         collectionDirs: [],
-        singletonFiles: [],
+        itemFiles: [],
         treeDirs: ["/docs", "/docs"],
       }),
     ).toThrow(/Tree directories overlap/);
@@ -57,27 +57,27 @@ describe("assertNoOverlappingPaths", () => {
     expect(() =>
       assertNoOverlappingPaths({
         collectionDirs: [],
-        singletonFiles: [],
+        itemFiles: [],
         treeDirs: ["/docs", "/docs/api"],
       }),
     ).toThrow(/Tree directories overlap.*\/docs.*\/docs\/api/);
   });
 
-  test("throws when two singletons target the same file", () => {
+  test("throws when two items target the same file", () => {
     expect(() =>
       assertNoOverlappingPaths({
         collectionDirs: [],
-        singletonFiles: ["/settings.json", "/settings.json"],
+        itemFiles: ["/settings.json", "/settings.json"],
         treeDirs: [],
       }),
-    ).toThrow(/Two singletons target the same file.*\/settings\.json/);
+    ).toThrow(/Two items target the same file.*\/settings\.json/);
   });
 
   test("throws when a tree directory is a prefix of a collection directory", () => {
     expect(() =>
       assertNoOverlappingPaths({
         collectionDirs: ["/docs/api"],
-        singletonFiles: [],
+        itemFiles: [],
         treeDirs: ["/docs"],
       }),
     ).toThrow(/Tree directory "\/docs" overlaps with collection/);
@@ -87,41 +87,41 @@ describe("assertNoOverlappingPaths", () => {
     expect(() =>
       assertNoOverlappingPaths({
         collectionDirs: ["/docs"],
-        singletonFiles: [],
+        itemFiles: [],
         treeDirs: ["/docs"],
       }),
     ).toThrow(/overlaps with collection/);
   });
 
-  test("throws when a singleton file sits inside a tree directory", () => {
+  test("throws when an item file sits inside a tree directory", () => {
     expect(() =>
       assertNoOverlappingPaths({
         collectionDirs: [],
-        singletonFiles: ["/docs/preamble.md"],
+        itemFiles: ["/docs/preamble.md"],
         treeDirs: ["/docs"],
       }),
     ).toThrow(
-      /Singleton file "\/docs\/preamble\.md" sits inside tree directory "\/docs"/,
+      /Item file "\/docs\/preamble\.md" sits inside tree directory "\/docs"/,
     );
   });
 
-  test("throws when a singleton file sits inside a collection directory", () => {
+  test("throws when an item file sits inside a collection directory", () => {
     expect(() =>
       assertNoOverlappingPaths({
         collectionDirs: ["/posts"],
-        singletonFiles: ["/posts/intro.md"],
+        itemFiles: ["/posts/intro.md"],
         treeDirs: [],
       }),
     ).toThrow(
-      /Singleton file "\/posts\/intro\.md" sits inside collection directory "\/posts"/,
+      /Item file "\/posts\/intro\.md" sits inside collection directory "\/posts"/,
     );
   });
 
-  test("allows a singleton path that shares a prefix but is not inside the tree", () => {
+  test("allows an item path that shares a prefix but is not inside the tree", () => {
     expect(() =>
       assertNoOverlappingPaths({
         collectionDirs: [],
-        singletonFiles: ["/docs-extra.md"],
+        itemFiles: ["/docs-extra.md"],
         treeDirs: ["/docs"],
       }),
     ).not.toThrow();

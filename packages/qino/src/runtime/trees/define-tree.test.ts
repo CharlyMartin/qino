@@ -13,11 +13,11 @@ import {
 import { createQino } from "../qino/create-qino";
 
 let tmp: string;
-let createTree: ReturnType<typeof createQino>["createTree"];
+let defineTree: ReturnType<typeof createQino>["defineTree"];
 
 beforeEach(async () => {
   tmp = await fs.mkdtemp(nodePath.join(os.tmpdir(), "qino-tree-"));
-  ({ createTree } = createQino({ contentFolder: tmp, mediaFolder: tmp }));
+  ({ defineTree } = createQino({ contentFolder: tmp, mediaFolder: tmp }));
 });
 
 afterEach(async () => {
@@ -35,13 +35,13 @@ async function writeMd(dir: string, name: string, title: string, body = "") {
   );
 }
 
-describe("createTree", () => {
+describe("defineTree", () => {
   test("adds derived fields to entries while keeping navigation nodes structural", async () => {
     const docs = nodePath.join(tmp, "docs");
     await fs.mkdir(docs);
     await writeMd(docs, "intro", "Introduction", "One");
 
-    const tree = createTree({
+    const tree = defineTree({
       views: (view) => ({
         default: view({
           augment: ({ body }) => ({ words: body.trim().split(/\s+/u).length }),
@@ -60,7 +60,7 @@ describe("createTree", () => {
   });
 
   test("stores metadata under the QinoPrimitiveMarker symbol with defaults applied", () => {
-    const tree = createTree({
+    const tree = defineTree({
       directory: "/docs",
       schema: Schema,
       extension: ".md",
@@ -78,7 +78,7 @@ describe("createTree", () => {
   });
 
   test("honours a custom orderFileName", () => {
-    const tree = createTree({
+    const tree = defineTree({
       directory: "/docs",
       schema: Schema,
       extension: ".md",
@@ -97,7 +97,7 @@ describe("createTree", () => {
     await fs.mkdir(guidesDir);
     await writeMd(guidesDir, "queries", "Queries");
 
-    const tree = createTree({
+    const tree = defineTree({
       directory: "/docs",
       schema: Schema,
       extension: ".md",
@@ -121,7 +121,7 @@ describe("createTree", () => {
     await fs.mkdir(guidesDir);
     await writeMd(guidesDir, "queries", "Queries");
 
-    const tree = createTree({
+    const tree = defineTree({
       directory: "/docs",
       schema: Schema,
       extension: ".md",
@@ -138,7 +138,7 @@ describe("createTree", () => {
     await fs.mkdir(docs);
     await writeMd(docs, "introduction", "Introduction");
 
-    const tree = createTree({
+    const tree = defineTree({
       directory: "/docs",
       schema: Schema,
       extension: ".md",
@@ -155,7 +155,7 @@ describe("createTree", () => {
     await fs.mkdir(docs);
     await writeMd(docs, "introduction", "Introduction", "Welcome");
 
-    const tree = createTree({
+    const tree = defineTree({
       directory: "/docs",
       schema: Schema,
       extension: ".md",
@@ -182,7 +182,7 @@ describe("createTree", () => {
     await fs.mkdir(queriesDir);
     await writeMd(queriesDir, "basics", "Basics", "Body");
 
-    const tree = createTree({
+    const tree = defineTree({
       directory: "/docs",
       schema: Schema,
       extension: ".md",
@@ -202,7 +202,7 @@ describe("createTree", () => {
     const docs = nodePath.join(tmp, "docs");
     await fs.mkdir(docs);
 
-    const tree = createTree({
+    const tree = defineTree({
       directory: "/docs",
       schema: Schema,
       extension: ".md",
@@ -217,7 +217,7 @@ describe("createTree", () => {
     await fs.mkdir(docs);
     await writeMd(docs, "intro", "Intro");
 
-    const tree = createTree({
+    const tree = defineTree({
       directory: "/docs",
       schema: Schema,
       extension: ".md",
@@ -251,7 +251,7 @@ describe("createTree", () => {
       JSON.stringify(["queries.md", "mutations.md"]),
     );
 
-    const tree = createTree({
+    const tree = defineTree({
       directory: "/docs",
       schema: Schema,
       extension: ".md",
@@ -288,7 +288,7 @@ describe("createTree", () => {
         JSON.stringify(["queries.md", "mutations.md"]),
       );
 
-      return createTree({
+      return defineTree({
         directory: "/docs",
         schema: Schema,
         extension: ".md",
@@ -353,7 +353,7 @@ test("relations load nested Markdown tree entries without navigation or target a
   await writeMd(dir, "setup", "Setup", "Installation instructions");
   // A malformed sibling must not affect reading the referenced entry.
   await fs.writeFile(nodePath.join(dir, "broken.md"), "---\ntitle: [\n---");
-  const docs = qino.createTree({
+  const docs = qino.defineTree({
     views: (view) => ({
       default: view({
         augment: () => {
@@ -371,7 +371,7 @@ test("relations load nested Markdown tree entries without navigation or target a
     nodePath.join(tmp, "home.json"),
     JSON.stringify(reference),
   );
-  const home = qino.createSingleton({
+  const home = qino.defineItem({
     views: (view) => ({
       default: view({
         resolveRelations: true,

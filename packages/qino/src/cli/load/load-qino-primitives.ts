@@ -2,10 +2,10 @@ import fg from "fast-glob";
 import { createJiti } from "jiti";
 
 import { SUPPORTED_CODE_EXTENSIONS } from "../../data";
-import type { AnyCollection, AnySingleton, AnyTree } from "../../types";
+import type { AnyCollection, AnyItem, AnyTree } from "../../types";
 import { isCollection } from "../../utils/is-collection";
+import { isItem } from "../../utils/is-item";
 import { isQinoPrimitive } from "../../utils/is-qino-primitive";
-import { isSingleton } from "../../utils/is-singleton";
 import { isTree } from "../../utils/is-tree";
 
 export async function loadQinoPrimitives(rootDirPath: string) {
@@ -17,7 +17,7 @@ export async function loadQinoPrimitives(rootDirPath: string) {
   const jiti = createJiti(import.meta.url);
 
   const collections: AnyCollection[] = [];
-  const singletons: AnySingleton[] = [];
+  const items: AnyItem[] = [];
   const trees: AnyTree[] = [];
 
   for (const file of files) {
@@ -28,13 +28,13 @@ export async function loadQinoPrimitives(rootDirPath: string) {
 
       if (isCollection(value)) {
         collections.push(value);
-      } else if (isSingleton(value)) {
-        singletons.push(value);
+      } else if (isItem(value)) {
+        items.push(value);
       } else if (isTree(value)) {
         trees.push(value);
       }
     }
   }
 
-  return { collections, singletons, trees };
+  return { collections, items, trees };
 }

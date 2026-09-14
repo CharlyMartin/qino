@@ -5,13 +5,13 @@
 
 ## Intent
 
-A collection is a folder of similarly-shaped entries — typically `posts/*.md`, `authors/*.json`, `categories/*.json`. `createCollection` defines the shape and returns getters for filename discovery or reading and validating content.
+A collection is a folder of similarly-shaped entries — typically `posts/*.md`, `authors/*.json`, `categories/*.json`. `defineCollection` defines the shape and returns getters for filename discovery or reading and validating content.
 
 ## API
 
 ```ts
 // qino/collections/posts.ts
-import { createCollection } from "qino";
+import { defineCollection } from "qino";
 import z from "zod";
 import { authorCollection } from "./authors";
 import { categoryCollection } from "./categories";
@@ -28,7 +28,7 @@ const PostSchema = z
   })
   .strict();
 
-export const postCollection = createCollection({
+export const postCollection = defineCollection({
   directory: "/posts", // relative to config.contentFolder; must start with "/"
   schema: PostSchema,
   extension: ".md", // ".md" | ".mdx" | ".json"
@@ -41,7 +41,7 @@ export const postCollection = createCollection({
 
 Any [Standard Schema](https://standardschema.dev)–compatible validator works (zod ≥ 3.24, Valibot, ArkType, Effect Schema, …). The runtime treats validation as a black box.
 
-Source of truth: `packages/qino/src/runtime/collections/create-collection.ts`.
+Source of truth: `packages/qino/src/runtime/collections/define-collection.ts`.
 
 ## Behaviour
 
@@ -113,7 +113,7 @@ Positional, not object form. (The earlier draft of the spec used `getOne({ slug 
 
 ### `relations`
 
-Optional object on `createCollection` whose keys are **JSON-path strings** into the schema's validated output, and whose leaf type is `string`. Values are collections, trees, or singletons (the object returned by `createCollection`, `createTree`, or `createSingleton`) — or thunks `() => target` for forward references.
+Optional object on `defineCollection` whose keys are **JSON-path strings** into the schema's validated output, and whose leaf type is `string`. Values are collections, trees, or items (the object returned by `defineCollection`, `defineTree`, or `defineItem`) — or thunks `() => target` for forward references.
 
 Path grammar:
 
@@ -132,7 +132,7 @@ Invalid paths (caught at compile time): keys that don't exist in the schema, pat
 
 Cardinality is derived from the path itself: any `[*]` anywhere in the key → `cardinality: "many"`; otherwise `cardinality: "one"`. `[*]` is transitive — `articles[*].author` yields many authors per entry, so it's `"many"` even though the leaf is a single field. No build-time data scan is needed.
 
-The proposed lock file records `field` (the path string), `target`, `kind` (`"collection"`, `"tree"`, or `"singleton"`), and `cardinality` for each relation; resolving relations into full entries (`resolveRelations`) is described in `05-relationships.md`.
+The proposed lock file records `field` (the path string), `target`, `kind` (`"collection"`, `"tree"`, or `"item"`), and `cardinality` for each relation; resolving relations into full entries (`resolveRelations`) is described in `05-relationships.md`.
 
 Relation values in content files are stored in verbose form (`author: "authors/jane-doe.json"`, not bare slugs) — see [05-relationships.md → Relation value format](05-relationships.md#relation-value-format).
 

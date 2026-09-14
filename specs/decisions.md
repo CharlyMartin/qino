@@ -53,3 +53,13 @@ V2 ships:
 **Why:** Different editorial workflows. Solo authors want speed; teams want review. No reason to force one model.
 
 **Implications:** Captured in `13-cloud-ui.md`.
+
+---
+
+## 2026-09-14 — Use `defineItem`, `defineCollection`, and `defineTree`
+
+**Decision:** Rename `createSingleton` to `defineItem`, `createCollection` to `defineCollection`, and `createTree` to `defineTree`. Use item terminology throughout the API, types, CLI, and documentation. Keep `createQino` as the instance factory.
+
+**Why:** These helpers declare content sources and schemas. “Define” communicates that purpose, and “item” is more approachable than “singleton” while covering both pages and settings.
+
+**Implications:** This is a breaking rename with no compatibility aliases. Single-file definitions use `qino/items/`; the public types are `Item` and `ItemEntryMeta`. See [03-items.md](03-items.md).

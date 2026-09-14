@@ -12,7 +12,7 @@ export async function fetchTargetEntry(
 
   try {
     switch (meta.is) {
-      case QinoPrimitives.singleton:
+      case QinoPrimitives.item:
         return await meta.readData();
       case QinoPrimitives.tree:
         return await meta.readEntry(slug);
@@ -23,9 +23,7 @@ export async function fetchTargetEntry(
     const message = cause instanceof Error ? cause.message : String(cause);
 
     const errorRef =
-      meta.is == QinoPrimitives.singleton
-        ? meta.file
-        : `${meta.directory}/${slug}`;
+      meta.is == QinoPrimitives.item ? meta.file : `${meta.directory}/${slug}`;
 
     throw new Error(
       `Failed to resolve relation "${ctx.relationKey}" → ${errorRef} (from ${ctx.sourceFilePath}): ${message}`,

@@ -7,7 +7,7 @@
 
 `qino build` does **not** emit a lock file. It loads `qino/index.ts` (which calls
 `createQino({...})`), discovers all primitives via the side-effect imports of
-`qino/collections/*`, `qino/singletons/*`, `qino/trees/*`, then validates schemas,
+`qino/collections/*`, `qino/items/*`, `qino/trees/*`, then validates schemas,
 paths, relations, and (eventually) generates `.d.ts` types. Runtime getters read the
 config from each primitive's in-memory `QinoPrimitiveMarker` — no JSON contract on disk.
 
@@ -70,18 +70,18 @@ This is exactly the shape committed at `examples/next-js/qino/qino-lock.json`. T
 
 ## Field reference
 
-| Field                          | Type                                        | Notes                                                                  |
-| ------------------------------ | ------------------------------------------- | ---------------------------------------------------------------------- |
-| `qinoVersion`                  | string                                      | The version of `qino` that produced this file. Used for migration.     |
-| `config.contentFolder`         | string                                      | Mirrors `qino/config.ts`. Path relative to repo root.                  |
-| `config.mediaFolder`           | string                                      | Same.                                                                  |
-| `collections.<id>.path`        | string                                      | Relative to `contentFolder`.                                           |
-| `collections.<id>.extension`   | `".md" \| ".mdx" \| ".json"`                | File extension for entries.                                            |
-| `collections.<id>.relations[]` | array                                       | Declared relationships (see `05-relationships.md`).                    |
-| `relations[].field`            | string                                      | Field name in the entry. `[]` suffix for arrays (e.g. `categories[]`). |
-| `relations[].target`           | string                                      | Target collection, tree, or singleton id.                              |
-| `relations[].kind`             | `"collection"` \| `"tree"` \| `"singleton"` | Selects the target section.                                            |
-| `relations[].cardinality`      | `"one" \| "many"`                           | Whether the field resolves to one or many entries.                     |
+| Field                          | Type                                   | Notes                                                                  |
+| ------------------------------ | -------------------------------------- | ---------------------------------------------------------------------- |
+| `qinoVersion`                  | string                                 | The version of `qino` that produced this file. Used for migration.     |
+| `config.contentFolder`         | string                                 | Mirrors `qino/config.ts`. Path relative to repo root.                  |
+| `config.mediaFolder`           | string                                 | Same.                                                                  |
+| `collections.<id>.path`        | string                                 | Relative to `contentFolder`.                                           |
+| `collections.<id>.extension`   | `".md" \| ".mdx" \| ".json"`           | File extension for entries.                                            |
+| `collections.<id>.relations[]` | array                                  | Declared relationships (see `05-relationships.md`).                    |
+| `relations[].field`            | string                                 | Field name in the entry. `[]` suffix for arrays (e.g. `categories[]`). |
+| `relations[].target`           | string                                 | Target collection, tree, or item id.                                   |
+| `relations[].kind`             | `"collection"` \| `"tree"` \| `"item"` | Selects the target section.                                            |
+| `relations[].cardinality`      | `"one" \| "many"`                      | Whether the field resolves to one or many entries.                     |
 
 V1 will also include:
 

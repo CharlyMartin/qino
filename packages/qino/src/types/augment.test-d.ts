@@ -12,7 +12,7 @@ const schema = z
   })
   .strict();
 
-const collection = qino.createCollection({
+const collection = qino.defineCollection({
   views: (view) => ({
     default: view({
       augment: ({ body, _meta }) => ({
@@ -26,7 +26,7 @@ const collection = qino.createCollection({
   extension: ".md",
 });
 
-const singleton = qino.createSingleton({
+const item = qino.defineItem({
   views: (view) => ({
     default: view({
       augment: ({ body }) => ({ stats: { wordCount: body.length } }),
@@ -36,7 +36,7 @@ const singleton = qino.createSingleton({
   schema,
 });
 
-const tree = qino.createTree({
+const tree = qino.defineTree({
   views: (view) => ({
     default: view({
       augment: ({ body }) => ({ stats: { wordCount: body.length } }),
@@ -51,7 +51,7 @@ const tree = qino.createTree({
 describe("augment type behaviour", () => {
   test("infers fields returned by every hydrated primitive", async () => {
     const [post] = await collection.getMany();
-    const home = await singleton.getData();
+    const home = await item.getData();
     const doc = await tree.getEntry("intro");
 
     expectTypeOf(post.stats.wordCount).toEqualTypeOf<number>();
@@ -61,7 +61,7 @@ describe("augment type behaviour", () => {
   });
 
   test("does not allow augmentations to overwrite entry fields", () => {
-    qino.createCollection({
+    qino.defineCollection({
       views: (view) => ({
         default: view({
           // @ts-expect-error Augmentations may only add fields.

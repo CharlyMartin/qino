@@ -11,14 +11,14 @@ import { createQino } from "../qino/create-qino";
 let tmp: string;
 
 beforeEach(async () => {
-  tmp = await fs.mkdtemp(nodePath.join(os.tmpdir(), "qino-singleton-"));
+  tmp = await fs.mkdtemp(nodePath.join(os.tmpdir(), "qino-item-"));
 });
 
 afterEach(async () => {
   await fs.rm(tmp, { recursive: true, force: true });
 });
 
-describe("createSingleton", () => {
+describe("defineItem", () => {
   test("adds derived fields from an async augment callback", async () => {
     const pages = nodePath.join(tmp, "pages");
     await fs.mkdir(pages);
@@ -28,7 +28,7 @@ describe("createSingleton", () => {
     );
 
     const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-    const singleton = qino.createSingleton({
+    const item = qino.defineItem({
       views: (view) => ({
         default: view({
           augment: async ({ body }) => ({
@@ -42,6 +42,6 @@ describe("createSingleton", () => {
         .strict(),
     });
 
-    await expect(singleton.getData()).resolves.toMatchObject({ words: 2 });
+    await expect(item.getData()).resolves.toMatchObject({ words: 2 });
   });
 });

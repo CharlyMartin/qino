@@ -42,7 +42,7 @@ import { flattenTree } from "./flatten-tree";
 import { getNeighborNode } from "./get-neighbor-node";
 import { walkTree } from "./walk-tree";
 
-export type CreateTreeParams<
+export type DefineTreeParams<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Title extends StringKeys<Schema>,
@@ -59,14 +59,14 @@ export type CreateTreeParams<
   views?: ViewsConfig<Views, ViewFactory<Schema, TreeEntryMeta<Ext>, Rels>>;
 } & RootViewSettings;
 
-export function createTree<
+export function defineTree<
   S extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Title extends StringKeys<S>,
   Rels extends Relations<S> = object,
   Dir extends GenericPath = GenericPath,
   const Views extends object = object,
->(ctx: QinoContext, params: CreateTreeParams<S, Ext, Title, Rels, Dir, Views>) {
+>(ctx: QinoContext, params: DefineTreeParams<S, Ext, Title, Rels, Dir, Views>) {
   const { directory, schema, extension, titleField, orderFileName, relations } =
     params;
 

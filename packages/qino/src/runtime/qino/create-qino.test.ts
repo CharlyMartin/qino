@@ -7,31 +7,31 @@ import { createQino } from "./create-qino";
 const Schema = z.object({ title: z.string() }).strict();
 
 describe("createQino", () => {
-  test("returns createCollection, createSingleton, createTree", () => {
+  test("returns defineCollection, defineItem, defineTree", () => {
     const qino = createQino({
       contentFolder: "src/content",
       mediaFolder: "public",
     });
-    expect(typeof qino.createCollection).toBe("function");
-    expect(typeof qino.createSingleton).toBe("function");
-    expect(typeof qino.createTree).toBe("function");
+    expect(typeof qino.defineCollection).toBe("function");
+    expect(typeof qino.defineItem).toBe("function");
+    expect(typeof qino.defineTree).toBe("function");
   });
 
   test("stamps an instance id onto each primitive's QinoPrimitiveMarker", () => {
-    const { createCollection, createSingleton, createTree } = createQino({
+    const { defineCollection, defineItem, defineTree } = createQino({
       contentFolder: "src/content",
       mediaFolder: "public",
     });
-    const collection = createCollection({
+    const collection = defineCollection({
       directory: "/posts",
       schema: Schema,
       extension: ".md",
     });
-    const singleton = createSingleton({
+    const item = defineItem({
       file: "/pages/home.md",
       schema: Schema,
     });
-    const tree = createTree({
+    const tree = defineTree({
       directory: "/docs",
       schema: Schema,
       extension: ".md",
@@ -40,25 +40,25 @@ describe("createQino", () => {
 
     expect(typeof collection[QinoPrimitiveMarker].instanceId).toBe("symbol");
     expect(collection[QinoPrimitiveMarker].is).toBe(QinoPrimitives.collection);
-    expect(singleton[QinoPrimitiveMarker].is).toBe(QinoPrimitives.singleton);
+    expect(item[QinoPrimitiveMarker].is).toBe(QinoPrimitives.item);
     expect(tree[QinoPrimitiveMarker].is).toBe(QinoPrimitives.tree);
   });
 
   test("primitives from the same instance share the same instance id", () => {
-    const { createCollection, createSingleton, createTree } = createQino({
+    const { defineCollection, defineItem, defineTree } = createQino({
       contentFolder: "src/content",
       mediaFolder: "public",
     });
-    const collection = createCollection({
+    const collection = defineCollection({
       directory: "/posts",
       schema: Schema,
       extension: ".md",
     });
-    const singleton = createSingleton({
+    const item = defineItem({
       file: "/pages/home.md",
       schema: Schema,
     });
-    const tree = createTree({
+    const tree = defineTree({
       directory: "/docs",
       schema: Schema,
       extension: ".md",
@@ -66,9 +66,9 @@ describe("createQino", () => {
     });
 
     expect(collection[QinoPrimitiveMarker].instanceId).toBe(
-      singleton[QinoPrimitiveMarker].instanceId,
+      item[QinoPrimitiveMarker].instanceId,
     );
-    expect(singleton[QinoPrimitiveMarker].instanceId).toBe(
+    expect(item[QinoPrimitiveMarker].instanceId).toBe(
       tree[QinoPrimitiveMarker].instanceId,
     );
   });
@@ -76,12 +76,12 @@ describe("createQino", () => {
   test("primitives from different instances have different instance ids", () => {
     const a = createQino({ contentFolder: "a", mediaFolder: "p" });
     const b = createQino({ contentFolder: "b", mediaFolder: "p" });
-    const ca = a.createCollection({
+    const ca = a.defineCollection({
       directory: "/posts",
       schema: Schema,
       extension: ".md",
     });
-    const cb = b.createCollection({
+    const cb = b.defineCollection({
       directory: "/posts",
       schema: Schema,
       extension: ".md",
@@ -91,12 +91,12 @@ describe("createQino", () => {
     );
   });
 
-  test("destructured creators still produce valid primitives", () => {
-    const { createCollection } = createQino({
+  test("destructured definition helpers still produce valid primitives", () => {
+    const { defineCollection } = createQino({
       contentFolder: "src/content",
       mediaFolder: "public",
     });
-    const collection = createCollection({
+    const collection = defineCollection({
       directory: "/posts",
       schema: Schema,
       extension: ".md",
@@ -109,7 +109,7 @@ describe("createQino definition reloads", () => {
   test("recreates a collection with updated metadata on the same instance", () => {
     const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
     const UpdatedSchema = Schema.extend({ description: z.string() });
-    const original = qino.createCollection({
+    const original = qino.defineCollection({
       views: (view) => ({
         default: view({
           resolveRelations: true,
@@ -119,7 +119,7 @@ describe("createQino definition reloads", () => {
       extension: ".md",
       schema: Schema,
     });
-    const reloaded = qino.createCollection({
+    const reloaded = qino.defineCollection({
       views: (view) => ({
         default: view({
           resolveRelations: false,
@@ -140,10 +140,10 @@ describe("createQino definition reloads", () => {
     expect(before.resolveRelations).toBe(true);
   });
 
-  test("recreates a singleton with updated metadata on the same instance", () => {
+  test("recreates an item with updated metadata on the same instance", () => {
     const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
     const UpdatedSchema = Schema.extend({ description: z.string() });
-    const original = qino.createSingleton({
+    const original = qino.defineItem({
       views: (view) => ({
         default: view({
           resolveRelations: true,
@@ -152,7 +152,7 @@ describe("createQino definition reloads", () => {
       file: "/settings.json",
       schema: Schema,
     });
-    const reloaded = qino.createSingleton({
+    const reloaded = qino.defineItem({
       views: (view) => ({
         default: view({
           resolveRelations: false,
@@ -175,7 +175,7 @@ describe("createQino definition reloads", () => {
   test("recreates a tree with updated metadata on the same instance", () => {
     const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
     const UpdatedSchema = Schema.extend({ description: z.string() });
-    const original = qino.createTree({
+    const original = qino.defineTree({
       views: (view) => ({
         default: view({
           resolveRelations: true,
@@ -186,7 +186,7 @@ describe("createQino definition reloads", () => {
       titleField: "title",
       schema: Schema,
     });
-    const reloaded = qino.createTree({
+    const reloaded = qino.defineTree({
       views: (view) => ({
         default: view({
           resolveRelations: false,
@@ -210,17 +210,17 @@ describe("createQino definition reloads", () => {
 
   test("allows a directory change and reuse of the previous directory", () => {
     const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
-    qino.createCollection({
+    qino.defineCollection({
       directory: "/posts",
       schema: Schema,
       extension: ".md",
     });
-    const moved = qino.createCollection({
+    const moved = qino.defineCollection({
       directory: "/articles",
       schema: Schema,
       extension: ".md",
     });
-    const replacement = qino.createTree({
+    const replacement = qino.defineTree({
       directory: "/posts",
       schema: Schema,
       extension: ".md",

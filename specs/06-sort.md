@@ -9,7 +9,7 @@ Collections accept optional synchronous `filter(entry): boolean` and
 `sort(a, b): number` callbacks inside default or custom views; root callbacks are forbidden. Getters do not accept callback overrides.
 
 ```ts
-const posts = qino.createCollection({
+const posts = qino.defineCollection({
   directory: "/posts",
   extension: ".md",
   schema: z.object({ title: z.string(), draft: z.boolean() }),
@@ -37,7 +37,7 @@ Here `qino` is the result of `createQino`; `z` is imported from `zod`.
 Use `views: (view) => ({ default: view({ ... }), name: view({ ... }) })` for custom listing callbacks.
 The helper knows the collection's schema, metadata, and relations, and infers
 each view's augmented fields before typing its filter and sort. This helper syntax
-is required for every custom view on all primitives. Trees and singletons expose
+is required for every custom view on all primitives. Trees and items expose
 only `resolveRelations` and `augment` through their helpers.
 The views factory runs once when the collection is created, not on each read.
 
@@ -65,7 +65,7 @@ The views factory runs once when the collection is created, not on each read.
   It never sorts or reads the rest of the collection.
   Slug discovery, CLI validation, and embedded relation targets bypass
   filtering and sorting. Filtering never hides invalid content from validation.
-- Trees retain `_order.json` ordering. Tree filtering is deferred; singletons
+- Trees retain `_order.json` ordering. Tree filtering is deferred; items
   have neither callback. No pagination is added by this feature.
 
 ## Deferred ideas

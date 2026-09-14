@@ -11,7 +11,7 @@ const AuthorSchema = z
   })
   .strict();
 
-export const authorCollection = qino.createCollection({
+export const authorCollection = qino.defineCollection({
   directory: "/authors",
   schema: AuthorSchema,
   extension: ".json",

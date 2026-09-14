@@ -1,1 +1,1 @@
-export { createCollection } from "./create-collection";
+export { defineCollection } from "./define-collection";

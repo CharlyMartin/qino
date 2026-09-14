@@ -4,7 +4,7 @@ import { QinoPrimitiveMarker } from "../../data/globals";
 import {
   makeDummyCollection,
   makeDummyEntry,
-  makeDummySingleton,
+  makeDummyItem,
   makeDummyTree,
 } from "../../utils/tests";
 import { fetchTargetEntry } from "./fetch-target-entry";
@@ -79,10 +79,10 @@ describe("fetchTargetEntry", () => {
     });
   });
 
-  describe("singleton target", () => {
+  describe("item target", () => {
     test("delegates to the source reader and returns the data", async () => {
       const data = { siteName: "Qino" };
-      const target = makeDummySingleton({
+      const target = makeDummyItem({
         file: "/config/site.json",
         data,
       });
@@ -94,8 +94,8 @@ describe("fetchTargetEntry", () => {
       expect(spy).toHaveBeenCalledWith();
     });
 
-    test("wraps a source read error with the singleton file path", async () => {
-      const target = makeDummySingleton({ file: "/config/site.json" });
+    test("wraps a source read error with the item file path", async () => {
+      const target = makeDummyItem({ file: "/config/site.json" });
       vi.spyOn(target[QinoPrimitiveMarker], "readData").mockRejectedValueOnce(
         new Error("parse error"),
       );
@@ -106,7 +106,7 @@ describe("fetchTargetEntry", () => {
     });
 
     test("uses targetMeta.file (not directory) in the wrapped message", async () => {
-      const target = makeDummySingleton({ file: "/config/site.json" });
+      const target = makeDummyItem({ file: "/config/site.json" });
       vi.spyOn(target[QinoPrimitiveMarker], "readData").mockRejectedValueOnce(
         new Error("nope"),
       );
@@ -115,7 +115,7 @@ describe("fetchTargetEntry", () => {
         (e: unknown) => e,
       );
 
-      expect(target[QinoPrimitiveMarker].is).toBe("singleton");
+      expect(target[QinoPrimitiveMarker].is).toBe("item");
       expect((err as Error).message).toContain("/config/site.json");
       expect((err as Error).message).not.toContain("/ignored");
     });

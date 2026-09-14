@@ -1,1 +1,1 @@
-export { createTree } from "./create-tree";
+export { defineTree } from "./define-tree";

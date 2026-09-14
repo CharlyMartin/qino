@@ -9,14 +9,14 @@ const DocsSchema = z
   })
   .strict();
 
-export const docsTreeV1 = qino.createTree({
+export const docsTreeV1 = qino.defineTree({
   directory: "/docs/v1",
   schema: DocsSchema,
   extension: ".mdx",
   titleField: "title",
 });
 
-export const docsTree = qino.createTree({
+export const docsTree = qino.defineTree({
   directory: "/docs/v2",
   schema: DocsSchema,
   extension: ".mdx",

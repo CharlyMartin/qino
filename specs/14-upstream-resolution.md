@@ -11,10 +11,10 @@ Reverse traversal of relations: a target entry exposes the entries that referenc
 
 ## Sketch (not v1)
 
-A proposed config option `resolveAncestors` mirroring `resolveRelations`'s shape — `true` / `number` / `false`, settable at the top level of `createCollection` or within a named view. Getters select the configured behavior through `{ view }`, following [15-views](./15-views.md); they do not override resolution per call. Upstream resolution is not implemented in v1.
+A proposed config option `resolveAncestors` mirroring `resolveRelations`'s shape — `true` / `number` / `false`, settable at the top level of `defineCollection` or within a named view. Getters select the configured behavior through `{ view }`, following [15-views](./15-views.md); they do not override resolution per call. Upstream resolution is not implemented in v1.
 
 ```ts
-const authorCollection = qino.createCollection({
+const authorCollection = qino.defineCollection({
   directory: "/authors",
   extension: ".json",
   schema: AuthorSchema,

@@ -1,11 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { isCollection } from "./is-collection";
-import {
-  makeDummyCollection,
-  makeDummySingleton,
-  makeDummyTree,
-} from "./tests";
+import { makeDummyCollection, makeDummyItem, makeDummyTree } from "./tests";
 
 describe("isCollection", () => {
   test("returns true for a collection", () => {
@@ -22,9 +18,7 @@ describe("isCollection", () => {
     ).toBe(false);
   });
 
-  test("returns false for a singleton", () => {
-    expect(isCollection(makeDummySingleton({ file: "/config.json" }))).toBe(
-      false,
-    );
+  test("returns false for an item", () => {
+    expect(isCollection(makeDummyItem({ file: "/config.json" }))).toBe(false);
   });
 });

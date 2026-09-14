@@ -38,9 +38,9 @@ Open: support both? folder wins if both exist? Today the live example (`examples
 Expose `compareAsc` / `compareDesc` so consumers don't write their own sort fns:
 
 ```ts
-import { createCollection, compareAsc } from "qino";
+import { defineCollection, compareAsc } from "qino";
 
-createCollection({ sort: compareAsc("created-on") });
+defineCollection({ sort: compareAsc("created-on") });
 ```
 
 Smart enough to infer comparator from the field type (date vs string vs number).
@@ -50,7 +50,7 @@ Smart enough to infer comparator from the field type (date vs string vs number).
 For ordering that can't be programmatic:
 
 ```ts
-createCollection({ sort: "posts/_order.json" });
+defineCollection({ sort: "posts/_order.json" });
 // _order.json: ["a-post.md", "another-post.md", "yet-another-post.md"]
 ```
 

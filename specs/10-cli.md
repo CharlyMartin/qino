@@ -17,7 +17,7 @@ types and watches for changes. There is no JSON manifest on disk — see
 What it does today:
 
 1. Verifies `qino/` exists and `qino/index.ts` is present.
-2. Globs and jiti-imports every file in `qino/collections/`, `qino/singletons/`,
+2. Globs and jiti-imports every file in `qino/collections/`, `qino/items/`,
    `qino/trees/`. Each import transitively pulls in `qino/index.ts`, which calls
    `createQino({...})` and binds the factories.
 3. Asserts at least one primitive was found.
@@ -26,7 +26,7 @@ What it does today:
 5. Verifies every relation target shares that same instance id.
 6. Reads the config (`contentFolder`, `mediaFolder`) from any loaded primitive's
    `QinoPrimitiveMarker` and verifies both folders exist on disk.
-7. Asserts no overlapping paths between collections / singletons / trees.
+7. Asserts no overlapping paths between collections / items / trees.
 8. Validates each primitive using internal source readers (and structural tree
    traversal). Each file is read and parsed against its schema; missing or invalid
    files fail the build. Content relation resolution and all augment callbacks are
@@ -45,7 +45,7 @@ Source of truth: `packages/qino/src/cli/build/index.ts` (codegen in
 `build` + `watch`. Watches:
 
 - `qino/index.ts`
-- `qino/collections/*.ts`, `qino/singletons/*.ts`, `qino/trees/*.ts`
+- `qino/collections/*.ts`, `qino/items/*.ts`, `qino/trees/*.ts`
 - Content files under `contentFolder` (for type regeneration of slug unions)
 
 On change: re-runs the relevant part of build and regenerates types. Hot-reloads if
@@ -95,7 +95,7 @@ How it wires up:
   `/docs/v1` → `DocsV1Slug` — `Docs` stays plural). The registry **key** is the
   full directory. Names are unique by construction; pathological separator
   collisions get a numeric suffix.
-- **Singletons are skipped** — `getData()` takes no slug.
+- **Items are skipped** — `getData()` takes no slug.
 - Empty collections/trees are omitted (fall back to `string`) rather than
   emitting `never`.
 

@@ -1,8 +1,8 @@
 import { QinoPrimitiveMarker, QinoPrimitives } from "../data";
 import type { AnyCollection, AnyItem, AnyTree } from "../types";
 
-export function isCollection(
+export function isItem(
   target: AnyCollection | AnyItem | AnyTree,
-): target is AnyCollection {
-  return target[QinoPrimitiveMarker].is == QinoPrimitives.collection;
+): target is AnyItem {
+  return target[QinoPrimitiveMarker].is == QinoPrimitives.item;
 }

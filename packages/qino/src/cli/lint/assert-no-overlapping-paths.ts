@@ -4,13 +4,13 @@ import type { GenericPath } from "../../types";
 
 type AssertNoOverlappingPathsParams = {
   collectionDirs: Array<GenericPath>;
-  singletonFiles: Array<GenericPath>;
+  itemFiles: Array<GenericPath>;
   treeDirs: Array<GenericPath>;
 };
 
 export function assertNoOverlappingPaths({
   collectionDirs,
-  singletonFiles,
+  itemFiles,
   treeDirs,
 }: AssertNoOverlappingPathsParams) {
   const paths: Array<PrimitivePath> = [
@@ -19,7 +19,7 @@ export function assertNoOverlappingPaths({
       path,
     })),
     ...treeDirs.map((path) => ({ kind: QinoPrimitives.tree, path })),
-    ...singletonFiles.map((path) => ({ kind: QinoPrimitives.singleton, path })),
+    ...itemFiles.map((path) => ({ kind: QinoPrimitives.item, path })),
   ];
 
   for (let i = 0; i < paths.length; i += 1) {

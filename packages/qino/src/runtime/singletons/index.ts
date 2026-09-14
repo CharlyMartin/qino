@@ -1,1 +1,0 @@
-export { createSingleton } from "./create-singleton";

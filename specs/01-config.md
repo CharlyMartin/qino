@@ -6,7 +6,7 @@
 ## Intent
 
 `qino/index.ts` is where developers declare project-wide settings (content and media
-folders) and create the `createCollection` / `createSingleton` / `createTree`
+folders) and create the `defineCollection` / `defineItem` / `defineTree`
 factories that the rest of the project uses. These values are captured in-memory by
 the returned Qino instance and read by getters at runtime — there is no JSON
 manifest on disk (see `11-lock-file.md` for the deferred cloud-UI artifact).
@@ -17,7 +17,7 @@ manifest on disk (see `11-lock-file.md` for the deferred cloud-UI artifact).
 // qino/index.ts
 import { createQino } from "qino";
 
-export const { createCollection, createSingleton, createTree } = createQino({
+export const { defineCollection, defineItem, defineTree } = createQino({
   contentFolder: "src/content",
   mediaFolder: "public",
 });
@@ -32,9 +32,9 @@ Per-primitive files import from this entry:
 
 ```ts
 // qino/collections/posts.ts
-import { createCollection } from "../";
+import { defineCollection } from "../";
 
-export const postCollection = createCollection({
+export const postCollection = defineCollection({
   directory: "/posts",
   schema: PostSchema,
   extension: ".md",
@@ -54,16 +54,16 @@ Source of truth: `packages/qino/src/runtime/qino/qino-options.ts`.
 
 ## Behaviour
 
-- `qino/index.ts` is imported transitively by every collection/singleton/tree file
-  (through the `import { createCollection } from "../"` chain). It is also loaded by
-  `qino build` indirectly — the CLI globs `qino/collections/*`, `qino/singletons/*`,
+- `qino/index.ts` is imported transitively by every collection/item/tree file
+  (through the `import { defineCollection } from "../"` chain). It is also loaded by
+  `qino build` indirectly — the CLI globs `qino/collections/*`, `qino/items/*`,
   `qino/trees/*` and jiti-imports each file, which evaluates `createQino` exactly
   once.
 - The CLI uses [jiti](https://github.com/unjs/jiti) to import TS files without a
   build step.
 - Both folder paths must exist and be directories — `qino build` errors out
   otherwise.
-- Paths in collection / singleton / tree definitions are resolved relative to
+- Paths in collection / item / tree definitions are resolved relative to
   `contentFolder`. Asset paths resolve relative to `mediaFolder`.
 
 ## Open questions

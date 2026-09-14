@@ -1,10 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { homeSingleton } from "../../qino/singletons/home";
+import { homeItem } from "../../qino/items/home";
 
 export default async function Home() {
-  const home = await homeSingleton.getData();
+  const home = await homeItem.getData();
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-12 px-6 py-16">

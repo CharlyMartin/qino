@@ -21,7 +21,7 @@ test("constructs a marked view without mutating config or running callbacks", ()
 test.each([
   "collection",
   "tree",
-  "singleton",
+  "item",
 ] as const)("preserves explicit resolution for %s", (primitive) => {
   expect(defineView({ resolveRelations: 2 }, primitive).resolveRelations).toBe(
     2,
@@ -30,7 +30,7 @@ test.each([
 
 test.each([
   "tree",
-  "singleton",
+  "item",
 ] as const)("treats undefined collection-only options as omitted for %s", (primitive) => {
   const omitted = { filter: undefined, sort: undefined };
   expect(defineView({ ...omitted }, primitive).resolveRelations).toBe(false);
@@ -38,7 +38,7 @@ test.each([
 
 test.each([
   "tree",
-  "singleton",
+  "item",
 ] as const)("rejects collection-only options for %s", (primitive) => {
   for (const config of [
     { filter: () => true },

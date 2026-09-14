@@ -20,7 +20,7 @@ afterEach(async () => {
   await fs.rm(tmp, { recursive: true, force: true });
 });
 
-describe("createCollection", () => {
+describe("defineCollection", () => {
   test("adds derived fields using the entry body and metadata", async () => {
     const posts = nodePath.join(tmp, "posts");
     await fs.mkdir(posts);
@@ -30,7 +30,7 @@ describe("createCollection", () => {
     );
 
     const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-    const collection = qino.createCollection({
+    const collection = qino.defineCollection({
       views: (view) => ({
         default: view({
           augment: ({ body, _meta }) => ({
@@ -63,11 +63,11 @@ async function writeMd(relPath: string, title: string) {
 }
 
 function makeCollection() {
-  const { createCollection } = createQino({
+  const { defineCollection } = createQino({
     contentFolder: tmp,
     mediaFolder: tmp,
   });
-  return createCollection({
+  return defineCollection({
     directory: "/posts",
     schema: z.object({
       title: z.string(),
@@ -109,34 +109,36 @@ describe("getAllSlugs", () => {
     expect(await makeCollection().getAllSlugs()).toEqual(["visible"]);
   });
 
-  test.each([".md", ".mdx", ".markdown", ".json"] as const)(
-    "filters by %s and strips only the trailing extension",
-    async (extension) => {
-      for (const ext of [".md", ".mdx", ".markdown", ".json", ".txt"]) {
-        await writeMd(`post${ext}`, "Post");
-      }
-      await writeMd(`release.v1${extension}${extension}`, "Release");
-      await writeMd(`backup${extension}.bak`, "Backup");
-      const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-      const collection = qino.createCollection({
-        directory: "/posts",
-        extension,
-        schema: z.object({ title: z.string() }),
-      });
+  test.each([
+    ".md",
+    ".mdx",
+    ".markdown",
+    ".json",
+  ] as const)("filters by %s and strips only the trailing extension", async (extension) => {
+    for (const ext of [".md", ".mdx", ".markdown", ".json", ".txt"]) {
+      await writeMd(`post${ext}`, "Post");
+    }
+    await writeMd(`release.v1${extension}${extension}`, "Release");
+    await writeMd(`backup${extension}.bak`, "Backup");
+    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const collection = qino.defineCollection({
+      directory: "/posts",
+      extension,
+      schema: z.object({ title: z.string() }),
+    });
 
-      expect(await collection.getAllSlugs()).toEqual([
-        "post",
-        `release.v1${extension}`,
-      ]);
-    },
-  );
+    expect(await collection.getAllSlugs()).toEqual([
+      "post",
+      `release.v1${extension}`,
+    ]);
+  });
 
   test("includes malformed and schema-invalid content", async () => {
     await fs.mkdir(nodePath.join(tmp, "posts"));
     await fs.writeFile(nodePath.join(tmp, "posts/malformed.json"), "{");
     await fs.writeFile(nodePath.join(tmp, "posts/invalid.json"), "{}");
     const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-    const collection = qino.createCollection({
+    const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".json",
       schema: z.object({ title: z.string() }),
@@ -154,7 +156,7 @@ describe("getAllSlugs", () => {
       JSON.stringify({ title: "Hello", author: "/authors/alice.json" }),
     );
     const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-    const authors = qino.createCollection({
+    const authors = qino.defineCollection({
       directory: "/authors",
       extension: ".json",
       schema: z.object({ name: z.string() }),
@@ -166,7 +168,7 @@ describe("getAllSlugs", () => {
     const augment = vi.fn(() => {
       throw new Error("Augment must not run");
     });
-    const collection = qino.createCollection({
+    const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".json",
       schema: z
@@ -197,7 +199,7 @@ describe("collection filter and sort", () => {
   test("constructs helper views once and keeps view-name validation", async () => {
     const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
     const created = vi.fn();
-    const collection = qino.createCollection({
+    const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
@@ -214,7 +216,7 @@ describe("collection filter and sort", () => {
       collection.getMany({ view: "missing" } as never),
     ).rejects.toThrow(/Unknown view/);
     expect(() =>
-      qino.createCollection({
+      qino.defineCollection({
         directory: "/posts",
         extension: ".md",
         schema: z.object({ title: z.string() }),
@@ -229,7 +231,7 @@ describe("collection filter and sort", () => {
     await writeMd("c.md", "Short");
     const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
     const events: string[] = [];
-    const collection = qino.createCollection({
+    const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
@@ -290,7 +292,7 @@ describe("collection filter and sort", () => {
       throw new Error("Listing callback must not run");
     });
     const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-    const collection = qino.createCollection({
+    const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
@@ -315,7 +317,7 @@ describe("collection filter and sort", () => {
     await writeMd("draft.md", "Draft");
     await writeMd("published.md", "Published");
     const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-    const collection = qino.createCollection({
+    const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
@@ -337,7 +339,7 @@ describe("collection filter and sort", () => {
     await writeMd("b.md", "B");
     await writeMd("c.md", "C");
     const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-    const collection = qino.createCollection({
+    const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
@@ -361,7 +363,7 @@ describe("collection filter and sort", () => {
     const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
     const filter = vi.fn(() => false);
     const sort = vi.fn(() => 0);
-    const collection = qino.createCollection({
+    const collection = qino.defineCollection({
       views: (view) => ({
         default: view({
           filter,
@@ -383,80 +385,80 @@ describe("collection filter and sort", () => {
     );
   });
 
-  test.each(["filter", "sort"] as const)(
-    "propagates %s failures",
-    async (callback) => {
-      await writeMd("a.md", "A");
-      await writeMd("b.md", "B");
-      const failure = new Error(`${callback} failed`);
-      const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-      const collection = qino.createCollection({
-        directory: "/posts",
-        extension: ".md",
-        schema: z.object({ title: z.string() }),
-        views: (view) => ({
-          default: view({
-            [callback]: () => {
-              throw failure;
-            },
-          }),
+  test.each([
+    "filter",
+    "sort",
+  ] as const)("propagates %s failures", async (callback) => {
+    await writeMd("a.md", "A");
+    await writeMd("b.md", "B");
+    const failure = new Error(`${callback} failed`);
+    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const collection = qino.defineCollection({
+      directory: "/posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      views: (view) => ({
+        default: view({
+          [callback]: () => {
+            throw failure;
+          },
         }),
-      });
-      await expect(collection.getMany()).rejects.toBe(failure);
-      if (callback == "filter") {
-        await expect(collection.getOne("a")).rejects.toBe(failure);
-      }
-    },
-  );
+      }),
+    });
+    await expect(collection.getMany()).rejects.toBe(failure);
+    if (callback == "filter") {
+      await expect(collection.getOne("a")).rejects.toBe(failure);
+    }
+  });
 
-  test.each([undefined, "highlight"] as const)(
-    "getOne applies the %s view's filter after augment without sorting",
-    async (view) => {
-      await writeMd("highlighted.md", "Highlighted");
-      await writeMd("ordinary.md", "Ordinary");
-      const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-      const sort = vi.fn(() => {
-        throw new Error("Single entries must not sort");
-      });
-      const collection = qino.createCollection({
-        directory: "/posts",
-        extension: ".md",
-        schema: z.object({ title: z.string() }),
-        views: (defineView) => ({
-          default: defineView({
-            augment: async (entry) => ({
-              highlight: entry.title == "Highlighted",
-            }),
-            filter: (entry) => entry.highlight,
-            sort,
+  test.each([
+    undefined,
+    "highlight",
+  ] as const)("getOne applies the %s view's filter after augment without sorting", async (view) => {
+    await writeMd("highlighted.md", "Highlighted");
+    await writeMd("ordinary.md", "Ordinary");
+    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const sort = vi.fn(() => {
+      throw new Error("Single entries must not sort");
+    });
+    const collection = qino.defineCollection({
+      directory: "/posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      views: (defineView) => ({
+        default: defineView({
+          augment: async (entry) => ({
+            highlight: entry.title == "Highlighted",
           }),
-          highlight: defineView({
-            augment: async (entry) => ({
-              highlight: entry.title == "Highlighted",
-            }),
-            filter: (entry) => entry.highlight,
-            sort,
-          }),
-          all: defineView({}),
+          filter: (entry) => entry.highlight,
+          sort,
         }),
-      });
-      await expect(
-        collection.getOne("highlighted", { view }),
-      ).resolves.toMatchObject({ highlight: true });
-      await expect(collection.getOne("ordinary", { view })).rejects.toThrow(
-        `Entry "ordinary" in collection "/posts" is excluded by view "${view ?? "default"}".`,
-      );
-      await expect(
-        collection.getOne("ordinary", { view: "all" }),
-      ).resolves.toMatchObject({ title: "Ordinary" });
-      expect(sort).not.toHaveBeenCalled();
-    },
-  );
+        highlight: defineView({
+          augment: async (entry) => ({
+            highlight: entry.title == "Highlighted",
+          }),
+          filter: (entry) => entry.highlight,
+          sort,
+        }),
+        all: defineView({}),
+      }),
+    });
+    await expect(
+      collection.getOne("highlighted", { view }),
+    ).resolves.toMatchObject({ highlight: true });
+    await expect(collection.getOne("ordinary", { view })).rejects.toThrow(
+      `Entry "ordinary" in collection "/posts" is excluded by view "${view ?? "default"}".`,
+    );
+    await expect(
+      collection.getOne("ordinary", { view: "all" }),
+    ).resolves.toMatchObject({ title: "Ordinary" });
+    expect(sort).not.toHaveBeenCalled();
+  });
 
   test("validates excluded content and rejects getter callbacks", async () => {
     await writeMd("invalid.md", "Invalid");
     const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-    const collection = qino.createCollection({
+    const collection = qino.defineCollection({
       views: (view) => ({
         default: view({
           filter: () => false,
