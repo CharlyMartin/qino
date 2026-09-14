@@ -128,8 +128,8 @@ describe("non-relation subtrees are left untouched", () => {
 
   for (const view of ["shallow", "full"] as const) {
     test(`${view} preserves class instances and plain siblings`, async () => {
-      const [article] = await articles.getAll({ view });
-      const [raw] = await articles.getAll({ view: "raw" });
+      const [article] = await articles.getMany({ view });
+      const [raw] = await articles.getMany({ view: "raw" });
       expectTypeOf(article.dates).toEqualTypeOf<{
         start: Date;
         end: Date | undefined;
@@ -144,7 +144,7 @@ describe("non-relation subtrees are left untouched", () => {
     });
 
     test(`${view} resolves nested array paths and preserves optional containers`, async () => {
-      const [article] = await articles.getAll({ view });
+      const [article] = await articles.getMany({ view });
       type Contributor = NonNullable<typeof article.contributors>[number];
       expectTypeOf<Contributor["slug"]["name"]>().toEqualTypeOf<string>();
       expectTypeOf<
@@ -162,7 +162,7 @@ describe("non-relation subtrees are left untouched", () => {
     });
 
     test(`${view} requires a separator after a relation prefix`, async () => {
-      const [article] = await articles.getAll({ view });
+      const [article] = await articles.getMany({ view });
       expectTypeOf(article.peopleX.foo.name).toEqualTypeOf<string>();
       expectTypeOf(article.people).toEqualTypeOf<readonly [Date]>();
     });
@@ -171,31 +171,31 @@ describe("non-relation subtrees are left untouched", () => {
 
 describe("resolveRelations type behaviour", () => {
   test("false keeps strings", async () => {
-    const posts = await postCollection.getAll({ view: "raw" });
+    const posts = await postCollection.getMany({ view: "raw" });
     expectTypeOf(posts[0].author).toEqualTypeOf<string>();
     expectTypeOf(posts[0].categories).toEqualTypeOf<Array<string>>();
   });
 
   test("depth 1 resolves top-level relations to full entries", async () => {
-    const posts = await postCollection.getAll({ view: "shallow" });
+    const posts = await postCollection.getMany({ view: "shallow" });
     expectTypeOf(posts[0].author.name).toEqualTypeOf<string>();
     expectTypeOf(posts[0].author._meta.slug).toEqualTypeOf<string>();
     expectTypeOf(posts[0].categories[0].name).toEqualTypeOf<string>();
   });
 
   test("true defaults to MaxDepth and resolves relations", async () => {
-    const posts = await postCollection.getAll({ view: "full" });
+    const posts = await postCollection.getMany({ view: "full" });
     expectTypeOf(posts[0].author.name).toEqualTypeOf<string>();
     expectTypeOf(posts[0].categories[0].name).toEqualTypeOf<string>();
   });
 
   test("default (no option) keeps raw references", async () => {
-    const posts = await postCollection.getAll();
+    const posts = await postCollection.getMany();
     expectTypeOf(posts[0].author).toEqualTypeOf<string>();
     expectTypeOf(posts[0].categories).toEqualTypeOf<Array<string>>();
   });
 
-  test("getOne mirrors getAll's behaviour", async () => {
+  test("getOne mirrors getMany's behaviour", async () => {
     const raw = await postCollection.getOne("hello", {
       view: "raw",
     });
@@ -227,13 +227,13 @@ describe("collection-level default", () => {
     },
   });
 
-  test("getAll() with no args picks up the collection-level default of false", async () => {
-    const posts = await postCollectionDefaultFalse.getAll();
+  test("getMany() with no args picks up the collection-level default of false", async () => {
+    const posts = await postCollectionDefaultFalse.getMany();
     expectTypeOf(posts[0].author).toEqualTypeOf<string>();
   });
 
   test("named view is independent of collection-level default", async () => {
-    const posts = await postCollectionDefaultFalse.getAll({
+    const posts = await postCollectionDefaultFalse.getMany({
       view: "shallow",
     });
     expectTypeOf(posts[0].author.name).toEqualTypeOf<string>();
@@ -277,13 +277,13 @@ describe("transitive depth (chained collections)", () => {
   });
 
   test("depth 1: top-level editor resolves; editor.lead stays string", async () => {
-    const posts = await chainedPostCollection.getAll({ view: "shallow" });
+    const posts = await chainedPostCollection.getMany({ view: "shallow" });
     expectTypeOf(posts[0].editor.name).toEqualTypeOf<string>();
     expectTypeOf(posts[0].editor.lead).toEqualTypeOf<string>();
   });
 
   test("depth 2: editor.lead also resolves to a Senior entry", async () => {
-    const posts = await chainedPostCollection.getAll({ view: "deep" });
+    const posts = await chainedPostCollection.getMany({ view: "deep" });
     expectTypeOf(posts[0].editor.name).toEqualTypeOf<string>();
     expectTypeOf(posts[0].editor.lead.name).toEqualTypeOf<string>();
   });
@@ -358,7 +358,7 @@ describe("collection → singleton relation", () => {
   });
 
   test("depth 1: collection → singleton resolves to singleton shape", async () => {
-    const foos = await fooCollection.getAll({ view: "shallow" });
+    const foos = await fooCollection.getMany({ view: "shallow" });
     const foo = foos[0];
     expectTypeOf(foo.siteConfig.siteName).toEqualTypeOf<string>();
     expectTypeOf<keyof typeof foo.siteConfig._meta>().toEqualTypeOf<
@@ -367,7 +367,7 @@ describe("collection → singleton relation", () => {
   });
 
   test("resolveRelations: false keeps the relation as a string", async () => {
-    const foos = await fooCollection.getAll({ view: "raw" });
+    const foos = await fooCollection.getMany({ view: "raw" });
     expectTypeOf(foos[0].siteConfig).toEqualTypeOf<string>();
   });
 });

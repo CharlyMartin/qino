@@ -41,7 +41,7 @@ export function makeDummyCollection({
         return found as never;
       },
     },
-    getAll: async () => Array.from(store.values()) as never,
+    getMany: async () => Array.from(store.values()) as never,
     getAllSlugs: async () => Array.from(store.keys()).sort(),
     getOne: async (slug: Slug) => {
       const found = store.get(slug);

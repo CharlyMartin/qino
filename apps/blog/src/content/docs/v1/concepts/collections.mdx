@@ -28,12 +28,12 @@ const posts = qino.createCollection({
   }),
 });
 
-await posts.getAll(); // Default filter and sort.
-await posts.getAll({ view: "alphabetical" }); // Independent view callbacks.
-await posts.getAll({ view: "all" }); // Every entry, in discovery order.
+await posts.getMany(); // Default filter and sort.
+await posts.getMany({ view: "alphabetical" }); // Independent view callbacks.
+await posts.getMany({ view: "all" }); // Every entry, in discovery order.
 ```
 
-The order for `getAll()` is validation, relation resolution, augmentation,
+The order for `getMany()` is validation, relation resolution, augmentation,
 filtering, then sorting. Both callbacks are synchronous and receive the selected
 view's fully augmented entries. The `view` helper infers these fields without
 annotations. The helper syntax is required for every custom view, including
@@ -46,6 +46,6 @@ A supplied views factory must include `default`. Omitted getter selection and
 Getters accept view selection, not callback overrides. `getOne(slug, { view })`
 runs the selected view’s filter after augmentation and throws if it excludes the
 entry. The error names the slug, collection, and view. Omitting `view` applies
-the default filter. Sorting only runs for `getAll()`. Slug discovery, relation
+the default filter. Sorting only runs for `getMany()`. Slug discovery, relation
 loading, and CLI validation bypass filtering and sorting. Trees use `_order.json`; tree filtering is deferred.
 Singletons have neither callback.

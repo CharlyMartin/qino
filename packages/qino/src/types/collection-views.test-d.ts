@@ -55,17 +55,17 @@ test("infers post-augment inputs independently for default and named views", asy
       empty: view({}),
     }),
   });
-  expectTypeOf((await posts.getAll())[0].label).toEqualTypeOf<string>();
+  expectTypeOf((await posts.getMany())[0].label).toEqualTypeOf<string>();
   expectTypeOf(
-    (await posts.getAll({ view: "raw" }))[0].length,
+    (await posts.getMany({ view: "raw" }))[0].length,
   ).toEqualTypeOf<number>();
   expectTypeOf(
-    (await posts.getAll({ view: "resolved" }))[0].name,
+    (await posts.getMany({ view: "resolved" }))[0].name,
   ).toEqualTypeOf<string>();
   expectTypeOf(
-    (await posts.getAll({ view: "empty" }))[0].author,
+    (await posts.getMany({ view: "empty" }))[0].author,
   ).toEqualTypeOf<string>();
-  type Options = NonNullable<Parameters<typeof posts.getAll>[0]>;
+  type Options = NonNullable<Parameters<typeof posts.getMany>[0]>;
   expectTypeOf<Options["view"]>().toEqualTypeOf<
     "default" | "raw" | "resolved" | "plain" | "empty" | undefined
   >();
@@ -74,9 +74,9 @@ test("infers post-augment inputs independently for default and named views", asy
   // @ts-expect-error An optional selection can return the default view.
   entry.length;
   // @ts-expect-error Callbacks can only be configured at creation.
-  posts.getAll({ view: "raw", filter: () => true });
+  posts.getMany({ view: "raw", filter: () => true });
   // @ts-expect-error Callbacks can only be configured at creation.
-  posts.getAll({ sort: () => 0 });
+  posts.getMany({ sort: () => 0 });
 });
 
 test("rejects missing default views and conflicting helper augmentation", () => {

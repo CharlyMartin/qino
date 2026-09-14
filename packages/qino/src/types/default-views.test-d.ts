@@ -38,16 +38,16 @@ test("spreads locally inferred views and selects the declared default", async ()
   });
   const baseline = await posts.getOne("hello");
   const explicit = await posts.getOne("hello", { view: "default" });
-  expectTypeOf((await posts.getAll({}))[0]).toEqualTypeOf(baseline);
-  expectTypeOf((await posts.getAll(undefined))[0]).toEqualTypeOf(baseline);
-  expectTypeOf((await posts.getAll({ view: undefined }))[0]).toEqualTypeOf(
+  expectTypeOf((await posts.getMany({}))[0]).toEqualTypeOf(baseline);
+  expectTypeOf((await posts.getMany(undefined))[0]).toEqualTypeOf(baseline);
+  expectTypeOf((await posts.getMany({ view: undefined }))[0]).toEqualTypeOf(
     baseline,
   );
   const highlight = await posts.getOne("hello", { view: "highlight" });
   expectTypeOf(explicit).toEqualTypeOf(baseline);
   expectTypeOf(highlight).toEqualTypeOf(baseline);
-  expectTypeOf((await posts.getAll())[0]).toEqualTypeOf(baseline);
-  expectTypeOf((await posts.getAll({ view: "default" }))[0]).toEqualTypeOf(
+  expectTypeOf((await posts.getMany())[0]).toEqualTypeOf(baseline);
+  expectTypeOf((await posts.getMany({ view: "default" }))[0]).toEqualTypeOf(
     baseline,
   );
   expectTypeOf<Infer<typeof posts>["output"]>().toEqualTypeOf(baseline);

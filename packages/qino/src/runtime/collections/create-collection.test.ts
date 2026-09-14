@@ -109,29 +109,27 @@ describe("getAllSlugs", () => {
     expect(await makeCollection().getAllSlugs()).toEqual(["visible"]);
   });
 
-  test.each([
-    ".md",
-    ".mdx",
-    ".markdown",
-    ".json",
-  ] as const)("filters by %s and strips only the trailing extension", async (extension) => {
-    for (const ext of [".md", ".mdx", ".markdown", ".json", ".txt"]) {
-      await writeMd(`post${ext}`, "Post");
-    }
-    await writeMd(`release.v1${extension}${extension}`, "Release");
-    await writeMd(`backup${extension}.bak`, "Backup");
-    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-    const collection = qino.createCollection({
-      directory: "/posts",
-      extension,
-      schema: z.object({ title: z.string() }),
-    });
+  test.each([".md", ".mdx", ".markdown", ".json"] as const)(
+    "filters by %s and strips only the trailing extension",
+    async (extension) => {
+      for (const ext of [".md", ".mdx", ".markdown", ".json", ".txt"]) {
+        await writeMd(`post${ext}`, "Post");
+      }
+      await writeMd(`release.v1${extension}${extension}`, "Release");
+      await writeMd(`backup${extension}.bak`, "Backup");
+      const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+      const collection = qino.createCollection({
+        directory: "/posts",
+        extension,
+        schema: z.object({ title: z.string() }),
+      });
 
-    expect(await collection.getAllSlugs()).toEqual([
-      "post",
-      `release.v1${extension}`,
-    ]);
-  });
+      expect(await collection.getAllSlugs()).toEqual([
+        "post",
+        `release.v1${extension}`,
+      ]);
+    },
+  );
 
   test("includes malformed and schema-invalid content", async () => {
     await fs.mkdir(nodePath.join(tmp, "posts"));
@@ -209,11 +207,11 @@ describe("collection filter and sort", () => {
       },
     });
     expect(created).toHaveBeenCalledTimes(1);
-    await collection.getAll({ view: "listing" });
-    await collection.getAll({ view: "listing" });
+    await collection.getMany({ view: "listing" });
+    await collection.getMany({ view: "listing" });
     expect(created).toHaveBeenCalledTimes(1);
     await expect(
-      collection.getAll({ view: "missing" } as never),
+      collection.getMany({ view: "missing" } as never),
     ).rejects.toThrow(/Unknown view/);
     expect(() =>
       qino.createCollection({
@@ -266,17 +264,19 @@ describe("collection filter and sort", () => {
         descending: view({ sort: (a, b) => b.title.length - a.title.length }),
       }),
     });
-    expect((await collection.getAll()).map((entry) => entry.title)).toEqual([
+    expect((await collection.getMany()).map((entry) => entry.title)).toEqual([
       "Short",
       "Long title",
     ]);
-    const baseline = await collection.getAll({ view: "baseline" });
+    const baseline = await collection.getMany({ view: "baseline" });
     expect(baseline).toHaveLength(3);
     expect(baseline[0]).not.toHaveProperty("length");
     expect(
-      (await collection.getAll({ view: "drafts" })).map((entry) => entry.title),
+      (await collection.getMany({ view: "drafts" })).map(
+        (entry) => entry.title,
+      ),
     ).toEqual(["Draft"]);
-    expect((await collection.getAll({ view: "descending" }))[0].title).toBe(
+    expect((await collection.getMany({ view: "descending" }))[0].title).toBe(
       "Long title",
     );
     expect(events.filter((event) => event.startsWith("augment:"))).toHaveLength(
@@ -311,6 +311,27 @@ describe("collection filter and sort", () => {
     expect(callback).not.toHaveBeenCalled();
   });
 
+  test("getAllSlugs lists every file even when the default view filters entries out", async () => {
+    await writeMd("draft.md", "Draft");
+    await writeMd("published.md", "Published");
+    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const collection = qino.createCollection({
+      directory: "/posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      views: (view) => ({
+        default: view({ filter: (entry) => entry.title != "Draft" }),
+      }),
+    });
+    expect(await collection.getAllSlugs()).toEqual(["draft", "published"]);
+    expect(
+      (await collection.getMany()).map((entry) => entry._meta.slug),
+    ).toEqual(["published"]);
+    await expect(collection.getOne("draft")).rejects.toThrow(
+      /excluded by view "default"/,
+    );
+  });
+
   test("keeps equal comparisons stable and leaves later reads unaffected", async () => {
     await writeMd("a.md", "A");
     await writeMd("b.md", "B");
@@ -326,14 +347,14 @@ describe("collection filter and sort", () => {
         reverse: view({ sort: (a, b) => b.title.localeCompare(a.title) }),
       }),
     });
-    const original = await collection.getAll();
-    expect(await collection.getAll({ view: "tied" })).toEqual(original);
+    const original = await collection.getMany();
+    expect(await collection.getMany({ view: "tied" })).toEqual(original);
     expect(
-      (await collection.getAll({ view: "reverse" })).map(
+      (await collection.getMany({ view: "reverse" })).map(
         (entry) => entry.title,
       ),
     ).toEqual(["C", "B", "A"]);
-    expect(await collection.getAll()).toEqual(original);
+    expect(await collection.getMany()).toEqual(original);
   });
 
   test("handles empty and fully filtered collections without comparing entries", async () => {
@@ -351,10 +372,10 @@ describe("collection filter and sort", () => {
       extension: ".md",
       schema: z.object({ title: z.string() }),
     });
-    expect(await collection.getAll()).toEqual([]);
+    expect(await collection.getMany()).toEqual([]);
     expect(filter).not.toHaveBeenCalled();
     await writeMd("draft.md", "Draft");
-    expect(await collection.getAll()).toEqual([]);
+    expect(await collection.getMany()).toEqual([]);
     expect(filter).toHaveBeenCalledTimes(1);
     expect(sort).not.toHaveBeenCalled();
     await expect(collection.getOne("draft")).rejects.toThrow(
@@ -362,75 +383,75 @@ describe("collection filter and sort", () => {
     );
   });
 
-  test.each([
-    "filter",
-    "sort",
-  ] as const)("propagates %s failures", async (callback) => {
-    await writeMd("a.md", "A");
-    await writeMd("b.md", "B");
-    const failure = new Error(`${callback} failed`);
-    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-    const collection = qino.createCollection({
-      directory: "/posts",
-      extension: ".md",
-      schema: z.object({ title: z.string() }),
-      views: (view) => ({
-        default: view({
-          [callback]: () => {
-            throw failure;
-          },
+  test.each(["filter", "sort"] as const)(
+    "propagates %s failures",
+    async (callback) => {
+      await writeMd("a.md", "A");
+      await writeMd("b.md", "B");
+      const failure = new Error(`${callback} failed`);
+      const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+      const collection = qino.createCollection({
+        directory: "/posts",
+        extension: ".md",
+        schema: z.object({ title: z.string() }),
+        views: (view) => ({
+          default: view({
+            [callback]: () => {
+              throw failure;
+            },
+          }),
         }),
-      }),
-    });
-    await expect(collection.getAll()).rejects.toBe(failure);
-    if (callback == "filter") {
-      await expect(collection.getOne("a")).rejects.toBe(failure);
-    }
-  });
+      });
+      await expect(collection.getMany()).rejects.toBe(failure);
+      if (callback == "filter") {
+        await expect(collection.getOne("a")).rejects.toBe(failure);
+      }
+    },
+  );
 
-  test.each([
-    undefined,
-    "highlight",
-  ] as const)("getOne applies the %s view's filter after augment without sorting", async (view) => {
-    await writeMd("highlighted.md", "Highlighted");
-    await writeMd("ordinary.md", "Ordinary");
-    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
-    const sort = vi.fn(() => {
-      throw new Error("Single entries must not sort");
-    });
-    const collection = qino.createCollection({
-      directory: "/posts",
-      extension: ".md",
-      schema: z.object({ title: z.string() }),
-      views: (defineView) => ({
-        default: defineView({
-          augment: async (entry) => ({
-            highlight: entry.title == "Highlighted",
+  test.each([undefined, "highlight"] as const)(
+    "getOne applies the %s view's filter after augment without sorting",
+    async (view) => {
+      await writeMd("highlighted.md", "Highlighted");
+      await writeMd("ordinary.md", "Ordinary");
+      const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+      const sort = vi.fn(() => {
+        throw new Error("Single entries must not sort");
+      });
+      const collection = qino.createCollection({
+        directory: "/posts",
+        extension: ".md",
+        schema: z.object({ title: z.string() }),
+        views: (defineView) => ({
+          default: defineView({
+            augment: async (entry) => ({
+              highlight: entry.title == "Highlighted",
+            }),
+            filter: (entry) => entry.highlight,
+            sort,
           }),
-          filter: (entry) => entry.highlight,
-          sort,
-        }),
-        highlight: defineView({
-          augment: async (entry) => ({
-            highlight: entry.title == "Highlighted",
+          highlight: defineView({
+            augment: async (entry) => ({
+              highlight: entry.title == "Highlighted",
+            }),
+            filter: (entry) => entry.highlight,
+            sort,
           }),
-          filter: (entry) => entry.highlight,
-          sort,
+          all: defineView({}),
         }),
-        all: defineView({}),
-      }),
-    });
-    await expect(
-      collection.getOne("highlighted", { view }),
-    ).resolves.toMatchObject({ highlight: true });
-    await expect(collection.getOne("ordinary", { view })).rejects.toThrow(
-      `Entry "ordinary" in collection "/posts" is excluded by view "${view ?? "default"}".`,
-    );
-    await expect(
-      collection.getOne("ordinary", { view: "all" }),
-    ).resolves.toMatchObject({ title: "Ordinary" });
-    expect(sort).not.toHaveBeenCalled();
-  });
+      });
+      await expect(
+        collection.getOne("highlighted", { view }),
+      ).resolves.toMatchObject({ highlight: true });
+      await expect(collection.getOne("ordinary", { view })).rejects.toThrow(
+        `Entry "ordinary" in collection "/posts" is excluded by view "${view ?? "default"}".`,
+      );
+      await expect(
+        collection.getOne("ordinary", { view: "all" }),
+      ).resolves.toMatchObject({ title: "Ordinary" });
+      expect(sort).not.toHaveBeenCalled();
+    },
+  );
 
   test("validates excluded content and rejects getter callbacks", async () => {
     await writeMd("invalid.md", "Invalid");
@@ -445,9 +466,9 @@ describe("collection filter and sort", () => {
       extension: ".md",
       schema: z.object({ missing: z.string() }),
     });
-    await expect(collection.getAll()).rejects.toThrow(/Validation failed/);
+    await expect(collection.getMany()).rejects.toThrow(/Validation failed/);
     for (const options of [{ filter: () => true }, { sort: () => 0 }]) {
-      await expect(collection.getAll(options as never)).rejects.toThrow(
+      await expect(collection.getMany(options as never)).rejects.toThrow(
         /Getter filter and sort are not supported/,
       );
     }

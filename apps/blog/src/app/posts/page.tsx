@@ -4,7 +4,7 @@ import Link from "next/link";
 import { postCollection } from "../../../qino/collections/posts";
 
 export default async function PostsIndex() {
-  const posts = await postCollection.getAll();
+  const posts = await postCollection.getMany();
 
   const sorted = [...posts].sort((a, b) =>
     b["created-on"].localeCompare(a["created-on"]),
