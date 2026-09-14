@@ -18,7 +18,7 @@ A running log of design decisions. Append-only — supersede with a new entry ra
 
 **Decision:** Ship the npm package and CLI first. Cloud UI ships in V2.
 
-**Why:** The npm side is self-contained and unblocks dogfooding via `apps/blog/`. The cloud UI depends on a stable lock-file format and write protocol; both mature faster with real V1 usage.
+**Why:** The npm side is self-contained and unblocks dogfooding via `examples/blog/`. The cloud UI depends on a stable lock-file format and write protocol; both mature faster with real V1 usage.
 
 **Implications:** `13-cloud-ui.md` is `[v2-deferred]`. Lock-file schema (`11-lock-file.md`) is treated as forward-compatible from V1.
 
@@ -42,7 +42,7 @@ V2 ships:
 - i18n
 - Cloud UI
 
-**Why:** V1 must be useful for a real consumer (`apps/blog/`) without manual workarounds for relations, sort, or assets. i18n and cloud UI are large enough to warrant their own release cycle.
+**Why:** V1 must be useful for a real consumer (`examples/blog/`) without manual workarounds for relations, sort, or assets. i18n and cloud UI are large enough to warrant their own release cycle.
 
 ---
 

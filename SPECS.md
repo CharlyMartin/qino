@@ -36,4 +36,4 @@ The full spec is split across topic files in [`specs/`](./specs). Start with the
 
 ## Canonical example
 
-`apps/blog/` is the live reference implementation. Look there before inventing examples — every spec file links back to the relevant files in it.
+`examples/blog/` is the live reference implementation. Look there before inventing examples — every spec file links back to the relevant files in it.

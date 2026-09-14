@@ -66,7 +66,7 @@ committed to the repo, and forward-compatible**.
 }
 ```
 
-This is exactly the shape committed at `apps/blog/qino/qino-lock.json`. Treat it as the canonical example.
+This is exactly the shape committed at `examples/blog/qino/qino-lock.json`. Treat it as the canonical example.
 
 ## Field reference
 

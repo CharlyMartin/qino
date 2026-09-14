@@ -260,7 +260,7 @@ The `qino/trees/` folder is **optional** — projects with no trees skip it with
 
 Done when:
 
-- `createTree` is implemented with at least one canonical example in `apps/docs/` (to be created).
+- `createTree` is implemented with at least one canonical example in `examples/docs/` (to be created).
 - `getTree()` returns root-level `TreeNode[]` with full nesting; `getTree(slug)` returns a single `TreeNode`; both throw on invalid slugs.
 - `getEntry(slug)` returns a single `Entry`; throws on missing slug or schema mismatch with the offending file path in the error.
 - Slug derivation produces unique slugs across the tree; duplicate slugs fail at build.

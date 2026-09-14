@@ -9,7 +9,7 @@ updates:
       - dependency-name: "@types/node"
 
   - package-ecosystem: npm
-    directory: "/apps/blog"
+    directory: "/examples/blog"
     schedule:
       interval: weekly
     versioning-strategy: increase

@@ -82,12 +82,12 @@ Used in every file in `specs/`:
 
 ## Canonical example
 
-`apps/blog/` is the live reference implementation. Look there before inventing examples:
+`examples/blog/` is the live reference implementation. Look there before inventing examples:
 
-- `apps/blog/qino/config.ts` — example config.
-- `apps/blog/qino/collections/{posts,authors,categories}.ts` — example collections.
-- `apps/blog/qino/qino-lock.json` — example lock file.
-- `apps/blog/src/content/{posts,authors,categories}/` — example content files.
+- `examples/blog/qino/config.ts` — example config.
+- `examples/blog/qino/collections/{posts,authors,categories}.ts` — example collections.
+- `examples/blog/qino/qino-lock.json` — example lock file.
+- `examples/blog/src/content/{posts,authors,categories}/` — example content files.
 
 ## Related specs
 

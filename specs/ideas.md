@@ -31,7 +31,7 @@ qino/
 └── trees.ts
 ```
 
-Open: support both? folder wins if both exist? Today the live example (`apps/blog/qino/`) uses the folder form.
+Open: support both? folder wins if both exist? Today the live example (`examples/blog/qino/`) uses the folder form.
 
 ## Sorting helpers from Qino
 
