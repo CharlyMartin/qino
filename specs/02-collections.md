@@ -66,13 +66,25 @@ run augment callbacks or views. Malformed content still yields a slug. The retur
 type uses the collection's generated slug registry, falling back to `string[]`
 when its directory is unregistered.
 
-`getAll()` and `getOne()` read and validate content before applying the selected
+`getMany()` and `getOne()` read and validate content before applying the selected
 view. The internal `readAll()` remains the source reader for CLI validation;
 CLI collection slug generation uses `getAllSlugs()`.
 
+`getAllSlugs()` is filesystem truth and ignores views, so it can disagree with a
+filtering view: `getOne(slug)` throws for a slug the selected view excludes. Use
+`getAllSlugs()` for route generation when the default view has no `filter`. When
+a view filters, derive slugs from the viewed set instead:
+
+```ts
+const slugs = (await posts.getMany({ view })).map((entry) => entry._meta.slug);
+```
+
+`getMany()` is named for what it returns: the entries the selected view keeps,
+which may be fewer than the files on disk.
+
 ### Returned shape
 
-Every entry returned by `getAll` / `getOne` includes a `_meta` field:
+Every entry returned by `getMany` / `getOne` includes a `_meta` field:
 
 ```ts
 {
@@ -126,8 +138,8 @@ Relation values in content files are stored in verbose form (`author: "authors/j
 
 ## Getter options
 
-`getAll({ view })` selects a declared named view; `getAll()` uses `views.default` when configured, or baseline behavior without views. `getOne(slug, { view })` selects the same entry shape and
-throws if the selected view’s filter excludes it. Sorting only applies to `getAll()`. See [15-views](./15-views.md).
+`getMany({ view })` selects a declared named view; `getMany()` uses `views.default` when configured, or baseline behavior without views. `getOne(slug, { view })` selects the same entry shape and
+throws if the selected view’s filter excludes it. Sorting only applies to `getMany()`. See [15-views](./15-views.md).
 
 ## Filter and sort
 
@@ -135,7 +147,7 @@ Collection views accept `filter(entry): boolean` and `sort(a, b): number`.
 Configure default and custom callbacks with the collection's view helper; root callbacks are forbidden.
 The order is validation → relation resolution → augment → filter → sort.
 Callbacks receive the selected view's augmented entry shape. Filtering applies
-to both `getAll()` and `getOne()`; sorting only applies to `getAll()`. They are synchronous and cannot be overridden at getter call sites.
+to both `getMany()` and `getOne()`; sorting only applies to `getMany()`. They are synchronous and cannot be overridden at getter call sites.
 Absent callbacks preserve all entries and discovery order. See
 [06-sort](./06-sort.md) for examples and complete behavior.
 
@@ -146,7 +158,7 @@ Pagination remains a future consideration.
 Done when:
 
 - `getAllSlugs()` returns sorted, typed slugs from filenames without reading content or running callbacks.
-- `getAll()` validates every entry, then returns the selected view’s filtered and sorted results.
+- `getMany()` validates every entry, then returns the selected view’s filtered and sorted results.
 - `getOne(slug)` returns one entry by slug, throws on missing file, schema mismatch, or exclusion by the selected view’s filter.
 - `_meta.slug`, `_meta.fileName`, `_meta.filePath` are present on every returned entry.
 - Markdown entries expose their body via `body` (when present in schema); `.json` entries don't.

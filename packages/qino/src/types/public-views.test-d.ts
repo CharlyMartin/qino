@@ -70,7 +70,7 @@ test("public factory types support reusable views with inferred getter results",
     resolveRelations: undefined,
   };
   expectTypeOf(
-    (await posts.getAll({ view: "reading", ...omitted }))[0].readingMinutes,
+    (await posts.getMany({ view: "reading", ...omitted }))[0].readingMinutes,
   ).toEqualTypeOf<number>();
   expectTypeOf(
     (await tree.getEntry("hello", { view: "preview" })).source,

@@ -19,10 +19,10 @@ views: (view) => ({
 ```
 
 Here the collection schema includes `draft: z.boolean()`. Select this view with
-`getAll({ view: "published" })`. A custom view does not inherit the default view's
+`getMany({ view: "published" })`. A custom view does not inherit the default view's
 filter, sort, augmentation, or relation settings.
 
-Filtering applies to `getAll()` and `getOne(slug, { view })`. A single-entry read
+Filtering applies to `getMany()` and `getOne(slug, { view })`. A single-entry read
 throws if the selected view excludes the entry, with an error naming the slug,
 collection, and view. Omitting `view` uses the default filter. An independent
 view without a filter can read every entry. Slug discovery, relations, and CLI

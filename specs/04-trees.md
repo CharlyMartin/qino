@@ -213,7 +213,7 @@ Returns a single entry by slug, shape `{ _meta: { slug, fileName, filePath }, ..
 const entry = await docsTree.getEntry("guides/queries");
 ```
 
-There is intentionally **no flat `getAll`** — trees are about hierarchy. To produce a flat list, walk the hydrated tree.
+There is intentionally **no flat `getMany`** — trees are about hierarchy. To produce a flat list, walk the hydrated tree.
 
 ### `getEntries`
 

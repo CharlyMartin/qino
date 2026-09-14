@@ -10,7 +10,7 @@ The full spec is split across topic files in [`specs/`](./specs). Start with the
 | -------------------------------------------------------------- | ----------- | ---------------------------------------------------------------- |
 | [00-overview.md](./specs/00-overview.md)                       | stable      | Pitch, two-surface model, glossary, lifecycle, non-goals         |
 | [01-config.md](./specs/01-config.md)                           | stable      | `createConfig`, `qino/config.ts`                                 |
-| [02-collections.md](./specs/02-collections.md)                 | stable      | `createCollection`, `getAll`, `getOne`, slug rules               |
+| [02-collections.md](./specs/02-collections.md)                 | stable      | `createCollection`, `getMany`, `getOne`, slug rules               |
 | [03-pages.md](./specs/03-pages.md)                             | v1-proposed | `createPage` — single-file content                               |
 | [04-trees.md](./specs/04-trees.md)                             | v1-proposed | `createTree` — hierarchical/ordered content                      |
 | [05-relationships.md](./specs/05-relationships.md)             | v1-proposed | Path API, `resolveAncestors` / `resolveDescendants`              |

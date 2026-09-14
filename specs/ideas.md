@@ -89,7 +89,7 @@ Open names for the same thing:
 
 ## Drafts / publish state
 
-Not yet specified. Possible: a `draft: boolean` frontmatter field that getters filter out by default, plus `getAll({ includeDrafts: true })`.
+Not yet specified. Possible: a `draft: boolean` frontmatter field that getters filter out by default, plus `getMany({ includeDrafts: true })`.
 
 ## Search / filter depth
 

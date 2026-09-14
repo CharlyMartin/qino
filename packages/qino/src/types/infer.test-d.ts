@@ -56,9 +56,9 @@ const posts = qino.createCollection({
 test("collection inference matches default and named getter outputs", async () => {
   type PostTypes = Infer<typeof posts>;
   const post = await posts.getOne("hello");
-  const all = await posts.getAll();
+  const all = await posts.getMany();
   const highlight = await posts.getOne("hello", { view: "highlight" });
-  const highlights = await posts.getAll({ view: "highlight" });
+  const highlights = await posts.getMany({ view: "highlight" });
   expectTypeOf<PostTypes["output"]>().toEqualTypeOf<typeof post>();
   expectTypeOf<Array<PostTypes["output"]>>().toEqualTypeOf<typeof all>();
   expectTypeOf<PostTypes["views"]["highlight"]>().toEqualTypeOf<

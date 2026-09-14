@@ -221,7 +221,7 @@ describe("views inference", () => {
       (await collection.getOne("hello")).author,
     ).toEqualTypeOf<string>();
     expectTypeOf(
-      (await collection.getAll())[0].authorSlug,
+      (await collection.getMany())[0].authorSlug,
     ).toEqualTypeOf<string>();
     expectTypeOf((await docs.getEntry("hello")).author).toEqualTypeOf<string>();
     expectTypeOf(
@@ -239,7 +239,7 @@ describe("views inference", () => {
       (await posts.getOne("hello", { view: "raw" })).author,
     ).toEqualTypeOf<string>();
     expectTypeOf(
-      (await posts.getAll({ view: "raw" }))[0].slugLength,
+      (await posts.getMany({ view: "raw" }))[0].slugLength,
     ).toEqualTypeOf<number>();
     expectTypeOf(
       (await posts.getOne("hello", { view: "shallow" })).leadSlug,
@@ -269,7 +269,7 @@ describe("views inference", () => {
   });
 
   test("keeps the exact view-name union for autocomplete", () => {
-    type Options = NonNullable<Parameters<typeof posts.getAll>[0]>;
+    type Options = NonNullable<Parameters<typeof posts.getMany>[0]>;
     expectTypeOf<Options["view"]>().toEqualTypeOf<
       | "default"
       | "raw"
@@ -309,13 +309,13 @@ describe("views inference", () => {
   });
 
   test("rejects invalid selections and does not leak derived fields", async () => {
-    posts.getAll({ view: "default" });
+    posts.getMany({ view: "default" });
     // @ts-expect-error Unknown view.
     posts.getOne("hello", { view: "missing" });
     // @ts-expect-error Per-call resolution has been removed.
-    posts.getAll({ resolveRelations: false });
+    posts.getMany({ resolveRelations: false });
     // @ts-expect-error Selecting a view cannot override its fixed depth.
-    posts.getAll({ view: "detail", resolveRelations: false });
+    posts.getMany({ view: "detail", resolveRelations: false });
     // @ts-expect-error Per-call resolution is also removed without views.
     authors.getOne("alice", { resolveRelations: false });
     // @ts-expect-error Tree view names are restricted.

@@ -24,7 +24,7 @@ const authorCollection = qino.createCollection({
   }),
 });
 
-const authors = await authorCollection.getAll({ view: "withPosts" });
+const authors = await authorCollection.getMany({ view: "withPosts" });
 // each author gains a `posts` field — array of every post that references them
 ```
 
@@ -71,8 +71,8 @@ The v1 shorthand (`relations: { author: authorCollection }`) is forward-compatib
 
 Done when:
 
-- A `postCollection` with `author: authorCollection` causes `authorCollection.getAll({ view: "withPosts" })` to return authors with a `posts` array of full post entries when that view configures `resolveAncestors: true`.
-- Top-level `resolveAncestors: true` provides the same upstream traversal for `authorCollection.getAll()` without a view selection.
+- A `postCollection` with `author: authorCollection` causes `authorCollection.getMany({ view: "withPosts" })` to return authors with a `posts` array of full post entries when that view configures `resolveAncestors: true`.
+- Top-level `resolveAncestors: true` provides the same upstream traversal for `authorCollection.getMany()` without a view selection.
 - Two-relation-same-target without explicit `inverse` throws at build time with a message pointing at the source collection and the colliding field names.
 - The explicit `inverse` object form coexists with the v1 shorthand on the same `relations` map.
 - Cycles between upstream and downstream resolution are safe — same object identity, no re-fetch.

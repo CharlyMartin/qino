@@ -36,7 +36,7 @@ export type Collection<
 > = PrimitiveInference<Schema, CollectionEntryMeta<Ext>, Rels, Views> & {
   readonly [QinoPrimitiveMarker]: CollectionMeta<Schema, Ext, Rels>;
   getAllSlugs(): Promise<Array<SlugFor<Dir>>>;
-  getAll<Args extends ViewArguments<Views> = []>(
+  getMany<Args extends ViewArguments<Views> = []>(
     ...args: Args
   ): Promise<
     Array<
@@ -101,7 +101,7 @@ export type CollectionMeta<
 export type AnyCollection = {
   readonly [QinoPrimitiveMarker]: CollectionMeta<ObjectSchema>;
   getAllSlugs(): Promise<Array<Slug>>;
-  getAll(options?: GetterOptions<undefined>): Promise<
+  getMany(options?: GetterOptions<undefined>): Promise<
     Array<
       Record<string, unknown> & {
         [K in typeof META_FIELD_NAME]: CollectionEntryMeta;

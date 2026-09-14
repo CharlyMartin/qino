@@ -28,9 +28,9 @@ const posts = qino.createCollection({
   }),
 });
 
-await posts.getAll(); // Default filter and sort.
-await posts.getAll({ view: "alphabetical" }); // Independent view callbacks.
-await posts.getAll({ view: "all" }); // Every entry, in discovery order.
+await posts.getMany(); // Default filter and sort.
+await posts.getMany({ view: "alphabetical" }); // Independent view callbacks.
+await posts.getMany({ view: "all" }); // Every entry, in discovery order.
 ```
 
 Here `qino` is the result of `createQino`; `z` is imported from `zod`.
@@ -43,7 +43,7 @@ The views factory runs once when the collection is created, not on each read.
 
 ## Behaviour
 
-- `getAll()` runs source reading and schema validation, relation resolution,
+- `getMany()` runs source reading and schema validation, relation resolution,
   augmentation, filtering, then sorting. All augmentation (including async
   augmentation) finishes before filtering starts.
 - `filter` receives one complete entry and retains it when the predicate returns

@@ -14,7 +14,7 @@ import { createCollection } from "qino";
 import { markdown } from "qino/utils";
 import z from "zod";
 
-export const { getAll, getOne } = createCollection({
+export const { getMany, getOne } = createCollection({
   views: (view) => ({
     default: view({
       augment: (post) => {
@@ -56,7 +56,7 @@ TypeScript should infer this without explicit annotations.
 
 ## Behaviour
 
-- `augment` is available on collections, singletons, and trees. It applies to every hydrated entry returned by `getAll`, `getOne`, `getData`, or `getEntry`.
+- `augment` is available on collections, singletons, and trees. It applies to every hydrated entry returned by `getMany`, `getOne`, `getData`, or `getEntry`.
 - `augment` runs after schema validation, `_meta` creation, and the selected view’s relation resolution. Its input type reflects that view’s fixed depth; with `resolveRelations` omitted or `false`, relation fields retain their authored values. Configure augmentation in `views.default` or a custom view; root augmentation is forbidden. See [15-views](./15-views.md).
 - `augment` may be sync or async.
 - Returned fields **merge** into the entry. Conflicts with schema fields or `_meta` are rejected both by TypeScript and at runtime, rather than silently overwriting data.

@@ -63,16 +63,16 @@ Undefined values are treated as omitted; supplied values such as `null` are reje
 
 ## Selection and output inference
 
-With views configured, `getAll()` / `getOne(slug)` / `getEntry(slug)` / `getData()`
+With views configured, `getMany()` / `getOne(slug)` / `getEntry(slug)` / `getData()`
 select the declared default. `{ view: "default" }` selects the same configuration.
 Other declared names select their own configurations. Explicit undefined selection
 is equivalent to omission. Unknown names fail in TypeScript and at runtime.
 Without views, no view names are available, including `"default"`.
 
 ```ts
-const defaults = await posts.getAll();
-const same = await posts.getAll({ view: "default" });
-const highlights = await posts.getAll({ view: "highlight" });
+const defaults = await posts.getMany();
+const same = await posts.getMany({ view: "default" });
+const highlights = await posts.getMany({ view: "highlight" });
 
 import type { Infer } from "qino";
 type Post = Infer<typeof posts>["output"];
@@ -96,7 +96,7 @@ inference metadata, so `Infer` returns `never`.
 ## Execution and reuse
 
 - The selected view runs relation resolution, then augmentation. Collection
-  `getAll()` awaits all augmentation before filtering, then sorts retained entries.
+  `getMany()` awaits all augmentation before filtering, then sorts retained entries.
   `getOne()` applies the same filter and throws when the entry is excluded;
   its error identifies the slug, collection, and selected view. It never sorts.
 - Augmentation may be synchronous or asynchronous; filters and comparators are

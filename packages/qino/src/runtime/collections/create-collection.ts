@@ -85,7 +85,7 @@ export function createCollection<
       readAll,
       readOne,
     },
-    getAll,
+    getMany,
     getAllSlugs,
     getOne,
   } as const satisfies Collection<S, Ext, Rels, Dir, ConfiguredViews<Views>>;
@@ -129,7 +129,7 @@ export function createCollection<
     );
   }
 
-  async function getAll<
+  async function getMany<
     Args extends ViewArguments<ConfiguredViews<Views>> = [],
   >(...[options]: Args) {
     const view = selectView(views, options) as CollectionViewDefinition;

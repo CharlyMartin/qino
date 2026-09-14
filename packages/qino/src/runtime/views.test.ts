@@ -179,16 +179,16 @@ describe.each([
       });
       const readers = {
         "collection one": async (
-          options?: NonNullable<Parameters<typeof collection.getAll>[0]>,
+          options?: NonNullable<Parameters<typeof collection.getMany>[0]>,
         ) => [await collection.getOne("hello", options)],
         "collection all": (
-          options?: NonNullable<Parameters<typeof collection.getAll>[0]>,
-        ) => collection.getAll(options),
+          options?: NonNullable<Parameters<typeof collection.getMany>[0]>,
+        ) => collection.getMany(options),
         tree: async (
-          options?: NonNullable<Parameters<typeof collection.getAll>[0]>,
+          options?: NonNullable<Parameters<typeof collection.getMany>[0]>,
         ) => [await tree.getEntry("hello", options)],
         singleton: async (
-          options?: NonNullable<Parameters<typeof collection.getAll>[0]>,
+          options?: NonNullable<Parameters<typeof collection.getMany>[0]>,
         ) => [await singleton.getData(options)],
       };
       const read = readers[kind as keyof typeof readers];
@@ -277,7 +277,7 @@ test("default getters preserve references and run augment without loading target
   });
   for (const entry of [
     await collection.getOne("hello"),
-    ...(await collection.getAll()),
+    ...(await collection.getMany()),
     await tree.getEntry("hello"),
     await singleton.getData(),
   ]) {
@@ -324,7 +324,7 @@ test("collection listing callbacks receive resolved augmented entries and bypass
     }),
   });
   expect(
-    (await collection.getAll({ view: "listing" })).map((entry) => entry.label),
+    (await collection.getMany({ view: "listing" })).map((entry) => entry.label),
   ).toEqual(["Alice: Hello"]);
   expect(targetFilter).not.toHaveBeenCalled();
   expect(targetSort).not.toHaveBeenCalled();
@@ -341,7 +341,7 @@ test("collection listing callbacks receive resolved augmented entries and bypass
   );
   expect(targetFilter).not.toHaveBeenCalled();
   expect(targetSort).not.toHaveBeenCalled();
-  expect(await authors.getAll()).toEqual([]);
+  expect(await authors.getMany()).toEqual([]);
 });
 
 test("explicit resolution on the default runs before augmenting on every primitive", async () => {
@@ -381,7 +381,7 @@ test("explicit resolution on the default runs before augmenting on every primiti
   });
   for (const entry of [
     await collection.getOne("hello"),
-    ...(await collection.getAll()),
+    ...(await collection.getMany()),
     await tree.getEntry("hello"),
     await singleton.getData(),
   ]) {
@@ -389,7 +389,7 @@ test("explicit resolution on the default runs before augmenting on every primiti
   }
   for (const entry of [
     await collection.getOne("hello", { view: "raw" }),
-    ...(await collection.getAll({ view: "raw" })),
+    ...(await collection.getMany({ view: "raw" })),
     await tree.getEntry("hello", { view: "raw" }),
     await singleton.getData({ view: "raw" }),
   ]) {
@@ -576,11 +576,11 @@ test("spread reuse preserves default augmentation and sort while adding a custom
       };
     },
   });
-  const defaults = await posts.getAll();
+  const defaults = await posts.getMany();
   expect(defaults.map((entry) => entry.title)).toEqual(["Second", "Hello"]);
-  expect(await posts.getAll({ view: "default" })).toEqual(defaults);
+  expect(await posts.getMany({ view: "default" })).toEqual(defaults);
   expect(
-    (await posts.getAll({ view: "highlight" })).map((entry) => entry.title),
+    (await posts.getMany({ view: "highlight" })).map((entry) => entry.title),
   ).toEqual(["Hello"]);
   expect((await posts.getOne("hello", { view: "highlight" })).length).toBe(5);
   await expect(posts.getOne("second", { view: "highlight" })).rejects.toThrow(

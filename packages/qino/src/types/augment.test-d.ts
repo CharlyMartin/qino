@@ -50,7 +50,7 @@ const tree = qino.createTree({
 
 describe("augment type behaviour", () => {
   test("infers fields returned by every hydrated primitive", async () => {
-    const [post] = await collection.getAll();
+    const [post] = await collection.getMany();
     const home = await singleton.getData();
     const doc = await tree.getEntry("intro");
 
