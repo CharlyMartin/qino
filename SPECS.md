@@ -36,4 +36,4 @@ The full spec is split across topic files in [`specs/`](./specs). Start with the
 
 ## Canonical example
 
-`examples/blog/` is the live reference implementation. Look there before inventing examples — every spec file links back to the relevant files in it.
+`examples/next-js/` is the live reference implementation. Look there before inventing examples — every spec file links back to the relevant files in it.

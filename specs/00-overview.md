@@ -82,12 +82,12 @@ Used in every file in `specs/`:
 
 ## Canonical example
 
-`examples/blog/` is the live reference implementation. Look there before inventing examples:
+`examples/next-js/` is the live reference implementation. Look there before inventing examples:
 
-- `examples/blog/qino/config.ts` — example config.
-- `examples/blog/qino/collections/{posts,authors,categories}.ts` — example collections.
-- `examples/blog/qino/qino-lock.json` — example lock file.
-- `examples/blog/src/content/{posts,authors,categories}/` — example content files.
+- `examples/next-js/qino/config.ts` — example config.
+- `examples/next-js/qino/collections/{posts,authors,categories}.ts` — example collections.
+- `examples/next-js/qino/qino-lock.json` — example lock file.
+- `examples/next-js/src/content/{posts,authors,categories}/` — example content files.
 
 ## Related specs
 

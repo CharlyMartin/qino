@@ -127,7 +127,7 @@ picked up with zero `tsconfig` changes. The pattern otherwise follows Next.js
 
 Done when:
 
-- `pnpm --filter <consumer> qino build` succeeds end-to-end against `examples/blog/`.
+- `pnpm --filter <consumer> qino build` succeeds end-to-end against `examples/next-js/`.
 - Schema / path / relation violations all surface as actionable errors.
 - `qino dev` re-runs validation within ~500ms of a relevant file change.
-- Generated `.d.ts` types are picked up by TS in `examples/blog/` without manual configuration beyond what's already in `tsconfig.json`.
+- Generated `.d.ts` types are picked up by TS in `examples/next-js/` without manual configuration beyond what's already in `tsconfig.json`.
