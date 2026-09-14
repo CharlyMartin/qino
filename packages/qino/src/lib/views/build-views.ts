@@ -11,7 +11,7 @@ export function buildViews(
   if (typeof factory == "undefined") return undefined;
   if (typeof factory != "function") {
     throw new Error(
-      "Configure views with views: (view) => ({ name: view({ ... }) }). Object-form views are no longer supported.",
+      "Configure views with views: (view) => ({ default: view({ ... }) }). Object-form views are no longer supported.",
     );
   }
 

@@ -2,13 +2,14 @@
 title: Sorting
 ---
 
-Configure a synchronous `sort: (a, b) => number` on `createCollection`, or in a
-custom view using the `view` helper. The comparator follows JavaScript's
+Configure a synchronous `sort: (a, b) => number` inside a default or custom
+collection view using the `view` helper. The comparator follows JavaScript's
 `Array.toSorted`: return a negative number for `a` first, positive for `b` first,
 and zero for equal order. Ties preserve relative order.
 
 ```ts
 views: (view) => ({
+  default: view({}),
   alphabetical: view({
     augment: (entry) => ({ label: entry.title.toLowerCase() }),
     sort: (a, b) => a.label.localeCompare(b.label),

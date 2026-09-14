@@ -4,8 +4,8 @@ title: Collections
 
 A flat, schema-validated set of entries in a directory.
 
-Configure `filter` and `sort` when creating a collection, either at the top level
-or in an independent custom view. Import `createQino` from `qino` and `z` from
+Configure `filter` and `sort` inside a default or custom collection view.
+Root view settings are not supported. Import `createQino` from `qino` and `z` from
 `zod`, and create `qino` with your content and media folders.
 
 ```ts
@@ -13,10 +13,12 @@ const posts = qino.createCollection({
   directory: "/posts",
   extension: ".md",
   schema: z.object({ title: z.string(), draft: z.boolean() }),
-  augment: (entry) => ({ titleLength: entry.title.length }),
-  filter: (entry) => !entry.draft,
-  sort: (a, b) => a.titleLength - b.titleLength,
   views: (view) => ({
+    default: view({
+      augment: (entry) => ({ titleLength: entry.title.length }),
+      filter: (entry) => !entry.draft,
+      sort: (a, b) => a.titleLength - b.titleLength,
+    }),
     alphabetical: view({
       augment: (entry) => ({ label: entry.title.toLowerCase() }),
       filter: (entry) => !entry.draft && entry.label.length > 0,
@@ -36,7 +38,10 @@ filtering, then sorting. Both callbacks are synchronous and receive the selected
 view's fully augmented entries. The `view` helper infers these fields without
 annotations. The helper syntax is required for every custom view, including
 views that only resolve relations or augment entries.
-Custom views inherit no top-level settings.
+Custom views inherit no default settings. Views are optional; without them,
+getters return validated entries with raw relation references and no callbacks.
+A supplied views factory must include `default`. Omitted getter selection and
+`{ view: "default" }` both select it.
 
 Getters accept view selection, not callback overrides. `getOne(slug, { view })`
 runs the selected view’s filter after augmentation and throws if it excludes the

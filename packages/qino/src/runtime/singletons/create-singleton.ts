@@ -13,19 +13,18 @@ import {
   selectView,
   validate,
 } from "../../lib";
+import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
 import type {
-  AugmentOutput,
   ExtractSingletonExtension,
   ObjectSchema,
   Relations,
-  ResolveOption,
   Singleton,
   SingletonFile,
 } from "../../types";
-import type { EntryAugment } from "../../types/augment";
 import type { SingletonEntryMeta } from "../../types/singleton";
 import type {
   ConfiguredViews,
+  RootViewSettings,
   SelectedView,
   ViewArguments,
   ViewFactory,
@@ -40,46 +39,31 @@ export type CreateSingletonParams<
   Schema extends ObjectSchema,
   F extends SingletonFile,
   Rels extends Relations<Schema> = object,
-  DefaultR extends ResolveOption = false,
-  Derived extends AugmentOutput = {},
   Views extends object = object,
 > = {
   file: F;
   schema: Schema;
   relations?: Rels;
-  resolveRelations?: DefaultR;
-  augment?: EntryAugment<
-    Schema,
-    SingletonEntryMeta<ExtractSingletonExtension<F>>,
-    Derived,
-    Rels,
-    DefaultR
-  >;
   views?: ViewsConfig<
     Views,
     ViewFactory<Schema, SingletonEntryMeta<ExtractSingletonExtension<F>>, Rels>
   >;
-};
+} & RootViewSettings;
 
 export function createSingleton<
   S extends ObjectSchema,
   F extends SingletonFile,
   Rels extends Relations<S> = object,
-  DefaultR extends ResolveOption = false,
-  Derived extends AugmentOutput = {},
   const Views extends object = object,
->(
-  ctx: QinoContext,
-  params: CreateSingletonParams<S, F, Rels, DefaultR, Derived, Views>,
-) {
-  const { file, schema, relations, resolveRelations, augment } = params;
+>(ctx: QinoContext, params: CreateSingletonParams<S, F, Rels, Views>) {
+  const { file, schema, relations } = params;
 
   type Ext = ExtractSingletonExtension<F>;
   const extension = extractExtension(file) as Ext;
   const singletonRelations = (relations ?? {}) as Rels;
-  const defaultResolve = (resolveRelations ?? false) as ResolveOption;
+  assertNoRootViewSettings(params);
   const views = buildViews(params.views, "singleton");
-  const defaults = { resolveRelations: defaultResolve, augment };
+  const defaultResolve = views?.default.resolveRelations ?? false;
 
   const absoluteFilePath = nodePath.join(
     ctx.contentFolder,
@@ -98,14 +82,7 @@ export function createSingleton<
       readData,
     },
     getData,
-  } as const satisfies Singleton<
-    S,
-    Ext,
-    Rels,
-    DefaultR,
-    Derived,
-    ConfiguredViews<Views>
-  >;
+  } as const satisfies Singleton<S, Ext, Rels, ConfiguredViews<Views>>;
 
   return singleton;
 
@@ -128,7 +105,7 @@ export function createSingleton<
   async function getData<
     Args extends ViewArguments<ConfiguredViews<Views>> = [],
   >(...[options]: Args) {
-    const view = selectView(defaults, views, options);
+    const view = selectView(views, options);
     const entry = await readData();
     const [result] = await applyView(
       [entry],
@@ -140,8 +117,6 @@ export function createSingleton<
       S,
       SingletonEntryMeta<Ext>,
       Rels,
-      DefaultR,
-      Derived,
       ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;

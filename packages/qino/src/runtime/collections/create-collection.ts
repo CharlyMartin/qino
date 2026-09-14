@@ -14,26 +14,24 @@ import {
   selectView,
   validate,
 } from "../../lib";
+import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
 import type {
-  AugmentOutput,
   Collection,
   GenericPath,
   ObjectSchema,
   Relations,
-  ResolveOption,
   SlugFor,
   SupportedFileExtension,
 } from "../../types";
-import type { EntryAugment } from "../../types/augment";
 import type { CollectionEntryMeta } from "../../types/collection";
 import type {
-  CollectionDefaultCallbacks,
   CollectionViewDefinition,
   CollectionViewFactory,
 } from "../../types/collection-views";
 import type { Slug } from "../../types/utils";
 import type {
   ConfiguredViews,
+  RootViewSettings,
   SelectedView,
   ViewArguments,
   ViewSelection,
@@ -47,59 +45,32 @@ export type CreateCollectionParams<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema> = object,
-  DefaultR extends ResolveOption = false,
   Dir extends GenericPath = GenericPath,
-  Derived extends AugmentOutput = {},
   Views extends object = object,
 > = {
   directory: Dir;
   schema: Schema;
   extension: Ext;
   relations?: Rels;
-  resolveRelations?: DefaultR;
-  augment?: EntryAugment<
-    Schema,
-    CollectionEntryMeta<Ext>,
-    Derived,
-    Rels,
-    DefaultR
-  >;
   views?: ViewsConfig<
     Views,
     CollectionViewFactory<Schema, CollectionEntryMeta<Ext>, Rels>,
     CollectionViewDefinition
   >;
-} & CollectionDefaultCallbacks<
-  Schema,
-  CollectionEntryMeta<Ext>,
-  Rels,
-  DefaultR,
-  Derived
->;
+} & RootViewSettings;
 
 export function createCollection<
   S extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<S> = object,
-  DefaultR extends ResolveOption = false,
   Dir extends GenericPath = GenericPath,
-  Derived extends AugmentOutput = {},
   const Views extends object = object,
->(
-  ctx: QinoContext,
-  params: CreateCollectionParams<S, Ext, Rels, DefaultR, Dir, Derived, Views>,
-) {
-  const { directory, schema, extension, relations, resolveRelations, augment } =
-    params;
+>(ctx: QinoContext, params: CreateCollectionParams<S, Ext, Rels, Dir, Views>) {
+  const { directory, schema, extension, relations } = params;
   const collectionRelations = (relations ?? {}) as Rels;
-  const defaultResolve = resolveRelations ?? false;
+  assertNoRootViewSettings(params);
   const views = buildViews(params.views, "collection");
-  const defaults = {
-    resolveRelations: defaultResolve,
-    augment,
-    filter: params.filter,
-    sort: params.sort,
-  };
+  const defaultResolve = views?.default.resolveRelations ?? false;
   const collectionDirectory = nodePath.join(ctx.contentFolder, directory);
 
   const collection = {
@@ -117,15 +88,7 @@ export function createCollection<
     getAll,
     getAllSlugs,
     getOne,
-  } as const satisfies Collection<
-    S,
-    Ext,
-    Rels,
-    DefaultR,
-    Dir,
-    Derived,
-    ConfiguredViews<Views>
-  >;
+  } as const satisfies Collection<S, Ext, Rels, Dir, ConfiguredViews<Views>>;
 
   return collection;
 
@@ -169,11 +132,7 @@ export function createCollection<
   async function getAll<
     Args extends ViewArguments<ConfiguredViews<Views>> = [],
   >(...[options]: Args) {
-    const view = selectView(
-      defaults,
-      views,
-      options,
-    ) as CollectionViewDefinition;
+    const view = selectView(views, options) as CollectionViewDefinition;
     const entries = await readAll();
     const augmented = await applyView(
       entries,
@@ -194,8 +153,6 @@ export function createCollection<
         S,
         CollectionEntryMeta<Ext>,
         Rels,
-        DefaultR,
-        Derived,
         ConfiguredViews<Views>,
         ViewSelection<Args[0]>
       >
@@ -205,11 +162,7 @@ export function createCollection<
   async function getOne<
     Args extends ViewArguments<ConfiguredViews<Views>> = [],
   >(slug: Slug, ...[options]: Args) {
-    const view = selectView(
-      defaults,
-      views,
-      options,
-    ) as CollectionViewDefinition;
+    const view = selectView(views, options) as CollectionViewDefinition;
     const entry = await readOne(slug);
     const [result] = await applyView(
       [entry],
@@ -226,8 +179,6 @@ export function createCollection<
       S,
       CollectionEntryMeta<Ext>,
       Rels,
-      DefaultR,
-      Derived,
       ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;

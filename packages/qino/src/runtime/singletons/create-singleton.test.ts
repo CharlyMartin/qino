@@ -29,13 +29,17 @@ describe("createSingleton", () => {
 
     const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
     const singleton = qino.createSingleton({
+      views: (view) => ({
+        default: view({
+          augment: async ({ body }) => ({
+            words: body.trim().split(/\s+/u).length,
+          }),
+        }),
+      }),
       file: "/pages/home.md",
       schema: z
         .object({ title: z.string(), [MARKDOWN_BODY_FIELD_NAME]: z.string() })
         .strict(),
-      augment: async ({ body }) => ({
-        words: body.trim().split(/\s+/u).length,
-      }),
     });
 
     await expect(singleton.getData()).resolves.toMatchObject({ words: 2 });

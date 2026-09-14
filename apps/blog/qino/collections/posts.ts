@@ -26,19 +26,23 @@ export const postCollection = qino.createCollection({
     author: authorCollection,
     "categories[*]": categoryCollection,
   },
-  resolveRelations: 1,
-  views: (view) => ({
-    withReadingTime: view({
-      resolveRelations: 1,
-      augment: (post) => {
-        const content = markdown.stats(post.body);
-        return {
-          ...content,
-          readingMinutes: Math.ceil(content.wordCount / 220),
-        };
-      },
-    }),
-  }),
+  views: (view) => {
+    const base = view({ resolveRelations: 1 });
+
+    return {
+      default: base,
+      withReadingTime: view({
+        ...base,
+        augment: (post) => {
+          const content = markdown.stats(post.body);
+          return {
+            ...content,
+            readingMinutes: Math.ceil(content.wordCount / 220),
+          };
+        },
+      }),
+    };
+  },
 });
 
 type PostConfig = Infer<typeof postCollection>;

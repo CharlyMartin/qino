@@ -59,7 +59,7 @@ export type ViewsConfig<
   Factory,
   Definition = ViewDefinition & { filter?: never; sort?: never },
 > = Views &
-  ((view: Factory) => Record<string, Definition> & { default?: never });
+  ((view: Factory) => Record<string, Definition> & { default: Definition });
 
 export type ConfiguredViews<Views extends object> = Views extends ((
   ...args: never[]
@@ -67,7 +67,7 @@ export type ConfiguredViews<Views extends object> = Views extends ((
   ? Result
   : object;
 
-export type ViewNames<Views> = Exclude<keyof Views & string, "default">;
+export type ViewNames<Views> = keyof Views & string;
 
 // Capture the argument tuple so optional options include the default result.
 export type ViewArguments<Views> = [
@@ -75,27 +75,38 @@ export type ViewArguments<Views> = [
 ];
 export type ViewSelection<Options> =
   Options extends GetterOptions<string | undefined>
-    ? Options["view"]
+    ? "view" extends keyof Options
+      ? Options["view"]
+      : undefined
     : undefined;
 
-export type SelectedView<
-  S extends ObjectSchema,
-  Meta,
-  Rels,
-  DefaultR extends ResolveOption,
-  Derived,
-  Views,
-  Name,
-> = Name extends keyof Views
-  ? ViewEntry<
-      S,
-      Meta,
-      Rels,
-      Views[Name] extends { resolveRelations: infer R extends ResolveOption }
-        ? R
-        : false
-    > &
-      (Views[Name] extends { augment?: (...args: never[]) => infer Output }
-        ? Awaited<Output>
-        : object)
-  : ViewEntry<S, Meta, Rels, DefaultR> & Derived;
+export type SelectedView<S extends ObjectSchema, Meta, Rels, Views, Name> = (
+  Name extends undefined
+    ? "default"
+    : Name
+) extends infer Selected
+  ? Selected extends keyof Views
+    ? ViewEntry<
+        S,
+        Meta,
+        Rels,
+        Views[Selected] extends {
+          resolveRelations: infer R extends ResolveOption;
+        }
+          ? R
+          : false
+      > &
+        (Views[Selected] extends {
+          augment?: (...args: never[]) => infer Output;
+        }
+          ? Awaited<Output>
+          : object)
+    : ViewEntry<S, Meta, Rels, false>
+  : never;
+
+export type RootViewSettings = {
+  resolveRelations?: never;
+  augment?: never;
+  filter?: never;
+  sort?: never;
+};

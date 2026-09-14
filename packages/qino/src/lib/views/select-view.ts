@@ -11,7 +11,6 @@ export type RuntimeView = {
 };
 
 export function selectView(
-  defaults: RuntimeView,
   views: Record<string, RuntimeView> | undefined,
   options?: GetterOptions<string | undefined>,
 ) {
@@ -26,17 +25,12 @@ export function selectView(
     typeof options?.sort != "undefined"
   ) {
     throw new Error(
-      "Getter filter and sort are not supported. Configure them on the collection or in a view instead.",
+      "Getter filter and sort are not supported. Configure them in a collection view instead.",
     );
   }
 
   const name = options?.view;
-  if (name == undefined) return defaults;
-  if (name == "default") {
-    throw new Error(
-      'The "default" view is implicit. Omit the view option to select it.',
-    );
-  }
+  if (name == undefined) return views?.default ?? { resolveRelations: false };
 
   if (!views || !Object.hasOwn(views, name)) {
     throw new Error(

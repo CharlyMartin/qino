@@ -42,11 +42,15 @@ describe("createTree", () => {
     await writeMd(docs, "intro", "Introduction", "One");
 
     const tree = createTree({
+      views: (view) => ({
+        default: view({
+          augment: ({ body }) => ({ words: body.trim().split(/\s+/u).length }),
+        }),
+      }),
       directory: "/docs",
       schema: Schema,
       extension: ".md",
       titleField: "title",
-      augment: ({ body }) => ({ words: body.trim().split(/\s+/u).length }),
     });
 
     await expect(tree.getEntry("intro")).resolves.toMatchObject({ words: 1 });
@@ -218,7 +222,10 @@ describe("createTree", () => {
       schema: Schema,
       extension: ".md",
       titleField: "title",
-      views: (view) => ({ raw: view({ resolveRelations: false }) }),
+      views: (view) => ({
+        default: view({}),
+        raw: view({ resolveRelations: false }),
+      }),
     });
 
     const entry = await tree.getEntry("intro", { view: "raw" });
@@ -347,13 +354,17 @@ test("relations load nested Markdown tree entries without navigation or target a
   // A malformed sibling must not affect reading the referenced entry.
   await fs.writeFile(nodePath.join(dir, "broken.md"), "---\ntitle: [\n---");
   const docs = qino.createTree({
+    views: (view) => ({
+      default: view({
+        augment: () => {
+          throw new Error("Target augment must not run");
+        },
+      }),
+    }),
     directory: "/docs",
     extension: ".md",
     titleField: "title",
     schema: Schema,
-    augment: () => {
-      throw new Error("Target augment must not run");
-    },
   });
   const reference = { doc: "docs/guides/setup.md" };
   await fs.writeFile(
@@ -361,10 +372,14 @@ test("relations load nested Markdown tree entries without navigation or target a
     JSON.stringify(reference),
   );
   const home = qino.createSingleton({
+    views: (view) => ({
+      default: view({
+        resolveRelations: true,
+      }),
+    }),
     file: "/home.json",
     schema: z.object({ doc: z.string() }),
     relations: { doc: docs },
-    resolveRelations: true,
   });
   const entry = await home.getData();
   expect(entry.doc).toMatchObject({

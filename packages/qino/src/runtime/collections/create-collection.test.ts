@@ -31,15 +31,19 @@ describe("createCollection", () => {
 
     const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
     const collection = qino.createCollection({
+      views: (view) => ({
+        default: view({
+          augment: ({ body, _meta }) => ({
+            words: body.trim().split(/\s+/u).length,
+            sourceFile: _meta.fileName,
+          }),
+        }),
+      }),
       directory: "/posts",
       schema: z
         .object({ title: z.string(), [MARKDOWN_BODY_FIELD_NAME]: z.string() })
         .strict(),
       extension: ".md",
-      augment: ({ body, _meta }) => ({
-        words: body.trim().split(/\s+/u).length,
-        sourceFile: _meta.fileName,
-      }),
     });
 
     await expect(collection.getOne("hello")).resolves.toMatchObject({
@@ -171,9 +175,13 @@ describe("getAllSlugs", () => {
         .object({ title: z.string(), author: z.string() })
         .superRefine(validate),
       relations: { author: relation },
-      resolveRelations: true,
-      augment,
-      views: (view) => ({ detail: view({ resolveRelations: true, augment }) }),
+      views: (view) => ({
+        default: view({
+          resolveRelations: true,
+          augment,
+        }),
+        detail: view({ resolveRelations: true, augment }),
+      }),
     });
     const readFile = vi
       .spyOn(fs, "readFile")
@@ -197,7 +205,7 @@ describe("collection filter and sort", () => {
       schema: z.object({ title: z.string() }),
       views: (view) => {
         created();
-        return { listing: view({ filter: () => true }) };
+        return { default: view({}), listing: view({ filter: () => true }) };
       },
     });
     expect(created).toHaveBeenCalledTimes(1);
@@ -214,7 +222,7 @@ describe("collection filter and sort", () => {
         schema: z.object({ title: z.string() }),
         views: (() => ({ default: {} })) as never,
       }),
-    ).toThrow(/reserved/);
+    ).toThrow(/View "default" must be created/);
   });
 
   test("awaits all augmentation, filters before sorting, and keeps views independent", async () => {
@@ -227,27 +235,29 @@ describe("collection filter and sort", () => {
       directory: "/posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
-      augment: async (entry) => {
-        await Promise.resolve();
-        events.push(`augment:${entry._meta.slug}`);
-        return { length: entry.title.length };
-      },
-      filter: (entry) => {
-        expect(
-          events.filter((event) => event.startsWith("augment:")),
-        ).toHaveLength(3);
-        events.push(`filter:${entry._meta.slug}`);
-        return entry.title != "Draft" && entry.length > 0;
-      },
-      sort: (a, b) => {
-        expect(
-          events.filter((event) => event.startsWith("filter:")),
-        ).toHaveLength(3);
-        expect([a.title, b.title]).not.toContain("Draft");
-        events.push("sort");
-        return a.length - b.length;
-      },
       views: (view) => ({
+        default: view({
+          augment: async (entry) => {
+            await Promise.resolve();
+            events.push(`augment:${entry._meta.slug}`);
+            return { length: entry.title.length };
+          },
+          filter: (entry) => {
+            expect(
+              events.filter((event) => event.startsWith("augment:")),
+            ).toHaveLength(3);
+            events.push(`filter:${entry._meta.slug}`);
+            return entry.title != "Draft" && entry.length > 0;
+          },
+          sort: (a, b) => {
+            expect(
+              events.filter((event) => event.startsWith("filter:")),
+            ).toHaveLength(3);
+            expect([a.title, b.title]).not.toContain("Draft");
+            events.push("sort");
+            return a.length - b.length;
+          },
+        }),
         baseline: view({}),
         drafts: view({
           augment: (entry) => ({ draft: entry.title == "Draft" }),
@@ -284,9 +294,11 @@ describe("collection filter and sort", () => {
       directory: "/posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
-      filter: callback,
-      sort: callback,
       views: (view) => ({
+        default: view({
+          filter: callback,
+          sort: callback,
+        }),
         listing: view({ filter: callback, sort: callback }),
       }),
     });
@@ -309,6 +321,7 @@ describe("collection filter and sort", () => {
       extension: ".md",
       schema: z.object({ title: z.string() }),
       views: (view) => ({
+        default: view({}),
         tied: view({ sort: () => 0 }),
         reverse: view({ sort: (a, b) => b.title.localeCompare(a.title) }),
       }),
@@ -328,11 +341,15 @@ describe("collection filter and sort", () => {
     const filter = vi.fn(() => false);
     const sort = vi.fn(() => 0);
     const collection = qino.createCollection({
+      views: (view) => ({
+        default: view({
+          filter,
+          sort,
+        }),
+      }),
       directory: "/posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
-      filter,
-      sort,
     });
     expect(await collection.getAll()).toEqual([]);
     expect(filter).not.toHaveBeenCalled();
@@ -357,9 +374,13 @@ describe("collection filter and sort", () => {
       directory: "/posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
-      [callback]: () => {
-        throw failure;
-      },
+      views: (view) => ({
+        default: view({
+          [callback]: () => {
+            throw failure;
+          },
+        }),
+      }),
     });
     await expect(collection.getAll()).rejects.toBe(failure);
     if (callback == "filter") {
@@ -381,10 +402,14 @@ describe("collection filter and sort", () => {
       directory: "/posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
-      augment: async (entry) => ({ highlight: entry.title == "Highlighted" }),
-      filter: (entry) => entry.highlight,
-      sort,
       views: (defineView) => ({
+        default: defineView({
+          augment: async (entry) => ({
+            highlight: entry.title == "Highlighted",
+          }),
+          filter: (entry) => entry.highlight,
+          sort,
+        }),
         highlight: defineView({
           augment: async (entry) => ({
             highlight: entry.title == "Highlighted",
@@ -411,10 +436,14 @@ describe("collection filter and sort", () => {
     await writeMd("invalid.md", "Invalid");
     const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
     const collection = qino.createCollection({
+      views: (view) => ({
+        default: view({
+          filter: () => false,
+        }),
+      }),
       directory: "/posts",
       extension: ".md",
       schema: z.object({ missing: z.string() }),
-      filter: () => false,
     });
     await expect(collection.getAll()).rejects.toThrow(/Validation failed/);
     for (const options of [{ filter: () => true }, { sort: () => 0 }]) {

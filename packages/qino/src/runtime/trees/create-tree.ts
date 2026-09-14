@@ -15,22 +15,21 @@ import {
   selectView,
   validate,
 } from "../../lib";
+import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
 import type {
-  AugmentOutput,
   GenericPath,
   ObjectSchema,
   Relations,
-  ResolveOption,
   StringKeys,
   SupportedFileExtension,
   Tree,
   TreeNode,
 } from "../../types";
-import type { EntryAugment } from "../../types/augment";
 import type { TreeEntryMeta } from "../../types/tree";
 import type { Slug } from "../../types/utils";
 import type {
   ConfiguredViews,
+  RootViewSettings,
   SelectedView,
   ViewArguments,
   ViewFactory,
@@ -48,9 +47,7 @@ export type CreateTreeParams<
   Ext extends SupportedFileExtension,
   Title extends StringKeys<Schema>,
   Rels extends Relations<Schema> = object,
-  DefaultR extends ResolveOption = false,
   Dir extends GenericPath = GenericPath,
-  Derived extends AugmentOutput = {},
   Views extends object = object,
 > = {
   directory: Dir;
@@ -59,39 +56,24 @@ export type CreateTreeParams<
   titleField: Title;
   orderFileName?: string;
   relations?: Rels;
-  resolveRelations?: DefaultR;
-  augment?: EntryAugment<Schema, TreeEntryMeta<Ext>, Derived, Rels, DefaultR>;
   views?: ViewsConfig<Views, ViewFactory<Schema, TreeEntryMeta<Ext>, Rels>>;
-};
+} & RootViewSettings;
 
 export function createTree<
   S extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Title extends StringKeys<S>,
   Rels extends Relations<S> = object,
-  DefaultR extends ResolveOption = false,
   Dir extends GenericPath = GenericPath,
-  Derived extends AugmentOutput = {},
   const Views extends object = object,
->(
-  ctx: QinoContext,
-  params: CreateTreeParams<S, Ext, Title, Rels, DefaultR, Dir, Derived, Views>,
-) {
-  const {
-    directory,
-    schema,
-    extension,
-    titleField,
-    orderFileName,
-    relations,
-    resolveRelations,
-    augment,
-  } = params;
+>(ctx: QinoContext, params: CreateTreeParams<S, Ext, Title, Rels, Dir, Views>) {
+  const { directory, schema, extension, titleField, orderFileName, relations } =
+    params;
 
   const treeRelations = (relations ?? {}) as Rels;
-  const defaultResolve = (resolveRelations ?? false) as ResolveOption;
+  assertNoRootViewSettings(params);
   const views = buildViews(params.views, "tree");
-  const defaults = { resolveRelations: defaultResolve, augment };
+  const defaultResolve = views?.default.resolveRelations ?? false;
   const resolvedOrderFileName = orderFileName ?? DEFAULT_ORDER_FILE_NAME;
   const directoryPath = nodePath.join(ctx.contentFolder, directory);
 
@@ -113,16 +95,7 @@ export function createTree<
     getEntry,
     getNextNode,
     getPreviousNode,
-  } as const satisfies Tree<
-    S,
-    Ext,
-    Title,
-    Rels,
-    DefaultR,
-    Dir,
-    Derived,
-    ConfiguredViews<Views>
-  >;
+  } as const satisfies Tree<S, Ext, Title, Rels, Dir, ConfiguredViews<Views>>;
 
   return tree;
 
@@ -168,7 +141,7 @@ export function createTree<
   async function getEntry<
     Args extends ViewArguments<ConfiguredViews<Views>> = [],
   >(slug: Slug, ...[options]: Args) {
-    const view = selectView(defaults, views, options);
+    const view = selectView(views, options);
     const entry = await readEntry(slug);
     const [result] = await applyView(
       [entry],
@@ -180,8 +153,6 @@ export function createTree<
       S,
       TreeEntryMeta<Ext>,
       Rels,
-      DefaultR,
-      Derived,
       ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;
