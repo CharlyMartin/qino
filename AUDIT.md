@@ -1,7 +1,7 @@
 # Code Audit — Deep Scan
 
 **Date:** 2026-06-10
-**Scope:** full monorepo — `packages/qino` (lib, runtime, types, utils, CLI), root configs, `apps/blog`.
+**Scope:** full monorepo — `packages/qino` (lib, runtime, types, utils, CLI), root configs, `examples/blog`.
 **Method:** three parallel scans (core lib / runtime+types / CLI+tooling+app), every flagged finding then verified against source. False positives discarded (see last section).
 
 Each finding is rated on two criteria:
@@ -132,7 +132,7 @@ The identical cache → resolver → `normalizeDepth` → `resolveEntry` → cas
 
 ### 11. Dead code: `docsTreeV1`
 
-`apps/blog/qino/trees/docs.ts:12` exports `docsTreeV1`; nothing imports it. Keep only if it's a deliberate demo of multi-version trees — then reference it somewhere or comment why. **Feasibility: trivial.**
+`examples/blog/qino/trees/docs.ts:12` exports `docsTreeV1`; nothing imports it. Keep only if it's a deliberate demo of multi-version trees — then reference it somewhere or comment why. **Feasibility: trivial.**
 
 ### 12. Case-sensitive extension routing
 
@@ -167,7 +167,7 @@ No test files for: `remove-extension`, `remove-leading-slash`, `assert-file`, `a
 
 ### 18. Blog scaffolding leftovers
 
-- `apps/blog/src/app/layout.tsx:16-17` — still `title: "Create Next App"`.
+- `examples/blog/src/app/layout.tsx:16-17` — still `title: "Create Next App"`.
 - zod import style mixed: `import z from "zod"` (home.ts, authors.ts, categories.ts, docs.ts) vs `import { z } from "zod"` (posts.ts). Both work in zod 4; pick one.
 
 **Feasibility: trivial.**

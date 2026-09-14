@@ -4,16 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Qino is a flat-file Markdown CMS. See `SPECS.md` and `specs/**.md` for the design intent (config/collection/page APIs, `qino-lock.json`, CLI commands `qino build` / `qino watch`, generated `.d.ts` types). The repo is in early scaffolding — `apps/` and `packages/` are empty workspaces awaiting the first packages.
+Qino is a flat-file Markdown CMS. See `SPECS.md` and `specs/**.md` for the design intent (config/collection/page APIs, `qino-lock.json`, CLI commands `qino build` / `qino watch`, generated `.d.ts` types). The repo is in early scaffolding — `examples/` and `packages/` are empty workspaces awaiting the first packages.
 
 ## Monorepo layout
 
 - pnpm workspaces (`pnpm-workspace.yaml`) + Turborepo (`turbo.json`)
-- `apps/*` — consumer apps (e.g. example/demo Next.js sites that exercise Qino)
+- `examples/*` — consumer apps (e.g. example/demo Next.js sites that exercise Qino)
 - `packages/*` — publishable libraries (the `qino` core, CLI, schema helpers, etc.)
 - Node `>=22`, package manager pinned via `packageManager` in `package.json`
 
-When adding a new package, place library code in `packages/<name>` and demo/host apps in `apps/<name>`. Each package needs its own `package.json` with `build`, `lint`, `check-types`, and (where relevant) `dev` scripts so Turbo can pick them up.
+When adding a new package, place library code in `packages/<name>` and demo/host apps in `examples/<name>`. Each package needs its own `package.json` with `build`, `lint`, `check-types`, and (where relevant) `dev` scripts so Turbo can pick them up.
 
 ## Commands
 
