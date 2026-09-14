@@ -4,6 +4,7 @@ export type {
   Collection,
   CollectionEntryMeta,
   Infer,
+  QinoSlugRegistry,
   Singleton,
   SingletonEntryMeta,
   Tree,
