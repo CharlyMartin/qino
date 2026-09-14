@@ -11,6 +11,7 @@ describe.each([
   test("allows omitted views and evaluates the factory once", () => {
     expect(buildViews(undefined, primitive)).toBeUndefined();
     const factory = vi.fn((view: (config: object) => object) => ({
+      default: view({}),
       empty: view({}),
     }));
     expect(buildViews(factory, primitive)?.empty.resolveRelations).toBe(false);
@@ -34,12 +35,15 @@ describe.each([
     );
   });
 
-  test("rejects unwrapped definitions and the reserved default name", () => {
-    expect(() => buildViews(() => ({ detail: {} }), primitive)).toThrow(
-      'View "detail" must be created with view({ ... }).',
-    );
+  test("rejects unwrapped definitions, including default", () => {
+    expect(() =>
+      buildViews(
+        () => ({ default: defineView({}, primitive), detail: {} }),
+        primitive,
+      ),
+    ).toThrow('View "detail" must be created with view({ ... }).');
     expect(() => buildViews(() => ({ default: {} }), primitive)).toThrow(
-      /reserved/,
+      /View "default" must be created/,
     );
   });
 });
@@ -56,7 +60,10 @@ test.each([
   ]) {
     const collectionView = { ...defineView({}, "collection"), ...override };
     expect(() =>
-      buildViews(() => ({ detail: collectionView }), primitive),
+      buildViews(
+        () => ({ default: defineView({}, primitive), detail: collectionView }),
+        primitive,
+      ),
     ).toThrow(/does not support filter or sort/);
   }
 });
@@ -70,5 +77,19 @@ test.each([
     filter: undefined,
     sort: undefined,
   };
-  expect(buildViews(() => ({ detail }), primitive)?.detail).toBe(detail);
+  expect(
+    buildViews(() => ({ default: detail, detail }), primitive)?.detail,
+  ).toBe(detail);
+});
+
+test.each([
+  "collection",
+  "tree",
+  "singleton",
+] as const)("%s requires an own default view", (primitive) => {
+  for (const result of [{}, { detail: defineView({}, primitive) }]) {
+    expect(() => buildViews(() => result, primitive)).toThrow(
+      /must return a "default" view/,
+    );
+  }
 });

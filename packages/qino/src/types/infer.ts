@@ -1,4 +1,3 @@
-import type { ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
 import type { AnyPrimitive } from "./utils";
 import type { SelectedView, ViewNames } from "./views";
@@ -7,26 +6,11 @@ import type { SelectedView, ViewNames } from "./views";
 // Never access this symbol in value expressions; it has no runtime declaration.
 declare const QinoInference: unique symbol;
 
-export type PrimitiveInference<
-  S extends ObjectSchema,
-  Meta,
-  Rels,
-  DefaultR extends ResolveOption,
-  Derived,
-  Views,
-> = {
+export type PrimitiveInference<S extends ObjectSchema, Meta, Rels, Views> = {
   readonly [QinoInference]?: {
-    output: SelectedView<S, Meta, Rels, DefaultR, Derived, Views, undefined>;
+    output: SelectedView<S, Meta, Rels, Views, undefined>;
     views: {
-      [Name in ViewNames<Views>]: SelectedView<
-        S,
-        Meta,
-        Rels,
-        DefaultR,
-        Derived,
-        Views,
-        Name
-      >;
+      [Name in ViewNames<Views>]: SelectedView<S, Meta, Rels, Views, Name>;
     };
   };
 };

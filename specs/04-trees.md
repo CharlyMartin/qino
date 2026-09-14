@@ -15,11 +15,11 @@ Distinct from a sorted collection because:
 
 ## Custom views
 
-Declare custom views with `views: (view) => ({ detail: view({ ... }) })`.
+Declare custom views with `views: (view) => ({ default: view({}), detail: view({ ... }) })`.
 The helper accepts only `resolveRelations` and `augment`; it does not offer
 filter or sort. Unsupported callbacks, object-form `views`, and definitions
-not created by `view()` are rejected. Root configuration remains the implicit
-default, and custom views inherit no settings. See [15-views](./15-views.md).
+not created by `view()` are rejected. `views.default` is required when views are supplied. Omitting views uses baseline
+behavior. Root view settings are forbidden, and custom views inherit no settings. See [15-views](./15-views.md).
 
 ## API
 
@@ -80,7 +80,7 @@ Optional. Same JSON-path grammar as collections — `parent.child`, `field[*]`, 
 
 ### `resolveRelations`
 
-Same `true | number | false` semantics as collections/singletons, defaulting to `false`. Set it on `createTree` for the implicit default or inside a named view. `getEntry(slug, { view: "name" })` selects a declared custom view; omitting `view` selects the default. Getter resolution overrides are removed. Structural tree navigation is unaffected. See [15-views](./15-views.md).
+Same `true | number | false` semantics as collections/singletons, defaulting to `false`. Set it inside `views.default` or a custom view; root view settings are forbidden. `getEntry(slug, { view: "name" })` selects a declared custom view; omitting `view` selects the declared default, or baseline behavior without views. Explicit `"default"` selection is allowed when declared. Getter resolution overrides are removed. Structural tree navigation is unaffected. See [15-views](./15-views.md).
 
 ## Content-folder convention
 

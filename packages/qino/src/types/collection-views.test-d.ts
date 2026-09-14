@@ -17,18 +17,20 @@ test("infers post-augment inputs independently for default and named views", asy
     extension: ".json",
     schema,
     relations: { author: authors },
-    resolveRelations: true,
-    augment: async (entry) => ({ label: entry.author.name }),
-    filter: (entry) => {
-      expectTypeOf(entry.label).toEqualTypeOf<string>();
-      expectTypeOf(entry.author.name).toEqualTypeOf<string>();
-      expectTypeOf(entry._meta.slug).toEqualTypeOf<string>();
-      // @ts-expect-error Callback entries are readonly.
-      entry.title = "replacement";
-      return entry.label.length > 0;
-    },
-    sort: (a, b) => a.label.localeCompare(b.label),
     views: (view) => ({
+      default: view({
+        resolveRelations: true,
+        augment: async (entry) => ({ label: entry.author.name }),
+        filter: (entry) => {
+          expectTypeOf(entry.label).toEqualTypeOf<string>();
+          expectTypeOf(entry.author.name).toEqualTypeOf<string>();
+          expectTypeOf(entry._meta.slug).toEqualTypeOf<string>();
+          // @ts-expect-error Callback entries are readonly.
+          entry.title = "replacement";
+          return entry.label.length > 0;
+        },
+        sort: (a, b) => a.label.localeCompare(b.label),
+      }),
       raw: view({
         augment: (entry) => ({ length: entry.author.length }),
         filter: (entry) => {
@@ -65,7 +67,7 @@ test("infers post-augment inputs independently for default and named views", asy
   ).toEqualTypeOf<string>();
   type Options = NonNullable<Parameters<typeof posts.getAll>[0]>;
   expectTypeOf<Options["view"]>().toEqualTypeOf<
-    "raw" | "resolved" | "plain" | "empty" | undefined
+    "default" | "raw" | "resolved" | "plain" | "empty" | undefined
   >();
   const options: { view?: "raw" } = {};
   const entry = await posts.getOne("hello", options);
@@ -77,13 +79,13 @@ test("infers post-augment inputs independently for default and named views", asy
   posts.getAll({ sort: () => 0 });
 });
 
-test("rejects reserved factory view names and conflicting helper augmentation", () => {
+test("rejects missing default views and conflicting helper augmentation", () => {
   qino.createCollection({
     directory: "/posts",
     extension: ".json",
     schema,
-    // @ts-expect-error The default view is reserved in factory syntax too.
-    views: (view) => ({ default: view({}) }),
+    // @ts-expect-error Factories must declare a default view.
+    views: (view) => ({ other: view({}) }),
   });
   qino.createCollection({
     directory: "/posts",
@@ -97,6 +99,7 @@ test("rejects reserved factory view names and conflicting helper augmentation", 
     extension: ".json",
     schema,
     views: (view) => ({
+      default: view({}),
       invalid: view({
         // @ts-expect-error Augmentation cannot overwrite schema fields.
         augment: () => ({ title: "replacement" }),
@@ -110,11 +113,13 @@ test("requires synchronous boolean predicates and numeric comparators", () => {
     directory: "/posts",
     extension: ".json",
     schema,
-    // @ts-expect-error A predicate must return boolean.
-    filter: () => 1,
-    // @ts-expect-error A comparator must return number.
-    sort: () => "asc",
     views: (view) => ({
+      default: view({
+        // @ts-expect-error A predicate must return boolean.
+        filter: () => 1,
+        // @ts-expect-error A comparator must return number.
+        sort: () => "asc",
+      }),
       invalid: view({
         // @ts-expect-error Async predicates are unsupported.
         filter: async () => true,
@@ -127,18 +132,26 @@ test("requires synchronous boolean predicates and numeric comparators", () => {
 
 test("does not expose callbacks on trees or singletons", () => {
   qino.createTree({
+    views: (view) => ({
+      default: view({
+        // @ts-expect-error Tree filtering is deferred.
+        filter: () => true,
+      }),
+    }),
     directory: "/docs",
     extension: ".json",
     titleField: "title",
     schema,
-    // @ts-expect-error Tree filtering is deferred.
-    filter: () => true,
   });
   qino.createSingleton({
+    views: (view) => ({
+      default: view({
+        // @ts-expect-error Singletons cannot sort.
+        sort: () => 0,
+      }),
+    }),
     file: "/home.json",
     schema,
-    // @ts-expect-error Singletons cannot sort.
-    sort: () => 0,
   });
   qino.createTree({
     directory: "/docs",
@@ -146,6 +159,7 @@ test("does not expose callbacks on trees or singletons", () => {
     titleField: "title",
     schema,
     views: (view) => ({
+      default: view({}),
       listing: view({
         // @ts-expect-error Tree views cannot filter.
         filter: () => true,
@@ -156,6 +170,7 @@ test("does not expose callbacks on trees or singletons", () => {
     file: "/home.json",
     schema,
     views: (view) => ({
+      default: view({}),
       listing: view({
         // @ts-expect-error Singleton views cannot sort.
         sort: () => 0,

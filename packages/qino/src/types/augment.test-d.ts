@@ -13,27 +13,39 @@ const schema = z
   .strict();
 
 const collection = qino.createCollection({
+  views: (view) => ({
+    default: view({
+      augment: ({ body, _meta }) => ({
+        stats: { wordCount: body.length },
+        sourceFile: _meta.fileName,
+      }),
+    }),
+  }),
   directory: "/posts",
   schema,
   extension: ".md",
-  augment: ({ body, _meta }) => ({
-    stats: { wordCount: body.length },
-    sourceFile: _meta.fileName,
-  }),
 });
 
 const singleton = qino.createSingleton({
+  views: (view) => ({
+    default: view({
+      augment: ({ body }) => ({ stats: { wordCount: body.length } }),
+    }),
+  }),
   file: "/pages/home.md",
   schema,
-  augment: ({ body }) => ({ stats: { wordCount: body.length } }),
 });
 
 const tree = qino.createTree({
+  views: (view) => ({
+    default: view({
+      augment: ({ body }) => ({ stats: { wordCount: body.length } }),
+    }),
+  }),
   directory: "/docs",
   schema,
   extension: ".md",
   titleField: "title",
-  augment: ({ body }) => ({ stats: { wordCount: body.length } }),
 });
 
 describe("augment type behaviour", () => {
@@ -50,11 +62,15 @@ describe("augment type behaviour", () => {
 
   test("does not allow augmentations to overwrite entry fields", () => {
     qino.createCollection({
+      views: (view) => ({
+        default: view({
+          // @ts-expect-error Augmentations may only add fields.
+          augment: () => ({ title: "Replacement" }),
+        }),
+      }),
       directory: "/invalid",
       schema,
       extension: ".md",
-      // @ts-expect-error Augmentations may only add fields.
-      augment: () => ({ title: "Replacement" }),
     });
   });
 });

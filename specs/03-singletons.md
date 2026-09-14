@@ -15,11 +15,11 @@ The name `createSingleton` describes the structural property (exactly one, fixed
 
 ## Custom views
 
-Declare custom views with `views: (view) => ({ detail: view({ ... }) })`.
+Declare custom views with `views: (view) => ({ default: view({}), detail: view({ ... }) })`.
 The helper accepts only `resolveRelations` and `augment`; it does not offer
 filter or sort. Unsupported callbacks, object-form `views`, and definitions
-not created by `view()` are rejected. Root configuration remains the implicit
-default, and custom views inherit no settings. See [15-views](./15-views.md).
+not created by `view()` are rejected. `views.default` is required when views are supplied. Omitting views uses baseline
+behavior. Root view settings are forbidden, and custom views inherit no settings. See [15-views](./15-views.md).
 
 ## API
 
@@ -76,7 +76,7 @@ The extension is inferred from `file`'s suffix — one of `.md` | `.mdx` | `.jso
 getData({ view? })
 ```
 
-Set `resolveRelations` (`true` / `number` / `false`, default `false`) on `createSingleton` for the implicit default, or inside a named view. Getters select a declared view; they cannot override its depth. Omitting `view` selects the top-level default, and `"default"` is reserved. See [15-views](./15-views.md).
+Set `resolveRelations` (`true` / `number` / `false`, default `false`) inside `views.default` or a custom view. Root view settings are forbidden. Getters select a declared view; they cannot override its depth. Omitting `view` selects the declared default, or baseline behavior when views are omitted. Explicit `"default"` selection is allowed when declared. See [15-views](./15-views.md).
 
 ### `relations`
 

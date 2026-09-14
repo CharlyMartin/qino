@@ -6,18 +6,19 @@
 ## API
 
 Collections accept optional synchronous `filter(entry): boolean` and
-`sort(a, b): number` callbacks at creation time, at the top level or in custom
-views. Getters do not accept callback overrides.
+`sort(a, b): number` callbacks inside default or custom views; root callbacks are forbidden. Getters do not accept callback overrides.
 
 ```ts
 const posts = qino.createCollection({
   directory: "/posts",
   extension: ".md",
   schema: z.object({ title: z.string(), draft: z.boolean() }),
-  augment: (entry) => ({ titleLength: entry.title.length }),
-  filter: (entry) => !entry.draft,
-  sort: (a, b) => a.titleLength - b.titleLength,
   views: (view) => ({
+    default: view({
+      augment: (entry) => ({ titleLength: entry.title.length }),
+      filter: (entry) => !entry.draft,
+      sort: (a, b) => a.titleLength - b.titleLength,
+    }),
     alphabetical: view({
       augment: (entry) => ({ label: entry.title.toLowerCase() }),
       filter: (entry) => !entry.draft && entry.label.length > 0,
@@ -33,7 +34,7 @@ await posts.getAll({ view: "all" }); // Every entry, in discovery order.
 ```
 
 Here `qino` is the result of `createQino`; `z` is imported from `zod`.
-Use `views: (view) => ({ name: view({ ... }) })` for custom listing callbacks.
+Use `views: (view) => ({ default: view({ ... }), name: view({ ... }) })` for custom listing callbacks.
 The helper knows the collection's schema, metadata, and relations, and infers
 each view's augmented fields before typing its filter and sort. This helper syntax
 is required for every custom view on all primitives. Trees and singletons expose
@@ -53,14 +54,14 @@ The views factory runs once when the collection is created, not on each read.
   preserves relative order. Sorting produces a new array.
 - Callback parameters include validated fields, `_meta`, the selected view's
   resolved relations, and augmented fields. TypeScript exposes them as readonly.
-- Top-level settings define the implicit default view. Custom views inherit no
+- `views.default` defines the default behavior when views are supplied. Custom views inherit no
   settings or callbacks. A missing filter retains every entry; a missing sort
   preserves discovery order. No default date or alphabetical sort is imposed.
 - Empty collections and filters that exclude every entry return `[]`.
   Thrown callback errors reject the getter. Filter and sort cannot be async.
 - `getOne(slug, { view })` resolves and augments the requested entry, then runs
   the selected view’s filter. If excluded, it throws an error naming the slug,
-  collection, and view. Omitting `view` applies the top-level/default filter.
+  collection, and view. Omitting `view` applies the declared default filter, if any.
   It never sorts or reads the rest of the collection.
   Slug discovery, CLI validation, and embedded relation targets bypass
   filtering and sorting. Filtering never hides invalid content from validation.
@@ -81,6 +82,6 @@ collection order-file support needs its own design decision.
 - Equal comparisons preserve input order; one view's sorting does not change
   subsequent reads or another view's output.
 - Direct reads return entries accepted by the selected view’s filter and throw
-  for excluded entries, including in the implicit default view.
+  for excluded entries, including in the default view.
 - Slug discovery, relations, and CLI validation ignore callbacks.
 - Getter callback overrides are rejected in TypeScript and at runtime.

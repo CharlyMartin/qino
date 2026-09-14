@@ -110,13 +110,11 @@ Accepts:
 - `1 | 2 | 3 | …` — resolve up to N levels. Values above 6 clamp to 6; negatives and non-integers floor-and-clamp into `[0, 6]`.
 - (default) `false` — return raw string paths.
 
-Settable in two places:
-
-- On `createCollection` / `createSingleton` / `createTree` — the implicit default view.
-- Inside a named `views` entry — a fixed depth paired with that view’s augment.
+Set inside `views.default` or a custom view on any primitive—a fixed depth paired
+with that view’s augmentation. Root resolution settings are forbidden.
 
 Getters accept `{ view: "name" }` to select a declared custom view, or no option
-for the implicit default. Per-call depth overrides are removed; see [15-views](./15-views.md).
+for the declared default, or raw references when views are omitted. Per-call depth overrides are removed; see [15-views](./15-views.md).
 
 > Reverse traversal (an author gaining a `posts` array of every entry that references them) is deferred to v2 — see [14-upstream-resolution.md](14-upstream-resolution.md).
 
@@ -322,7 +320,7 @@ The output of a getter call is `ResolvedView<Schema, Ext, Rels, R>`, which is `{
 Sketch (mirrors cases in `packages/qino/src/types/resolve.test-d.ts`):
 
 ```ts
-// Configure views: (view) => ({ detail: view({ resolveRelations: 2 }), shallow: view({ resolveRelations: 1 }) })
+// Configure views: (view) => ({ default: view({}), detail: view({ resolveRelations: 2 }), shallow: view({ resolveRelations: 1 }) })
 const posts = await postCollection.getAll({ view: "detail" });
 posts[0].author.mentor; // → full author entry (depth 2 → 1 → 0 at this leaf, resolved)
 posts[0].author.mentor.mentor; // → string (depth exhausted)
@@ -333,7 +331,7 @@ shallow[0].author.mentor; // → string (depth 1 → 0 at this leaf)
 
 ### View selection
 
-- Top-level `resolveRelations` defines the implicit default depth, defaulting to `false`. Named views independently default to `false`.
+- `views.default.resolveRelations` defines the default depth. All views independently default to `false`; omitted views also keep references raw.
 - Named views fix their own depth and augment. Getter types infer the selected
   view’s resolved entry plus that augment’s return fields.
 - Augment runs after resolution. Embedded targets contain only schema fields,
@@ -355,7 +353,7 @@ shallow[0].author.mentor; // → string (depth 1 → 0 at this leaf)
 Done when:
 
 - A `postCollection` can declare `author: <relation>` and `categories: <relation>` and the lock file reflects both with correct cardinality.
-- `postCollection.getAll()` returns raw reference strings unless the top-level configuration enables resolution. Selecting a view configured with `resolveRelations: true` or a numeric depth expands those references.
+- `postCollection.getAll()` returns raw reference strings unless `views.default` enables resolution. Selecting a view configured with `resolveRelations: true` or a numeric depth expands those references.
 - Broken references surface a clear error pointing at the offending file and field.
-- Depth control (`true | false | 1..6`) works at both the implicit default and named views; runtime numeric depths above `MAX_RESOLVE_DEPTH` clamp.
+- Depth control (`true | false | 1..6`) works at both default and custom views; runtime numeric depths above `MAX_RESOLVE_DEPTH` clamp.
 - Compile-time rejection of relation keys whose JSON-path leaf isn't `string`; compile-time resolved-entry typing is transitive up to the configured depth.

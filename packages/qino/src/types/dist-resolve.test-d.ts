@@ -49,6 +49,7 @@ const articles = createCollection({
     "contributors[*].role.slug": authors,
   },
   views: (view) => ({
+    default: view({}),
     shallow: view({ resolveRelations: 1 }),
     full: view({ resolveRelations: true }),
   }),

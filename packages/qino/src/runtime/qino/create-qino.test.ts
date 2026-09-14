@@ -110,16 +110,24 @@ describe("createQino definition reloads", () => {
     const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
     const UpdatedSchema = Schema.extend({ description: z.string() });
     const original = qino.createCollection({
+      views: (view) => ({
+        default: view({
+          resolveRelations: true,
+        }),
+      }),
       directory: "/posts",
       extension: ".md",
       schema: Schema,
-      resolveRelations: true,
     });
     const reloaded = qino.createCollection({
+      views: (view) => ({
+        default: view({
+          resolveRelations: false,
+        }),
+      }),
       directory: "/posts",
       extension: ".md",
       schema: UpdatedSchema,
-      resolveRelations: false,
     });
     const before = original[QinoPrimitiveMarker];
     const after = reloaded[QinoPrimitiveMarker];
@@ -136,14 +144,22 @@ describe("createQino definition reloads", () => {
     const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
     const UpdatedSchema = Schema.extend({ description: z.string() });
     const original = qino.createSingleton({
+      views: (view) => ({
+        default: view({
+          resolveRelations: true,
+        }),
+      }),
       file: "/settings.json",
       schema: Schema,
-      resolveRelations: true,
     });
     const reloaded = qino.createSingleton({
+      views: (view) => ({
+        default: view({
+          resolveRelations: false,
+        }),
+      }),
       file: "/settings.json",
       schema: UpdatedSchema,
-      resolveRelations: false,
     });
     const before = original[QinoPrimitiveMarker];
     const after = reloaded[QinoPrimitiveMarker];
@@ -160,18 +176,26 @@ describe("createQino definition reloads", () => {
     const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
     const UpdatedSchema = Schema.extend({ description: z.string() });
     const original = qino.createTree({
+      views: (view) => ({
+        default: view({
+          resolveRelations: true,
+        }),
+      }),
       directory: "/docs",
       extension: ".md",
       titleField: "title",
       schema: Schema,
-      resolveRelations: true,
     });
     const reloaded = qino.createTree({
+      views: (view) => ({
+        default: view({
+          resolveRelations: false,
+        }),
+      }),
       directory: "/docs",
       extension: ".md",
       titleField: "title",
       schema: UpdatedSchema,
-      resolveRelations: false,
     });
     const before = original[QinoPrimitiveMarker];
     const after = reloaded[QinoPrimitiveMarker];

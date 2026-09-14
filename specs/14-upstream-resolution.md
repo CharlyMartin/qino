@@ -19,6 +19,7 @@ const authorCollection = qino.createCollection({
   extension: ".json",
   schema: AuthorSchema,
   views: (view) => ({
+    default: view({}),
     withPosts: view({ resolveAncestors: true }), // proposed v2 configuration
   }),
 });

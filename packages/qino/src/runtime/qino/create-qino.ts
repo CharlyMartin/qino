@@ -1,12 +1,10 @@
 import { QinoConfigMarker } from "../../data";
 import type {
-  AugmentOutput,
   Collection,
   ExtractSingletonExtension,
   GenericPath,
   ObjectSchema,
   Relations,
-  ResolveOption,
   Singleton,
   SingletonFile,
   StringKeys,
@@ -45,46 +43,24 @@ export function createQino(config: QinoConfig) {
       S extends ObjectSchema,
       Ext extends SupportedFileExtension,
       Rels extends Relations<S> = object,
-      DefaultR extends ResolveOption = false,
       Dir extends GenericPath = GenericPath,
-      Derived extends AugmentOutput = {},
       const Views extends object = object,
     >(
-      params: CreateCollectionParams<
-        S,
-        Ext,
-        Rels,
-        DefaultR,
-        Dir,
-        Derived,
-        Views
-      >,
-    ): Collection<
-      S,
-      Ext,
-      Rels,
-      DefaultR,
-      Dir,
-      Derived,
-      ConfiguredViews<Views>
-    > {
+      params: CreateCollectionParams<S, Ext, Rels, Dir, Views>,
+    ): Collection<S, Ext, Rels, Dir, ConfiguredViews<Views>> {
       return createCollection(ctx, params);
     },
     createSingleton<
       S extends ObjectSchema,
       F extends SingletonFile,
       Rels extends Relations<S> = object,
-      DefaultR extends ResolveOption = false,
-      Derived extends AugmentOutput = {},
       const Views extends object = object,
     >(
-      params: CreateSingletonParams<S, F, Rels, DefaultR, Derived, Views>,
+      params: CreateSingletonParams<S, F, Rels, Views>,
     ): Singleton<
       S,
       ExtractSingletonExtension<F>,
       Rels,
-      DefaultR,
-      Derived,
       ConfiguredViews<Views>
     > {
       return createSingleton(ctx, params);
@@ -94,31 +70,11 @@ export function createQino(config: QinoConfig) {
       Ext extends SupportedFileExtension,
       Title extends StringKeys<S>,
       Rels extends Relations<S> = object,
-      DefaultR extends ResolveOption = false,
       Dir extends GenericPath = GenericPath,
-      Derived extends AugmentOutput = {},
       const Views extends object = object,
     >(
-      params: CreateTreeParams<
-        S,
-        Ext,
-        Title,
-        Rels,
-        DefaultR,
-        Dir,
-        Derived,
-        Views
-      >,
-    ): Tree<
-      S,
-      Ext,
-      Title,
-      Rels,
-      DefaultR,
-      Dir,
-      Derived,
-      ConfiguredViews<Views>
-    > {
+      params: CreateTreeParams<S, Ext, Title, Rels, Dir, Views>,
+    ): Tree<S, Ext, Title, Rels, Dir, ConfiguredViews<Views>> {
       return createTree(ctx, params);
     },
   };

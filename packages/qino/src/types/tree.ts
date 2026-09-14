@@ -65,18 +65,9 @@ export type Tree<
   Ext extends SupportedFileExtension,
   Title extends StringKeys<Schema>,
   Rels extends Relations<Schema> = object,
-  DefaultR extends ResolveOption = false,
   Dir extends GenericPath = GenericPath,
-  Derived extends AugmentOutput = {},
   Views extends object = object,
-> = PrimitiveInference<
-  Schema,
-  TreeEntryMeta<Ext>,
-  Rels,
-  DefaultR,
-  Derived,
-  Views
-> & {
+> = PrimitiveInference<Schema, TreeEntryMeta<Ext>, Rels, Views> & {
   readonly [QinoPrimitiveMarker]: TreeMeta<Schema, Ext, Title, Rels>;
   getTree(): Promise<Array<TreeNode>>;
   getTree(slug: SlugFor<Dir>): Promise<TreeNode>;
@@ -89,8 +80,6 @@ export type Tree<
       Schema,
       TreeEntryMeta<Ext>,
       Rels,
-      DefaultR,
-      Derived,
       Views,
       ViewSelection<Args[0]>
     >

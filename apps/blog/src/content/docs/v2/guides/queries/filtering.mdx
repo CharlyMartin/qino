@@ -2,7 +2,7 @@
 title: Filtering
 ---
 
-Configure a synchronous `filter: (entry) => boolean` on `createCollection`.
+Configure a synchronous `filter: (entry) => boolean` inside a collection view.
 Return `true` to retain an entry. The predicate runs after relation resolution
 and augmentation, before sorting, so it can use derived fields.
 
@@ -10,6 +10,7 @@ For an independent custom view, use the helper supplied to `views`:
 
 ```ts
 views: (view) => ({
+  default: view({}),
   published: view({
     augment: (entry) => ({ visible: !entry.draft }),
     filter: (entry) => entry.visible,

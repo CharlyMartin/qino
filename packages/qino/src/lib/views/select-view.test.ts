@@ -11,9 +11,11 @@ describe("selectView", () => {
     };
     const defaults = {};
     const detail = {};
-    expect(selectView(defaults, { detail }, { ...omitted })).toBe(defaults);
+    expect(selectView({ default: defaults, detail }, { ...omitted })).toBe(
+      defaults,
+    );
     expect(
-      selectView(defaults, { detail }, { view: "detail", ...omitted }),
+      selectView({ default: defaults, detail }, { view: "detail", ...omitted }),
     ).toBe(detail);
   });
 
@@ -24,7 +26,7 @@ describe("selectView", () => {
   ])("rejects non-undefined %s values", (key) => {
     for (const value of [null, false, 0, () => true]) {
       expect(() =>
-        selectView({}, { detail: {} }, {
+        selectView({ detail: {} }, {
           view: "detail",
           [key]: value,
         } as never),
@@ -32,12 +34,14 @@ describe("selectView", () => {
     }
   });
 
-  test("uses the default only when view is omitted", () => {
-    const defaults = { resolveRelations: false as const };
-    const views = { detail: {} };
-    expect(selectView(defaults, views)).toBe(defaults);
-    expect(selectView(defaults, views, {})).toBe(defaults);
-    expect(selectView(defaults, views, { view: "detail" })).toBe(views.detail);
+  test("uses the configured default when selection is omitted or explicit", () => {
+    const views = { default: {}, detail: {} };
+    expect(selectView(views)).toBe(views.default);
+    expect(selectView(views, {})).toBe(views.default);
+    expect(selectView(views, { view: undefined })).toBe(views.default);
+    expect(selectView(views, { view: "default" })).toBe(views.default);
+    expect(selectView(undefined)).toEqual({ resolveRelations: false });
+    expect(selectView(views, { view: "detail" })).toBe(views.detail);
   });
 
   test.each([
@@ -47,18 +51,16 @@ describe("selectView", () => {
     "__proto__",
     "",
   ])("rejects invalid view %s", (view) => {
-    expect(() => selectView({}, { detail: {} }, { view })).toThrow(
-      view == "default" ? /implicit/ : /Unknown view/,
-    );
+    expect(() => selectView({ detail: {} }, { view })).toThrow(/Unknown view/);
   });
 
   test("rejects legacy overrides even when a view is selected", () => {
     const options = { view: "detail", resolveRelations: false };
-    expect(() => selectView({}, { detail: {} }, options as never)).toThrow(
+    expect(() => selectView({ detail: {} }, options as never)).toThrow(
       /no longer supported/,
     );
     expect(() =>
-      selectView({}, undefined, { resolveRelations: true } as never),
+      selectView(undefined, { resolveRelations: true } as never),
     ).toThrow(/no longer supported/);
   });
 });

@@ -50,19 +50,19 @@ test("public factory types support reusable views with inferred getter results",
     directory: "/posts",
     extension: ".md",
     schema,
-    views: (view) => ({ reading: withReadingTime(view) }),
+    views: (view) => ({ default: view({}), reading: withReadingTime(view) }),
   });
   const tree = qino.createTree({
     directory: "/docs",
     extension: ".md",
     titleField: "title",
     schema,
-    views: (view) => ({ preview: treePreview(view) }),
+    views: (view) => ({ default: view({}), preview: treePreview(view) }),
   });
   const home = qino.createSingleton({
     file: "/home.json",
     schema,
-    views: (view) => ({ preview: singletonPreview(view) }),
+    views: (view) => ({ default: view({}), preview: singletonPreview(view) }),
   });
   const omitted = {
     filter: undefined,

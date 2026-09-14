@@ -126,14 +126,13 @@ Relation values in content files are stored in verbose form (`author: "authors/j
 
 ## Getter options
 
-`getAll({ view })` selects a declared named view; `getAll()` uses the implicit
-top-level default. `getOne(slug, { view })` selects the same entry shape and
+`getAll({ view })` selects a declared named view; `getAll()` uses `views.default` when configured, or baseline behavior without views. `getOne(slug, { view })` selects the same entry shape and
 throws if the selected view’s filter excludes it. Sorting only applies to `getAll()`. See [15-views](./15-views.md).
 
 ## Filter and sort
 
-`createCollection` accepts `filter(entry): boolean` and `sort(a, b): number`.
-Custom views configure their own callbacks with the collection's view helper.
+Collection views accept `filter(entry): boolean` and `sort(a, b): number`.
+Configure default and custom callbacks with the collection's view helper; root callbacks are forbidden.
 The order is validation → relation resolution → augment → filter → sort.
 Callbacks receive the selected view's augmented entry shape. Filtering applies
 to both `getAll()` and `getOne()`; sorting only applies to `getAll()`. They are synchronous and cannot be overridden at getter call sites.

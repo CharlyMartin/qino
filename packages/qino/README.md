@@ -29,6 +29,7 @@ const posts = qino.createCollection({
   schema: z.object({ title: z.string(), body: z.string(), author: z.string() }),
   relations: { author: () => authors },
   views: (view) => ({
+    default: view({}),
     listing: view({}),
     detail: view({
       resolveRelations: true,
@@ -39,7 +40,8 @@ const posts = qino.createCollection({
 
 const listing = await posts.getAll({ view: "listing" }); // author is a path string
 const detail = await posts.getOne("hello", { view: "detail" }); // author resolves; authorName exists
-const defaults = await posts.getAll(); // top-level configuration
+const defaults = await posts.getAll(); // declared default view
+const same = await posts.getAll({ view: "default" });
 ```
 
 Import `createQino` from `qino` and `z` from `zod`. Authored relations use
@@ -51,16 +53,15 @@ the selected view’s relation resolution. Without explicit resolution, both
 getters and augment callbacks receive raw references. Embedded relation targets never include
 their own augment fields.
 
-Top-level `resolveRelations` and `augment` define the implicit default.
-Omit `view` to select it; `"default"` is reserved and cannot be configured or
-passed to a getter. Unknown names fail in TypeScript and at runtime.
+`views` is optional. Without it, getters return validated entries with raw relation
+references and no augmentation, filtering, or sorting. When supplied, the factory
+must include `default: view({ ... })`. Omit the getter's `view` option or select
+`{ view: "default" }` to use it. Unknown names fail in TypeScript and at runtime.
 
-Breaking change: getters no longer accept `resolveRelations`. Move each
-override into a named view and select it with `{ view: "name" }`. Flat/default
-augment callbacks now receive resolved relations when resolution is enabled.
-Resolution now defaults to `false` for the implicit default and all named views.
-If existing code requires expanded relations, add `resolveRelations: true` or a
-numeric depth to that configuration.
+Breaking change: `resolveRelations`, `augment`, `filter`, and `sort` are no longer
+allowed at the root. Move existing settings into `views.default`. Existing factories
+must add a default view; use `default: view({})` for baseline behavior. Getters
+accept view selection only, with no per-call resolution or callback overrides.
 
 ### Inferring output types
 
@@ -76,10 +77,12 @@ type DetailPost = PostTypes["views"]["detail"];
 
 Outputs match getter results, including schema transformations, resolved
 relations, awaited augmentation, and `_meta`. Each output describes one content
-entry; use `Array<Post>` for a list. `views` contains only declared named views.
+entry; use `Array<Post>` for a list. `views` contains every declared name, including
+`default`, whose output equals `output`. Without configured views, `output` is the
+baseline entry and the `views` mapping is empty.
 The descriptor exists only in TypeScript.
 
-See the [output inference specification](../../specs/15-views.md#output-type-inference)
+See the [output inference specification](../../specs/15-views.md#selection-and-output-inference)
 for default-view behavior and other details.
 
 ### Required view helpers
@@ -94,14 +97,14 @@ views: {
 
 // After
 views: (view) => ({
+  default: view({}),
   detail: view({ resolveRelations: 1 }),
   empty: view({}),
 })
 ```
 
-This is a breaking syntax change. `views` is optional; root settings still define
-the implicit default view. When supplied, the factory must synchronously return
-named views, each created by the helper. It runs once during primitive creation.
+When supplied, the factory must synchronously return a default view and any
+custom views, each created by the helper. It runs once during primitive creation.
 Legacy object-form views and unwrapped definitions fail in TypeScript and at runtime.
 
 The supplied helper exposes only the options supported by its primitive:
@@ -116,56 +119,63 @@ The supplied helper exposes only the options supported by its primitive:
 Tree and singleton helpers omit filter and sort from autocomplete and reject them
 in TypeScript and at runtime. Tree sorting still uses `_order.json`; tree filtering
 remains future work. Each helper infers its primitive's schema, metadata, resolved
-relations, and augmented fields. Views inherit no root or sibling settings.
+relations, and augmented fields. Views inherit no sibling settings, including those of `default`.
 
 ### Reusable views
 
-Import the factory type and entry metadata type from `qino` to annotate a shared
-helper. The returned view and its augmented fields remain inferred:
+Create a local base with the supplied helper and spread it into another view.
+No type annotations are needed; ordinary spread ordering controls overrides:
 
 ```ts
-import {
-  createQino,
-  type CollectionEntryMeta,
-  type CollectionViewFactory,
-} from "qino";
+import { createQino } from "qino";
 import { markdown } from "qino/utils";
 import { z } from "zod";
-
-const PostSchema = z.object({ title: z.string(), body: z.string() });
-
-function withReadingTime(
-  view: CollectionViewFactory<
-    typeof PostSchema,
-    CollectionEntryMeta<".md">,
-    object
-  >,
-) {
-  return view({
-    augment: (post) => ({
-      readingMinutes: Math.ceil(markdown.stats(post.body).wordCount / 220),
-    }),
-    sort: (a, b) => a.readingMinutes - b.readingMinutes,
-  });
-}
 
 const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
 const posts = qino.createCollection({
   directory: "/posts",
   extension: ".md",
-  schema: PostSchema,
-  views: (view) => ({ reading: withReadingTime(view) }),
+  schema: z.object({
+    title: z.string(),
+    body: z.string(),
+    highlight: z.boolean(),
+  }),
+  views: (view) => {
+    const base = view({
+      augment: (post) => ({ stats: markdown.stats(post.body) }),
+      sort: (a, b) => b.stats.wordCount - a.stats.wordCount,
+    });
+    return {
+      default: base,
+      highlight: view({ ...base, filter: (post) => post.highlight }),
+    };
+  },
 });
 
-const entries = await posts.getAll({ view: "reading" });
-// entries[number].readingMinutes is inferred as number.
+const entries = await posts.getAll({ view: "highlight" });
+// entries[number].stats.wordCount is inferred as number.
 ```
 
-Use `ViewFactory` with `TreeEntryMeta` or `SingletonEntryMeta` for trees and
-singletons; those factories offer only resolution and augmentation. The third
-factory type parameter describes the relation map: use `object` when there are
-no relations, or `typeof relations` for a declared map. The internal view marker
-is not part of the public API.
+Spreading preserves the base's settings; independent `view({})` calls start from
+baseline behavior. TypeScript checks callback compatibility when overriding
+settings such as relation depth. Tree and singleton helpers support the same
+reuse pattern for resolution and augmentation.
+
+Spread replaces callbacks; it does not compose them or merge their outputs.
+For example, inside the factory above:
+
+```ts
+const summaries = view({
+  ...base,
+  augment: (post) => ({ titleLength: post.title.length }),
+  filter: undefined,
+  sort: undefined,
+});
+// summaries produces titleLength, not the base's stats.
+```
+
+Use `filter: undefined` or `sort: undefined` to clear copied callbacks. Here both
+are cleared because the replacement augmentation supplies a different shape.
 
 Explicit `undefined` in getter options is treated as omission, including when
 options are spread. Actual per-call resolution, filter, and sort overrides still
@@ -175,7 +185,7 @@ singleton definitions while rejecting any supplied value, including `null`.
 ## Collection filtering and sorting
 
 Configure synchronous `filter(entry): boolean` and `sort(a, b): number` callbacks
-when creating a collection. Filtering runs after relation resolution and
+inside a collection view. Filtering runs after relation resolution and
 augmentation for both `getAll()` and `getOne()`. Sorting follows filtering for
 `getAll()` only.
 
@@ -184,10 +194,12 @@ const posts = qino.createCollection({
   directory: "/posts",
   extension: ".md",
   schema: z.object({ title: z.string(), draft: z.boolean() }),
-  augment: (entry) => ({ titleLength: entry.title.length }),
-  filter: (entry) => !entry.draft,
-  sort: (a, b) => a.titleLength - b.titleLength,
   views: (view) => ({
+    default: view({
+      augment: (entry) => ({ titleLength: entry.title.length }),
+      filter: (entry) => !entry.draft,
+      sort: (a, b) => a.titleLength - b.titleLength,
+    }),
     alphabetical: view({
       augment: (entry) => ({ label: entry.title.toLowerCase() }),
       filter: (entry) => !entry.draft && entry.label.length > 0,
@@ -205,7 +217,7 @@ await posts.getAll({ view: "all" }); // Every entry, in discovery order.
 The `view` helper preserves inference for augmented fields and resolved relations
 without annotations. The factory runs once at collection creation. Every custom
 view must use the helper, including views that only resolve or augment entries. Custom views are independent
-and inherit neither top-level callbacks nor augmentation.
+and inherit neither default callbacks nor augmentation.
 
 Filtering retains matching entries; sorting uses native `toSorted` comparator
 semantics, preserving relative order for ties. Without callbacks, all entries
@@ -239,13 +251,17 @@ const docs = qino.createTree({
 });
 
 const home = qino.createSingleton({
+  views: (view) => ({
+    default: view({
+      resolveRelations: 1,
+    }),
+  }),
   file: "/home.json",
   schema: z.object({
     featuredDoc: z.string(),
     relatedDocs: z.array(z.string()),
   }),
   relations: { featuredDoc: docs, "relatedDocs[*]": () => docs },
-  resolveRelations: 1,
 });
 ```
 

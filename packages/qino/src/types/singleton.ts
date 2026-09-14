@@ -56,17 +56,8 @@ export type Singleton<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema> = object,
-  DefaultR extends ResolveOption = false,
-  Derived extends AugmentOutput = {},
   Views extends object = object,
-> = PrimitiveInference<
-  Schema,
-  SingletonEntryMeta<Ext>,
-  Rels,
-  DefaultR,
-  Derived,
-  Views
-> & {
+> = PrimitiveInference<Schema, SingletonEntryMeta<Ext>, Rels, Views> & {
   readonly [QinoPrimitiveMarker]: SingletonMeta<Schema, Ext, Rels>;
   getData<Args extends ViewArguments<Views> = []>(
     ...args: Args
@@ -75,8 +66,6 @@ export type Singleton<
       Schema,
       SingletonEntryMeta<Ext>,
       Rels,
-      DefaultR,
-      Derived,
       Views,
       ViewSelection<Args[0]>
     >

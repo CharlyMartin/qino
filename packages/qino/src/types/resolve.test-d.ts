@@ -43,6 +43,7 @@ const categoryCollection = createCollection({
 
 const postCollection = createCollection({
   views: (view) => ({
+    default: view({}),
     raw: view({ resolveRelations: false }),
     shallow: view({ resolveRelations: 1 }),
     deep: view({ resolveRelations: 2 }),
@@ -112,6 +113,7 @@ describe("non-relation subtrees are left untouched", () => {
       "peopleX.foo": authorCollection,
     },
     views: (view) => ({
+      default: view({}),
       raw: view({ resolveRelations: false }),
       shallow: view({
         resolveRelations: 1,
@@ -208,6 +210,9 @@ describe("resolveRelations type behaviour", () => {
 describe("collection-level default", () => {
   const postCollectionDefaultFalse = createCollection({
     views: (view) => ({
+      default: view({
+        resolveRelations: false,
+      }),
       raw: view({ resolveRelations: false }),
       shallow: view({ resolveRelations: 1 }),
       deep: view({ resolveRelations: 2 }),
@@ -220,7 +225,6 @@ describe("collection-level default", () => {
       author: authorCollection,
       "categories[*]": categoryCollection,
     },
-    resolveRelations: false,
   });
 
   test("getAll() with no args picks up the collection-level default of false", async () => {
@@ -260,6 +264,7 @@ describe("transitive depth (chained collections)", () => {
   });
   const chainedPostCollection = createCollection({
     views: (view) => ({
+      default: view({}),
       raw: view({ resolveRelations: false }),
       shallow: view({ resolveRelations: 1 }),
       deep: view({ resolveRelations: 2 }),
@@ -294,6 +299,7 @@ describe("singletons", () => {
 
   const homeSingleton = createSingleton({
     views: (view) => ({
+      default: view({}),
       raw: view({ resolveRelations: false }),
       shallow: view({ resolveRelations: 1 }),
       deep: view({ resolveRelations: 2 }),
@@ -339,6 +345,7 @@ describe("collection → singleton relation", () => {
 
   const fooCollection = createCollection({
     views: (view) => ({
+      default: view({}),
       raw: view({ resolveRelations: false }),
       shallow: view({ resolveRelations: 1 }),
       deep: view({ resolveRelations: 2 }),
@@ -376,8 +383,10 @@ describe("all primitive relation pairs", () => {
     titleField: "title",
     schema: z.object({ title: z.string(), site: z.string() }),
     relations: { site: singleton },
-    augment: () => ({ derived: true }),
     views: (view) => ({
+      default: view({
+        augment: () => ({ derived: true }),
+      }),
       detail: view({
         resolveRelations: true,
         augment: () => ({ viewDerived: true }),
@@ -402,6 +411,7 @@ describe("all primitive relation pairs", () => {
   const posts = createCollection({
     ...config,
     views: (view) => ({
+      default: view({}),
       raw: view({}),
       shallow: view({ resolveRelations: 1 as const }),
       deep: view({ resolveRelations: 2 as const }),
@@ -412,6 +422,7 @@ describe("all primitive relation pairs", () => {
   const docs = createTree({
     ...config,
     views: (view) => ({
+      default: view({}),
       raw: view({}),
       shallow: view({ resolveRelations: 1 as const }),
       deep: view({ resolveRelations: 2 as const }),
@@ -423,6 +434,7 @@ describe("all primitive relation pairs", () => {
   const home = createSingleton({
     ...config,
     views: (view) => ({
+      default: view({}),
       raw: view({}),
       shallow: view({ resolveRelations: 1 as const }),
       deep: view({ resolveRelations: 2 as const }),

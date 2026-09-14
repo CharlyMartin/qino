@@ -31,18 +31,9 @@ export type Collection<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema> = object,
-  DefaultR extends ResolveOption = false,
   Dir extends GenericPath = GenericPath,
-  Derived extends AugmentOutput = {},
   Views extends object = object,
-> = PrimitiveInference<
-  Schema,
-  CollectionEntryMeta<Ext>,
-  Rels,
-  DefaultR,
-  Derived,
-  Views
-> & {
+> = PrimitiveInference<Schema, CollectionEntryMeta<Ext>, Rels, Views> & {
   readonly [QinoPrimitiveMarker]: CollectionMeta<Schema, Ext, Rels>;
   getAllSlugs(): Promise<Array<SlugFor<Dir>>>;
   getAll<Args extends ViewArguments<Views> = []>(
@@ -53,8 +44,6 @@ export type Collection<
         Schema,
         CollectionEntryMeta<Ext>,
         Rels,
-        DefaultR,
-        Derived,
         Views,
         ViewSelection<Args[0]>
       >
@@ -68,8 +57,6 @@ export type Collection<
       Schema,
       CollectionEntryMeta<Ext>,
       Rels,
-      DefaultR,
-      Derived,
       Views,
       ViewSelection<Args[0]>
     >

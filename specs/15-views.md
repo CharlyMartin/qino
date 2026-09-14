@@ -5,133 +5,49 @@
 
 ## Intent
 
-`augment` (see [08-augment](./08-augment.md)) derives fields from an
-entry, and `resolveRelations` controls how deep relation fields get
-expanded. Both are collection/tree/singleton config, but `resolveRelations`
-previously was also overridable per getter call (`getAll({ resolveRelations:
-2 })`). That flexibility conflicts with `augment`: an `augment`
-function's return type is fixed once at config time and must be valid for
-every possible per-call resolve depth, which is why `augment` previously
-always saw the entry _before_ relations are resolved — it can never know
-what shape the relation fields will end up in.
+Views pair relation resolution with augmentation at configuration time, so each
+callback receives one known entry shape. Collections also support filtering and
+sorting of that augmented shape. Reuse is explicit through ordinary object
+spread; views never inherit settings from other views.
 
-Two workarounds don't hold up:
+## Configuration
 
-- **A per-call `augment`** hits the same problem from the other side: the
-  getter's return type would need to merge a call-time-only type into an
-  already-fixed `Derived` type, and inferring a return-type-shaping generic
-  from a callback nested in an options object is unreliable in TypeScript.
-- **Two `createCollection` calls over the same directory** (one plain, one
-  with `augment`) don't actually give two interchangeable views of the
-  same content: relations are declared as direct references to one specific
-  collection object (e.g. `relations: { author: () => authorCollection }`),
-  so anything relating to that content is locked to whichever instance it
-  names.
+`views` is optional on `createCollection`, `createTree`, and `createSingleton`.
+Without views, getters return validated content with `_meta`, raw relation
+references, and no augmentation, filtering, or sorting.
 
-**Views** fix this by pairing `resolveRelations` and `augment` together,
-per named view, at config time — so within a single view there's no
-per-call variability left to reconcile, and `augment` can safely run
-after relation resolution when that view resolves them.
-
-## API
-
-Existing flat configuration syntax remains supported — it's shorthand for a single
-`default` view:
+When supplied, `views` must be a synchronous callback returning an object with
+an own `default` property and any number of custom names. Every definition must
+be created with the supplied `view` helper. The factory executes once during
+primitive creation; constructing a view does not load content or run callbacks.
 
 ```ts
-export const { getAll, getOne } = createCollection({
+const posts = qino.createCollection({
   directory: "/posts",
   extension: ".md",
-  schema: z.object({ title: z.string(), body: z.string() }),
-  resolveRelations: true,
-  augment: (post) => ({
-    readingMinutes: Math.ceil(markdown.stats(post.body).wordCount / 220),
+  schema: z.object({
+    title: z.string(),
+    body: z.string(),
+    highlight: z.boolean(),
   }),
+  views: (view) => {
+    const base = view({
+      augment: (post) => ({ stats: markdown.stats(post.body) }),
+      sort: (a, b) => b.stats.wordCount - a.stats.wordCount,
+    });
+    return {
+      default: base,
+      highlight: view({ ...base, filter: (post) => post.highlight }),
+      raw: view({}),
+    };
+  },
 });
 ```
 
-An optional `views` factory defines named shapes on collections, trees, and singletons:
-
-```ts
-export const { getAll, getOne } = createCollection({
-  directory: "/posts",
-  extension: ".md",
-  schema: z.object({ title: z.string(), body: z.string(), author: z.string() }),
-  relations: { author: () => authorCollection },
-  views: (view) => ({
-    listing: view({
-      resolveRelations: false,
-    }),
-    detail: view({
-      resolveRelations: true,
-      augment: (post) => ({
-        readingMinutes: Math.ceil(markdown.stats(post.body).wordCount / 220),
-      }),
-    }),
-  }),
-});
-
-const posts = await getAll({ view: "listing" }); // post.author is a raw content-path string
-const post = await getOne("hello-world", { view: "detail" }); // post.author is the resolved author entry; post.readingMinutes exists
-```
-
-`getAll()` / `getOne(slug)` called with no `view` use the flat top-level
-config, even when named views exist. This is the implicit default view.
-`"default"` is reserved: it cannot appear in `views` or be passed to a getter.
-Only declared custom view names autocomplete and type-check. Unknown names
-also fail at runtime.
-
-## Output type inference
-
-The public type-only `Infer` helper exposes the default entry output and each
-declared named view output for a collection, tree, or singleton:
-
-```ts
-import type { Infer } from "qino";
-
-type PostTypes = Infer<typeof postCollection>;
-type Post = PostTypes["output"];
-type DetailPost = PostTypes["views"]["detail"];
-```
-
-Each output matches the corresponding getter result, including validated schema
-output, relation resolution, awaited augmentation, and primitive-specific
-`_meta`. Collection output represents one entry rather than an array; tree output
-represents a content entry rather than a navigation node. Named views retain
-their independent settings and existing embedded relation semantics.
-
-Only declared custom names appear in `views`. With omitted or empty views its
-key set is empty, and the implicit default is accessed exclusively through
-`output`. Invalid primitive inputs and unknown view names are compile-time
-errors. The descriptor has no runtime representation and cannot collide with
-content fields named `output` or `views`, which remain inside the entry type.
-
-Inference requires the original primitive type. Widening to an internal generic
-primitive type erases this metadata, so `Infer` returns `never`.
-
-## Required primitive-specific helpers
-
-All three primitives require the same helper syntax for custom views:
-
-```ts
-// Before (no longer supported)
-views: {
-  detail: { resolveRelations: 1 },
-}
-
-// After
-views: (view) => ({
-  detail: view({ resolveRelations: 1 }),
-  empty: view({}),
-})
-```
-
-This is a breaking syntax change. `views` is optional; root settings still define
-the implicit default view. When supplied, the factory must synchronously return
-named views, each created by the helper. It runs once during primitive creation.
-Legacy object-form views and unwrapped definitions fail in TypeScript and at runtime.
-
-The supplied helper exposes only the options supported by its primitive:
+`resolveRelations`, `augment`, `filter`, and `sort` are forbidden at the root,
+whether or not views are configured. Structural settings such as schema,
+relations, paths, and tree ordering remain at the root. Root settings whose value
+is explicitly `undefined` are treated as omitted.
 
 | Option             | Collection | Tree | Singleton |
 | ------------------ | ---------- | ---- | --------- |
@@ -140,91 +56,89 @@ The supplied helper exposes only the options supported by its primitive:
 | `filter`           | Yes        | No   | No        |
 | `sort`             | Yes        | No   | No        |
 
-Tree and singleton helpers omit filter and sort from autocomplete and reject them
-in TypeScript and at runtime. Tree sorting still uses `_order.json`; tree filtering
-remains future work. Each helper infers its primitive's schema, metadata, resolved
-relations, and augmented fields. Views inherit no root or sibling settings.
+All view options are optional. An empty `view({})` leaves relations unresolved
+and adds no callbacks. Tree and singleton helpers reject filter and sort in
+TypeScript and at runtime, including collection helper results passed to them.
+Undefined values are treated as omitted; supplied values such as `null` are rejected.
 
-## Behaviour
+## Selection and output inference
 
-- A view is `{ resolveRelations?: ResolveOption; augment?: EntryAugment<...> }`.
-  Both keys are independently optional; a missing `resolveRelations`
-  defaults to `false` and a missing `augment` means no derived fields —
-  the same defaults as the flat top-level config.
-- Views **do not inherit from each other**, and named views do **not**
-  inherit from the flat/default config either. Each view falls back to the
-  same baseline defaults (`resolveRelations: false`, no augment), not to
-  whatever a sibling view or the top-level flat config specifies.
-- Explicit `undefined` in getter options is treated as omission. Non-undefined
-  overrides, including `null`, are rejected. Tree/singleton view validation
-  likewise ignores undefined filter/sort values but rejects actual values.
-- `resolveRelations` is no longer overridable at any getter call site,
-  including primitives without named views. The `view` name is the only per-call knob; it selects a
-  config-time-fixed `{ resolveRelations, augment }` pair.
-- Ordering, per view: if the view's `resolveRelations` is truthy, relations
-  are resolved first and `augment` receives the resolved entry. If
-  `resolveRelations` is `false`, `augment` receives the raw (unresolved)
-  entry — there's nothing to resolve first.
-- Nested relation resolution is unaffected by any of this. When an entry is
-  embedded as a relation target (e.g. `author` inside a post), it's still
-  built purely from the target's schema and relations
-  (`ResolveRelationTarget` in `types/resolve.ts`) — the target's own views
-  and augment never apply. An embedded `author` never carries
-  `authorCollection`'s derived fields, regardless of which view resolved
-  the post.
-- Available on `createCollection`, `createTree`, and `createSingleton`
-  alike.
+With views configured, `getAll()` / `getOne(slug)` / `getEntry(slug)` / `getData()`
+select the declared default. `{ view: "default" }` selects the same configuration.
+Other declared names select their own configurations. Explicit undefined selection
+is equivalent to omission. Unknown names fail in TypeScript and at runtime.
+Without views, no view names are available, including `"default"`.
 
-## Collection listing callbacks
+```ts
+const defaults = await posts.getAll();
+const same = await posts.getAll({ view: "default" });
+const highlights = await posts.getAll({ view: "highlight" });
 
-Collections additionally support top-level `filter` and `sort` callbacks. To
-configure them in custom views with fully inferred augmented entry types, use
-`views: (view) => ({ listing: view({ resolveRelations, augment, filter, sort }) })`.
-All four options are optional. The factory runs once at collection creation;
-`view` only constructs a configuration and does not load entries or run callbacks.
-Every custom view must use the helper, even without filter or sort.
+import type { Infer } from "qino";
+type Post = Infer<typeof posts>["output"];
+type DefaultPost = Infer<typeof posts>["views"]["default"]; // same as Post
+type HighlightPost = Infer<typeof posts>["views"]["highlight"];
+```
 
-For `getAll()`, the selected view runs relation resolution → augment → filter →
-sort. Filter and sort are synchronous and receive the augmented entry shape.
-Named views inherit neither top-level callbacks nor other settings. `getOne`
-uses the same view's resolution, augmentation, and filter. An excluded entry
-throws an error naming the slug, collection, and view. This also applies to the
-implicit default view. Sorting only runs for `getAll()`.
-Trees and singletons use the same helper syntax but expose only resolution and augmentation.
-See [06-sort](./06-sort.md).
+Outputs include validated schema transformations, relation resolution, awaited
+augmentation, and primitive-specific `_meta`. Collection outputs describe one
+entry; tree outputs describe content entries rather than navigation nodes.
+Literal selections preserve exact outputs. Unions of names produce output unions;
+optional selections include the default output.
 
-## Implementation decisions
+`Infer<T>["output"]` always matches an omitted-selection getter. With no views,
+its output is the baseline entry and its `views` mapping has no keys. Otherwise,
+the mapping includes all declared names, including `default`. The descriptor has
+no runtime representation and does not collide with content fields called
+`output` or `views`. Widening a primitive to an internal generic type erases its
+inference metadata, so `Infer` returns `never`.
 
-- Removing getter resolution overrides is an intentional breaking change.
-  Top-level configuration remains the default view, but its augment now runs
-  after its configured relation resolution, just like named views.
-- Keep the existing name `resolveRelations`. Resolution now defaults to `false`
-  in both top-level configuration and named views. Existing consumers relying
-  on implicit resolution must add `resolveRelations: true` or a numeric depth.
-  Without it, getters and augment callbacks receive raw references.
-- CLI content validation and slug generation use internal source readers.
-  They validate schema data without resolving content references or executing
-  default/named augments. Existing relation configuration checks remain.
-- Relation loading also uses source readers, ensuring target views and augments
-  never execute or contribute derived fields.
-- Augment callbacks may be synchronous or asynchronous; factories, filters, and comparators are synchronous. Existing conflict checks
-  and file-specific augment errors apply.
+## Execution and reuse
 
-## Acceptance criteria
+- The selected view runs relation resolution, then augmentation. Collection
+  `getAll()` awaits all augmentation before filtering, then sorts retained entries.
+  `getOne()` applies the same filter and throws when the entry is excluded;
+  its error identifies the slug, collection, and selected view. It never sorts.
+- Augmentation may be synchronous or asynchronous; filters and comparators are
+  synchronous. Existing output conflict checks and source-path errors apply.
+- Each view independently defaults to `resolveRelations: false` and no callbacks.
+  Custom views inherit nothing from default. Spread is normal JavaScript override
+  behavior, with TypeScript checking callback compatibility against entry shapes.
+- Helpers infer schema, metadata, resolution, and augmented fields locally, so
+  reuse within the factory needs no helper type annotations.
+- Getter resolution, filter, and sort overrides are rejected. Explicit undefined
+  override values remain equivalent to omission.
+- Embedded relation targets use only their schema and relations. Their own views,
+  augmentation, filtering, and sorting never execute or contribute fields.
+- CLI validation and source readers do not execute views. Slug enumeration and
+  tree navigation remain independent of view selection; tree ordering still uses
+  `_order.json`.
 
-Done when:
+Spread replaces a supplied callback rather than layering behavior or merging
+augmentation outputs. For example, inside a factory:
 
-- The flat `resolveRelations`/`augment` top-level config remains supported and is equivalent to a single implicit `default` view.
-- A collection/tree/singleton can declare `views: (view) => ({ name: view({ resolveRelations, augment }) })`, and `getAll`/`getOne`/`getEntry`/
-  `getData` accept a `view` option to select one, using the implicit default when `view` is omitted. Explicit `"default"`
-  and undeclared view names are rejected.
-- Omitting resolution keeps references raw in both getter results and augment
-  callback inputs, including an empty named view beside a resolving default.
-- For a view with `resolveRelations` truthy, `augment`'s parameter type
-  reflects the resolved entry shape (relation fields as their resolved
-  types, not raw slugs), inferred without `as` casts.
-- Nested relation resolution behavior and types are unchanged from
-  [08-augment](./08-augment.md).
+```ts
+const summary = view({
+  ...base,
+  augment: (entry) => ({ titleLength: entry.title.length }),
+  filter: undefined,
+  sort: undefined,
+});
+```
 
-- Legacy object-form views and unwrapped definitions fail at compile time and runtime.
-- Only collection helpers offer filter/sort; tree and singleton helpers reject them.
+This replaces the base augmentation with `titleLength` and clears its filter and
+sort. The base's derived fields are absent. Use explicit `undefined` to remove a
+copied callback; leaving the property out keeps the copied value.
+
+## Migration and acceptance
+
+This is a breaking change: move all root view settings into `views.default` and
+add a helper-created default to existing factories. Use `default: view({})` when
+existing no-selection reads used baseline behavior. Primitives without settings
+may continue omitting views entirely. Object-form views remain unsupported.
+
+Acceptance requires runtime and type coverage for omitted views, default-only
+factories, custom selection, missing or invalid defaults, forbidden root settings,
+output inference, and spread reuse with compatible and incompatible relation
+shapes. Existing source readers, embedded relations, and structural navigation
+must retain their behavior.

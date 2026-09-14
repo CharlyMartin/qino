@@ -18,8 +18,10 @@ const authors = qino.createCollection({
   extension: ".json",
   schema: z.object({ name: z.string(), site: z.string() }),
   relations: { site },
-  augment: () => ({ targetDerived: true }),
   views: (view) => ({
+    default: view({
+      augment: () => ({ targetDerived: true }),
+    }),
     detail: view({ augment: () => ({ targetViewDerived: true }) }),
   }),
 });
@@ -36,9 +38,11 @@ const posts = qino.createCollection({
   extension: ".md",
   schema,
   relations: { author: () => authors },
-  resolveRelations: true,
-  augment: async (entry) => ({ authorName: entry.author.name }),
   views: (view) => ({
+    default: view({
+      resolveRelations: true,
+      augment: async (entry) => ({ authorName: entry.author.name }),
+    }),
     raw: view({}),
     highlight: view({
       resolveRelations: 1,
@@ -75,7 +79,7 @@ test("collection inference matches default and named getter outputs", async () =
   expectTypeOf<PostTypes["output"]["output"]>().toEqualTypeOf<string>();
   expectTypeOf<PostTypes["output"]["views"]>().toEqualTypeOf<number>();
   expectTypeOf<keyof PostTypes["views"]>().toEqualTypeOf<
-    "raw" | "highlight" | "deep" | "full"
+    "default" | "raw" | "highlight" | "deep" | "full"
   >();
 });
 
@@ -110,8 +114,10 @@ test("singleton inference matches getters and singleton metadata", async () => {
     file: "/home.mdx",
     schema,
     relations: { author: authors },
-    augment: (entry) => ({ length: entry.body.length }),
     views: (view) => ({
+      default: view({
+        augment: (entry) => ({ length: entry.body.length }),
+      }),
       highlight: view({
         resolveRelations: true,
         augment: async (entry) => ({ label: entry.author.name }),
@@ -148,9 +154,11 @@ test("tree inference describes content entries and their views", async () => {
     titleField: "title",
     schema,
     relations: { author: authors },
-    resolveRelations: 1,
-    augment: async (entry) => ({ label: entry.author.name }),
     views: (view) => ({
+      default: view({
+        resolveRelations: 1,
+        augment: async (entry) => ({ label: entry.author.name }),
+      }),
       highlight: view({ augment: (entry) => ({ length: entry.body.length }) }),
       full: view({ resolveRelations: true }),
     }),
@@ -179,7 +187,7 @@ test("tree inference describes content entries and their views", async () => {
   expectTypeOf<DocTypes["output"]["children"]>();
 });
 
-test("omitted and empty views have no keys", () => {
+test("omitted views have no keys", () => {
   const collection = qino.createCollection({
     directory: "/plain",
     extension: ".json",
@@ -194,7 +202,6 @@ test("omitted and empty views have no keys", () => {
   const empty = qino.createSingleton({
     file: "/empty.json",
     schema,
-    views: () => ({}),
   });
   expectTypeOf<
     keyof Infer<typeof collection>["views"]
@@ -204,7 +211,7 @@ test("omitted and empty views have no keys", () => {
   expectTypeOf<keyof Infer<typeof empty>["views"]>().toEqualTypeOf<never>();
 });
 
-test("rejects invalid inputs and unknown or reserved view names", () => {
+test("rejects invalid inputs and unknown view names", () => {
   // @ts-expect-error A schema is not a Qino primitive.
   expectTypeOf<Infer<typeof schema>>();
   // @ts-expect-error An arbitrary object is not a Qino primitive.
@@ -213,8 +220,9 @@ test("rejects invalid inputs and unknown or reserved view names", () => {
   expectTypeOf<Infer<typeof qino>>();
   // @ts-expect-error Only declared named views can be selected.
   expectTypeOf<Infer<typeof posts>["views"]["missing"]>();
-  // @ts-expect-error The implicit default is available through output only.
-  expectTypeOf<Infer<typeof posts>["views"]["default"]>();
+  expectTypeOf<Infer<typeof posts>["views"]["default"]>().toEqualTypeOf<
+    Infer<typeof posts>["output"]
+  >();
 });
 
 test("supports generics constrained by public primitive aliases", () => {

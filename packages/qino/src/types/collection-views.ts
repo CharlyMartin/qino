@@ -13,14 +13,6 @@ export type CollectionCallbacks<Entry> = {
   sort?: (a: Readonly<Entry>, b: Readonly<Entry>) => number;
 };
 
-export type CollectionDefaultCallbacks<
-  S extends ObjectSchema,
-  Meta,
-  Rels,
-  R extends ResolveOption,
-  Derived extends AugmentOutput,
-> = CollectionCallbacks<ViewEntry<S, Meta, Rels, R> & NoInfer<Derived>>;
-
 export type CollectionViewConfig<
   S extends ObjectSchema,
   Meta,
@@ -28,7 +20,7 @@ export type CollectionViewConfig<
   R extends ResolveOption,
   Derived extends AugmentOutput,
 > = ViewConfig<S, Meta, Rels, R, Derived> &
-  CollectionDefaultCallbacks<S, Meta, Rels, R, Derived>;
+  CollectionCallbacks<ViewEntry<S, Meta, Rels, R> & NoInfer<Derived>>;
 
 // Infer each helper call from its config, without the factory return context
 // widening relation depth or augmented fields.
