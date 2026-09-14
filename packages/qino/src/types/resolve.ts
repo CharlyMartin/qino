@@ -30,6 +30,20 @@ type JoinPath<Prefix extends string, K extends string> = Prefix extends ""
   ? K
   : `${Prefix}.${K}`;
 
+// Require a path separator so "people" does not match "peopleX.foo".
+type RelationKeyBelow<Prefix extends string> = Prefix extends ""
+  ? string
+  : `${Prefix}.${string}` | `${Prefix}${JsonPathArray}${string}`;
+
+type MatchesBelow<K extends string, Prefix extends string> =
+  K extends RelationKeyBelow<Prefix> ? true : never;
+
+type HasRelationBelow<Prefix extends string, Rels> = [
+  MatchesBelow<keyof Rels & string, Prefix>,
+] extends [never]
+  ? false
+  : true;
+
 type ResolveValue<
   T,
   Rels,
@@ -37,20 +51,17 @@ type ResolveValue<
   D extends Depth,
 > = PathPrefix extends keyof Rels & string
   ? (T & (undefined | null)) | ResolveTarget<Rels[PathPrefix], D>
-  : T extends ReadonlyArray<infer U>
-    ? Array<ResolveValue<U, Rels, `${PathPrefix}${JsonPathArray}`, D>>
-    : T extends object
-      ? T extends (...args: Array<unknown>) => unknown
-        ? T
-        : {
-            [K in keyof T & string]: ResolveValue<
-              T[K],
-              Rels,
-              JoinPath<PathPrefix, K>,
-              D
-            >;
+  : HasRelationBelow<PathPrefix, Rels> extends true
+    ? T extends ReadonlyArray<infer U>
+      ? Array<ResolveValue<U, Rels, `${PathPrefix}${JsonPathArray}`, D>>
+      : T extends object
+        ? {
+            [K in keyof T]: K extends string
+              ? ResolveValue<T[K], Rels, JoinPath<PathPrefix, K>, D>
+              : T[K];
           }
-      : T;
+        : T
+    : T;
 
 type ResolveTarget<Target, D extends Depth> = D extends 0
   ? string
