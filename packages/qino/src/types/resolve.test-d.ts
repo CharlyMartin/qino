@@ -57,6 +57,116 @@ const postCollection = createCollection({
   },
 });
 
+describe("non-relation subtrees are left untouched", () => {
+  class Price {
+    constructor(readonly cents: number) {}
+
+    get(unit: "cents" | "units") {
+      return unit == "cents" ? this.cents : this.cents / 100;
+    }
+
+    map<R>(fn: (n: number) => R) {
+      return fn(this.cents);
+    }
+  }
+
+  const ArticleSchema = z
+    .object({
+      title: z.string(),
+      author: z.string(),
+      dates: z
+        .object({ start: z.string(), end: z.string().optional() })
+        .transform((d) => ({
+          start: new Date(d.start),
+          end: d.end ? new Date(d.end) : undefined,
+        })),
+      price: z.string().transform((v) => new Price(Number(v))),
+      meta: z.object({ views: z.number(), tags: z.array(z.string()) }),
+      contributors: z
+        .array(
+          z.object({
+            slug: z.string(),
+            role: z.object({ slug: z.string() }),
+            since: z.date(),
+          }),
+        )
+        .optional(),
+      people: z.tuple([z.date()]).readonly(),
+      peopleX: z.object({ foo: z.string() }),
+    })
+    .strict();
+
+  const compareDates = (
+    x: { start: Date; end?: Date },
+    y: { start: Date; end?: Date },
+  ) => x.start.getTime() - y.start.getTime();
+
+  const articles = createCollection({
+    directory: "/articles",
+    schema: ArticleSchema,
+    extension: ".md",
+    relations: {
+      author: authorCollection,
+      "contributors[*].slug": authorCollection,
+      "contributors[*].role.slug": categoryCollection,
+      "peopleX.foo": authorCollection,
+    },
+    views: (view) => ({
+      raw: view({ resolveRelations: false }),
+      shallow: view({
+        resolveRelations: 1,
+        sort: (x, y) => compareDates(x.dates, y.dates),
+      }),
+      full: view({
+        resolveRelations: true,
+        sort: (x, y) => compareDates(x.dates, y.dates),
+      }),
+    }),
+  });
+
+  for (const view of ["shallow", "full"] as const) {
+    test(`${view} preserves class instances and plain siblings`, async () => {
+      const [article] = await articles.getAll({ view });
+      const [raw] = await articles.getAll({ view: "raw" });
+      expectTypeOf(article.dates).toEqualTypeOf<{
+        start: Date;
+        end: Date | undefined;
+      }>();
+      expectTypeOf(article.price).toEqualTypeOf<Price>();
+      expectTypeOf(article.meta).toEqualTypeOf<{
+        views: number;
+        tags: Array<string>;
+      }>();
+      expectTypeOf(article.dates).toEqualTypeOf<typeof raw.dates>();
+      expectTypeOf(article.price).toEqualTypeOf<typeof raw.price>();
+    });
+
+    test(`${view} resolves nested array paths and preserves optional containers`, async () => {
+      const [article] = await articles.getAll({ view });
+      type Contributor = NonNullable<typeof article.contributors>[number];
+      expectTypeOf<Contributor["slug"]["name"]>().toEqualTypeOf<string>();
+      expectTypeOf<
+        Contributor["role"]["slug"]["name"]
+      >().toEqualTypeOf<string>();
+      expectTypeOf<Contributor["since"]>().toEqualTypeOf<Date>();
+      expectTypeOf(article.contributors).toExtend<
+        Array<Contributor> | undefined
+      >();
+      expectTypeOf<undefined>().toExtend<typeof article.contributors>();
+      expectTypeOf<Pick<typeof article, "contributors">>().toEqualTypeOf<{
+        contributors?: typeof article.contributors;
+      }>();
+      expectTypeOf({}).toExtend<Pick<typeof article, "contributors">>();
+    });
+
+    test(`${view} requires a separator after a relation prefix`, async () => {
+      const [article] = await articles.getAll({ view });
+      expectTypeOf(article.peopleX.foo.name).toEqualTypeOf<string>();
+      expectTypeOf(article.people).toEqualTypeOf<readonly [Date]>();
+    });
+  }
+});
+
 describe("resolveRelations type behaviour", () => {
   test("false keeps strings", async () => {
     const posts = await postCollection.getAll({ view: "raw" });

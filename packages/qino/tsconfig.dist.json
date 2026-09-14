@@ -5,5 +5,5 @@
       "qino": ["./dist/index.d.mts"]
     }
   },
-  "include": ["src/types/infer.test-d.ts"]
+  "include": ["src/types/infer.test-d.ts", "src/types/dist-resolve.test-d.ts"]
 }
