@@ -1,5 +1,5 @@
 import type { Infer } from "qino";
-import { markdown } from "qino/utils";
+import { getMarkdownStats } from "qino/utils";
 import { z } from "zod";
 
 import qino from "../";
@@ -34,7 +34,7 @@ export const postCollection = qino.defineCollection({
       withReadingTime: view({
         ...base,
         augment: (post) => {
-          const content = markdown.stats(post.markdown);
+          const content = getMarkdownStats(post.markdown);
           return {
             ...content,
             readingMinutes: Math.ceil(content.wordCount / 220),

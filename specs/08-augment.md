@@ -11,14 +11,14 @@ Some fields are derived, not authored. The classic case: a blurb generated from 
 
 ```ts
 import { defineCollection } from "qino";
-import { markdown } from "qino/utils";
+import { getMarkdownStats } from "qino/utils";
 import z from "zod";
 
 export const { getMany, getOne } = defineCollection({
   views: (view) => ({
     default: view({
       augment: (post) => {
-        const content = markdown.stats(post.markdown);
+        const content = getMarkdownStats(post.markdown);
 
         return {
           content,
@@ -67,7 +67,7 @@ TypeScript should infer this without explicit annotations.
 
 ## Markdown stats
 
-`markdown.stats(body)` is a pure helper exported from `qino/utils`. It parses Markdown, GFM, and MDX to calculate three stable, explicitly named values:
+`getMarkdownStats(body)` is a pure helper exported from `qino/utils`. It parses Markdown, GFM, and MDX to calculate three stable, explicitly named values:
 
 - `wordCount` — readable prose words, counted with `Intl.Segmenter`.
 - `proseCharacterCount` — readable prose grapheme clusters after Markdown syntax and whitespace normalization.
@@ -84,4 +84,4 @@ Done when:
 - `augment` returns are merged into entries with correct TS types (no `as` casts in consumer code).
 - Conflicting keys between an entry and augment output fail at compile time and runtime.
 - `augment` errors point at the file that triggered them.
-- `markdown.stats` has documented and tested Markdown-aware counting semantics.
+- `getMarkdownStats` has documented and tested Markdown-aware counting semantics.

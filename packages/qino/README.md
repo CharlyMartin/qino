@@ -152,7 +152,7 @@ No type annotations are needed; ordinary spread ordering controls overrides:
 
 ```ts
 import { createQino } from "qino";
-import { markdown } from "qino/utils";
+import { getMarkdownStats } from "qino/utils";
 import { z } from "zod";
 
 const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
@@ -166,7 +166,7 @@ const posts = qino.defineCollection({
   }),
   views: (view) => {
     const base = view({
-      augment: (post) => ({ stats: markdown.stats(post.markdown) }),
+      augment: (post) => ({ stats: getMarkdownStats(post.markdown) }),
       sort: (a, b) => b.stats.wordCount - a.stats.wordCount,
     });
     return {

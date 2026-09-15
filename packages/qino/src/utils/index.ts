@@ -1,2 +1,2 @@
-export { markdown } from "./markdown/markdown";
-export type { MarkdownStats } from "./markdown/stats";
+export type { MarkdownStats } from "./markdown/get-markdown-stats";
+export { getMarkdownStats } from "./markdown/get-markdown-stats";

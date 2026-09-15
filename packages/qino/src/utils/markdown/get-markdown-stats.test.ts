@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 
-import { stats } from "./stats";
+import { getMarkdownStats } from "./get-markdown-stats";
 
-describe("markdown.stats", () => {
+describe("getMarkdownStats", () => {
   test("counts readable prose while excluding syntax, URLs, images, and code", () => {
     const body = [
       "# Hello **world**",
@@ -18,7 +18,7 @@ describe("markdown.stats", () => {
       "![Ignored image description](https://example.com/image.png)",
     ].join("\n");
 
-    expect(stats(body)).toEqual({
+    expect(getMarkdownStats(body)).toEqual({
       wordCount: 5,
       proseCharacterCount: 27,
       sourceCharacterCount: Array.from(body).length,
@@ -36,7 +36,7 @@ describe("markdown.stats", () => {
       "{ignoredExpression}",
     ].join("\n");
 
-    expect(stats(body).wordCount).toBe(2);
+    expect(getMarkdownStats(body).wordCount).toBe(2);
   });
 
   test.each([
@@ -45,7 +45,7 @@ describe("markdown.stats", () => {
   ])("excludes HTML comments from prose: %s", (comment) => {
     const body = `Hello ${comment}world`;
 
-    expect(stats(body)).toEqual({
+    expect(getMarkdownStats(body)).toEqual({
       wordCount: 2,
       proseCharacterCount: 11,
       sourceCharacterCount: body.length,
@@ -65,7 +65,7 @@ describe("markdown.stats", () => {
       "```",
     ].join("\n");
 
-    expect(stats(body)).toEqual({
+    expect(getMarkdownStats(body)).toEqual({
       wordCount: 2,
       proseCharacterCount: 8,
       sourceCharacterCount: body.length,
@@ -73,11 +73,13 @@ describe("markdown.stats", () => {
   });
 
   test("excludes MDX comments from prose", () => {
-    expect(stats("Hello {/* Hidden comment */}world").wordCount).toBe(2);
+    expect(
+      getMarkdownStats("Hello {/* Hidden comment */}world").wordCount,
+    ).toBe(2);
   });
 
   test("counts Unicode graphemes instead of UTF-16 code units", () => {
-    expect(stats("é 👋")).toEqual({
+    expect(getMarkdownStats("é 👋")).toEqual({
       wordCount: 1,
       proseCharacterCount: 3,
       sourceCharacterCount: 3,

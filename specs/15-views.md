@@ -32,7 +32,7 @@ const posts = qino.defineCollection({
   }),
   views: (view) => {
     const base = view({
-      augment: (post) => ({ stats: markdown.stats(post.markdown) }),
+      augment: (post) => ({ stats: getMarkdownStats(post.markdown) }),
       sort: (a, b) => b.stats.wordCount - a.stats.wordCount,
     });
     return {
