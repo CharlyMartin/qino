@@ -303,7 +303,7 @@ const Schema = z.object({
 
 ### Computing the resolved output — `ResolveEntry` / `ResolveValue` / `ResolveTarget`
 
-The output of a getter call is `ResolvedView<Schema, Ext, Rels, R>`, which is `{ _meta: EntryMeta<Ext> } & ResolveEntry<Schema, Rels, NormalizeDepth<R>>`. The depth is normalized first (`true → 6`, `false → 0`, `n → n`), then handed to `ResolveEntry`:
+The output of a getter call is `ResolvedView<Schema, Ext, Rels, R>`, which combines Qino's generated fields with `ResolveEntry<Schema, Rels, NormalizeDepth<R>>`. Generated fields include `_meta: EntryMeta<Ext>`; `markdown` presence and type follow schema output. The depth is normalized first (`true → 6`, `false → 0`, `n → n`), then handed to `ResolveEntry`:
 
 1. **`ResolveEntry<S, Rels, D>`** — top-level entry. `D extends 0` returns `ValidatedOutput<S>` unchanged (raw refs). Otherwise hands off to `ResolveValue<ValidatedOutput<S>, Rels, "", D>` with an empty path prefix.
 2. **`ResolveValue<T, Rels, PathPrefix, D>`** — the recursive walker. Four branches:
@@ -313,8 +313,8 @@ The output of a getter call is `ResolvedView<Schema, Ext, Rels, R>`, which is `{
    - **Else** → pass through.
 3. **`ResolveTarget<Target, D>`** — depth gate at the boundary. `D extends 0` short-circuits to `string` (raw ref preserved at the type level, matching runtime). Otherwise unwraps the thunk if `Target extends () => infer C`, then defers to `ResolveRelationTarget<C, Dec<D>>` — the static `depth - 1`.
 4. **`ResolveRelationTarget<C, NextD>`** — pattern-matches against `C[QinoPrimitiveMarker]`:
-   - has `directory` → it's a collection; yields `{ _meta: EntryMeta<Ext> } & ResolveEntry<S, Rels, NextD>`.
-   - has `file` → it's an item; yields `{ _meta: ItemEntryMeta<Ext> } & ResolveEntry<S, Rels, NextD>`.
+   - has `directory` → it's a collection or tree; yields its generated metadata and Markdown body, if applicable, combined with `ResolveEntry<S, Rels, NextD>`.
+   - has `file` → it's an item; yields its generated item metadata and Markdown body, if applicable, combined with `ResolveEntry<S, Rels, NextD>`.
    - Recurses back into `ResolveEntry` — completing the static analogue of the runtime cycle.
 
 Sketch (mirrors cases in `packages/qino/src/types/resolve.test-d.ts`):

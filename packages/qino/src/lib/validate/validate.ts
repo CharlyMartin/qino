@@ -1,5 +1,7 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 
+import { assertNoReservedSchemaFields } from "./assert-no-reserved-schema-fields";
+
 export type ValidateParams<S extends StandardSchemaV1> = {
   schema: S;
   data: unknown;
@@ -11,6 +13,7 @@ export function validate<S extends StandardSchemaV1>({
   data,
   filePath,
 }: ValidateParams<S>) {
+  assertNoReservedSchemaFields(data, filePath);
   const result = schema["~standard"].validate(data);
 
   if (result instanceof Promise) {
@@ -34,5 +37,6 @@ export function validate<S extends StandardSchemaV1>({
     throw new Error(`Validation failed for ${filePath}:\n${lines.join("\n")}`);
   }
 
+  assertNoReservedSchemaFields(result.value, filePath);
   return result.value as StandardSchemaV1.InferOutput<S>;
 }

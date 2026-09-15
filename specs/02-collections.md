@@ -24,7 +24,6 @@ const PostSchema = z
     categories: z.array(z.string()),
     image: z.string(),
     author: z.string(),
-    body: z.string(),
   })
   .strict();
 
@@ -93,15 +92,17 @@ Every entry returned by `getMany` / `getOne` includes a `_meta` field:
     fileName: string,    // "hello.md"
     filePath: string,    // absolute path on disk
   },
+  markdown: string, // When declared as z.string() in the schema
   ...validatedFields
 }
 ```
 
 ### Markdown vs JSON
 
-- `.md`, `.mdx`, and `.markdown` entries are parsed with `gray-matter`. Frontmatter fields are spread; the body is exposed as a `body` field on the entry. **The schema must include `body: z.string()`** if the body is needed.
+- Markdown files parse with `gray-matter`. Qino validates frontmatter together with the raw body as `markdown: string`. Declare `markdown: z.string()` to retain it or transform it in the schema. Undeclared fields follow validator behavior (strip, passthrough, or strict rejection). JSON parses directly.
 - `.json` entries are parsed straight as JSON.
-- Markdown → HTML conversion is **not** Qino's job. Consumers render `body` with their own MD/MDX pipeline.
+- Top-level `_meta` is reserved in content and schema input/output for every format. Markdown frontmatter cannot declare `markdown`, but schemas can. Typed declarations of `_meta` fail at registration; getters and CLI validation reject actual conflicts at runtime. Nested names and JSON `markdown` are ordinary fields.
+- Markdown → HTML conversion is **not** Qino's job. Consumers render `markdown` with their own MD/MDX pipeline.
 
 ### `getOne` signature
 
@@ -161,7 +162,7 @@ Done when:
 - `getMany()` validates every entry, then returns the selected view’s filtered and sorted results.
 - `getOne(slug)` returns one entry by slug, throws on missing file, schema mismatch, or exclusion by the selected view’s filter.
 - `_meta.slug`, `_meta.fileName`, `_meta.filePath` are present on every returned entry.
-- Markdown entries expose their body via `body` (when present in schema); `.json` entries don't.
+- Markdown presence and type in getters follow schema output, including transformations.
 - Schema validation errors point at the file path that failed.
 - Any Standard Schema validator (zod, Valibot, ArkType, …) is accepted; the runtime never calls validator-specific APIs.
 - A `relations` map can declare JSON-path strings into the schema (e.g. `author`, `categories[*]`, `test.foo.bar`) as pointers to other collections; cardinality is derived from the path (`[*]` anywhere → `"many"`, else `"one"`).

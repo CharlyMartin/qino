@@ -34,7 +34,7 @@ describe("augmentEntry", () => {
     await expect(
       augmentEntry(entry, () => ({ title: "Replacement" })),
     ).rejects.toThrow(
-      "/content/posts/hello.md: augment cannot overwrite existing fields: title.",
+      "/content/posts/hello.md: augment cannot add reserved or overwrite existing fields: title.",
     );
   });
 });

@@ -5,7 +5,6 @@ import nodePath from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { MARKDOWN_BODY_FIELD_NAME } from "../../data/globals";
 import { createQino } from "../qino/create-qino";
 
 let tmp: string;
@@ -31,15 +30,13 @@ describe("defineItem", () => {
     const item = qino.defineItem({
       views: (view) => ({
         default: view({
-          augment: async ({ body }) => ({
-            words: body.trim().split(/\s+/u).length,
+          augment: async ({ markdown }) => ({
+            words: markdown.trim().split(/\s+/u).length,
           }),
         }),
       }),
       file: "/pages/home.md",
-      schema: z
-        .object({ title: z.string(), [MARKDOWN_BODY_FIELD_NAME]: z.string() })
-        .strict(),
+      schema: z.object({ markdown: z.string(), title: z.string() }).strict(),
     });
 
     await expect(item.getData()).resolves.toMatchObject({ words: 2 });

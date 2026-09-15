@@ -37,7 +37,6 @@ export const homeItem = defineItem({
       subtitle: z.string(),
     }),
     "featured-posts": z.array(z.string()),
-    body: z.string(),
   }),
   relations: {
     "featured-posts[*]": postCollection,
@@ -56,7 +55,7 @@ The extension is inferred from `file`'s suffix — one of `.md` | `.mdx` | `.jso
 
 - The file must exist at the declared path. Missing file → build-time error.
 - `_meta` is `{ fileName, filePath }`. No `slug` — items have no slug.
-- `.md`, `.mdx`, and `.markdown` parse via `gray-matter` and expose the body as `body`. `.json` parses straight.
+- Markdown files parse with `gray-matter`. Qino validates frontmatter together with the raw body as `markdown: string`. Declare `markdown: z.string()` to retain it or transform it in the schema. Undeclared fields follow validator behavior (strip, passthrough, or strict rejection). JSON parses directly.
 
 ### Returned shape
 
@@ -66,6 +65,7 @@ The extension is inferred from `file`'s suffix — one of `.md` | `.mdx` | `.jso
     fileName: string,    // "home.md"
     filePath: string,    // absolute path on disk
   },
+  markdown: string, // When declared as z.string() in the schema
   ...validatedFields
 }
 ```

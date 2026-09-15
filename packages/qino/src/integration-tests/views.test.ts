@@ -483,7 +483,9 @@ test("view errors retain the source path and reject conflicting output at runtim
   );
   await expect(
     collection.getOne("hello", { view: "conflict" }),
-  ).rejects.toThrow(/hello.json: augment cannot overwrite.*title/);
+  ).rejects.toThrow(
+    /hello.json: augment cannot add reserved or overwrite.*title/,
+  );
   await expect(collection.getOne("hello", { view: "invalid" })).rejects.toThrow(
     /hello.json: augment must return an object/,
   );

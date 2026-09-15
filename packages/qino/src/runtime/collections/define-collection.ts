@@ -19,6 +19,7 @@ import type {
   CollectionViewFactory,
 } from "../../types/collection-views";
 import type { Relations } from "../../types/relations";
+import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
 import type { SlugFor } from "../../types/slug-registry";
 import type {
@@ -46,7 +47,7 @@ export type DefineCollectionParams<
   Views extends object = object,
 > = {
   directory: Dir;
-  schema: Schema;
+  schema: Schema & NoInfer<NoReservedSchemaFields<Schema>>;
   extension: Ext;
   relations?: Rels;
   views?: ViewsConfig<

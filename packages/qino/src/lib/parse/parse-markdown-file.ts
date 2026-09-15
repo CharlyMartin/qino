@@ -1,26 +1,28 @@
-import type { StandardSchemaV1 } from "@standard-schema/spec";
 import matter from "gray-matter";
 
-import { MARKDOWN_BODY_FIELD_NAME } from "../../data/globals";
+import { MARKDOWN_FIELD_NAME } from "../../data/globals";
+import type { ObjectSchema } from "../../types/schema";
+import { assertNoReservedFrontmatterFields } from "../validate/assert-no-reserved-frontmatter-fields";
 import type { ValidateParams, validate } from "../validate/validate";
 import { parseYaml } from "./parse-yaml";
 
-type ParseMarkdownFileParams<S extends StandardSchemaV1> = ValidateParams<S> & {
+type ParseMarkdownFileParams<S extends ObjectSchema> = ValidateParams<S> & {
   data: string;
   validatorFn: typeof validate;
 };
 
-export function parseMarkdownFile<S extends StandardSchemaV1>({
+export function parseMarkdownFile<S extends ObjectSchema>({
   schema,
   data,
   filePath,
   validatorFn,
 }: ParseMarkdownFileParams<S>) {
   const parsed = matter(data, { engines: { yaml: parseYaml } });
-  const augmentedData = {
-    ...parsed.data,
-    [MARKDOWN_BODY_FIELD_NAME]: parsed.content,
-  };
+  assertNoReservedFrontmatterFields(parsed.data, filePath);
 
-  return validatorFn({ schema, data: augmentedData, filePath });
+  return validatorFn({
+    schema,
+    data: { ...parsed.data, [MARKDOWN_FIELD_NAME]: parsed.content },
+    filePath,
+  });
 }

@@ -2,7 +2,7 @@ import { createQino } from "qino";
 import { expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
-const schema = z.object({ title: z.string(), body: z.string() });
+const schema = z.object({ markdown: z.string(), title: z.string() });
 const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
 
 // Derive helpers from the public API so source and dist checks use the same symbols.
@@ -27,7 +27,7 @@ type ItemView = Parameters<
 function withReadingTime(view: CollectionView) {
   return view({
     augment: (entry) => ({
-      readingMinutes: Math.ceil(entry.body.split(/\s+/u).length / 220),
+      readingMinutes: Math.ceil(entry.markdown.split(/\s+/u).length / 220),
     }),
     filter: (entry) => entry.readingMinutes > 0,
     sort: (a, b) => a.readingMinutes - b.readingMinutes,

@@ -18,7 +18,7 @@ export const { getMany, getOne } = defineCollection({
   views: (view) => ({
     default: view({
       augment: (post) => {
-        const content = markdown.stats(post.body);
+        const content = markdown.stats(post.markdown);
 
         return {
           content,
@@ -31,7 +31,7 @@ export const { getMany, getOne } = defineCollection({
   extension: ".md",
   schema: z.object({
     title: z.string(),
-    body: z.string(),
+    markdown: z.string(),
   }),
 });
 ```
@@ -42,7 +42,7 @@ The returned entry has the schema fields **plus** the augment's return shape:
 {
   _meta,
   title: string,
-  body: string,
+  markdown: string,
   content: {
     wordCount: number,
     proseCharacterCount: number,
@@ -59,7 +59,7 @@ TypeScript should infer this without explicit annotations.
 - `augment` is available on collections, items, and trees. It applies to every hydrated entry returned by `getMany`, `getOne`, `getData`, or `getEntry`.
 - `augment` runs after schema validation, `_meta` creation, and the selected view’s relation resolution. Its input type reflects that view’s fixed depth; with `resolveRelations` omitted or `false`, relation fields retain their authored values. Configure augmentation in `views.default` or a custom view; root augmentation is forbidden. See [15-views](./15-views.md).
 - `augment` may be sync or async.
-- Returned fields **merge** into the entry. Conflicts with schema fields or `_meta` are rejected both by TypeScript and at runtime, rather than silently overwriting data.
+- Returned fields **merge** into the entry. Conflicts with schema fields or `_meta` are rejected by TypeScript and at runtime. Markdown augmentation cannot add or replace `markdown`, even when the schema omits it.
 - `augment` runs once per hydrated entry per getter invocation, including collection entries later excluded by `filter`. No caching across calls in V1 — keep it simple.
 - Embedded relation targets and CLI source validation never execute augment.
 - Tree navigation nodes returned by `getTree` and `getFlatTree` remain structural and do not receive augmented fields.

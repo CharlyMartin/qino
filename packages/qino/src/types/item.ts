@@ -6,6 +6,7 @@ import type {
   QinoPrimitives,
 } from "../data/globals";
 import type { AugmentOutput } from "./augment";
+import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
@@ -91,10 +92,7 @@ export type ResolvedItemView<
   R extends ResolveOption,
   Derived extends AugmentOutput = {},
 > = Simplify<
-  { [K in typeof META_FIELD_NAME]: ItemEntryMeta<Ext> } & ResolveEntry<
-    Schema,
-    Rels,
-    NormalizeDepth<R>
-  > &
+  GeneratedFields<ItemEntryMeta<Ext>> &
+    ResolveEntry<Schema, Rels, NormalizeDepth<R>> &
     Derived
 >;

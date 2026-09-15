@@ -6,10 +6,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 
 import { validateCollection } from "../../cli/check/validate-collection";
-import {
-  MARKDOWN_BODY_FIELD_NAME,
-  QinoPrimitiveMarker,
-} from "../../data/globals";
+import { QinoPrimitiveMarker } from "../../data/globals";
 import { createQino } from "../qino/create-qino";
 
 let tmp: string;
@@ -24,7 +21,7 @@ afterEach(async () => {
 });
 
 describe("defineCollection", () => {
-  test("adds derived fields using the entry body and metadata", async () => {
+  test("adds derived fields using the entry markdown and metadata", async () => {
     const posts = nodePath.join(tmp, "posts");
     await fs.mkdir(posts);
     await fs.writeFile(
@@ -36,16 +33,14 @@ describe("defineCollection", () => {
     const collection = qino.defineCollection({
       views: (view) => ({
         default: view({
-          augment: ({ body, _meta }) => ({
-            words: body.trim().split(/\s+/u).length,
+          augment: ({ markdown, _meta }) => ({
+            words: markdown.trim().split(/\s+/u).length,
             sourceFile: _meta.fileName,
           }),
         }),
       }),
       directory: "/posts",
-      schema: z
-        .object({ title: z.string(), [MARKDOWN_BODY_FIELD_NAME]: z.string() })
-        .strict(),
+      schema: z.object({ markdown: z.string(), title: z.string() }).strict(),
       extension: ".md",
     });
 
@@ -73,8 +68,8 @@ function makeCollection() {
   return defineCollection({
     directory: "/posts",
     schema: z.object({
+      markdown: z.string(),
       title: z.string(),
-      [MARKDOWN_BODY_FIELD_NAME]: z.string(),
     }),
     extension: ".md",
   });
@@ -127,7 +122,7 @@ describe("getAllSlugs", () => {
     const collection = qino.defineCollection({
       directory: "/posts",
       extension,
-      schema: z.object({ title: z.string() }),
+      schema: z.object({ markdown: z.string(), title: z.string() }),
     });
 
     expect(await collection.getAllSlugs()).toEqual([
@@ -144,7 +139,7 @@ describe("getAllSlugs", () => {
     const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".json",
-      schema: z.object({ title: z.string() }),
+      schema: z.object({ markdown: z.string(), title: z.string() }),
     });
 
     expect(await collection.getAllSlugs()).toEqual(["invalid", "malformed"]);
@@ -175,7 +170,7 @@ describe("getAllSlugs", () => {
       directory: "/posts",
       extension: ".json",
       schema: z
-        .object({ title: z.string(), author: z.string() })
+        .object({ markdown: z.string(), title: z.string(), author: z.string() })
         .superRefine(validate),
       relations: { author: relation },
       views: (view) => ({
@@ -205,7 +200,7 @@ describe("collection filter and sort", () => {
     const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
-      schema: z.object({ title: z.string() }),
+      schema: z.object({ markdown: z.string(), title: z.string() }),
       views: (view) => {
         created();
         return { default: view({}), listing: view({ filter: () => true }) };
@@ -222,7 +217,7 @@ describe("collection filter and sort", () => {
       qino.defineCollection({
         directory: "/posts",
         extension: ".md",
-        schema: z.object({ title: z.string() }),
+        schema: z.object({ markdown: z.string(), title: z.string() }),
         views: (() => ({ default: {} })) as never,
       }),
     ).toThrow(/View "default" must be created/);
@@ -237,7 +232,7 @@ describe("collection filter and sort", () => {
     const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
-      schema: z.object({ title: z.string() }),
+      schema: z.object({ markdown: z.string(), title: z.string() }),
       views: (view) => ({
         default: view({
           augment: async (entry) => {
@@ -298,7 +293,7 @@ describe("collection filter and sort", () => {
     const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
-      schema: z.object({ title: z.string() }),
+      schema: z.object({ markdown: z.string(), title: z.string() }),
       views: (view) => ({
         default: view({
           filter: callback,
@@ -323,7 +318,7 @@ describe("collection filter and sort", () => {
     const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
-      schema: z.object({ title: z.string() }),
+      schema: z.object({ markdown: z.string(), title: z.string() }),
       views: (view) => ({
         default: view({ filter: (entry) => entry.title != "Draft" }),
       }),
@@ -345,7 +340,7 @@ describe("collection filter and sort", () => {
     const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
-      schema: z.object({ title: z.string() }),
+      schema: z.object({ markdown: z.string(), title: z.string() }),
       views: (view) => ({
         default: view({}),
         tied: view({ sort: () => 0 }),
@@ -375,7 +370,7 @@ describe("collection filter and sort", () => {
       }),
       directory: "/posts",
       extension: ".md",
-      schema: z.object({ title: z.string() }),
+      schema: z.object({ markdown: z.string(), title: z.string() }),
     });
     expect(await collection.getMany()).toEqual([]);
     expect(filter).not.toHaveBeenCalled();
@@ -399,7 +394,7 @@ describe("collection filter and sort", () => {
     const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
-      schema: z.object({ title: z.string() }),
+      schema: z.object({ markdown: z.string(), title: z.string() }),
       views: (view) => ({
         default: view({
           [callback]: () => {
@@ -427,7 +422,7 @@ describe("collection filter and sort", () => {
     const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
-      schema: z.object({ title: z.string() }),
+      schema: z.object({ markdown: z.string(), title: z.string() }),
       views: (defineView) => ({
         default: defineView({
           augment: async (entry) => ({

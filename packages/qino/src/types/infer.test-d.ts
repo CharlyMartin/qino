@@ -26,8 +26,8 @@ const authors = qino.defineCollection({
   }),
 });
 const schema = z.object({
+  markdown: z.string(),
   title: z.string(),
-  body: z.string(),
   count: z.string().transform(Number),
   author: z.string(),
   output: z.string(),
@@ -116,7 +116,7 @@ test("item inference matches getters and item metadata", async () => {
     relations: { author: authors },
     views: (view) => ({
       default: view({
-        augment: (entry) => ({ length: entry.body.length }),
+        augment: (entry) => ({ length: entry.markdown.length }),
       }),
       highlight: view({
         resolveRelations: true,
@@ -159,7 +159,9 @@ test("tree inference describes content entries and their views", async () => {
         resolveRelations: 1,
         augment: async (entry) => ({ label: entry.author.name }),
       }),
-      highlight: view({ augment: (entry) => ({ length: entry.body.length }) }),
+      highlight: view({
+        augment: (entry) => ({ length: entry.markdown.length }),
+      }),
       full: view({ resolveRelations: true }),
     }),
   });

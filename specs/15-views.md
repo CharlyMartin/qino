@@ -27,12 +27,12 @@ const posts = qino.defineCollection({
   extension: ".md",
   schema: z.object({
     title: z.string(),
-    body: z.string(),
+    markdown: z.string(),
     highlight: z.boolean(),
   }),
   views: (view) => {
     const base = view({
-      augment: (post) => ({ stats: markdown.stats(post.body) }),
+      augment: (post) => ({ stats: markdown.stats(post.markdown) }),
       sort: (a, b) => b.stats.wordCount - a.stats.wordCount,
     });
     return {
@@ -81,7 +81,7 @@ type HighlightPost = Infer<typeof posts>["views"]["highlight"];
 ```
 
 Outputs include validated schema transformations, relation resolution, awaited
-augmentation, and primitive-specific `_meta`. Collection outputs describe one
+augmentation, primitive-specific `_meta`, and schema-defined `markdown` output. Collection outputs describe one
 entry; tree outputs describe content entries rather than navigation nodes.
 Literal selections preserve exact outputs. Unions of names produce output unions;
 optional selections include the default output.

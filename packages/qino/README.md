@@ -10,6 +10,26 @@ so hot reload can recreate definitions on the same Qino instance without stale
 registrations. Include either command in your build or CI workflow to enforce
 path ownership.
 
+## Reserved entry fields
+
+Qino supplies the raw Markdown or MDX body, excluding frontmatter, as a
+`markdown` string before schema validation. Declare `markdown: z.string()`
+to retain it, or use a synchronous schema transform to change its value and
+output type. Getters, views, and resolved relations follow the schema output.
+An empty body is supplied as an empty string.
+
+Undeclared fields follow the validator's behavior: ordinary Zod objects strip
+`markdown`, passthrough objects retain it, and strict objects reject it unless
+declared. Schemas remain required, including for documents without frontmatter.
+
+Top-level `_meta` remains reserved in content and schema input/output for every
+format. Markdown frontmatter cannot declare `markdown`. Augmentation cannot add
+or replace `markdown` on Markdown entries, even if the schema omits it; it may
+derive other fields. JSON `markdown` and nested names remain ordinary user fields.
+
+To upgrade, rename an old `body` schema declaration to `markdown` and use
+`entry.markdown`. Qino does not generate a `body` alias.
+
 ## Views
 
 Collections, trees, and items can expose different shapes of the same content:
@@ -26,7 +46,11 @@ const authors = qino.defineCollection({
 const posts = qino.defineCollection({
   directory: "/posts",
   extension: ".md",
-  schema: z.object({ title: z.string(), body: z.string(), author: z.string() }),
+  schema: z.object({
+    title: z.string(),
+    author: z.string(),
+    markdown: z.string(),
+  }),
   relations: { author: () => authors },
   views: (view) => ({
     default: view({}),
@@ -137,12 +161,12 @@ const posts = qino.defineCollection({
   extension: ".md",
   schema: z.object({
     title: z.string(),
-    body: z.string(),
+    markdown: z.string(),
     highlight: z.boolean(),
   }),
   views: (view) => {
     const base = view({
-      augment: (post) => ({ stats: markdown.stats(post.body) }),
+      augment: (post) => ({ stats: markdown.stats(post.markdown) }),
       sort: (a, b) => b.stats.wordCount - a.stats.wordCount,
     });
     return {
@@ -193,7 +217,11 @@ augmentation for both `getMany()` and `getOne()`. Sorting follows filtering for
 const posts = qino.defineCollection({
   directory: "/posts",
   extension: ".md",
-  schema: z.object({ title: z.string(), draft: z.boolean() }),
+  schema: z.object({
+    title: z.string(),
+    markdown: z.string(),
+    draft: z.boolean(),
+  }),
   views: (view) => ({
     default: view({
       augment: (entry) => ({ titleLength: entry.title.length }),
@@ -247,7 +275,7 @@ const docs = qino.defineTree({
   directory: "/docs",
   extension: ".md",
   titleField: "title",
-  schema: z.object({ title: z.string(), body: z.string() }),
+  schema: z.object({ title: z.string() }),
 });
 
 const home = qino.defineItem({

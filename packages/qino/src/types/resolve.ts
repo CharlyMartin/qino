@@ -2,11 +2,11 @@ import type { IntClosedRange, Simplify, Subtract } from "type-fest";
 
 import type {
   MAX_RESOLVE_DEPTH,
-  META_FIELD_NAME,
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../data/globals";
 import type { CollectionEntryMeta } from "./collection";
+import type { GeneratedFields } from "./generated-fields";
 import type { ItemEntryMeta } from "./item";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
 import type { TreeEntryMeta } from "./tree";
@@ -81,11 +81,12 @@ type ResolveRelationTarget<C, NextD extends Depth> = C extends {
   ? Ext extends SupportedFileExtension
     ? S extends ObjectSchema
       ? Simplify<
-          {
-            [K in typeof META_FIELD_NAME]: Kind extends (typeof QinoPrimitives)["tree"]
+          GeneratedFields<
+            Kind extends (typeof QinoPrimitives)["tree"]
               ? TreeEntryMeta<Ext>
-              : CollectionEntryMeta<Ext>;
-          } & ResolveEntry<S, Rels, NextD>
+              : CollectionEntryMeta<Ext>
+          > &
+            ResolveEntry<S, Rels, NextD>
         >
       : never
     : never
@@ -100,9 +101,7 @@ type ResolveRelationTarget<C, NextD extends Depth> = C extends {
     ? Ext extends SupportedFileExtension
       ? S extends ObjectSchema
         ? Simplify<
-            {
-              [K in typeof META_FIELD_NAME]: ItemEntryMeta<Ext>;
-            } & ResolveEntry<S, Rels, NextD>
+            GeneratedFields<ItemEntryMeta<Ext>> & ResolveEntry<S, Rels, NextD>
           >
         : never
       : never

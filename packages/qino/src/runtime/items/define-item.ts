@@ -19,6 +19,7 @@ import type {
   ItemFile,
 } from "../../types/item";
 import type { Relations } from "../../types/relations";
+import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
 import type {
   ConfiguredViews,
@@ -40,7 +41,7 @@ export type DefineItemParams<
   Views extends object = object,
 > = {
   file: F;
-  schema: Schema;
+  schema: Schema & NoInfer<NoReservedSchemaFields<Schema>>;
   relations?: Rels;
   views?: ViewsConfig<
     Views,
