@@ -5,10 +5,10 @@ import { postCollection } from "../collections/posts";
 
 const HomeSchema = z
   .object({
+    markdown: z.string(),
     title: z.string(),
     tagline: z.string(),
     "featured-posts": z.array(z.string()),
-    body: z.string(),
   })
   .strict();
 

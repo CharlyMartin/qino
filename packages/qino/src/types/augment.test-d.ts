@@ -7,16 +7,16 @@ const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
 
 const schema = z
   .object({
+    markdown: z.string(),
     title: z.string(),
-    body: z.string(),
   })
   .strict();
 
 const collection = qino.defineCollection({
   views: (view) => ({
     default: view({
-      augment: ({ body, _meta }) => ({
-        stats: { wordCount: body.length },
+      augment: ({ markdown, _meta }) => ({
+        stats: { wordCount: markdown.length },
         sourceFile: _meta.fileName,
       }),
     }),
@@ -29,7 +29,7 @@ const collection = qino.defineCollection({
 const item = qino.defineItem({
   views: (view) => ({
     default: view({
-      augment: ({ body }) => ({ stats: { wordCount: body.length } }),
+      augment: ({ markdown }) => ({ stats: { wordCount: markdown.length } }),
     }),
   }),
   file: "/pages/home.md",
@@ -39,7 +39,7 @@ const item = qino.defineItem({
 const tree = qino.defineTree({
   views: (view) => ({
     default: view({
-      augment: ({ body }) => ({ stats: { wordCount: body.length } }),
+      augment: ({ markdown }) => ({ stats: { wordCount: markdown.length } }),
     }),
   }),
   directory: "/docs",
@@ -72,6 +72,24 @@ describe("augment type behaviour", () => {
       directory: "/invalid",
       schema,
       extension: ".md",
+    });
+  });
+
+  test("does not allow augmentations to overwrite generated fields", () => {
+    qino.defineItem({
+      file: "/home.md",
+      schema,
+      views: (view) => ({
+        default: view({}),
+        markdown: view({
+          // @ts-expect-error Markdown cannot be added or replaced by augmentation.
+          augment: () => ({ markdown: "replacement" }),
+        }),
+        meta: view({
+          // @ts-expect-error Metadata is already part of the entry.
+          augment: () => ({ _meta: {} }),
+        }),
+      }),
     });
   });
 });

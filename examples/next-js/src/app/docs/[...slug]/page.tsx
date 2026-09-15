@@ -54,7 +54,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
         </header>
         <div className="prose prose-zinc max-w-none dark:prose-invert">
           <MDXRemote
-            source={entry.body}
+            source={entry.markdown}
             components={mdxComponents}
             options={{
               mdxOptions: {

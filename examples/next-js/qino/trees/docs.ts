@@ -4,8 +4,8 @@ import qino from "../";
 
 const DocsSchema = z
   .object({
+    markdown: z.string(),
     title: z.string(),
-    body: z.string(),
   })
   .strict();
 

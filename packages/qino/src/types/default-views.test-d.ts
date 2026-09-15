@@ -4,8 +4,8 @@ import { z } from "zod";
 
 const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
 const schema = z.object({
+  markdown: z.string(),
   title: z.string(),
-  body: z.string(),
   highlight: z.boolean(),
 });
 
@@ -17,7 +17,7 @@ test("spreads locally inferred views and selects the declared default", async ()
     views: (view) => {
       const base = view({
         augment: async (article) => ({
-          stats: { wordCount: article.body.length },
+          stats: { wordCount: article.markdown.length },
         }),
         sort: (a, b) => a.stats.wordCount - b.stats.wordCount,
       });

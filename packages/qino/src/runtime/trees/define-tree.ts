@@ -15,6 +15,7 @@ import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-se
 import { buildViews } from "../../lib/views/build-views";
 import { selectView } from "../../lib/views/select-view";
 import type { Relations } from "../../types/relations";
+import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
 import type {
   StringKeys,
@@ -51,7 +52,7 @@ export type DefineTreeParams<
   Views extends object = object,
 > = {
   directory: Dir;
-  schema: Schema;
+  schema: Schema & NoInfer<NoReservedSchemaFields<Schema>>;
   extension: Ext;
   titleField: Title;
   orderFileName?: string;

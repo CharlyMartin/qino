@@ -5,6 +5,32 @@ import { z } from "zod";
 import { validate } from "./validate";
 
 describe("validate", () => {
+  test.each([
+    "_meta",
+  ])("rejects input %s before a schema can strip it", (field) => {
+    expect(() =>
+      validate({
+        schema: z.object({ title: z.string() }),
+        data: { title: "Hello", [field]: "conflict" },
+        filePath: "/fixtures/input.md",
+      }),
+    ).toThrow(
+      `/fixtures/input.md: fields reserved for Qino cannot appear in content or schema output: ${field}.`,
+    );
+  });
+
+  test.each(["_meta"])("rejects %s introduced by a transform", (field) => {
+    expect(() =>
+      validate({
+        schema: z.object({}).transform(() => ({ [field]: "conflict" })),
+        data: {},
+        filePath: "/fixtures/output.md",
+      }),
+    ).toThrow(
+      `/fixtures/output.md: fields reserved for Qino cannot appear in content or schema output: ${field}.`,
+    );
+  });
+
   test("returns the parsed value on success", () => {
     const schema = z.object({ name: z.string(), age: z.number() });
     const result = validate({

@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
 import {
-  MARKDOWN_BODY_FIELD_NAME,
+  MARKDOWN_FIELD_NAME,
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
@@ -24,14 +24,17 @@ afterEach(async () => {
   await fs.rm(tmp, { recursive: true, force: true });
 });
 
-const Schema = z
-  .object({ title: z.string(), [MARKDOWN_BODY_FIELD_NAME]: z.string() })
-  .strict();
+const Schema = z.object({ markdown: z.string(), title: z.string() }).strict();
 
-async function writeMd(dir: string, name: string, title: string, body = "") {
+async function writeMd(
+  dir: string,
+  name: string,
+  title: string,
+  markdown = "",
+) {
   await fs.writeFile(
     nodePath.join(dir, `${name}.md`),
-    ["---", `title: ${title}`, "---", "", body || `# ${title}`].join("\n"),
+    ["---", `title: ${title}`, "---", "", markdown || `# ${title}`].join("\n"),
   );
 }
 
@@ -44,7 +47,9 @@ describe("defineTree", () => {
     const tree = defineTree({
       views: (view) => ({
         default: view({
-          augment: ({ body }) => ({ words: body.trim().split(/\s+/u).length }),
+          augment: ({ markdown }) => ({
+            words: markdown.trim().split(/\s+/u).length,
+          }),
         }),
       }),
       directory: "/docs",
@@ -167,9 +172,7 @@ describe("defineTree", () => {
     expect(entry._meta.fileName).toBe("introduction.md");
     expect((entry as { title: string }).title).toBe("Introduction");
     expect(
-      (entry as { [MARKDOWN_BODY_FIELD_NAME]: string })[
-        MARKDOWN_BODY_FIELD_NAME
-      ].trim(),
+      (entry as { [MARKDOWN_FIELD_NAME]: string })[MARKDOWN_FIELD_NAME].trim(),
     ).toBe("Welcome");
   });
 
@@ -384,7 +387,7 @@ test("relations load nested Markdown tree entries without navigation or target a
   const entry = await home.getData();
   expect(entry.doc).toMatchObject({
     title: "Setup",
-    body: "\nInstallation instructions",
+    markdown: "\nInstallation instructions",
     _meta: {
       slug: "guides/setup",
       fileName: "setup.md",

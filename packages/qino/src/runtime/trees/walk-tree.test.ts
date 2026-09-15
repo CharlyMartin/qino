@@ -5,12 +5,10 @@ import nodePath from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { MARKDOWN_BODY_FIELD_NAME } from "../../data/globals";
 import { walkTree } from "./walk-tree";
 
 const Schema = z.object({
   title: z.string(),
-  [MARKDOWN_BODY_FIELD_NAME]: z.string(),
 });
 
 async function writeMd(dir: string, name: string, title: string) {

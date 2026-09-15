@@ -1,21 +1,18 @@
-import type { StandardSchemaV1 } from "@standard-schema/spec";
-
+import type { ObjectSchema } from "../../types/schema";
 import type { ValidateParams, validate } from "../validate/validate";
 import { parseJsonFile } from "./parse-json-file";
 import { parseMarkdownFile } from "./parse-markdown-file";
 
-type ParseFileParams<S extends StandardSchemaV1> = ValidateParams<S> & {
+type ParseFileParams<S extends ObjectSchema> = ValidateParams<S> & {
   data: string;
   validatorFn: typeof validate;
 };
 
-export function parseFile<S extends StandardSchemaV1>({
+export function parseFile<S extends ObjectSchema>({
   filePath,
   ...rest
 }: ParseFileParams<S>) {
-  if (filePath.endsWith(".json")) {
-    return parseJsonFile({ filePath, ...rest });
-  }
-
-  return parseMarkdownFile({ filePath, ...rest });
+  return filePath.endsWith(".json")
+    ? parseJsonFile({ filePath, ...rest })
+    : parseMarkdownFile({ filePath, ...rest });
 }

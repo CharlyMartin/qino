@@ -8,13 +8,13 @@ import { categoryCollection } from "./categories";
 
 const PostSchema = z
   .object({
+    markdown: z.string(),
     title: z.string(),
     "created-on": z.string(),
     "updated-on": z.string(),
     categories: z.array(z.string()),
     image: z.string(),
     author: z.string(),
-    body: z.string(),
   })
   .strict();
 
@@ -34,7 +34,7 @@ export const postCollection = qino.defineCollection({
       withReadingTime: view({
         ...base,
         augment: (post) => {
-          const content = markdown.stats(post.body);
+          const content = markdown.stats(post.markdown);
           return {
             ...content,
             readingMinutes: Math.ceil(content.wordCount / 220),

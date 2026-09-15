@@ -1,3 +1,4 @@
+import { META_FIELD_NAME } from "../data/globals";
 import type { AnyEntry, Slug, SupportedFileExtension } from "../types/utils";
 
 type MakeDummyEntryOptions = {
@@ -12,7 +13,7 @@ export function makeDummyEntry({
   fields = {},
 }: MakeDummyEntryOptions) {
   return {
-    _meta: {
+    [META_FIELD_NAME]: {
       slug,
       fileName: `${slug}${extension}`,
       filePath: `/fixtures/${slug}${extension}`,

@@ -1,7 +1,8 @@
 import type { Simplify } from "type-fest";
 
-import type { META_FIELD_NAME, QinoViewMarker } from "../data/globals";
+import type { QinoViewMarker } from "../data/globals";
 import type { AugmentOutput, Awaitable, EntryAugment } from "./augment";
+import type { GeneratedFields } from "./generated-fields";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
 import type { GetterOptions } from "./utils";
@@ -11,13 +12,7 @@ export type ViewEntry<
   Meta,
   Rels,
   R extends ResolveOption,
-> = Simplify<
-  { [K in typeof META_FIELD_NAME]: Meta } & ResolveEntry<
-    S,
-    Rels,
-    NormalizeDepth<R>
-  >
->;
+> = Simplify<GeneratedFields<Meta> & ResolveEntry<S, Rels, NormalizeDepth<R>>>;
 
 export type ViewConfig<
   S extends ObjectSchema,

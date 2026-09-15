@@ -5,13 +5,11 @@ import nodePath from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { MARKDOWN_BODY_FIELD_NAME } from "../../data/globals";
 import { createQino } from "../../runtime/qino/create-qino";
 import { collectTreeSlugs } from "./collect-tree-slugs";
 
 const Schema = z.object({
   title: z.string(),
-  [MARKDOWN_BODY_FIELD_NAME]: z.string(),
 });
 
 let tmp: string;

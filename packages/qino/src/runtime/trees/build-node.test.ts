@@ -5,7 +5,6 @@ import nodePath from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { MARKDOWN_BODY_FIELD_NAME } from "../../data/globals";
 import { buildNode } from "./build-node";
 
 let tmp: string;
@@ -28,7 +27,6 @@ describe("buildNode", () => {
 
     const schema = z.object({
       title: z.string(),
-      [MARKDOWN_BODY_FIELD_NAME]: z.string(),
     });
 
     const node = await buildNode({
@@ -58,7 +56,6 @@ describe("buildNode", () => {
 
     const schema = z.object({
       label: z.string(),
-      [MARKDOWN_BODY_FIELD_NAME]: z.string(),
     });
 
     const node = await buildNode({
@@ -82,7 +79,6 @@ describe("buildNode", () => {
 
     const schema = z.object({
       title: z.string(),
-      [MARKDOWN_BODY_FIELD_NAME]: z.string(),
     });
 
     await expect(
