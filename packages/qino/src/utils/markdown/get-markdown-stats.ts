@@ -8,7 +8,7 @@ export type MarkdownStats = {
   sourceCharacterCount: number;
 };
 
-export function stats(body: string): MarkdownStats {
+export function getMarkdownStats(body: string): MarkdownStats {
   const prose = getMarkdownProse(body);
 
   return {
