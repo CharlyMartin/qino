@@ -4,7 +4,7 @@ import type {
   META_FIELD_NAME,
   QinoPrimitiveMarker,
   QinoPrimitives,
-} from "../data";
+} from "../data/globals";
 import type { AugmentOutput } from "./augment";
 import type { PrimitiveInference } from "./infer";
 import type { Relations } from "./relations";

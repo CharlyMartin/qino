@@ -5,30 +5,27 @@ import {
   META_FIELD_NAME,
   QinoPrimitiveMarker,
   QinoPrimitives,
-} from "../../data";
-import {
-  applyView,
-  buildEntryMeta,
-  buildViews,
-  parseFile,
-  selectView,
-  validate,
-} from "../../lib";
+} from "../../data/globals";
+import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
+import { parseFile } from "../../lib/parse/parse-file";
+import { validate } from "../../lib/validate/validate";
+import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
-import type {
-  Collection,
-  GenericPath,
-  ObjectSchema,
-  Relations,
-  SlugFor,
-  SupportedFileExtension,
-} from "../../types";
-import type { CollectionEntryMeta } from "../../types/collection";
+import { buildViews } from "../../lib/views/build-views";
+import { selectView } from "../../lib/views/select-view";
+import type { Collection, CollectionEntryMeta } from "../../types/collection";
 import type {
   CollectionViewDefinition,
   CollectionViewFactory,
 } from "../../types/collection-views";
-import type { Slug } from "../../types/utils";
+import type { Relations } from "../../types/relations";
+import type { ObjectSchema } from "../../types/schema";
+import type { SlugFor } from "../../types/slug-registry";
+import type {
+  GenericPath,
+  Slug,
+  SupportedFileExtension,
+} from "../../types/utils";
 import type {
   ConfiguredViews,
   RootViewSettings,

@@ -1,4 +1,4 @@
-import { QinoPrimitiveMarker } from "../../data";
+import { QinoPrimitiveMarker } from "../../data/globals";
 import type { AnyPrimitive } from "../../types/utils";
 
 export function assertInstanceIdsMatch(

@@ -1,4 +1,4 @@
-import type { TreeNode } from "../../types";
+import type { TreeNode } from "../../types/tree";
 import { removeExtension } from "../../utils/remove-extension";
 import type { Order } from "./get-order-from-file";
 

@@ -6,27 +6,27 @@ import {
   META_FIELD_NAME,
   QinoPrimitiveMarker,
   QinoPrimitives,
-} from "../../data";
-import {
-  applyView,
-  buildEntryMeta,
-  buildViews,
-  parseFile,
-  selectView,
-  validate,
-} from "../../lib";
+} from "../../data/globals";
+import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
+import { parseFile } from "../../lib/parse/parse-file";
+import { validate } from "../../lib/validate/validate";
+import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
+import { buildViews } from "../../lib/views/build-views";
+import { selectView } from "../../lib/views/select-view";
+import type { Relations } from "../../types/relations";
+import type { ObjectSchema } from "../../types/schema";
+import type {
+  StringKeys,
+  Tree,
+  TreeEntryMeta,
+  TreeNode,
+} from "../../types/tree";
 import type {
   GenericPath,
-  ObjectSchema,
-  Relations,
-  StringKeys,
+  Slug,
   SupportedFileExtension,
-  Tree,
-  TreeNode,
-} from "../../types";
-import type { TreeEntryMeta } from "../../types/tree";
-import type { Slug } from "../../types/utils";
+} from "../../types/utils";
 import type {
   ConfiguredViews,
   RootViewSettings,

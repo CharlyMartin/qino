@@ -1,6 +1,6 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 
-import type { ValidateParams, validate } from "../validate";
+import type { ValidateParams, validate } from "../validate/validate";
 import { parseJsonFile } from "./parse-json-file";
 import { parseMarkdownFile } from "./parse-markdown-file";
 

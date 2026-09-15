@@ -1,4 +1,4 @@
-import type { GenericPath } from "../../types";
+import type { GenericPath } from "../../types/utils";
 
 /**
  * Renders the `qino/_generated/types.d.ts` augmentation. Each entry becomes a named slug

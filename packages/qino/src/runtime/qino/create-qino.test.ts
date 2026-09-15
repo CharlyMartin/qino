@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { QinoPrimitiveMarker, QinoPrimitives } from "../../data";
+import { QinoPrimitiveMarker, QinoPrimitives } from "../../data/globals";
 import { createQino } from "./create-qino";
 
 const Schema = z.object({ title: z.string() }).strict();

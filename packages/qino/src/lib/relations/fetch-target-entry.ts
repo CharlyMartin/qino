@@ -1,6 +1,5 @@
-import { QinoPrimitiveMarker, QinoPrimitives } from "../../data";
-import type { AnyPrimitive } from "../../types";
-import type { Slug } from "../../types/utils";
+import { QinoPrimitiveMarker, QinoPrimitives } from "../../data/globals";
+import type { AnyPrimitive, Slug } from "../../types/utils";
 import type { RelationErrorContext } from "./create-relation-resolver";
 
 export async function fetchTargetEntry(

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { consola } from "consola";
 
-import { build } from "./build";
-import { check } from "./check";
-import { lint } from "./lint";
-import { load } from "./load";
+import { build } from "./build/build";
+import { check } from "./check/check";
+import { lint } from "./lint/lint";
+import { load } from "./load/load";
 
 const LINT = "lint";
 const CHECK = "check";

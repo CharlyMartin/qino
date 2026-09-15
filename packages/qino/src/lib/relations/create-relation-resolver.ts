@@ -1,6 +1,6 @@
-import { QinoPrimitiveMarker } from "../../data";
-import type { AnyEntry, AnyPrimitive, RelationTarget } from "../../types";
-import type { Slug } from "../../types/utils";
+import { QinoPrimitiveMarker } from "../../data/globals";
+import type { RelationTarget } from "../../types/relations";
+import type { AnyEntry, AnyPrimitive, Slug } from "../../types/utils";
 import { isItem } from "../../utils/is-item";
 import type { ResolveCache } from "./create-resolve-cache";
 import { fetchTargetEntry } from "./fetch-target-entry";

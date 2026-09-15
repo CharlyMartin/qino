@@ -1,6 +1,6 @@
-import { QinoPrimitives } from "../../data";
+import { QinoPrimitives } from "../../data/globals";
 import type { AnyPrimitiveMeta } from "../../types/utils";
-import { removeLeadingSlash } from "../../utils";
+import { removeLeadingSlash } from "../../utils/remove-leading-slash";
 
 export type Context = { sourceFilePath: string; relationKey: string };
 

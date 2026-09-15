@@ -1,7 +1,7 @@
 import { describe, expect, test, vi } from "vitest";
 
-import { QinoPrimitiveMarker } from "../../data";
-import { makeDummyItem } from "../../utils/tests";
+import { QinoPrimitiveMarker } from "../../data/globals";
+import { makeDummyItem } from "../../test-utils/make-dummy-item";
 import { validateItem } from "./validate-item";
 
 describe("validateItem", () => {

@@ -1,4 +1,4 @@
-import { QinoPrimitiveMarker, QinoPrimitives } from "../data";
+import { QinoPrimitiveMarker, QinoPrimitives } from "../data/globals";
 import type { AnyPrimitive } from "../types/utils";
 
 export function isQinoPrimitive(value: unknown): value is AnyPrimitive {

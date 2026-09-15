@@ -1,12 +1,12 @@
-import { QinoPrimitiveMarker, QinoPrimitives } from "../../data/globals";
+import { QinoPrimitiveMarker, QinoPrimitives } from "../data/globals";
+import type { RelationTarget } from "../types/relations";
+import type { ResolveOption } from "../types/resolve";
+import type { AnyTree } from "../types/tree";
 import type {
   AnyEntry,
-  AnyTree,
   GenericPath,
-  RelationTarget,
-  ResolveOption,
   SupportedFileExtension,
-} from "../../types";
+} from "../types/utils";
 import { DUMMY_INSTANCE_ID } from "./dummy-config";
 
 type MakeDummyTreeOptions = {

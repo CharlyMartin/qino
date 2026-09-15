@@ -1,7 +1,8 @@
 import { consola } from "consola";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { makeDummyNode, makeDummyTree } from "../../utils/tests";
+import { makeDummyNode } from "../../test-utils/make-dummy-node";
+import { makeDummyTree } from "../../test-utils/make-dummy-tree";
 import { validateTree } from "./validate-tree";
 
 describe("validateTree", () => {

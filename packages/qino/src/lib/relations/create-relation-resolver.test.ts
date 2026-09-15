@@ -1,14 +1,12 @@
 import { describe, expect, test, vi } from "vitest";
 
-import { QinoPrimitiveMarker } from "../../data";
-import type { RelationTarget } from "../../types";
-import {
-  DUMMY_INSTANCE_ID,
-  makeDummyCollection,
-  makeDummyEntry,
-  makeDummyItem,
-  makeDummyTree,
-} from "../../utils/tests";
+import { QinoPrimitiveMarker } from "../../data/globals";
+import { DUMMY_INSTANCE_ID } from "../../test-utils/dummy-config";
+import { makeDummyCollection } from "../../test-utils/make-dummy-collection";
+import { makeDummyEntry } from "../../test-utils/make-dummy-entry";
+import { makeDummyItem } from "../../test-utils/make-dummy-item";
+import { makeDummyTree } from "../../test-utils/make-dummy-tree";
+import type { RelationTarget } from "../../types/relations";
 import { createRelationResolver } from "./create-relation-resolver";
 import { createResolveCache } from "./create-resolve-cache";
 

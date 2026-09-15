@@ -1,5 +1,5 @@
-import { QinoPrimitives } from "../../data";
-import type { GenericPath } from "../../types";
+import { QinoPrimitives } from "../../data/globals";
+import type { GenericPath } from "../../types/utils";
 
 type PrimitiveKind = (typeof QinoPrimitives)[keyof typeof QinoPrimitives];
 

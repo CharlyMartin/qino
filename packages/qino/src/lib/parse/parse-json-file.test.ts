@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { validate } from "../validate";
+import { validate } from "../validate/validate";
 import { parseJsonFile } from "./parse-json-file";
 
 describe("parseJsonFile", () => {

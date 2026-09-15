@@ -55,16 +55,18 @@ test("infers post-augment inputs independently for default and named views", asy
       empty: view({}),
     }),
   });
-  expectTypeOf((await posts.getMany())[0].label).toEqualTypeOf<string>();
-  expectTypeOf(
-    (await posts.getMany({ view: "raw" }))[0].length,
-  ).toEqualTypeOf<number>();
-  expectTypeOf(
-    (await posts.getMany({ view: "resolved" }))[0].name,
-  ).toEqualTypeOf<string>();
-  expectTypeOf(
-    (await posts.getMany({ view: "empty" }))[0].author,
-  ).toEqualTypeOf<string>();
+  expectTypeOf(await posts.getMany())
+    .items.toHaveProperty("label")
+    .toEqualTypeOf<string>();
+  expectTypeOf(await posts.getMany({ view: "raw" }))
+    .items.toHaveProperty("length")
+    .toEqualTypeOf<number>();
+  expectTypeOf(await posts.getMany({ view: "resolved" }))
+    .items.toHaveProperty("name")
+    .toEqualTypeOf<string>();
+  expectTypeOf(await posts.getMany({ view: "empty" }))
+    .items.toHaveProperty("author")
+    .toEqualTypeOf<string>();
   type Options = NonNullable<Parameters<typeof posts.getMany>[0]>;
   expectTypeOf<Options["view"]>().toEqualTypeOf<
     "default" | "raw" | "resolved" | "plain" | "empty" | undefined

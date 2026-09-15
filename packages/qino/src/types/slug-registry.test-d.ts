@@ -1,7 +1,6 @@
+import { createQino } from "qino";
 import { describe, expectTypeOf, test } from "vitest";
 import { z } from "zod";
-
-import { createQino } from "../runtime/qino/create-qino";
 
 // Simulates what `qino build` generates into `qino/_generated/types.d.ts`.
 declare module "qino" {

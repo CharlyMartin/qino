@@ -6,7 +6,10 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 
 import { validateCollection } from "../../cli/check/validate-collection";
-import { MARKDOWN_BODY_FIELD_NAME, QinoPrimitiveMarker } from "../../data";
+import {
+  MARKDOWN_BODY_FIELD_NAME,
+  QinoPrimitiveMarker,
+} from "../../data/globals";
 import { createQino } from "../qino/create-qino";
 
 let tmp: string;
@@ -278,7 +281,7 @@ describe("collection filter and sort", () => {
         (entry) => entry.title,
       ),
     ).toEqual(["Draft"]);
-    expect((await collection.getMany({ view: "descending" }))[0].title).toBe(
+    expect((await collection.getMany({ view: "descending" }))[0]?.title).toBe(
       "Long title",
     );
     expect(events.filter((event) => event.startsWith("augment:"))).toHaveLength(

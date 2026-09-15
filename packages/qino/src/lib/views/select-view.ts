@@ -1,9 +1,6 @@
-import type {
-  AugmentOutput,
-  Awaitable,
-  GetterOptions,
-  ResolveOption,
-} from "../../types";
+import type { AugmentOutput, Awaitable } from "../../types/augment";
+import type { ResolveOption } from "../../types/resolve";
+import type { GetterOptions } from "../../types/utils";
 
 export type RuntimeView = {
   resolveRelations?: ResolveOption;
@@ -32,11 +29,12 @@ export function selectView(
   const name = options?.view;
   if (name == undefined) return views?.default ?? { resolveRelations: false };
 
-  if (!views || !Object.hasOwn(views, name)) {
+  const view = views?.[name];
+  if (!views || !Object.hasOwn(views, name) || !view) {
     throw new Error(
       `Unknown view "${name}". Available views: ${Object.keys(views ?? {}).join(", ") || "(none)"}.`,
     );
   }
 
-  return views[name];
+  return view;
 }

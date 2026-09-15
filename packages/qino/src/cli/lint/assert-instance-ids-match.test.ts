@@ -1,10 +1,8 @@
 import { describe, expect, test } from "vitest";
 
-import {
-  DUMMY_INSTANCE_ID,
-  makeDummyCollection,
-  makeDummyItem,
-} from "../../utils/tests";
+import { DUMMY_INSTANCE_ID } from "../../test-utils/dummy-config";
+import { makeDummyCollection } from "../../test-utils/make-dummy-collection";
+import { makeDummyItem } from "../../test-utils/make-dummy-item";
 import { assertInstanceIdsMatch } from "./assert-instance-ids-match";
 
 describe("assertInstanceIdsMatch", () => {

@@ -1,7 +1,7 @@
 import { join } from "node:path";
 
-import { ENTRY_FILE_NAME } from "../../data";
-import { assertFile } from "../../utils";
+import { ENTRY_FILE_NAME } from "../../data/globals";
+import { assertFile } from "../../utils/assert-file";
 
 export function getEntryFilePath(rootDirPath: string) {
   const entryFilePath = join(rootDirPath, ENTRY_FILE_NAME);

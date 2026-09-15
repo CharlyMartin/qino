@@ -1,6 +1,7 @@
 import nodePath from "node:path";
 
-import type { ItemEntryMeta, SupportedFileExtension } from "../../types";
+import type { ItemEntryMeta } from "../../types/item";
+import type { SupportedFileExtension } from "../../types/utils";
 
 type BuildItemMetaParams<Ext extends SupportedFileExtension> = {
   filePath: `${string}${Ext}`;

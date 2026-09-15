@@ -1,6 +1,6 @@
 import type { Simplify } from "type-fest";
 
-import type { META_FIELD_NAME, QinoViewMarker } from "../data";
+import type { META_FIELD_NAME, QinoViewMarker } from "../data/globals";
 import type { AugmentOutput, Awaitable, EntryAugment } from "./augment";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";

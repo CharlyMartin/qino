@@ -1,11 +1,9 @@
 import fs from "node:fs/promises";
 import nodePath from "node:path";
 
-import type {
-  ObjectSchema,
-  SupportedFileExtension,
-  TreeNode,
-} from "../../types";
+import type { ObjectSchema } from "../../types/schema";
+import type { TreeNode } from "../../types/tree";
+import type { SupportedFileExtension } from "../../types/utils";
 import { buildNode } from "./build-node";
 import { getOrderFromFile } from "./get-order-from-file";
 import { getOrderedNodes } from "./get-ordered-nodes";

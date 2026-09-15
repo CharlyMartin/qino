@@ -1,6 +1,9 @@
-import { QinoPrimitives } from "../../data";
-import { describePathConflict, type PrimitivePath } from "../../lib";
-import type { GenericPath } from "../../types";
+import { QinoPrimitives } from "../../data/globals";
+import {
+  describePathConflict,
+  type PrimitivePath,
+} from "../../lib/paths/describe-path-conflict";
+import type { GenericPath } from "../../types/utils";
 
 type AssertNoOverlappingPathsParams = {
   collectionDirs: Array<GenericPath>;
@@ -22,9 +25,9 @@ export function assertNoOverlappingPaths({
     ...itemFiles.map((path) => ({ kind: QinoPrimitives.item, path })),
   ];
 
-  for (let i = 0; i < paths.length; i += 1) {
-    for (let j = i + 1; j < paths.length; j += 1) {
-      const message = describePathConflict(paths[i], paths[j]);
+  for (const [index, first] of paths.entries()) {
+    for (const second of paths.slice(index + 1)) {
+      const message = describePathConflict(first, second);
       if (message) throw new Error(message);
     }
   }

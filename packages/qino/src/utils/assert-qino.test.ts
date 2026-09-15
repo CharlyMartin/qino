@@ -1,7 +1,8 @@
 import { describe, expect, test } from "vitest";
 
+import { makeDummyCollection } from "../test-utils/make-dummy-collection";
+import { makeDummyQino } from "../test-utils/make-dummy-qino";
 import { assertQino } from "./assert-qino";
-import { makeDummyCollection, makeDummyQino } from "./tests";
 
 describe("assertQino", () => {
   test("does not throw for a Qino instance", () => {

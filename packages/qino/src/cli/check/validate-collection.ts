@@ -1,7 +1,7 @@
 import { consola } from "consola";
 
-import { QinoPrimitiveMarker } from "../../data";
-import type { AnyCollection } from "../../types";
+import { QinoPrimitiveMarker } from "../../data/globals";
+import type { AnyCollection } from "../../types/collection";
 
 export async function validateCollection(collection: AnyCollection) {
   const { directory } = collection[QinoPrimitiveMarker];

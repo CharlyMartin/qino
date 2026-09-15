@@ -1,11 +1,9 @@
 import { describe, expect, test } from "vitest";
 
-import {
-  DUMMY_INSTANCE_ID,
-  makeDummyCollection,
-  makeDummyItem,
-  makeDummyTree,
-} from "../../utils/tests";
+import { DUMMY_INSTANCE_ID } from "../../test-utils/dummy-config";
+import { makeDummyCollection } from "../../test-utils/make-dummy-collection";
+import { makeDummyItem } from "../../test-utils/make-dummy-item";
+import { makeDummyTree } from "../../test-utils/make-dummy-tree";
 import { assertRelationInstanceIds } from "./assert-relation-instance-ids";
 
 describe("assertRelationInstanceIds", () => {

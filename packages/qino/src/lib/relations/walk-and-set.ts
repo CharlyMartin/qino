@@ -12,11 +12,10 @@ export async function walkAndSet({
   segments,
   setLeaf,
 }: WalkAndSetParams): Promise<unknown> {
-  if (segments.length == 0) {
+  const [head, ...rest] = segments;
+  if (!head) {
     return setLeaf(value);
   }
-
-  const [head, ...rest] = segments;
 
   if (head.kind == "array") {
     if (!Array.isArray(value)) {

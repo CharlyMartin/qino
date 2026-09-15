@@ -1,5 +1,7 @@
-import { QinoPrimitiveMarker } from "../data";
-import type { AnyCollection, AnyItem, AnyTree } from "../types";
+import { QinoPrimitiveMarker } from "../data/globals";
+import type { AnyCollection } from "../types/collection";
+import type { AnyItem } from "../types/item";
+import type { AnyTree } from "../types/tree";
 
 export function assertQinoPrimitive(
   value: unknown,

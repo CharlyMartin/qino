@@ -1,8 +1,10 @@
 import fg from "fast-glob";
 import { createJiti } from "jiti";
 
-import { SUPPORTED_CODE_EXTENSIONS } from "../../data";
-import type { AnyCollection, AnyItem, AnyTree } from "../../types";
+import { SUPPORTED_CODE_EXTENSIONS } from "../../data/globals";
+import type { AnyCollection } from "../../types/collection";
+import type { AnyItem } from "../../types/item";
+import type { AnyTree } from "../../types/tree";
 import { isCollection } from "../../utils/is-collection";
 import { isItem } from "../../utils/is-item";
 import { isQinoPrimitive } from "../../utils/is-qino-primitive";

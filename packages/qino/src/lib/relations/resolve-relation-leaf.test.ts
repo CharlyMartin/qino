@@ -1,7 +1,8 @@
 import { describe, expect, test } from "vitest";
 
 import { QinoPrimitiveMarker } from "../../data/globals";
-import { makeDummyCollection, makeDummyItem } from "../../utils/tests";
+import { makeDummyCollection } from "../../test-utils/make-dummy-collection";
+import { makeDummyItem } from "../../test-utils/make-dummy-item";
 import { resolveRelationLeaf } from "./resolve-relation-leaf";
 
 const baseCtx = () => ({

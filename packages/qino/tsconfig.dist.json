@@ -2,12 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "qino": ["./dist/index.d.mts"]
+      "qino": ["./dist/index.d.mts"],
+      "qino/utils": ["./dist/utils.d.mts"]
     }
   },
-  "include": [
-    "src/types/infer.test-d.ts",
-    "src/types/dist-resolve.test-d.ts",
-    "src/types/default-views.test-d.ts"
-  ]
+  "include": ["src/**/*.test-d.ts"],
+  "//": "Type-checks the same type tests against built declarations; Vitest checks them against src."
 }

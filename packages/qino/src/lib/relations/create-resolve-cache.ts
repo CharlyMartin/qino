@@ -1,4 +1,4 @@
-import type { AnyEntry } from "../../types";
+import type { AnyEntry } from "../../types/utils";
 
 export type ResolveCache = Map<string, Map<string, Promise<AnyEntry>>>;
 

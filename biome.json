@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.4.15/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -21,6 +21,10 @@
       "recommended": true,
       "suspicious": {
         "noDoubleEquals": "off"
+      },
+      "performance": {
+        "noBarrelFile": "error",
+        "noReExportAll": "error"
       }
     }
   },
@@ -43,5 +47,67 @@
         }
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "packages/qino/src/index.ts",
+        "packages/qino/src/utils/index.ts",
+        "packages/qino/src/cli/index.ts"
+      ],
+      "linter": {
+        "rules": {
+          "performance": {
+            "noBarrelFile": "off",
+            "noReExportAll": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/qino/src/**", "!packages/qino/src/index.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/utils", "**/utils/index", "!**/types/utils"],
+                    "message": "Import internal helpers from their leaf modules."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["packages/qino/src/types/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "**/utils",
+                      "**/utils/index",
+                      "!**/types/utils",
+                      "!./utils"
+                    ],
+                    "message": "Import internal helpers from their leaf modules."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

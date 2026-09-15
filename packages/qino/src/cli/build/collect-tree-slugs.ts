@@ -1,4 +1,4 @@
-import type { AnyTree } from "../../types";
+import type { AnyTree } from "../../types/tree";
 
 export async function collectTreeSlugs(tree: AnyTree) {
   const nodes = await tree.getFlatTree();
