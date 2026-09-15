@@ -9,7 +9,7 @@ import {
   MARKDOWN_BODY_FIELD_NAME,
   QinoPrimitiveMarker,
   QinoPrimitives,
-} from "../../data";
+} from "../../data/globals";
 import { createQino } from "../qino/create-qino";
 
 let tmp: string;

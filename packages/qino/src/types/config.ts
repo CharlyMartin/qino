@@ -1,4 +1,4 @@
-import type { QinoConfigMarker } from "../data";
+import type { QinoConfigMarker } from "../data/globals";
 import type { QinoContext } from "../runtime/qino/create-qino";
 
 export type AnyQinoConfig = {

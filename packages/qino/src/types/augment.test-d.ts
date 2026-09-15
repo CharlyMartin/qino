@@ -1,4 +1,4 @@
-import { describe, expectTypeOf, test } from "vitest";
+import { assert, describe, expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
 import { createQino } from "../runtime/qino/create-qino";
@@ -51,6 +51,7 @@ const tree = qino.defineTree({
 describe("augment type behaviour", () => {
   test("infers fields returned by every hydrated primitive", async () => {
     const [post] = await collection.getMany();
+    assert(post);
     const home = await item.getData();
     const doc = await tree.getEntry("intro");
 

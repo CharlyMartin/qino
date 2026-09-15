@@ -6,7 +6,7 @@ import type {
 } from "qino";
 import { expectTypeOf, test } from "vitest";
 
-import { META_FIELD_NAME } from "../data";
+import { META_FIELD_NAME } from "../data/globals";
 
 test("public metadata types preserve extension-specific fields", () => {
   expectTypeOf<CollectionEntryMeta<".md">>().toEqualTypeOf<{

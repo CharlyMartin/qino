@@ -1,4 +1,5 @@
-import type { AnyCollection, AnyTree } from "../../types";
+import type { AnyCollection } from "../../types/collection";
+import type { AnyTree } from "../../types/tree";
 import { generateTypes } from "./generate-types";
 
 type BuildParams = {

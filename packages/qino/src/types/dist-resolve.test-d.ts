@@ -1,5 +1,5 @@
 import { createQino } from "qino";
-import { expectTypeOf, test } from "vitest";
+import { assert, expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
 class Price {
@@ -58,6 +58,7 @@ const articles = defineCollection({
 for (const view of ["shallow", "full"] as const) {
   test(`${view} preserves schema instances and optional nested relation containers`, async () => {
     const [article] = await articles.getMany({ view });
+    assert(article);
     expectTypeOf(article.dates).toEqualTypeOf<{
       start: Date;
       end: Date | undefined;

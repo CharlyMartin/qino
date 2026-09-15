@@ -1,11 +1,9 @@
 import { describe, expect, test } from "vitest";
 
 import { QinoPrimitiveMarker } from "../../data/globals";
-import {
-  makeDummyCollection,
-  makeDummyItem,
-  makeDummyTree,
-} from "../../utils/tests";
+import { makeDummyCollection } from "../../test-utils/make-dummy-collection";
+import { makeDummyItem } from "../../test-utils/make-dummy-item";
+import { makeDummyTree } from "../../test-utils/make-dummy-tree";
 import { parseRelationValue } from "./parse-relation-value";
 
 const ctx = { sourceFilePath: "/fixtures/post.json", relationKey: "author" };

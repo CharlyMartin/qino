@@ -1,4 +1,4 @@
-import type { TreeNode } from "../../types";
+import type { TreeNode } from "../../types/tree";
 import type { Slug } from "../../types/utils";
 
 export function findNode(

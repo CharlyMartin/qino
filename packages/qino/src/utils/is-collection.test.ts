@@ -1,7 +1,9 @@
 import { describe, expect, test } from "vitest";
 
+import { makeDummyCollection } from "../test-utils/make-dummy-collection";
+import { makeDummyItem } from "../test-utils/make-dummy-item";
+import { makeDummyTree } from "../test-utils/make-dummy-tree";
 import { isCollection } from "./is-collection";
-import { makeDummyCollection, makeDummyItem, makeDummyTree } from "./tests";
 
 describe("isCollection", () => {
   test("returns true for a collection", () => {

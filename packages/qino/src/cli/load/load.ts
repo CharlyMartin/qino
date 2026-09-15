@@ -1,4 +1,4 @@
-import { QinoConfigMarker } from "../../data";
+import { QinoConfigMarker } from "../../data/globals";
 import { getEntryFilePath } from "./get-entry-file-path";
 import { getRootDirPath } from "./get-root-dir-path";
 import { loadQinoConfig } from "./load-qino-config";

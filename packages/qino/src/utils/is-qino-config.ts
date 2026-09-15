@@ -1,4 +1,4 @@
-import { QinoConfigMarker } from "../data";
+import { QinoConfigMarker } from "../data/globals";
 import type { AnyQinoConfig } from "../types/config";
 
 export function isQinoConfig(value: unknown): value is AnyQinoConfig {

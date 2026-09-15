@@ -1,6 +1,6 @@
 import fg from "fast-glob";
 
-import type { SupportedFileExtension } from "../../types";
+import type { SupportedFileExtension } from "../../types/utils";
 
 type GetRelativePathsParams = {
   absoluteDirPath: string;

@@ -1,8 +1,8 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import matter from "gray-matter";
 
-import { MARKDOWN_BODY_FIELD_NAME } from "../../data";
-import type { ValidateParams, validate } from "../validate";
+import { MARKDOWN_BODY_FIELD_NAME } from "../../data/globals";
+import type { ValidateParams, validate } from "../validate/validate";
 import { parseYaml } from "./parse-yaml";
 
 type ParseMarkdownFileParams<S extends StandardSchemaV1> = ValidateParams<S> & {

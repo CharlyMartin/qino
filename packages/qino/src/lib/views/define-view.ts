@@ -1,4 +1,4 @@
-import { QinoViewMarker } from "../../data";
+import { QinoViewMarker } from "../../data/globals";
 import type { CollectionViewDefinition } from "../../types/collection-views";
 import type { AnyPrimitiveMeta } from "../../types/utils";
 

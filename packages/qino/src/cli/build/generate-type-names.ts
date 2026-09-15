@@ -1,4 +1,4 @@
-import type { GenericPath } from "../../types";
+import type { GenericPath } from "../../types/utils";
 import { getCollisionFreeTypeName } from "./get-collision-free-type-name";
 import type { GeneratedSlugEntry } from "./render-generated-types";
 

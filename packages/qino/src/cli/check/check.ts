@@ -1,6 +1,6 @@
 import { consola } from "consola";
 
-import type { Loaded } from "../load";
+import type { Loaded } from "../load/load";
 import { validateCollection } from "./validate-collection";
 import { validateItem } from "./validate-item";
 import { validateTree } from "./validate-tree";

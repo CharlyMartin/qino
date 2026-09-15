@@ -1,16 +1,10 @@
-import { QinoConfigMarker } from "../../data";
-import type {
-  Collection,
-  ExtractItemExtension,
-  GenericPath,
-  Item,
-  ItemFile,
-  ObjectSchema,
-  Relations,
-  StringKeys,
-  SupportedFileExtension,
-  Tree,
-} from "../../types";
+import { QinoConfigMarker } from "../../data/globals";
+import type { Collection } from "../../types/collection";
+import type { ExtractItemExtension, Item, ItemFile } from "../../types/item";
+import type { Relations } from "../../types/relations";
+import type { ObjectSchema } from "../../types/schema";
+import type { StringKeys, Tree } from "../../types/tree";
+import type { GenericPath, SupportedFileExtension } from "../../types/utils";
 import type { ConfiguredViews } from "../../types/views";
 import {
   type DefineCollectionParams,

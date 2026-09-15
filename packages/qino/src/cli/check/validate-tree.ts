@@ -1,7 +1,7 @@
 import { consola } from "consola";
 
-import { QinoPrimitiveMarker } from "../../data";
-import type { AnyTree } from "../../types";
+import { QinoPrimitiveMarker } from "../../data/globals";
+import type { AnyTree } from "../../types/tree";
 
 export async function validateTree(tree: AnyTree) {
   const { directory } = tree[QinoPrimitiveMarker];

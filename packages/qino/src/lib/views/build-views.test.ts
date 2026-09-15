@@ -14,7 +14,7 @@ describe.each([
       default: view({}),
       empty: view({}),
     }));
-    expect(buildViews(factory, primitive)?.empty.resolveRelations).toBe(false);
+    expect(buildViews(factory, primitive)?.empty?.resolveRelations).toBe(false);
     expect(factory).toHaveBeenCalledTimes(1);
   });
 

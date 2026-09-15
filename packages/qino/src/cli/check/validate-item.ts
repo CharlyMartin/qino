@@ -1,5 +1,5 @@
-import { QinoPrimitiveMarker } from "../../data";
-import type { AnyItem } from "../../types";
+import { QinoPrimitiveMarker } from "../../data/globals";
+import type { AnyItem } from "../../types/item";
 
 export async function validateItem(item: AnyItem) {
   const { file } = item[QinoPrimitiveMarker];

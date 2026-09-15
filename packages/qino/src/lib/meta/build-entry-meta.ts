@@ -1,6 +1,7 @@
 import nodePath from "node:path";
 
-import type { CollectionEntryMeta, SupportedFileExtension } from "../../types";
+import type { CollectionEntryMeta } from "../../types/collection";
+import type { SupportedFileExtension } from "../../types/utils";
 import { removeExtension } from "../../utils/remove-extension";
 
 export type BuildMetaParams<Ext extends SupportedFileExtension> = {

@@ -2,7 +2,7 @@ import type {
   JSON_PATH_ARRAY,
   META_FIELD_NAME,
   SUPPORTED_CONTENT_EXTENSIONS,
-} from "../data";
+} from "../data/globals";
 import type {
   AnyCollection,
   AnyCollectionMeta,

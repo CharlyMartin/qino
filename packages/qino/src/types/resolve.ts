@@ -5,7 +5,7 @@ import type {
   META_FIELD_NAME,
   QinoPrimitiveMarker,
   QinoPrimitives,
-} from "../data";
+} from "../data/globals";
 import type { CollectionEntryMeta } from "./collection";
 import type { ItemEntryMeta } from "./item";
 import type { ObjectSchema, ValidatedOutput } from "./schema";

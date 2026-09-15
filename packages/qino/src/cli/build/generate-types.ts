@@ -5,8 +5,9 @@ import {
   GENERATED_TYPES_FILE_NAME,
   QinoPrimitiveMarker,
   ROOT_FOLDER_NAME,
-} from "../../data";
-import type { AnyCollection, AnyTree } from "../../types";
+} from "../../data/globals";
+import type { AnyCollection } from "../../types/collection";
+import type { AnyTree } from "../../types/tree";
 import { collectTreeSlugs } from "./collect-tree-slugs";
 import { generateTypeNames } from "./generate-type-names";
 import { renderGeneratedTypes } from "./render-generated-types";

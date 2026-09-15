@@ -1,6 +1,6 @@
 import { createJiti } from "jiti";
 
-import { ENTRY_FILE_NAME, ROOT_FOLDER_NAME } from "../../data";
+import { ENTRY_FILE_NAME, ROOT_FOLDER_NAME } from "../../data/globals";
 import { isQinoConfig } from "../../utils/is-qino-config";
 
 export async function loadQinoConfig(entryFilePath: string) {

@@ -1,8 +1,9 @@
 import { consola } from "consola";
 import { afterEach, describe, expect, test, vi } from "vitest";
 
-import { QinoPrimitiveMarker } from "../../data";
-import { makeDummyCollection, makeDummyEntry } from "../../utils/tests";
+import { QinoPrimitiveMarker } from "../../data/globals";
+import { makeDummyCollection } from "../../test-utils/make-dummy-collection";
+import { makeDummyEntry } from "../../test-utils/make-dummy-entry";
 import { validateCollection } from "./validate-collection";
 
 describe("validateCollection", () => {

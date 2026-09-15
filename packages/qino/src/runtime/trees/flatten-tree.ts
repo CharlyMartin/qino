@@ -1,4 +1,4 @@
-import type { TreeNode } from "../../types";
+import type { TreeNode } from "../../types/tree";
 
 export function flattenTree(nodes: Array<TreeNode>) {
   const result: Array<TreeNode> = [];

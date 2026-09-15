@@ -2,13 +2,10 @@ import fs from "node:fs/promises";
 import nodePath from "node:path";
 
 import { parseFile } from "../../lib/parse/parse-file";
-import { validate } from "../../lib/validate";
-import type {
-  ObjectSchema,
-  SupportedFileExtension,
-  TreeNode,
-} from "../../types";
-import type { Slug } from "../../types/utils";
+import { validate } from "../../lib/validate/validate";
+import type { ObjectSchema } from "../../types/schema";
+import type { TreeNode } from "../../types/tree";
+import type { Slug, SupportedFileExtension } from "../../types/utils";
 
 type BuildTreeNodeParams = {
   schema: ObjectSchema;

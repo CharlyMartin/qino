@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { makeDummyNode } from "../../utils/tests";
+import { makeDummyNode } from "../../test-utils/make-dummy-node";
 import { getNeighborNode } from "./get-neighbor-node";
 
 describe("getNeighborNode", () => {

@@ -1,6 +1,6 @@
 import { expect, test, vi } from "vitest";
 
-import { QinoViewMarker } from "../../data";
+import { QinoViewMarker } from "../../data/globals";
 import { defineView } from "./define-view";
 
 test("constructs a marked view without mutating config or running callbacks", () => {

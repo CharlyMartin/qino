@@ -1,4 +1,5 @@
-import type { AnyEntry, RelationTarget } from "../../types";
+import type { RelationTarget } from "../../types/relations";
+import type { AnyEntry } from "../../types/utils";
 import { augmentEntry } from "../augment/augment-entry";
 import { createRelationResolver } from "../relations/create-relation-resolver";
 import { createResolveCache } from "../relations/create-resolve-cache";

@@ -1,12 +1,10 @@
 import { describe, expect, test } from "vitest";
 
+import { makeDummyCollection } from "../test-utils/make-dummy-collection";
+import { makeDummyItem } from "../test-utils/make-dummy-item";
+import { makeDummyQino } from "../test-utils/make-dummy-qino";
+import { makeDummyTree } from "../test-utils/make-dummy-tree";
 import { isQinoConfig } from "./is-qino-config";
-import {
-  makeDummyCollection,
-  makeDummyItem,
-  makeDummyQino,
-  makeDummyTree,
-} from "./tests";
 
 describe("isQinoConfig", () => {
   test("returns true for a Qino instance", () => {

@@ -1,4 +1,4 @@
-import { ROOT_FOLDER_NAME } from "../../data";
+import { ROOT_FOLDER_NAME } from "../../data/globals";
 import type { AnyPrimitive } from "../../types/utils";
 
 export function assertPrimitivesExistence(primitives: Array<AnyPrimitive>) {

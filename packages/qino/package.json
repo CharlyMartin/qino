@@ -23,18 +23,19 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "prepare": "tsdown",
     "build": "tsdown",
     "dev": "tsdown --watch",
     "pack": "pnpm build && pnpm pack",
-    "pack:test": "pnpm build && pnpm pack --pack-destination ../../../portfolio/v4",
     "check-types": "tsc --noEmit",
     "test": "vitest run",
-    "test:dist": "tsc --project tsconfig.dist.json && node --input-type=module -e \"await import('./dist/index.mjs'); await import('./dist/utils.mjs')\"",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "lint": "biome check .",
+    "check-dist": "tsc --project tsconfig.dist.json && node --input-type=module -e \"await import('./dist/index.mjs'); await import('./dist/utils.mjs')\" && publint && pnpm pack --out .check-dist.tgz && attw .check-dist.tgz --profile esm-only; status=$?; node -e \"require('node:fs').rmSync('.check-dist.tgz',{force:true})\"; exit $status"
   },
   "publishConfig": {
     "access": "public",
@@ -47,9 +48,6 @@
         "types": "./dist/utils.d.mts",
         "import": "./dist/utils.mjs"
       }
-    },
-    "bin": {
-      "qino": "./dist/cli.mjs"
     }
   },
   "dependencies": {
@@ -65,16 +63,34 @@
     "remark-mdx": "3.1.1",
     "remark-parse": "11.0.0",
     "type-fest": "5.9.0",
-    "unified": "11.0.5",
-    "zod": "4.5.4"
+    "unified": "11.0.5"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
     "@types/js-yaml": "3.12.10",
-    "@types/node": ">=22",
+    "@types/node": "22.19.18",
     "@types/pluralize": "0.0.33",
-    "expect-type": "1.4.0",
+    "publint": "0.3.24",
     "tsdown": "0.22.14",
     "typescript": "5.9.2",
-    "vitest": "4.1.9"
-  }
+    "vitest": "4.1.9",
+    "zod": "4.5.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CharlyMartin/qino.git",
+    "directory": "packages/qino"
+  },
+  "homepage": "https://github.com/CharlyMartin/qino#readme",
+  "bugs": {
+    "url": "https://github.com/CharlyMartin/qino/issues"
+  },
+  "keywords": [
+    "cms",
+    "markdown",
+    "headless-cms",
+    "flat-file",
+    "typescript"
+  ],
+  "author": "Charly Martin"
 }

@@ -2,22 +2,29 @@ import { createQino } from "qino";
 import { expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
-import type { CollectionEntryMeta } from "./collection";
-import type { CollectionViewFactory } from "./collection-views";
-import type { ItemEntryMeta } from "./item";
-import type { TreeEntryMeta } from "./tree";
-import type { ViewFactory } from "./views";
-
 const schema = z.object({ title: z.string(), body: z.string() });
 const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
 
-function withReadingTime(
-  view: CollectionViewFactory<
-    typeof schema,
-    CollectionEntryMeta<".md">,
-    object
-  >,
-) {
+// Derive helpers from the public API so source and dist checks use the same symbols.
+type CollectionView = Parameters<
+  NonNullable<
+    Parameters<typeof qino.defineCollection<typeof schema, ".md">>[0]["views"]
+  >
+>[0];
+type TreeView = Parameters<
+  NonNullable<
+    Parameters<
+      typeof qino.defineTree<typeof schema, ".md", "title">
+    >[0]["views"]
+  >
+>[0];
+type ItemView = Parameters<
+  NonNullable<
+    Parameters<typeof qino.defineItem<typeof schema, "/home.json">>[0]["views"]
+  >
+>[0];
+
+function withReadingTime(view: CollectionView) {
   return view({
     augment: (entry) => ({
       readingMinutes: Math.ceil(entry.body.split(/\s+/u).length / 220),
@@ -27,18 +34,14 @@ function withReadingTime(
   });
 }
 
-function treePreview(
-  view: ViewFactory<typeof schema, TreeEntryMeta<".md">, object>,
-) {
+function treePreview(view: TreeView) {
   expectTypeOf<keyof Parameters<typeof view>[0]>().toEqualTypeOf<
     "resolveRelations" | "augment"
   >();
   return view({ augment: (entry) => ({ source: entry._meta.slug }) });
 }
 
-function itemPreview(
-  view: ViewFactory<typeof schema, ItemEntryMeta<".json">, object>,
-) {
+function itemPreview(view: ItemView) {
   expectTypeOf<keyof Parameters<typeof view>[0]>().toEqualTypeOf<
     "resolveRelations" | "augment"
   >();
@@ -69,9 +72,9 @@ test("public factory types support reusable views with inferred getter results",
     sort: undefined,
     resolveRelations: undefined,
   };
-  expectTypeOf(
-    (await posts.getMany({ view: "reading", ...omitted }))[0].readingMinutes,
-  ).toEqualTypeOf<number>();
+  expectTypeOf(await posts.getMany({ view: "reading", ...omitted }))
+    .items.toHaveProperty("readingMinutes")
+    .toEqualTypeOf<number>();
   expectTypeOf(
     (await tree.getEntry("hello", { view: "preview" })).source,
   ).toEqualTypeOf<string>();

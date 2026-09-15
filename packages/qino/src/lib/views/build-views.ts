@@ -1,4 +1,4 @@
-import { QinoViewMarker } from "../../data";
+import { QinoViewMarker } from "../../data/globals";
 import type { CollectionViewDefinition } from "../../types/collection-views";
 import type { AnyPrimitiveMeta } from "../../types/utils";
 import { assertViewNames } from "./assert-view-names";
@@ -54,5 +54,7 @@ export function buildViews(
     }
   }
 
-  return views as Record<string, CollectionViewDefinition>;
+  return views as Record<string, CollectionViewDefinition> & {
+    default: CollectionViewDefinition;
+  };
 }

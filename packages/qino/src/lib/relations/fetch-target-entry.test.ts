@@ -1,12 +1,10 @@
 import { describe, expect, test, vi } from "vitest";
 
 import { QinoPrimitiveMarker } from "../../data/globals";
-import {
-  makeDummyCollection,
-  makeDummyEntry,
-  makeDummyItem,
-  makeDummyTree,
-} from "../../utils/tests";
+import { makeDummyCollection } from "../../test-utils/make-dummy-collection";
+import { makeDummyEntry } from "../../test-utils/make-dummy-entry";
+import { makeDummyItem } from "../../test-utils/make-dummy-item";
+import { makeDummyTree } from "../../test-utils/make-dummy-tree";
 import { fetchTargetEntry } from "./fetch-target-entry";
 
 const ctx = { sourceFilePath: "/fixtures/post.json", relationKey: "author" };

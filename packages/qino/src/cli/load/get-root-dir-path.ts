@@ -1,7 +1,7 @@
 import { join } from "node:path";
 
-import { ROOT_FOLDER_NAME } from "../../data";
-import { assertDirectory } from "../../utils";
+import { ROOT_FOLDER_NAME } from "../../data/globals";
+import { assertDirectory } from "../../utils/assert-directory";
 
 export async function getRootDirPath() {
   const cwd = process.cwd();

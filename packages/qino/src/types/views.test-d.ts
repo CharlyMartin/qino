@@ -220,9 +220,9 @@ describe("views inference", () => {
     expectTypeOf(
       (await collection.getOne("hello")).author,
     ).toEqualTypeOf<string>();
-    expectTypeOf(
-      (await collection.getMany())[0].authorSlug,
-    ).toEqualTypeOf<string>();
+    expectTypeOf(await collection.getMany())
+      .items.toHaveProperty("authorSlug")
+      .toEqualTypeOf<string>();
     expectTypeOf((await docs.getEntry("hello")).author).toEqualTypeOf<string>();
     expectTypeOf(
       (await docs.getEntry("hello")).authorSlug,
@@ -238,9 +238,9 @@ describe("views inference", () => {
     expectTypeOf(
       (await posts.getOne("hello", { view: "raw" })).author,
     ).toEqualTypeOf<string>();
-    expectTypeOf(
-      (await posts.getMany({ view: "raw" }))[0].slugLength,
-    ).toEqualTypeOf<number>();
+    expectTypeOf(await posts.getMany({ view: "raw" }))
+      .items.toHaveProperty("slugLength")
+      .toEqualTypeOf<number>();
     expectTypeOf(
       (await posts.getOne("hello", { view: "shallow" })).leadSlug,
     ).toEqualTypeOf<string>();

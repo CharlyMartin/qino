@@ -1,5 +1,4 @@
-import type { AnyEntry, SupportedFileExtension } from "../../types";
-import type { Slug } from "../../types/utils";
+import type { AnyEntry, Slug, SupportedFileExtension } from "../types/utils";
 
 type MakeDummyEntryOptions = {
   slug: Slug;

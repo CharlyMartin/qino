@@ -5,23 +5,21 @@ import {
   META_FIELD_NAME,
   QinoPrimitiveMarker,
   QinoPrimitives,
-} from "../../data";
-import {
-  applyView,
-  buildViews,
-  parseFile,
-  selectView,
-  validate,
-} from "../../lib";
+} from "../../data/globals";
+import { parseFile } from "../../lib/parse/parse-file";
+import { validate } from "../../lib/validate/validate";
+import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
+import { buildViews } from "../../lib/views/build-views";
+import { selectView } from "../../lib/views/select-view";
 import type {
   ExtractItemExtension,
   Item,
+  ItemEntryMeta,
   ItemFile,
-  ObjectSchema,
-  Relations,
-} from "../../types";
-import type { ItemEntryMeta } from "../../types/item";
+} from "../../types/item";
+import type { Relations } from "../../types/relations";
+import type { ObjectSchema } from "../../types/schema";
 import type {
   ConfiguredViews,
   RootViewSettings,

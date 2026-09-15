@@ -1,4 +1,4 @@
-import { describe, expectTypeOf, test } from "vitest";
+import { assert, describe, expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
 import { createQino } from "../runtime/qino/create-qino";
@@ -129,7 +129,9 @@ describe("non-relation subtrees are left untouched", () => {
   for (const view of ["shallow", "full"] as const) {
     test(`${view} preserves class instances and plain siblings`, async () => {
       const [article] = await articles.getMany({ view });
+      assert(article);
       const [raw] = await articles.getMany({ view: "raw" });
+      assert(raw);
       expectTypeOf(article.dates).toEqualTypeOf<{
         start: Date;
         end: Date | undefined;
@@ -145,6 +147,7 @@ describe("non-relation subtrees are left untouched", () => {
 
     test(`${view} resolves nested array paths and preserves optional containers`, async () => {
       const [article] = await articles.getMany({ view });
+      assert(article);
       type Contributor = NonNullable<typeof article.contributors>[number];
       expectTypeOf<Contributor["slug"]["name"]>().toEqualTypeOf<string>();
       expectTypeOf<
@@ -163,6 +166,7 @@ describe("non-relation subtrees are left untouched", () => {
 
     test(`${view} requires a separator after a relation prefix`, async () => {
       const [article] = await articles.getMany({ view });
+      assert(article);
       expectTypeOf(article.peopleX.foo.name).toEqualTypeOf<string>();
       expectTypeOf(article.people).toEqualTypeOf<readonly [Date]>();
     });
@@ -172,27 +176,47 @@ describe("non-relation subtrees are left untouched", () => {
 describe("resolveRelations type behaviour", () => {
   test("false keeps strings", async () => {
     const posts = await postCollection.getMany({ view: "raw" });
-    expectTypeOf(posts[0].author).toEqualTypeOf<string>();
-    expectTypeOf(posts[0].categories).toEqualTypeOf<Array<string>>();
+    expectTypeOf(posts).items.toHaveProperty("author").toEqualTypeOf<string>();
+    expectTypeOf(posts)
+      .items.toHaveProperty("categories")
+      .toEqualTypeOf<Array<string>>();
   });
 
   test("depth 1 resolves top-level relations to full entries", async () => {
     const posts = await postCollection.getMany({ view: "shallow" });
-    expectTypeOf(posts[0].author.name).toEqualTypeOf<string>();
-    expectTypeOf(posts[0].author._meta.slug).toEqualTypeOf<string>();
-    expectTypeOf(posts[0].categories[0].name).toEqualTypeOf<string>();
+    expectTypeOf(posts)
+      .items.toHaveProperty("author")
+      .toHaveProperty("name")
+      .toEqualTypeOf<string>();
+    expectTypeOf(posts)
+      .items.toHaveProperty("author")
+      .toHaveProperty("_meta")
+      .toHaveProperty("slug")
+      .toEqualTypeOf<string>();
+    expectTypeOf(posts)
+      .items.toHaveProperty("categories")
+      .items.toHaveProperty("name")
+      .toEqualTypeOf<string>();
   });
 
   test("true defaults to MaxDepth and resolves relations", async () => {
     const posts = await postCollection.getMany({ view: "full" });
-    expectTypeOf(posts[0].author.name).toEqualTypeOf<string>();
-    expectTypeOf(posts[0].categories[0].name).toEqualTypeOf<string>();
+    expectTypeOf(posts)
+      .items.toHaveProperty("author")
+      .toHaveProperty("name")
+      .toEqualTypeOf<string>();
+    expectTypeOf(posts)
+      .items.toHaveProperty("categories")
+      .items.toHaveProperty("name")
+      .toEqualTypeOf<string>();
   });
 
   test("default (no option) keeps raw references", async () => {
     const posts = await postCollection.getMany();
-    expectTypeOf(posts[0].author).toEqualTypeOf<string>();
-    expectTypeOf(posts[0].categories).toEqualTypeOf<Array<string>>();
+    expectTypeOf(posts).items.toHaveProperty("author").toEqualTypeOf<string>();
+    expectTypeOf(posts)
+      .items.toHaveProperty("categories")
+      .toEqualTypeOf<Array<string>>();
   });
 
   test("getOne mirrors getMany's behaviour", async () => {
@@ -229,14 +253,17 @@ describe("collection-level default", () => {
 
   test("getMany() with no args picks up the collection-level default of false", async () => {
     const posts = await postCollectionDefaultFalse.getMany();
-    expectTypeOf(posts[0].author).toEqualTypeOf<string>();
+    expectTypeOf(posts).items.toHaveProperty("author").toEqualTypeOf<string>();
   });
 
   test("named view is independent of collection-level default", async () => {
     const posts = await postCollectionDefaultFalse.getMany({
       view: "shallow",
     });
-    expectTypeOf(posts[0].author.name).toEqualTypeOf<string>();
+    expectTypeOf(posts)
+      .items.toHaveProperty("author")
+      .toHaveProperty("name")
+      .toEqualTypeOf<string>();
   });
 });
 
@@ -278,14 +305,27 @@ describe("transitive depth (chained collections)", () => {
 
   test("depth 1: top-level editor resolves; editor.lead stays string", async () => {
     const posts = await chainedPostCollection.getMany({ view: "shallow" });
-    expectTypeOf(posts[0].editor.name).toEqualTypeOf<string>();
-    expectTypeOf(posts[0].editor.lead).toEqualTypeOf<string>();
+    expectTypeOf(posts)
+      .items.toHaveProperty("editor")
+      .toHaveProperty("name")
+      .toEqualTypeOf<string>();
+    expectTypeOf(posts)
+      .items.toHaveProperty("editor")
+      .toHaveProperty("lead")
+      .toEqualTypeOf<string>();
   });
 
   test("depth 2: editor.lead also resolves to a Senior entry", async () => {
     const posts = await chainedPostCollection.getMany({ view: "deep" });
-    expectTypeOf(posts[0].editor.name).toEqualTypeOf<string>();
-    expectTypeOf(posts[0].editor.lead.name).toEqualTypeOf<string>();
+    expectTypeOf(posts)
+      .items.toHaveProperty("editor")
+      .toHaveProperty("name")
+      .toEqualTypeOf<string>();
+    expectTypeOf(posts)
+      .items.toHaveProperty("editor")
+      .toHaveProperty("lead")
+      .toHaveProperty("name")
+      .toEqualTypeOf<string>();
   });
 });
 
@@ -327,8 +367,13 @@ describe("items", () => {
 
   test("depth 1 resolves featured-posts to full Post entries", async () => {
     const home = await homeItem.getData({ view: "shallow" });
-    expectTypeOf(home["featured-posts"][0].title).toEqualTypeOf<string>();
-    expectTypeOf(home["featured-posts"][0]._meta.slug).toEqualTypeOf<string>();
+    expectTypeOf(home["featured-posts"])
+      .items.toHaveProperty("title")
+      .toEqualTypeOf<string>();
+    expectTypeOf(home["featured-posts"])
+      .items.toHaveProperty("_meta")
+      .toHaveProperty("slug")
+      .toEqualTypeOf<string>();
   });
 });
 
@@ -360,6 +405,7 @@ describe("collection → item relation", () => {
   test("depth 1: collection → item resolves to item shape", async () => {
     const foos = await fooCollection.getMany({ view: "shallow" });
     const foo = foos[0];
+    assert(foo);
     expectTypeOf(foo.siteConfig.siteName).toEqualTypeOf<string>();
     expectTypeOf<keyof typeof foo.siteConfig._meta>().toEqualTypeOf<
       "fileName" | "filePath"
@@ -368,7 +414,9 @@ describe("collection → item relation", () => {
 
   test("resolveRelations: false keeps the relation as a string", async () => {
     const foos = await fooCollection.getMany({ view: "raw" });
-    expectTypeOf(foos[0].siteConfig).toEqualTypeOf<string>();
+    expectTypeOf(foos)
+      .items.toHaveProperty("siteConfig")
+      .toEqualTypeOf<string>();
   });
 });
 
@@ -454,7 +502,9 @@ describe("all primitive relation pairs", () => {
       expectTypeOf(entry.doc.title).toEqualTypeOf<string>();
       expectTypeOf(entry.doc._meta).toEqualTypeOf<TreeEntryMeta<".md">>();
       expectTypeOf(entry.doc.site).toEqualTypeOf<string>();
-      expectTypeOf(entry.links[0].doc).toEqualTypeOf<typeof entry.doc>();
+      expectTypeOf(entry.links)
+        .items.toHaveProperty("doc")
+        .toEqualTypeOf<typeof entry.doc>();
       // @ts-expect-error Embedded tree targets do not include augment fields.
       entry.doc.derived;
       // @ts-expect-error Embedded tree targets do not apply their named views.
@@ -469,7 +519,9 @@ describe("all primitive relation pairs", () => {
       await home.getData({ view: "raw" }),
     ]) {
       expectTypeOf(entry.doc).toEqualTypeOf<string>();
-      expectTypeOf(entry.links[0].doc).toEqualTypeOf<string>();
+      expectTypeOf(entry.links)
+        .items.toHaveProperty("doc")
+        .toEqualTypeOf<string>();
     }
     for (const entry of [
       await posts.getOne("hello", { view: "deep" }),
@@ -477,7 +529,11 @@ describe("all primitive relation pairs", () => {
       await home.getData({ view: "deep" }),
     ]) {
       expectTypeOf(entry.doc.site.siteName).toEqualTypeOf<string>();
-      expectTypeOf(entry.links[0].doc.site.siteName).toEqualTypeOf<string>();
+      expectTypeOf(entry.links)
+        .items.toHaveProperty("doc")
+        .toHaveProperty("site")
+        .toHaveProperty("siteName")
+        .toEqualTypeOf<string>();
     }
   });
 });

@@ -1,13 +1,13 @@
-import { QinoPrimitiveMarker, QinoPrimitives } from "../../data/globals";
+import { QinoPrimitiveMarker, QinoPrimitives } from "../data/globals";
+import type { AnyCollection } from "../types/collection";
+import type { RelationTarget } from "../types/relations";
+import type { ResolveOption } from "../types/resolve";
 import type {
-  AnyCollection,
   AnyEntry,
   GenericPath,
-  RelationTarget,
-  ResolveOption,
+  Slug,
   SupportedFileExtension,
-} from "../../types";
-import type { Slug } from "../../types/utils";
+} from "../types/utils";
 import { DUMMY_INSTANCE_ID } from "./dummy-config";
 
 type MakeDummyCollectionOptions = {

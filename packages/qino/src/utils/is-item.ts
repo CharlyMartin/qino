@@ -1,5 +1,7 @@
-import { QinoPrimitiveMarker, QinoPrimitives } from "../data";
-import type { AnyCollection, AnyItem, AnyTree } from "../types";
+import { QinoPrimitiveMarker, QinoPrimitives } from "../data/globals";
+import type { AnyCollection } from "../types/collection";
+import type { AnyItem } from "../types/item";
+import type { AnyTree } from "../types/tree";
 
 export function isItem(
   target: AnyCollection | AnyItem | AnyTree,

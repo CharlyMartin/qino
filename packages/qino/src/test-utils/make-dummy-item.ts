@@ -1,5 +1,7 @@
-import { QinoPrimitiveMarker, QinoPrimitives } from "../../data/globals";
-import type { AnyItem, GenericPath, ResolveOption } from "../../types";
+import { QinoPrimitiveMarker, QinoPrimitives } from "../data/globals";
+import type { AnyItem } from "../types/item";
+import type { ResolveOption } from "../types/resolve";
+import type { GenericPath } from "../types/utils";
 import { DUMMY_INSTANCE_ID } from "./dummy-config";
 
 type MakeDummyItemOptions = {

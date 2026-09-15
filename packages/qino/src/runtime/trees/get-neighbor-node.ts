@@ -1,4 +1,4 @@
-import type { TreeNode } from "../../types";
+import type { TreeNode } from "../../types/tree";
 import type { GenericPath, Slug } from "../../types/utils";
 import { flattenTree } from "./flatten-tree";
 

@@ -5,7 +5,7 @@ import nodePath from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { MARKDOWN_BODY_FIELD_NAME } from "../../data";
+import { MARKDOWN_BODY_FIELD_NAME } from "../../data/globals";
 import { walkTree } from "./walk-tree";
 
 const Schema = z.object({
@@ -44,7 +44,7 @@ describe("walkTree", () => {
     });
 
     expect(nodes.map((n) => n.slug)).toEqual(["installation", "introduction"]);
-    expect(nodes[0].title).toBe("Installation");
+    expect(nodes[0]?.title).toBe("Installation");
   });
 
   test("honours _order.json and appends unlisted entries after listed ones", async () => {
@@ -108,8 +108,8 @@ describe("walkTree", () => {
     });
 
     expect(nodes).toHaveLength(1);
-    expect(nodes[0].slug).toBe("introduction");
-    expect(nodes[0].children).toEqual([]);
+    expect(nodes[0]?.slug).toBe("introduction");
+    expect(nodes[0]?.children).toEqual([]);
   });
 
   test("throws when a non-empty <name>/ folder has no sibling <name>.md", async () => {

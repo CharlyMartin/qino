@@ -3,9 +3,9 @@ import path from "node:path";
 import { consola } from "consola";
 import pluralize from "pluralize";
 
-import { QinoPrimitiveMarker } from "../../data";
-import { assertDirectory } from "../../utils";
-import type { Loaded } from "../load";
+import { QinoPrimitiveMarker } from "../../data/globals";
+import { assertDirectory } from "../../utils/assert-directory";
+import type { Loaded } from "../load/load";
 import { assertInstanceIdsMatch } from "./assert-instance-ids-match";
 import { assertNoOverlappingPaths } from "./assert-no-overlapping-paths";
 import { assertPrimitivesExistence } from "./assert-primitives-existence";

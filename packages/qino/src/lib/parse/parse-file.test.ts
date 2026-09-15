@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { MARKDOWN_BODY_FIELD_NAME } from "../../data";
-import { validate } from "../validate";
+import { MARKDOWN_BODY_FIELD_NAME } from "../../data/globals";
+import { validate } from "../validate/validate";
 import { parseFile } from "./parse-file";
 
 describe("parseFile", () => {

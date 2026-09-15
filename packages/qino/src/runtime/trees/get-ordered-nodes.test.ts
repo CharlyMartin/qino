@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import type { TreeNode } from "../../types";
-import { makeDummyNode } from "../../utils/tests";
+import { makeDummyNode } from "../../test-utils/make-dummy-node";
+import type { TreeNode } from "../../types/tree";
 import { getOrderedNodes } from "./get-ordered-nodes";
 
 function makeCandidates(slugs: Array<string>) {

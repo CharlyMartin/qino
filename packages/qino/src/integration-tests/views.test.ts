@@ -9,7 +9,7 @@ import { collectTreeSlugs } from "../cli/build/collect-tree-slugs";
 import { validateCollection } from "../cli/check/validate-collection";
 import { validateItem } from "../cli/check/validate-item";
 import { validateTree } from "../cli/check/validate-tree";
-import { createQino } from "./qino/create-qino";
+import { createQino } from "../runtime/qino/create-qino";
 
 let tmp: string;
 beforeEach(async () => {

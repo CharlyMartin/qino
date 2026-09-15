@@ -1,5 +1,5 @@
-import type { SupportedFileExtension, TreeNode } from "../../types";
-import type { Slug } from "../../types/utils";
+import type { TreeNode } from "../types/tree";
+import type { Slug, SupportedFileExtension } from "../types/utils";
 
 type MakeDummyNodeOptions = Partial<TreeNode> & {
   slug: Slug;
