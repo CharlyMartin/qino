@@ -116,3 +116,12 @@ Used in every file in `specs/`:
 - [ ] We should make sure that the getters are properly typed to only allow valid relations keys, and that the relation values are properly typed to the related collection's schema. This is a critical part of the developer experience.
 - [ ] We should say in the docs that we recommend using zod and export some prebuilt zod types such as `slug(".md")`. Maybe it's not necessary since the build step will validate that each slug contained in the frontmatter of JSON object are a valid path AND have a valid extension. So `string` should be enough.
 - [ ] how to represent relative links in the markdown body? Trees, used for documentation, will most likely include links between entries, so we will need to think how to resolve those.
+
+## User stories
+
+A Markdown CMS becomes attractive to cloud-CMS users when it stops feeling like “files in Git” and starts feeling like a safe, collaborative publishing product.
+
+Keeping Markdown as the storage layer while abstracting Git, frontmatter, build pipelines, and parser quirks behind a strong editorial interface.
+
+1. Editorial workflows are a common gap: scheduling, approvals, permissions, and staging are usually missing or require extra tooling.
+2. Localization and media handling can become painful when you have many files, translations, image variants, and preview requirements.

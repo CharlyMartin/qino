@@ -12,13 +12,14 @@
     "test": "turbo run test",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "turbo run build --filter=qino && changeset publish",
+    "release": "changeset publish",
     "pack:qino": "pnpm --filter qino run pack",
     "lint": "turbo run lint"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.0",
-    "@changesets/cli": "2.31.0",
+    "@changesets/changelog-github": "1.0.1",
+    "@changesets/cli": "3.0.3",
     "prettier": "3.8.4",
     "turbo": "2.9.7",
     "typescript": "5.9.2"
