@@ -13,7 +13,7 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish",
-    "pack:qino": "pnpm --filter qino run pack",
+    "pack:qino": "pnpm --filter @qino/cms run pack",
     "lint": "turbo run lint"
   },
   "devDependencies": {

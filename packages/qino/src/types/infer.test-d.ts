@@ -4,7 +4,7 @@ import {
   type Infer,
   type Item,
   type Tree,
-} from "qino";
+} from "@qino/cms";
 import { expectTypeOf, test } from "vitest";
 import { z } from "zod";
 

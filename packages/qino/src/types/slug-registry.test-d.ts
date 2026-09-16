@@ -1,9 +1,9 @@
-import { createQino } from "qino";
+import { createQino } from "@qino/cms";
 import { describe, expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
 // Simulates what `qino build` generates into `qino/_generated/types.d.ts`.
-declare module "qino" {
+declare module "@qino/cms" {
   interface QinoSlugRegistry {
     "/typed-posts": "hello-world" | "second-post";
     "/typed-guides": "intro" | "advanced";

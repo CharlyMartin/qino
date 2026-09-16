@@ -48,7 +48,7 @@ export function renderGeneratedTypes(entries: Array<GeneratedSlugEntry>) {
     EMPTY,
     EMPTY_EXPORT,
     EMPTY,
-    `declare${SPACE}module${SPACE}"qino"${SPACE}${OPEN_BRACKET}`,
+    `declare${SPACE}module${SPACE}"@qino/cms"${SPACE}${OPEN_BRACKET}`,
     aliases,
     EMPTY,
     `${TAB}interface${SPACE}QinoSlugRegistry${SPACE}${OPEN_BRACKET}`,
