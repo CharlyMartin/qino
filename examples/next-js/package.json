@@ -10,7 +10,7 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "highlight.js": "11.11.1",
+    "highlight.js": "11.12.0",
     "next": "16.3.4",
     "next-mdx-remote": "6.0.0",
     "@qino/cms": "workspace:*",
@@ -21,7 +21,7 @@
     "rehype-highlight": "7.0.2",
     "rehype-slug": "6.0.0",
     "remark-gfm": "4.0.1",
-    "zod": "4.5.4"
+    "zod": "4.6.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.3",
