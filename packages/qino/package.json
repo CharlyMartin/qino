@@ -71,7 +71,7 @@
     "@types/node": "22.19.18",
     "@types/pluralize": "0.0.33",
     "publint": "0.3.24",
-    "tsdown": "0.22.14",
+    "tsdown": "0.23.0",
     "typescript": "5.9.2",
     "vitest": "4.1.9",
     "zod": "4.5.4"
