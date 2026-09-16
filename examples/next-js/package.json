@@ -14,8 +14,8 @@
     "next": "16.3.4",
     "next-mdx-remote": "6.0.0",
     "@qino/cms": "workspace:*",
-    "react": "19.2.7",
-    "react-dom": "19.2.7",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "react-markdown": "10.1.0",
     "rehype-autolink-headings": "7.1.0",
     "rehype-highlight": "7.0.2",
@@ -27,8 +27,8 @@
     "@tailwindcss/postcss": "4.3.3",
     "@tailwindcss/typography": "0.5.20",
     "@types/node": ">=22",
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
     "tailwindcss": "4.3.3",
     "typescript": "5.9.2"
   }
