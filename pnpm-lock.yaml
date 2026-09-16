@@ -134,8 +134,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/cms
       highlight.js:
-        specifier: 11.11.1
-        version: 11.11.1
+        specifier: 11.12.0
+        version: 11.12.0
       next:
         specifier: 16.3.4
         version: 16.3.4(@types/node@22.19.18)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -164,8 +164,8 @@ importers:
         specifier: 4.0.1
         version: 4.0.1(supports-color@7.2.0)
       zod:
-        specifier: 4.5.4
-        version: 4.5.4
+        specifier: 4.6.4
+        version: 4.6.4
     devDependencies:
       '@tailwindcss/postcss':
         specifier: 4.3.3
@@ -207,8 +207,8 @@ importers:
         specifier: 4.0.3
         version: 4.0.3
       jiti:
-        specifier: 2.6.1
-        version: 2.6.1
+        specifier: 2.7.0
+        version: 2.7.0
       js-yaml:
         specifier: 3.14.2
         version: 3.14.2
@@ -254,7 +254,7 @@ importers:
         version: 5.9.2
       vitest:
         specifier: 5.0.0
-        version: 5.0.0(@types/node@22.19.18)(vite@8.0.12(@types/node@22.19.18)(jiti@2.6.1)(yaml@2.9.0))
+        version: 5.0.0(@types/node@22.19.18)(vite@8.0.12(@types/node@22.19.18)(jiti@2.7.0)(yaml@2.9.0))
       zod:
         specifier: 4.5.4
         version: 4.5.4
@@ -1687,6 +1687,10 @@ packages:
     resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
     engines: {node: '>=12.0.0'}
 
+  highlight.js@11.12.0:
+    resolution: {integrity: sha512-nbfWpyRMcMrPMmDwJB+dhX/eiaPKtc2RB+0QZskqJ3WjRA/FDS0e9hZrx8EC/lbEv8gXy98FcDbNa/dspAaJMg==}
+    engines: {node: '>=12.0.0'}
+
   hookable@6.1.1:
     resolution: {integrity: sha512-U9LYDy1CwhMCnprUfeAZWZGByVbhd54hwepegYTK7Pi5NvqEj63ifz5z+xukznehT7i6NIZRu89Ay1AZmRsLEQ==}
 
@@ -1742,10 +1746,6 @@ packages:
   is-plain-obj@4.1.0:
     resolution: {integrity: sha512-+Pgi+vMuUNkJyExiMBt5IlFoMyKnr5zhJ4Uspz58WOhBF5QoIZkFyNHIbBAtHwzVAgk5RtndVNsDRN61/mmDqg==}
     engines: {node: '>=12'}
-
-  jiti@2.6.1:
-    resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
-    hasBin: true
 
   jiti@2.7.0:
     resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
@@ -2722,6 +2722,9 @@ packages:
   zod@4.5.4:
     resolution: {integrity: sha512-sC95tT5iHHH9gtpj6A81kh+NEaRAUFN+qlUPDUbRfOMvNf5QCBqsb3WgvnpVtK5Y+4UfA6KqufotuTvMGiTlsA==}
 
+  zod@4.6.4:
+    resolution: {integrity: sha512-AXSD6hvGdvRjajG/l1cC+d6IrhH+sjmPKtYeQdJIK8MFJl3LyClzS+o/YsVC+zQZPupAaeH5skwwm8YqYH7BqA==}
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
@@ -3497,14 +3500,14 @@ snapshots:
 
   '@ungap/structured-clone@1.3.1': {}
 
-  '@vitest/mocker@5.0.0(vite@8.0.12(@types/node@22.19.18)(jiti@2.6.1)(yaml@2.9.0))':
+  '@vitest/mocker@5.0.0(vite@8.0.12(@types/node@22.19.18)(jiti@2.7.0)(yaml@2.9.0))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@vitest/spy': 5.0.0
       estree-walker: 3.0.3
       magic-string: 1.4.1
     optionalDependencies:
-      vite: 8.0.12(@types/node@22.19.18)(jiti@2.6.1)(yaml@2.9.0)
+      vite: 8.0.12(@types/node@22.19.18)(jiti@2.7.0)(yaml@2.9.0)
 
   '@vitest/spy@5.0.0': {}
 
@@ -3914,6 +3917,8 @@ snapshots:
 
   highlight.js@11.11.1: {}
 
+  highlight.js@11.12.0: {}
+
   hookable@6.1.1: {}
 
   html-url-attributes@3.0.1: {}
@@ -3950,8 +3955,6 @@ snapshots:
   is-number@7.0.0: {}
 
   is-plain-obj@4.1.0: {}
-
-  jiti@2.6.1: {}
 
   jiti@2.7.0: {}
 
@@ -5150,7 +5153,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite@8.0.12(@types/node@22.19.18)(jiti@2.6.1)(yaml@2.9.0):
+  vite@8.0.12(@types/node@22.19.18)(jiti@2.7.0)(yaml@2.9.0):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.7
@@ -5160,13 +5163,13 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.19.18
       fsevents: 2.3.3
-      jiti: 2.6.1
+      jiti: 2.7.0
       yaml: 2.9.0
 
-  vitest@5.0.0(@types/node@22.19.18)(vite@8.0.12(@types/node@22.19.18)(jiti@2.6.1)(yaml@2.9.0)):
+  vitest@5.0.0(@types/node@22.19.18)(vite@8.0.12(@types/node@22.19.18)(jiti@2.7.0)(yaml@2.9.0)):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.0(vite@8.0.12(@types/node@22.19.18)(jiti@2.6.1)(yaml@2.9.0))
+      '@vitest/mocker': 5.0.0(vite@8.0.12(@types/node@22.19.18)(jiti@2.7.0)(yaml@2.9.0))
       chai: 6.2.2
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
@@ -5177,7 +5180,7 @@ snapshots:
       tinybench: 6.1.4
       tinyexec: 1.3.0
       tinyglobby: 0.2.17
-      vite: 8.0.12(@types/node@22.19.18)(jiti@2.6.1)(yaml@2.9.0)
+      vite: 8.0.12(@types/node@22.19.18)(jiti@2.7.0)(yaml@2.9.0)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 22.19.18
@@ -5251,5 +5254,7 @@ snapshots:
       '@yuku-parser/binding-win32-x64': 0.9.5
 
   zod@4.5.4: {}
+
+  zod@4.6.4: {}
 
   zwitch@2.0.4: {}
