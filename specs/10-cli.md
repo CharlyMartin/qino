@@ -37,8 +37,8 @@ What it does today:
    come from `getAllSlugs()`, which discovers filenames without reading content.
    Tree slug discovery is unchanged.
 
-Source of truth: `packages/qino/src/cli/build/index.ts` (codegen in
-`packages/qino/src/cli/build/generate-types.ts`).
+Source of truth: `packages/cms/src/cli/build/index.ts` (codegen in
+`packages/cms/src/cli/build/generate-types.ts`).
 
 ### `qino dev` `[v1-proposed]`
 

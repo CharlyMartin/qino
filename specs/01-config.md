@@ -50,7 +50,7 @@ export const postCollection = defineCollection({
 }
 ```
 
-Source of truth: `packages/qino/src/runtime/qino/qino-options.ts`.
+Source of truth: `packages/cms/src/runtime/qino/qino-options.ts`.
 
 ## Behaviour
 

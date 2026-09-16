@@ -17,7 +17,7 @@ updates:
       - dependency-name: "@types/node"
 
   - package-ecosystem: npm
-    directory: "/packages/qino"
+    directory: "/packages/cms"
     schedule:
       interval: weekly
     versioning-strategy: increase

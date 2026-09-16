@@ -204,7 +204,7 @@ Final shape: `post.author` is a full author whose `mentor` is a full bob (whose 
 - Integer `N` → `floor(N)` clamped to `[0, 6]`.
 - One depth unit is spent per **relation hop** — every time a `string` ref is dereferenced into a target entry — not per JSON-path step.
 - The relation map is always _walked_ at every level. Depth only gates whether the leaf is dereferenced.
-- The ceiling is enforced both at compile time (`ResolveOption = boolean | IntClosedRange<1, 6>`) and at runtime (`normalizeDepth` clamp). Changing `MAX_RESOLVE_DEPTH` in `packages/qino/src/lib/globals.ts` updates both in one place.
+- The ceiling is enforced both at compile time (`ResolveOption = boolean | IntClosedRange<1, 6>`) and at runtime (`normalizeDepth` clamp). Changing `MAX_RESOLVE_DEPTH` in `packages/cms/src/lib/globals.ts` updates both in one place.
 
 ### Errors
 
@@ -317,7 +317,7 @@ The output of a getter call is `ResolvedView<Schema, Ext, Rels, R>`, which combi
    - has `file` → it's an item; yields its generated item metadata and Markdown body, if applicable, combined with `ResolveEntry<S, Rels, NextD>`.
    - Recurses back into `ResolveEntry` — completing the static analogue of the runtime cycle.
 
-Sketch (mirrors cases in `packages/qino/src/types/resolve.test-d.ts`):
+Sketch (mirrors cases in `packages/cms/src/types/resolve.test-d.ts`):
 
 ```ts
 // Configure views: (view) => ({ default: view({}), detail: view({ resolveRelations: 2 }), shallow: view({ resolveRelations: 1 }) })
@@ -341,7 +341,7 @@ shallow[0].author.mentor; // → string (depth 1 → 0 at this leaf)
 
 - **Type:** `MaxDepth = typeof MAX_RESOLVE_DEPTH = 6`. `Depth = IntClosedRange<0, MaxDepth>`. `ResolveOption = boolean | IntClosedRange<1, MaxDepth>`. Integer literals above 6 are rejected in view configuration.
 - **Runtime:** `normalizeDepth` clamps to the same constant.
-- Single source: `packages/qino/src/lib/globals.ts`. Bumping it raises both ceilings together.
+- Single source: `packages/cms/src/lib/globals.ts`. Bumping it raises both ceilings together.
 
 ## Open questions
 
