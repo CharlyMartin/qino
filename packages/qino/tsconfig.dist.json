@@ -2,8 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "qino": ["./dist/index.d.mts"],
-      "qino/utils": ["./dist/utils.d.mts"]
+      "@qino/cms": ["./dist/index.d.mts"],
+      "@qino/cms/utils": ["./dist/utils.d.mts"]
     }
   },
   "include": ["src/**/*.test-d.ts"],

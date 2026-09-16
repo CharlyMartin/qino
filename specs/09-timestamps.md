@@ -15,7 +15,7 @@ Convention from the brainstorm:
 ## API (sketch — not finalised)
 
 ```ts
-import { defineCollection } from "qino";
+import { defineCollection } from "@qino/cms";
 import z from "zod";
 
 const PostSchema = z.object({
@@ -28,7 +28,7 @@ const PostSchema = z.object({
 Or as standalone helpers:
 
 ```ts
-import { publishedOn, updatedOn } from "qino";
+import { publishedOn, updatedOn } from "@qino/cms";
 
 const PostSchema = z.object({
   title: z.string(),

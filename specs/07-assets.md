@@ -18,7 +18,7 @@ The cloud UI uses the same declaration to filter file pickers.
 ### Local asset, single extension
 
 ```ts
-import { defineCollection } from "qino";
+import { defineCollection } from "@qino/cms";
 import z from "zod";
 
 const PostSchema = z.object({

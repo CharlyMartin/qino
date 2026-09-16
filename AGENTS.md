@@ -25,7 +25,7 @@ Run from the repo root:
 - `pnpm check-types` — `turbo run check-types`
 - `pnpm format` — Prettier on `**/*.{ts,tsx,md}`
 
-To run a script in a single workspace package: `pnpm --filter <pkg-name> <script>` (e.g. `pnpm --filter qino build`).
+To run a script in a single workspace package: `pnpm --filter <pkg-name> <script>` (e.g. `pnpm --filter @qino/cms build`).
 
 No test runner is configured yet — pick one when introducing the first package and wire a `test` task into `turbo.json`.
 

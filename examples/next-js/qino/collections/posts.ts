@@ -1,5 +1,5 @@
-import type { Infer } from "qino";
-import { getMarkdownStats } from "qino/utils";
+import type { Infer } from "@qino/cms";
+import { getMarkdownStats } from "@qino/cms/utils";
 import { z } from "zod";
 
 import qino from "../";

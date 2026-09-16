@@ -3,7 +3,7 @@ import type {
   CollectionEntryMeta,
   ItemEntryMeta,
   TreeEntryMeta,
-} from "qino";
+} from "@qino/cms";
 import { expectTypeOf, test } from "vitest";
 
 import { META_FIELD_NAME } from "../data/globals";

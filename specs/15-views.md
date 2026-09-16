@@ -74,7 +74,7 @@ const defaults = await posts.getMany();
 const same = await posts.getMany({ view: "default" });
 const highlights = await posts.getMany({ view: "highlight" });
 
-import type { Infer } from "qino";
+import type { Infer } from "@qino/cms";
 type Post = Infer<typeof posts>["output"];
 type DefaultPost = Infer<typeof posts>["views"]["default"]; // same as Post
 type HighlightPost = Infer<typeof posts>["views"]["highlight"];

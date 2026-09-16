@@ -24,7 +24,7 @@ describe("renderGeneratedTypes", () => {
         EMPTY,
         EMPTY_EXPORT,
         "",
-        'declare module "qino" {',
+        'declare module "@qino/cms" {',
         '  export type PostSlug = "hello-world" | "second-post" | (string & {});',
         "",
         "  interface QinoSlugRegistry {",

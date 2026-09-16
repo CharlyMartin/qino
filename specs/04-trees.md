@@ -25,7 +25,7 @@ behavior. Root view settings are forbidden, and custom views inherit no settings
 
 ```ts
 // qino/trees/docs.ts
-import { defineTree } from "qino";
+import { defineTree } from "@qino/cms";
 import z from "zod";
 
 const DocsSchema = z
