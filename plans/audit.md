@@ -1,7 +1,7 @@
 # Code Audit — Deep Scan
 
 **Date:** 2026-06-10
-**Scope:** full monorepo — `packages/qino` (lib, runtime, types, utils, CLI), root configs, `examples/next-js`.
+**Scope:** full monorepo — `packages/cms` (lib, runtime, types, utils, CLI), root configs, `examples/next-js`.
 **Method:** three parallel scans (core lib / runtime+types / CLI+tooling+app), every flagged finding then verified against source. False positives discarded (see last section).
 
 Each finding is rated on two criteria:
@@ -38,7 +38,7 @@ Each finding is rated on two criteria:
 
 ### 1. `qino build` is an empty stub
 
-`packages/qino/src/cli/build/index.ts:1-5`
+`packages/cms/src/cli/build/index.ts:1-5`
 
 ```ts
 export async function build() {
@@ -54,7 +54,7 @@ The flagship CLI command does nothing beyond running `lint` first (`cli/index.ts
 
 ### 2. Lint validation step fully commented out
 
-`packages/qino/src/cli/lint/index.ts:63-107`
+`packages/cms/src/cli/lint/index.ts:63-107`
 
 `validateCollection`, `validateSingleton`, `validateTree`, and `countNodes` are written but entirely commented out, and the TODOs at lines 50-54 list the invariants they were meant to check (schema validation passes, paths valid, empty-collection warnings). Spec step 8 requires exercising getters with `resolveRelations: false`. Today `qino lint` greenlights setups whose content fails schema validation.
 
@@ -76,7 +76,7 @@ CLAUDE.md documents `pnpm lint` → `turbo run lint`, but:
 
 - root `package.json` has no `lint` script
 - `turbo.json` has no `lint` task
-- `packages/qino/package.json` has no `lint` script (CLAUDE.md says every package needs `build`, `lint`, `check-types`)
+- `packages/cms/package.json` has no `lint` script (CLAUDE.md says every package needs `build`, `lint`, `check-types`)
 
 `pnpm lint` currently fails. **Fix:** add the three missing pieces (e.g. `biome check .` per package). **Feasibility: trivial.**
 
@@ -112,7 +112,7 @@ The identical cache → resolver → `normalizeDepth` → `resolveEntry` → cas
 
 ### 8. Stale docs
 
-- `specs/10-cli.md:39` — "Source of truth: `packages/qino/src/cli/build/run-build.ts`" — file doesn't exist (it's `cli/build/index.ts`).
+- `specs/10-cli.md:39` — "Source of truth: `packages/cms/src/cli/build/run-build.ts`" — file doesn't exist (it's `cli/build/index.ts`).
 - CLAUDE.md — turbo-outputs note ("adjust turbo.json if a package emits to dist/") is outdated; `turbo.json:8` already lists `dist/**`.
 - CLAUDE.md — `pnpm format` described as "Prettier on `**/*.{ts,tsx,md}`"; it's now prettier for md + biome for code.
 - CLAUDE.md mentions `qino watch`; not implemented in `cli/index.ts`.
@@ -176,6 +176,6 @@ No test files for: `remove-extension`, `remove-leading-slash`, `assert-file`, `a
 
 Flagged during the scan but verified as fine — listed so future audits don't re-report them:
 
-1. **`exports` pointing to `src/index.ts`** in `packages/qino/package.json` — intentional dev-time pattern; `publishConfig.exports` correctly remaps to `dist/` for publishing.
+1. **`exports` pointing to `src/index.ts`** in `packages/cms/package.json` — intentional dev-time pattern; `publishConfig.exports` correctly remaps to `dist/` for publishing.
 2. **Prettier + Biome coexistence** — deliberate split: prettier formats markdown, biome handles code (`format:md` / `format:code`).
 3. **`import z from "zod"`** — zod 4 ships a default export; this is a style inconsistency (see #18), not a bug.

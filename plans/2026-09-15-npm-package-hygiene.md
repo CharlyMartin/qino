@@ -4,7 +4,7 @@ Source: https://www.totaltypescript.com/how-to-create-an-npm-package
 
 ## Context
 
-Article describes a baseline npm package setup: TS strict tsconfig, Prettier, Vitest, GitHub Actions CI on PR + push to main, Changesets, `files`/`exports`, `prepublishOnly` gate. `packages/qino` already exceeds it (tsdown, ESM-only exports, publint + attw `check-dist`, type tests, changesets, CI). Only 3 small gaps remain. Everything else in the article is already done or intentionally different (Biome instead of Prettier for code, bundler resolution instead of NodeNext, `exports` instead of `main`).
+Article describes a baseline npm package setup: TS strict tsconfig, Prettier, Vitest, GitHub Actions CI on PR + push to main, Changesets, `files`/`exports`, `prepublishOnly` gate. `packages/cms` already exceeds it (tsdown, ESM-only exports, publint + attw `check-dist`, type tests, changesets, CI). Only 3 small gaps remain. Everything else in the article is already done or intentionally different (Biome instead of Prettier for code, bundler resolution instead of NodeNext, `exports` instead of `main`).
 
 ## Gaps worth closing
 
@@ -24,7 +24,7 @@ Article describes a baseline npm package setup: TS strict tsconfig, Prettier, Vi
 
 Article: `prepublishOnly` runs the full CI script so a manual publish can't skip checks. Repo: `pnpm release` = `turbo run build --filter=qino && changeset publish`. `check-dist` (tsc against dist, import smoke test, publint, attw), `check-types` and `test` only run in CI, never on the publish path.
 
-- Add to `packages/qino/package.json` scripts:
+- Add to `packages/cms/package.json` scripts:
   ```json
   "prepublishOnly": "pnpm build && pnpm check-types && pnpm test && pnpm check-dist"
   ```
@@ -33,9 +33,9 @@ Article: `prepublishOnly` runs the full CI script so a manual publish can't skip
 
 ### 3. Two strict tsconfig flags missing
 
-Article's tsconfig has `noImplicitOverride` and `moduleDetection: "force"`. `packages/qino/tsconfig.json` has every other strictness flag it lists. Both are no-ops today (no classes in `src/`, every file is a module) but cost nothing and stop regressions.
+Article's tsconfig has `noImplicitOverride` and `moduleDetection: "force"`. `packages/cms/tsconfig.json` has every other strictness flag it lists. Both are no-ops today (no classes in `src/`, every file is a module) but cost nothing and stop regressions.
 
-- Add to `packages/qino/tsconfig.json` compilerOptions:
+- Add to `packages/cms/tsconfig.json` compilerOptions:
   ```json
   "noImplicitOverride": true,
   "moduleDetection": "force"
@@ -53,8 +53,8 @@ Article's tsconfig has `noImplicitOverride` and `moduleDetection: "force"`. `pac
 ## Files to change
 
 - `.github/workflows/ci.yml`
-- `packages/qino/package.json`
-- `packages/qino/tsconfig.json`
+- `packages/cms/package.json`
+- `packages/cms/tsconfig.json`
 - New: `plans/2026-09-15-npm-package-hygiene.md` (this plan, copied verbatim once approved — `plans/` doesn't exist yet)
 
 No changeset needed: none of this alters the published package contents.

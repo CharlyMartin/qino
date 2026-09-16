@@ -40,7 +40,7 @@ export const postCollection = defineCollection({
 
 Any [Standard Schema](https://standardschema.dev)–compatible validator works (zod ≥ 3.24, Valibot, ArkType, Effect Schema, …). The runtime treats validation as a black box.
 
-Source of truth: `packages/qino/src/runtime/collections/define-collection.ts`.
+Source of truth: `packages/cms/src/runtime/collections/define-collection.ts`.
 
 ## Behaviour
 

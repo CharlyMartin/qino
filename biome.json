@@ -51,9 +51,9 @@
   "overrides": [
     {
       "includes": [
-        "packages/qino/src/index.ts",
-        "packages/qino/src/utils/index.ts",
-        "packages/qino/src/cli/index.ts"
+        "packages/cms/src/index.ts",
+        "packages/cms/src/utils/index.ts",
+        "packages/cms/src/cli/index.ts"
       ],
       "linter": {
         "rules": {
@@ -65,7 +65,7 @@
       }
     },
     {
-      "includes": ["packages/qino/src/**", "!packages/qino/src/index.ts"],
+      "includes": ["packages/cms/src/**", "!packages/cms/src/index.ts"],
       "linter": {
         "rules": {
           "style": {
@@ -85,7 +85,7 @@
       }
     },
     {
-      "includes": ["packages/qino/src/types/**"],
+      "includes": ["packages/cms/src/types/**"],
       "linter": {
         "rules": {
           "style": {

@@ -48,7 +48,7 @@ Any [Standard Schema](https://standardschema.dev)–compatible validator works. 
 
 A tree's `directory` is **exclusive** — no other tree or collection may share or overlap it. Declaring two trees on overlapping paths → build error.
 
-Source of truth (when implemented): `packages/qino/src/runtime/trees/define-tree.ts`.
+Source of truth (when implemented): `packages/cms/src/runtime/trees/define-tree.ts`.
 
 ## Behaviour
 
