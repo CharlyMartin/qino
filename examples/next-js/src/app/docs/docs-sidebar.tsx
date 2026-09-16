@@ -1,5 +1,5 @@
+import type { TreeNode } from "@qino/cms";
 import Link from "next/link";
-import type { TreeNode } from "qino";
 
 type DocsSidebarProps = {
   nodes: Array<TreeNode>;

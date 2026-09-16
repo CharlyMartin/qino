@@ -10,8 +10,8 @@ Some fields are derived, not authored. The classic case: a blurb generated from 
 ## API
 
 ```ts
-import { defineCollection } from "qino";
-import { getMarkdownStats } from "qino/utils";
+import { defineCollection } from "@qino/cms";
+import { getMarkdownStats } from "@qino/cms/utils";
 import z from "zod";
 
 export const { getMany, getOne } = defineCollection({

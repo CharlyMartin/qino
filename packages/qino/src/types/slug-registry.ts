@@ -6,7 +6,7 @@ import type { GenericPath, Slug } from "./utils";
  * `qino/_generated/types.d.ts`:
  *
  * ```ts
- * declare module "qino" {
+ * declare module "@qino/cms" {
  *   interface QinoSlugRegistry {
  *     "/posts": "a" | "b" | (string & {});
  *   }

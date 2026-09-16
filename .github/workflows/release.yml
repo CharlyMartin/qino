@@ -28,5 +28,5 @@ jobs:
       - uses: changesets/action@v2
         with:
           publish-script: pnpm release
-          commit-message: "chore: release qino"
-          pr-title: "chore: release qino"
+          commit-message: "chore: release @qino/cms"
+          pr-title: "chore: release @qino/cms"

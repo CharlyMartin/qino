@@ -11,7 +11,7 @@ A collection is a folder of similarly-shaped entries — typically `posts/*.md`,
 
 ```ts
 // qino/collections/posts.ts
-import { defineCollection } from "qino";
+import { defineCollection } from "@qino/cms";
 import z from "zod";
 import { authorCollection } from "./authors";
 import { categoryCollection } from "./categories";

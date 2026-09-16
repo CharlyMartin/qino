@@ -68,7 +68,7 @@ const defaults = await posts.getMany(); // declared default view
 const same = await posts.getMany({ view: "default" });
 ```
 
-Import `createQino` from `qino` and `z` from `zod`. Authored relations use
+Import `createQino` from `@qino/cms` and `z` from `zod`. Authored relations use
 content paths, such as `authors/alice.json`.
 
 View names autocomplete. Each view independently defaults to
@@ -92,7 +92,7 @@ accept view selection only, with no per-call resolution or callback overrides.
 Use the type-only `Infer` helper with a collection, tree, or item:
 
 ```ts
-import type { Infer } from "qino";
+import type { Infer } from "@qino/cms";
 
 type PostTypes = Infer<typeof posts>;
 type Post = PostTypes["output"];
@@ -151,8 +151,8 @@ Create a local base with the supplied helper and spread it into another view.
 No type annotations are needed; ordinary spread ordering controls overrides:
 
 ```ts
-import { createQino } from "qino";
-import { getMarkdownStats } from "qino/utils";
+import { createQino } from "@qino/cms";
+import { getMarkdownStats } from "@qino/cms/utils";
 import { z } from "zod";
 
 const qino = createQino({ contentFolder: "content", mediaFolder: "public" });

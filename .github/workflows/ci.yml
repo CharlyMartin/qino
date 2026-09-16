@@ -23,5 +23,5 @@ jobs:
       - run: pnpm build
       - run: pnpm check-types
       - run: pnpm biome check .
-      - run: pnpm --filter qino check-dist
+      - run: pnpm --filter @qino/cms check-dist
       - run: pnpm test

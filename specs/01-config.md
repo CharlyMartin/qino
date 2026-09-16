@@ -15,7 +15,7 @@ manifest on disk (see `11-lock-file.md` for the deferred cloud-UI artifact).
 
 ```ts
 // qino/index.ts
-import { createQino } from "qino";
+import { createQino } from "@qino/cms";
 
 export const { defineCollection, defineItem, defineTree } = createQino({
   contentFolder: "src/content",

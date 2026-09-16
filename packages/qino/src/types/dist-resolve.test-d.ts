@@ -1,4 +1,4 @@
-import { createQino } from "qino";
+import { createQino } from "@qino/cms";
 import { assert, expectTypeOf, test } from "vitest";
 import { z } from "zod";
 

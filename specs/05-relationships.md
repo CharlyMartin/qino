@@ -18,7 +18,7 @@ Three things the developer must be able to express:
 Relations are declared on `defineCollection`, `defineTree`, or `defineItem` via a `relations` map. Schemas stay vanilla — no augmentation, no custom helpers. The target's path and extension are read off the referenced primitive (single source of truth).
 
 ```ts
-import { defineCollection } from "qino";
+import { defineCollection } from "@qino/cms";
 import z from "zod";
 import { authorCollection } from "./authors";
 import { categoryCollection } from "./categories";

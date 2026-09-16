@@ -38,7 +38,7 @@ Open: support both? folder wins if both exist? Today the live example (`examples
 Expose `compareAsc` / `compareDesc` so consumers don't write their own sort fns:
 
 ```ts
-import { defineCollection, compareAsc } from "qino";
+import { defineCollection, compareAsc } from "@qino/cms";
 
 defineCollection({ sort: compareAsc("created-on") });
 ```

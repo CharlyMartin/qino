@@ -1,4 +1,4 @@
-import { createQino, type Infer } from "qino";
+import { createQino, type Infer } from "@qino/cms";
 import { expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
