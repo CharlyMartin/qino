@@ -27,7 +27,7 @@
     "LICENSE"
   ],
   "scripts": {
-    "prepare": "tsdown",
+    "prepublishOnly": "pnpm build && pnpm check-types && pnpm lint && pnpm test && pnpm check-dist",
     "build": "tsdown",
     "dev": "tsdown --watch",
     "pack": "pnpm build && pnpm pack",
