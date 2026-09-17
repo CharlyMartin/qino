@@ -1,6 +1,6 @@
 # qino
 
-Flat-file Markdown CMS. Requires Node.js 22 or newer.
+Flat-file Markdown CMS. Requires Node.js 22 or newer. TypeScript is optional; if you use it, 5.9 or newer with `strict: true`.
 
 ## Path validation
 
