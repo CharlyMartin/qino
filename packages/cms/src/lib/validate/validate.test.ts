@@ -5,19 +5,20 @@ import { z } from "zod";
 import { validate } from "./validate";
 
 describe("validate", () => {
-  test.each([
-    "_meta",
-  ])("rejects input %s before a schema can strip it", (field) => {
-    expect(() =>
-      validate({
-        schema: z.object({ title: z.string() }),
-        data: { title: "Hello", [field]: "conflict" },
-        filePath: "/fixtures/input.md",
-      }),
-    ).toThrow(
-      `/fixtures/input.md: fields reserved for Qino cannot appear in content or schema output: ${field}.`,
-    );
-  });
+  test.each(["_meta"])(
+    "rejects input %s before a schema can strip it",
+    (field) => {
+      expect(() =>
+        validate({
+          schema: z.object({ title: z.string() }),
+          data: { title: "Hello", [field]: "conflict" },
+          filePath: "/fixtures/input.md",
+        }),
+      ).toThrow(
+        `/fixtures/input.md: fields reserved for Qino cannot appear in content or schema output: ${field}.`,
+      );
+    },
+  );
 
   test.each(["_meta"])("rejects %s introduced by a transform", (field) => {
     expect(() =>
