@@ -1,6 +1,6 @@
 # qino
 
-Flat-file Markdown CMS. Requires Node.js 22 or newer. See [`SPECS.md`](../../SPECS.md) for the design intent.
+Flat-file Markdown CMS. Requires Node.js 22 or newer.
 
 ## Path validation
 
@@ -105,9 +105,6 @@ entry; use `Array<Post>` for a list. `views` contains every declared name, inclu
 `default`, whose output equals `output`. Without configured views, `output` is the
 baseline entry and the `views` mapping is empty.
 The descriptor exists only in TypeScript.
-
-See the [output inference specification](../../specs/15-views.md#selection-and-output-inference)
-for default-view behavior and other details.
 
 ### Required view helpers
 

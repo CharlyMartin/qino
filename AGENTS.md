@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Qino is a flat-file Markdown CMS. See `SPECS.md` and `specs/**.md` for the design intent (config/collection/page APIs, `qino-lock.json`, CLI commands `qino build` / `qino watch`, generated `.d.ts` types). The repo is in early scaffolding — `examples/` and `packages/` are empty workspaces awaiting the first packages.
+Qino is a flat-file Markdown CMS. See local-only `SPECS.md` and `specs/**.md` (gitignored) for the design intent (config/collection/page APIs, `qino-lock.json`, CLI commands `qino build` / `qino watch`, generated `.d.ts` types). The repo is in early scaffolding — `examples/` and `packages/` are empty workspaces awaiting the first packages.
 
 ## Monorepo layout
 

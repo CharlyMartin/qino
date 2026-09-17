@@ -36,3 +36,8 @@ yarn-error.log*
 .DS_Store
 *.pem
 
+
+# Internal docs
+SPECS.md
+specs/
+plans/
