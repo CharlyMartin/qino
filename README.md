@@ -25,7 +25,7 @@ Until then, [`examples/next-js`](./examples/next-js) is the canonical reference,
 
 ## Installation
 
-Requires Node.js 22 or newer.
+Requires Node.js 22 or newer. TypeScript is optional; if you use it, 5.9 or newer with `strict: true`.
 
 ```sh
 pnpm add @qino/cms zod
