@@ -12,6 +12,7 @@ import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
 import type {
+  EmptyObject,
   GenericPath,
   GetterOptions,
   SupportedFileExtension,
@@ -90,7 +91,7 @@ export type ResolvedItemView<
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema>,
   R extends ResolveOption,
-  Derived extends AugmentOutput = {},
+  Derived extends AugmentOutput = EmptyObject,
 > = Simplify<
   GeneratedFields<ItemEntryMeta<Ext>> &
     ResolveEntry<Schema, Rels, NormalizeDepth<R>> &

@@ -18,6 +18,8 @@ export type JsonPathArray = typeof JSON_PATH_ARRAY;
 
 export type GenericPath = `/${string}`;
 
+export type EmptyObject = Record<never, never>;
+
 export type GetterOptions<View extends string | undefined = string> = {
   view?: View;
   resolveRelations?: never;

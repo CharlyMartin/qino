@@ -5,7 +5,7 @@ import type { AugmentOutput, Awaitable, EntryAugment } from "./augment";
 import type { GeneratedFields } from "./generated-fields";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
-import type { GetterOptions } from "./utils";
+import type { EmptyObject, GetterOptions } from "./utils";
 
 export type ViewEntry<
   S extends ObjectSchema,
@@ -33,7 +33,7 @@ export type DefinedView<Config, R extends ResolveOption> = Config & {
 // Keep inference local to each helper call rather than its enclosing factory.
 export type ViewFactory<S extends ObjectSchema, Meta, Rels> = <
   R extends ResolveOption = false,
-  Derived extends AugmentOutput = {},
+  Derived extends AugmentOutput = EmptyObject,
 >(
   config: ViewConfig<S, Meta, Rels, R, Derived>,
 ) => NoInfer<

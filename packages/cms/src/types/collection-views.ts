@@ -1,6 +1,7 @@
 import type { AugmentOutput } from "./augment";
 import type { ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
+import type { EmptyObject } from "./utils";
 import type {
   DefinedView,
   ViewConfig,
@@ -26,7 +27,7 @@ export type CollectionViewConfig<
 // widening relation depth or augmented fields.
 export type CollectionViewFactory<S extends ObjectSchema, Meta, Rels> = <
   R extends ResolveOption = false,
-  Derived extends AugmentOutput = {},
+  Derived extends AugmentOutput = EmptyObject,
 >(
   config: CollectionViewConfig<S, Meta, Rels, R, Derived>,
 ) => NoInfer<DefinedView<CollectionViewConfig<S, Meta, Rels, R, Derived>, R>>;

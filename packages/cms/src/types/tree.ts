@@ -13,6 +13,7 @@ import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
 import type { SlugFor } from "./slug-registry";
 import type {
+  EmptyObject,
   GenericPath,
   GetterOptions,
   Slug,
@@ -94,7 +95,7 @@ export type ResolvedTreeEntry<
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema>,
   R extends ResolveOption,
-  Derived extends AugmentOutput = {},
+  Derived extends AugmentOutput = EmptyObject,
 > = Simplify<
   GeneratedFields<TreeEntryMeta<Ext>> &
     ResolveEntry<Schema, Rels, NormalizeDepth<R>> &
