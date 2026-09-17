@@ -125,8 +125,8 @@ importers:
         specifier: 2.9.7
         version: 2.9.7
       typescript:
-        specifier: 5.9.2
-        version: 5.9.2
+        specifier: 6.0.3
+        version: 6.0.3
 
   examples/next-js:
     dependencies:
@@ -186,8 +186,8 @@ importers:
         specifier: 4.3.3
         version: 4.3.3
       typescript:
-        specifier: 5.9.2
-        version: 5.9.2
+        specifier: 6.0.3
+        version: 6.0.3
 
   packages/cms:
     dependencies:
@@ -245,10 +245,10 @@ importers:
         version: 0.3.24
       tsdown:
         specifier: 0.23.0
-        version: 0.23.0(@arethetypeswrong/core@0.18.5)(publint@0.3.24)(typescript@5.9.2)(unrun@0.2.37)
+        version: 0.23.0(@arethetypeswrong/core@0.18.5)(publint@0.3.24)(typescript@6.0.3)(unrun@0.2.37)
       typescript:
-        specifier: 5.9.2
-        version: 5.9.2
+        specifier: 6.0.3
+        version: 6.0.3
       vitest:
         specifier: 5.0.0
         version: 5.0.0(@types/node@22.19.18)(vite@8.0.12(@types/node@22.19.18)(jiti@2.7.0)(yaml@2.9.0))
@@ -2533,8 +2533,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typescript@5.9.2:
-    resolution: {integrity: sha512-CWBzXQrc/qOkhidw1OzBTQuYRbfyxDXJMVJ1XNwUHGROVmuaeiEm3OslpZ1RV96d7SKKjZKrSJu3+t/xlw3R9A==}
+  typescript@6.0.3:
+    resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -4808,7 +4808,7 @@ snapshots:
 
   reusify@1.1.0: {}
 
-  rolldown-plugin-dts@0.28.5(rolldown@1.2.7)(typescript@5.9.2):
+  rolldown-plugin-dts@0.28.5(rolldown@1.2.7)(typescript@6.0.3):
     dependencies:
       dts-resolver: 3.0.0
       get-tsconfig: 5.0.0-beta.6
@@ -4818,7 +4818,7 @@ snapshots:
       yuku-codegen: 0.9.5
       yuku-parser: 0.9.5
     optionalDependencies:
-      typescript: 5.9.2
+      typescript: 6.0.3
     transitivePeerDependencies:
       - oxc-resolver
 
@@ -5033,7 +5033,7 @@ snapshots:
 
   trough@2.2.0: {}
 
-  tsdown@0.23.0(@arethetypeswrong/core@0.18.5)(publint@0.3.24)(typescript@5.9.2)(unrun@0.2.37):
+  tsdown@0.23.0(@arethetypeswrong/core@0.18.5)(publint@0.3.24)(typescript@6.0.3)(unrun@0.2.37):
     dependencies:
       cac: 7.0.0
       defu: 6.1.7
@@ -5043,7 +5043,7 @@ snapshots:
       obug: 2.1.4
       picomatch: 4.0.7
       rolldown: 1.2.7
-      rolldown-plugin-dts: 0.28.5(rolldown@1.2.7)(typescript@5.9.2)
+      rolldown-plugin-dts: 0.28.5(rolldown@1.2.7)(typescript@6.0.3)
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
       tree-kill: 1.2.2
@@ -5052,7 +5052,7 @@ snapshots:
     optionalDependencies:
       '@arethetypeswrong/core': 0.18.5
       publint: 0.3.24
-      typescript: 5.9.2
+      typescript: 6.0.3
       unrun: 0.2.37
     transitivePeerDependencies:
       - '@typescript/native-preview'
@@ -5077,7 +5077,7 @@ snapshots:
 
   typescript@5.6.1-rc: {}
 
-  typescript@5.9.2: {}
+  typescript@6.0.3: {}
 
   unconfig-core@7.5.0:
     dependencies:
