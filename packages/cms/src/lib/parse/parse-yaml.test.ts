@@ -26,11 +26,31 @@ describe("parseYaml", () => {
     },
   );
 
-  test("preserves YAML 1.1 sexagesimal numbers", () => {
-    expect(parseYaml('time: 12:34:56\nquoted: "12:34:56"')).toEqual({
-      time: 45296,
-      quoted: "12:34:56",
-    });
+  test.each([
+    ["12:34:56", "12:34:56"],
+    ["1_000", "1_000"],
+    ["no", "no"],
+    ["yes", "yes"],
+    ["on", "on"],
+    ["off", "off"],
+  ])(
+    "keeps YAML 1.1-only scalar %s as a string (YAML 1.2 core)",
+    (value, expected) => {
+      expect(parseYaml(`value: ${value}`)).toEqual({ value: expected });
+    },
+  );
+
+  test.each([
+    ["true", true],
+    ["false", false],
+    ["~", null],
+    ["017", 17],
+    ["0x1F", 31],
+    ["0o17", 15],
+    ["1e3", 1000],
+    [".inf", Number.POSITIVE_INFINITY],
+  ])("resolves YAML 1.2 core scalar %s", (value, expected) => {
+    expect(parseYaml(`value: ${value}`)).toEqual({ value: expected });
   });
 
   test.each(["", "# comment", "null", "{}"])(
@@ -84,6 +104,12 @@ describe("parseYaml", () => {
         ].join("\n"),
       ),
     ).toEqual({ defaults, post: { ...defaults, date: "2023-11-14" } });
+  });
+
+  test("rejects multi-document frontmatter", () => {
+    expect(() => parseYaml("---\na: 1\n---\nb: 2")).toThrow(
+      "YAML frontmatter must contain a single document",
+    );
   });
 
   test("propagates malformed YAML errors", () => {

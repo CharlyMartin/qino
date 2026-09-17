@@ -30,6 +30,58 @@ derive other fields. JSON `markdown` and nested names remain ordinary user field
 To upgrade, rename an old `body` schema declaration to `markdown` and use
 `entry.markdown`. Qino does not generate a `body` alias.
 
+## Frontmatter
+
+Markdown and MDX files may start with a YAML block delimited by `---` lines.
+Qino parses it with [js-yaml](https://github.com/nodeca/js-yaml) using the
+YAML 1.2 core schema, then validates the result against your entry schema.
+The block must be a single mapping of field names to values. An empty or
+comment-only block yields `{}`. A scalar, a list, or several `---` documents
+at the top level is an error.
+
+Unquoted values resolve by shape:
+
+| YAML                                   | JavaScript           |
+| -------------------------------------- | -------------------- |
+| `true`, `false` (any case)             | boolean              |
+| `null`, `~`, `Null`, or an empty value | `null`               |
+| `42`, `-7`, `0x1F`, `0o17`, `017`      | number (`017` is 17) |
+| `1.5`, `1e3`, `.inf`, `.nan`           | number               |
+| `[a, b]` or a `-` list                 | array                |
+| `{a: 1}` or an indented block          | plain object         |
+| anything else                          | string               |
+
+YAML 1.1 forms are not resolved. `yes`, `no`, `on`, `off`, `12:34:56`,
+`1_000`, and `0b11` stay strings. Quote a value when you want to force a
+string, such as `zip: "01234"`.
+
+Dates are never converted. `2023-11-14` and `2023-11-14T12:34:56Z` arrive as
+strings, so validate them with `z.iso.date()` or coerce with
+`z.coerce.date()`. To receive a `Date` directly, tag the value explicitly:
+
+```yaml
+published: !!timestamp 2023-11-14
+```
+
+Anchors, aliases, and merge keys are supported. Use `&name` to define a node,
+`*name` to reuse it, and `<<` to copy a mapping's keys into another one. Keys
+written directly win over merged ones:
+
+```yaml
+defaults: &defaults
+  draft: false
+  layout: post
+
+article:
+  <<: *defaults
+  title: Hello
+```
+
+Duplicate keys in a mapping are an error. Custom tags such as `!foo` and the
+YAML 1.1 collection tags `!!binary`, `!!set`, `!!omap`, and `!!pairs` are not
+recognized and raise an error. The built-in `!!str`, `!!int`, `!!float`,
+`!!bool`, and `!!null` tags work as expected.
+
 ## Views
 
 Collections, trees, and items can expose different shapes of the same content:
