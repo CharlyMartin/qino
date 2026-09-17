@@ -19,20 +19,19 @@ describe("selectView", () => {
     ).toBe(detail);
   });
 
-  test.each([
-    "resolveRelations",
-    "filter",
-    "sort",
-  ])("rejects non-undefined %s values", (key) => {
-    for (const value of [null, false, 0, () => true]) {
-      expect(() =>
-        selectView({ detail: {} }, {
-          view: "detail",
-          [key]: value,
-        } as never),
-      ).toThrow(/supported/);
-    }
-  });
+  test.each(["resolveRelations", "filter", "sort"])(
+    "rejects non-undefined %s values",
+    (key) => {
+      for (const value of [null, false, 0, () => true]) {
+        expect(() =>
+          selectView({ detail: {} }, {
+            view: "detail",
+            [key]: value,
+          } as never),
+        ).toThrow(/supported/);
+      }
+    },
+  );
 
   test("uses the configured default when selection is omitted or explicit", () => {
     const views = { default: {}, detail: {} };
@@ -44,15 +43,14 @@ describe("selectView", () => {
     expect(selectView(views, { view: "detail" })).toBe(views.detail);
   });
 
-  test.each([
-    "default",
-    "missing",
-    "toString",
-    "__proto__",
-    "",
-  ])("rejects invalid view %s", (view) => {
-    expect(() => selectView({ detail: {} }, { view })).toThrow(/Unknown view/);
-  });
+  test.each(["default", "missing", "toString", "__proto__", ""])(
+    "rejects invalid view %s",
+    (view) => {
+      expect(() => selectView({ detail: {} }, { view })).toThrow(
+        /Unknown view/,
+      );
+    },
+  );
 
   test("rejects legacy overrides even when a view is selected", () => {
     const options = { view: "detail", resolveRelations: false };

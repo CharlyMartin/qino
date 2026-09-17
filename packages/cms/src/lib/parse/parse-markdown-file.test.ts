@@ -7,19 +7,19 @@ import { validate } from "../validate/validate";
 import { parseMarkdownFile } from "./parse-markdown-file";
 
 describe("parseMarkdownFile", () => {
-  test.each([
-    "md",
-    "mdx",
-  ])("validates frontmatter dates as strings in .%s files", (extension) => {
-    const schema = z.object({ date: z.string(), markdown: z.string() });
-    const result = parseMarkdownFile({
-      schema,
-      data: "---\ndate: 2023-11-14\n---\n# Body",
-      filePath: `/fixtures/post.${extension}`,
-      validatorFn: validate,
-    });
-    expect(result).toEqual({ date: "2023-11-14", markdown: "# Body" });
-  });
+  test.each(["md", "mdx"])(
+    "validates frontmatter dates as strings in .%s files",
+    (extension) => {
+      const schema = z.object({ date: z.string(), markdown: z.string() });
+      const result = parseMarkdownFile({
+        schema,
+        data: "---\ndate: 2023-11-14\n---\n# Body",
+        filePath: `/fixtures/post.${extension}`,
+        validatorFn: validate,
+      });
+      expect(result).toEqual({ date: "2023-11-14", markdown: "# Body" });
+    },
+  );
 
   test("allows schemas to explicitly convert date strings into dates", () => {
     const schema = z.object({ date: z.string().pipe(z.coerce.date()) });
@@ -133,45 +133,44 @@ describe("parseMarkdownFile", () => {
   });
 });
 
-test.each([
-  ".md",
-  ".mdx",
-  ".markdown",
-])("schema controls markdown in %s", (extension) => {
-  const params = {
-    data: "# Hello",
-    filePath: `/entry${extension}`,
-    validatorFn: validate,
-  };
-  expect(
-    parseMarkdownFile({
-      ...params,
-      schema: z.object({
-        markdown: z.string().transform((text) => text.length),
+test.each([".md", ".mdx", ".markdown"])(
+  "schema controls markdown in %s",
+  (extension) => {
+    const params = {
+      data: "# Hello",
+      filePath: `/entry${extension}`,
+      validatorFn: validate,
+    };
+    expect(
+      parseMarkdownFile({
+        ...params,
+        schema: z.object({
+          markdown: z.string().transform((text) => text.length),
+        }),
       }),
-    }),
-  ).toEqual({ markdown: 7 });
-  expect(parseMarkdownFile({ ...params, schema: z.object({}) })).toEqual({});
-  expect(
-    parseMarkdownFile({ ...params, schema: z.object({}).passthrough() }),
-  ).toEqual({ markdown: "# Hello" });
-  expect(() =>
-    parseMarkdownFile({ ...params, schema: z.strictObject({}) }),
-  ).toThrow("Validation failed");
-  expect(() =>
-    parseMarkdownFile({
-      ...params,
-      schema: z.object({ markdown: z.number() }),
-    }),
-  ).toThrow("markdown");
-  expect(
-    parseMarkdownFile({
-      ...params,
-      data: "",
-      schema: z.object({ markdown: z.string() }),
-    }),
-  ).toEqual({ markdown: "" });
-});
+    ).toEqual({ markdown: 7 });
+    expect(parseMarkdownFile({ ...params, schema: z.object({}) })).toEqual({});
+    expect(
+      parseMarkdownFile({ ...params, schema: z.object({}).passthrough() }),
+    ).toEqual({ markdown: "# Hello" });
+    expect(() =>
+      parseMarkdownFile({ ...params, schema: z.strictObject({}) }),
+    ).toThrow("Validation failed");
+    expect(() =>
+      parseMarkdownFile({
+        ...params,
+        schema: z.object({ markdown: z.number() }),
+      }),
+    ).toThrow("markdown");
+    expect(
+      parseMarkdownFile({
+        ...params,
+        data: "",
+        schema: z.object({ markdown: z.string() }),
+      }),
+    ).toEqual({ markdown: "" });
+  },
+);
 
 test("supports transformed output from a non-Zod Standard Schema", () => {
   const schema: StandardSchemaV1<unknown, { markdown: number }> = {

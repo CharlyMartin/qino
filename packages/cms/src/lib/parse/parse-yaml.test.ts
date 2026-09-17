@@ -10,18 +10,21 @@ describe("parseYaml", () => {
     ["2023-11-14T12:34:56Z", "2023-11-14T12:34:56Z"],
     ["2023-11-14T12:34:56.123456+02:30", "2023-11-14T12:34:56.123456+02:30"],
     ["2023-11-14 12:34:56 -05:00", "2023-11-14 12:34:56 -05:00"],
-  ])("preserves untagged date or timestamp %s as a string", (value, expected) => {
-    expect(parseYaml(`date: ${value}`)).toEqual({ date: expected });
-  });
+  ])(
+    "preserves untagged date or timestamp %s as a string",
+    (value, expected) => {
+      expect(parseYaml(`date: ${value}`)).toEqual({ date: expected });
+    },
+  );
 
-  test.each([
-    "2023-11-14",
-    "2023-11-14T12:34:56+02:30",
-  ])("honors an explicit !!timestamp tag for %s", (value) => {
-    expect(parseYaml(`date: !!timestamp ${value}`)).toEqual({
-      date: new Date(value),
-    });
-  });
+  test.each(["2023-11-14", "2023-11-14T12:34:56+02:30"])(
+    "honors an explicit !!timestamp tag for %s",
+    (value) => {
+      expect(parseYaml(`date: !!timestamp ${value}`)).toEqual({
+        date: new Date(value),
+      });
+    },
+  );
 
   test("preserves YAML 1.1 sexagesimal numbers", () => {
     expect(parseYaml('time: 12:34:56\nquoted: "12:34:56"')).toEqual({
@@ -30,26 +33,21 @@ describe("parseYaml", () => {
     });
   });
 
-  test.each([
-    "",
-    "# comment",
-    "null",
-    "{}",
-  ])("accepts empty frontmatter %j", (value) => {
-    expect(parseYaml(value)).toEqual({});
-  });
+  test.each(["", "# comment", "null", "{}"])(
+    "accepts empty frontmatter %j",
+    (value) => {
+      expect(parseYaml(value)).toEqual({});
+    },
+  );
 
-  test.each([
-    "hello",
-    "42",
-    "false",
-    "[one, two]",
-    "!!timestamp 2023-11-14",
-  ])("rejects non-mapping frontmatter %s", (value) => {
-    expect(() => parseYaml(value)).toThrow(
-      "YAML frontmatter must be a mapping",
-    );
-  });
+  test.each(["hello", "42", "false", "[one, two]", "!!timestamp 2023-11-14"])(
+    "rejects non-mapping frontmatter %s",
+    (value) => {
+      expect(() => parseYaml(value)).toThrow(
+        "YAML frontmatter must be a mapping",
+      );
+    },
+  );
 
   test("preserves dates inside objects and arrays", () => {
     expect(

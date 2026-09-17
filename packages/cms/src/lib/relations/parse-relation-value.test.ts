@@ -92,20 +92,19 @@ describe("tree target", () => {
     QinoPrimitiveMarker
   ];
 
-  test.each([
-    "docs/guides/setup.md",
-    "/docs/guides/setup.md",
-  ])("preserves the nested slug in %s", (value) => {
-    expect(parseRelationValue(value, meta, ctx)).toBe("guides/setup");
-  });
+  test.each(["docs/guides/setup.md", "/docs/guides/setup.md"])(
+    "preserves the nested slug in %s",
+    (value) => {
+      expect(parseRelationValue(value, meta, ctx)).toBe("guides/setup");
+    },
+  );
 
-  test.each([
-    "setup",
-    "other/setup.md",
-    "docs/setup.json",
-  ])("rejects invalid reference %s with tree and source context", (value) => {
-    expect(() => parseRelationValue(value, meta, ctx)).toThrow(
-      /author.*post\.json.*target tree "\/docs"/,
-    );
-  });
+  test.each(["setup", "other/setup.md", "docs/setup.json"])(
+    "rejects invalid reference %s with tree and source context",
+    (value) => {
+      expect(() => parseRelationValue(value, meta, ctx)).toThrow(
+        /author.*post\.json.*target tree "\/docs"/,
+      );
+    },
+  );
 });

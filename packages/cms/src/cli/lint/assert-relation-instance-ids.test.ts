@@ -69,24 +69,24 @@ describe("assertRelationInstanceIds", () => {
   });
 });
 
-test.each([
-  false,
-  true,
-])("validates tree target instance IDs (lazy: %s)", (lazy) => {
-  for (const instanceId of [DUMMY_INSTANCE_ID, Symbol("other")]) {
-    const tree = makeDummyTree({
-      directory: "/docs",
-      extension: ".md",
-      instanceId,
-    });
-    const source = makeDummyTree({
-      directory: "/source",
-      extension: ".md",
-      relations: { doc: lazy ? () => tree : tree },
-    });
-    const validate = () =>
-      assertRelationInstanceIds([source], DUMMY_INSTANCE_ID);
-    if (instanceId == DUMMY_INSTANCE_ID) expect(validate).not.toThrow();
-    else expect(validate).toThrow(/different createQino\(\) call/);
-  }
-});
+test.each([false, true])(
+  "validates tree target instance IDs (lazy: %s)",
+  (lazy) => {
+    for (const instanceId of [DUMMY_INSTANCE_ID, Symbol("other")]) {
+      const tree = makeDummyTree({
+        directory: "/docs",
+        extension: ".md",
+        instanceId,
+      });
+      const source = makeDummyTree({
+        directory: "/source",
+        extension: ".md",
+        relations: { doc: lazy ? () => tree : tree },
+      });
+      const validate = () =>
+        assertRelationInstanceIds([source], DUMMY_INSTANCE_ID);
+      if (instanceId == DUMMY_INSTANCE_ID) expect(validate).not.toThrow();
+      else expect(validate).toThrow(/different createQino\(\) call/);
+    }
+  },
+);
