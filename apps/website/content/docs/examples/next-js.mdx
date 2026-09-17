@@ -1,0 +1,81 @@
+---
+title: Next.js
+description: The reference Next.js app that exercises collections, trees, items, relations, and views.
+---
+
+The canonical Qino example is a Next.js App Router site. It lives in the repository at [`examples/next-js`](https://github.com/CharlyMartin/qino/tree/main/examples/next-js).
+
+## What it covers
+
+- **Collections**: `posts` (`.md`), `authors` (`.json`), and `categories` (`.json`).
+- **Relations**: `author` and `categories[*]` on posts; `featured-posts[*]` on the home item.
+- **Views**: a `default` view that resolves relations one level deep, and a `withReadingTime` view that spreads the default and augments with `getMarkdownStats`.
+- **Tree**: a `.mdx` docs tree with nested sections, `_order.json` ordering, and prev/next navigation.
+- **Item**: `pages/home.md` with resolved featured posts.
+- **CLI**: `qino build` as the `prebuild` script, with `qino/_generated/` gitignored.
+
+## Layout
+
+```txt
+examples/next-js/
+  qino/
+    index.ts
+    collections/{posts,authors,categories}.ts
+    trees/docs.ts
+    items/home.ts
+  src/content/
+    posts/*.md
+    authors/*.json
+    categories/*.json
+    docs/**
+    pages/home.md
+  src/app/
+    page.tsx                 home item
+    posts/page.tsx           collection listing
+    posts/[slug]/page.tsx    getAllSlugs + getOne
+    docs/[...slug]/page.tsx  getTree, getEntry, getPreviousNode, getNextNode
+```
+
+## Key snippets
+
+Static params from a collection:
+
+```ts
+export async function generateStaticParams() {
+  const slugs = await postCollection.getAllSlugs();
+  return slugs.map((slug) => ({ slug }));
+}
+```
+
+A docs page reading structure, content, and neighbors in one go:
+
+```ts
+const [nodes, entry, previousNode, nextNode] = await Promise.all([
+  docsTree.getTree(),
+  docsTree.getEntry(fullSlug),
+  docsTree.getPreviousNode(fullSlug),
+  docsTree.getNextNode(fullSlug),
+]);
+```
+
+## Rendering
+
+Qino returns raw Markdown. The example renders `.md` posts with `react-markdown` and `.mdx` docs with `next-mdx-remote`, both with `remark-gfm`, `rehype-slug`, `rehype-autolink-headings`, and `rehype-highlight`.
+
+## Next.js configuration
+
+```ts
+// next.config.ts
+const nextConfig = {
+  transpilePackages: ["@qino/cms"],
+};
+
+export default nextConfig;
+```
+
+## Run it
+
+```sh
+pnpm install
+pnpm --filter next-js dev
+```

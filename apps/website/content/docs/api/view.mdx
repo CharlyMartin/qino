@@ -1,0 +1,80 @@
+---
+title: view
+description: The helper passed to the views factory, and every option it accepts.
+since: "releases/0.1.0.md"
+---
+
+`view` is not imported. It is the argument the `views` factory receives, and every named view must be created with it.
+
+```ts
+views: (view) => ({
+  default: view({}),
+  detail: view({
+    resolveRelations: 1,
+    augment: (entry) => ({ authorName: entry.author.name }),
+  }),
+}),
+```
+
+## Signature
+
+```ts
+view(config: {
+  resolveRelations?: boolean | 1 | 2 | 3 | 4 | 5 | 6;
+  augment?: (entry: Entry) => Derived | Promise<Derived>;
+  filter?: (entry: Entry) => boolean; // collections only
+  sort?: (a: Entry, b: Entry) => number; // collections only
+}): View;
+```
+
+## Parameters
+
+| Name               | Type                                   | Required | Default | Collection | Tree | Item | Description                                                                  |
+| ------------------ | -------------------------------------- | -------- | ------- | ---------- | ---- | ---- | ---------------------------------------------------------------------------- |
+| `resolveRelations` | `boolean \| 1..6`                      | no       | `false` | yes        | yes  | yes  | Relation depth. `true` is `6`. Numbers are clamped to `0..6`                 |
+| `augment`          | `(entry) => object \| Promise<object>` | no       |         | yes        | yes  | yes  | Adds fields. Receives resolved relations. May not overwrite existing fields  |
+| `filter`           | `(entry) => boolean`                   | no       |         | yes        | no   | no   | Synchronous predicate, runs after augment. Applies to `getMany` and `getOne` |
+| `sort`             | `(a, b) => number`                     | no       |         | yes        | no   | no   | Synchronous comparator, runs after filter. Applies to `getMany` only         |
+
+The helper for trees and items omits `filter` and `sort` from autocomplete and rejects them at runtime.
+
+## Returns
+
+A view definition. The factory must return an object with a `default` key and any number of named views, each created by the helper.
+
+## Rules
+
+- The factory runs once at definition time and must return synchronously.
+- Views are independent. Nothing is inherited from `default`.
+- Reuse by spreading: `view({ ...base, filter: (entry) => entry.featured })`. Spread replaces callbacks, it does not compose them. Clear a copied callback with `filter: undefined`.
+- `augment` runs after relation resolution. Entries a relation resolves to never include their own augment fields.
+- Root-level `resolveRelations`, `augment`, `filter`, or `sort` on the primitive are rejected.
+
+## Throws
+
+- `view() requires a configuration object.`
+- `tree views do not support filter or sort.` and `item views do not support filter or sort.`
+- At augment time: `<filePath>: augment failed: <message>`, `<filePath>: augment must return an object.`, and `<filePath>: augment cannot add reserved or overwrite existing fields: <keys>.`
+
+## Example
+
+```ts
+import { getMarkdownStats } from "@qino/cms/utils";
+
+views: (view) => {
+  const base = view({
+    augment: (post) => ({ stats: getMarkdownStats(post.markdown) }),
+    sort: (a, b) => b.stats.wordCount - a.stats.wordCount,
+  });
+  return {
+    default: base,
+    highlight: view({ ...base, filter: (post) => post.highlight }),
+    plain: view({}),
+  };
+},
+```
+
+## See also
+
+- [Views](/docs/concepts/views)
+- [Relations](/docs/concepts/relations)

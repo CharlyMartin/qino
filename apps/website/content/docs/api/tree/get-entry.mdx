@@ -1,0 +1,41 @@
+---
+title: getEntry
+description: Read one node's content by slug.
+since: "releases/0.1.0.md"
+---
+
+Reads a single file by slug, validates it, and applies the selected view.
+
+```ts
+const entry = await docsTree.getEntry("guides/setup");
+entry.title;
+entry.markdown;
+entry._meta.slug; // "guides/setup"
+```
+
+## Signature
+
+```ts
+tree.getEntry(slug: Slug, options?: { view?: ViewName }): Promise<Entry>;
+```
+
+## Parameters
+
+| Name           | Type      | Required | Default     | Description                                               |
+| -------------- | --------- | -------- | ----------- | --------------------------------------------------------- |
+| `slug`         | `string`  | yes      |             | Slash-joined path minus extension, such as `guides/setup` |
+| `options.view` | view name | no       | `"default"` | A view declared in `views`                                |
+
+## Returns
+
+`Promise<Entry>`: the schema output, `_meta` (`slug`, `fileName`, `filePath`), resolved relations at the view's depth, and the awaited augment output. No `children` and no navigation data.
+
+## Throws
+
+- A raw `ENOENT` error from Node when the file does not exist.
+- `Unknown view "<name>". Available views: <names>.`
+- Getter option errors, validation, relation, and augment errors. See [Errors](/docs/api/errors).
+
+## See also
+
+- [getTree](/docs/api/tree/get-tree) for structure

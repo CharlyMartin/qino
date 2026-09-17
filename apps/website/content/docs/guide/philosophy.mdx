@@ -1,0 +1,40 @@
+---
+title: Philosophy
+description: Why Qino is a flat-file CMS and what it deliberately leaves out.
+---
+
+Qino turns a folder of Markdown, MDX, and JSON files into typed, validated content you can query from any JavaScript app. There is no database and no hosted backend. The repository is the source of truth.
+
+## Files are the database
+
+Content lives as plain files on disk. Markdown is portable, durable, and tool-agnostic, so nothing locks you in. Local files work offline, diff cleanly in version control, and keep ownership of the data with you. Content moves with the code through branches, pull requests, and tags, so a content change gets the same review and rollback story as a code change.
+
+## Three primitives, not one
+
+Qino models content with three distinct primitives instead of a single generic "entries" concept:
+
+- A **collection** is a flat folder of similarly shaped entries, such as `posts/*.md` or `authors/*.json`. Many entries, one schema.
+- A **tree** is a hierarchical, ordered set of entries, such as a documentation sidebar. Hierarchy and order are first-class, not conventions layered on a list.
+- An **item** is a single well-known file with its own role, such as `pages/home.md`. One file, one schema.
+
+An item is not a one-entry collection, and a tree is not a sorted collection. Collapsing them would force you to express role and hierarchy through ad-hoc conventions. Keeping them separate lets each primitive expose only the getters that make sense for it. See [Concepts](/docs/concepts/collections) for the details.
+
+## Validation is a black box
+
+Every entry is validated against a schema you provide. Qino accepts any [Standard Schema](https://standardschema.dev) validator, such as Zod, Valibot, or ArkType, and never calls validator-specific APIs. Types flow from the schema into the getters, so `await posts.getOne("hello")` is fully typed without a code generation step for the shape of an entry.
+
+## Qino sits on top of the content folder
+
+The content folder should not need to know Qino exists. The one exception is the `_order.json` file a tree uses to order its children. It lives next to the content it describes because that is where an editor expects to find it.
+
+Rendering is also out of scope. Qino hands you the raw Markdown body as a string and leaves the Markdown-to-HTML pipeline to your app, so you can pick `react-markdown`, `next-mdx-remote`, or anything else.
+
+## Check everything before the app builds
+
+The `qino` CLI lints definitions, validates every content file, and generates slug types. Wire it into a `prebuild` script and a broken relation or a missing frontmatter field fails the build instead of a page at runtime. See [CLI](/docs/guide/cli).
+
+## Non-goals
+
+- Not a database. There is no querying beyond what the getters expose.
+- No content editing UI in the current release.
+- No binary diffs or large-media handling beyond plain file paths.

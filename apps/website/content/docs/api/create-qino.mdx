@@ -1,0 +1,70 @@
+---
+title: createQino
+description: Create the instance that all definitions hang off.
+since: "releases/0.1.0.md"
+---
+
+Creates a Qino instance bound to a content folder and a media folder. Every collection, tree, and item is defined through the returned instance.
+
+```ts
+import { createQino } from "@qino/cms";
+
+const qino = createQino({
+  contentFolder: "src/content",
+  mediaFolder: "public",
+});
+```
+
+## Signature
+
+```ts
+function createQino(config: {
+  readonly contentFolder: string;
+  readonly mediaFolder: string;
+}): {
+  defineCollection: typeof defineCollection;
+  defineTree: typeof defineTree;
+  defineItem: typeof defineItem;
+};
+```
+
+## Parameters
+
+| Name            | Type     | Required | Default | Description                                                                                         |
+| --------------- | -------- | -------- | ------- | --------------------------------------------------------------------------------------------------- |
+| `contentFolder` | `string` | yes      |         | Directory, relative to the working directory, that every `directory` and `file` path is joined onto |
+| `mediaFolder`   | `string` | yes      |         | Directory, relative to the working directory, for media files. Only its existence is checked        |
+
+The config type is not exported; pass an object literal.
+
+## Returns
+
+An instance with three methods:
+
+- [`defineCollection`](/docs/api/collection)
+- [`defineTree`](/docs/api/tree)
+- [`defineItem`](/docs/api/item)
+
+The methods are closures, so destructuring them is fine:
+
+```ts
+export const { defineCollection, defineTree, defineItem } = createQino({
+  contentFolder: "src/content",
+  mediaFolder: "public",
+});
+```
+
+Each instance carries a unique identity. Primitives from one instance cannot be related to primitives from another, and `qino lint` rejects a project that mixes instances.
+
+## Throws
+
+Nothing. Folder existence is checked by the CLI, not at creation.
+
+## CLI expectations
+
+The CLI loads `qino/index.ts` and requires the instance to be its default export. See [Project structure](/docs/guide/project-structure).
+
+## See also
+
+- [Project structure](/docs/guide/project-structure)
+- [Errors](/docs/api/errors)

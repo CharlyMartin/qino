@@ -1,0 +1,83 @@
+---
+title: Collection, Tree, Item
+description: The return types of defineCollection, defineTree, and defineItem.
+since: "releases/0.1.0.md"
+---
+
+Use these to type a function that accepts a primitive, or to constrain a generic.
+
+```ts
+import type { Collection, Item, Tree } from "@qino/cms";
+```
+
+## Collection
+
+```ts
+type Collection<
+  Schema extends StandardSchemaV1<unknown, Record<string, unknown>>,
+  Ext extends ".md" | ".mdx" | ".markdown" | ".json",
+  Rels extends Relations<Schema> = object,
+  Dir extends `/${string}` = `/${string}`,
+  Views extends object = object,
+> = {
+  getAllSlugs(): Promise<Array<SlugFor<Dir>>>;
+  getMany(options?: { view?: keyof Views }): Promise<Array<Entry>>;
+  getOne(slug: SlugFor<Dir>, options?: { view?: keyof Views }): Promise<Entry>;
+};
+```
+
+## Tree
+
+```ts
+type Tree<
+  Schema,
+  Ext,
+  Title extends StringKeys<Schema>,
+  Rels = object,
+  Dir extends `/${string}` = `/${string}`,
+  Views extends object = object,
+> = {
+  getTree(): Promise<Array<TreeNode>>;
+  getTree(slug: SlugFor<Dir>): Promise<TreeNode>;
+  getFlatTree(): Promise<Array<TreeNode>>;
+  getEntry(
+    slug: SlugFor<Dir>,
+    options?: { view?: keyof Views },
+  ): Promise<Entry>;
+  getNextNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
+  getPreviousNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
+};
+```
+
+## Item
+
+```ts
+type Item<Schema, Ext, Rels = object, Views extends object = object> = {
+  getData(options?: { view?: keyof Views }): Promise<Entry>;
+};
+```
+
+## Generics
+
+| Parameter | Description                                                             |
+| --------- | ----------------------------------------------------------------------- |
+| `Schema`  | The Standard Schema validator passed as `schema`                        |
+| `Ext`     | The content extension                                                   |
+| `Title`   | Tree only. The `titleField` key                                         |
+| `Rels`    | The `relations` map                                                     |
+| `Dir`     | The `directory` literal. Looked up in `QinoSlugRegistry` for slug types |
+| `Views`   | The object returned by the `views` factory                              |
+
+Each type also carries a hidden marker with the definition metadata and the inference data that [Infer](/docs/api/types/infer) reads. In practice you rarely write these generics by hand; `typeof postCollection` is the usual spelling.
+
+## Example
+
+```ts
+import type { Collection } from "@qino/cms";
+
+async function countEntries<C extends Collection<any, any, any, any, any>>(
+  collection: C,
+) {
+  return (await collection.getAllSlugs()).length;
+}
+```

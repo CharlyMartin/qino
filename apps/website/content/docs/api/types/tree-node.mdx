@@ -1,0 +1,50 @@
+---
+title: TreeNode
+description: The structural node returned by tree getters.
+since: "releases/0.1.0.md"
+---
+
+`getTree`, `getFlatTree`, `getNextNode`, and `getPreviousNode` return nodes, not entries.
+
+```ts
+import type { TreeNode } from "@qino/cms";
+
+type TreeNode = {
+  slug: string;
+  title: string;
+  fileName: string;
+  filePath: string;
+  children: Array<TreeNode>;
+};
+```
+
+## Fields
+
+| Field      | Description                                            |
+| ---------- | ------------------------------------------------------ |
+| `slug`     | Slash-joined path minus the extension                  |
+| `title`    | Value of the tree's `titleField` in that file          |
+| `fileName` | Basename with extension                                |
+| `filePath` | Absolute path on disk                                  |
+| `children` | Ordered child nodes. Always an array, empty for leaves |
+
+A node has no schema fields and no augment output. Read the content with [getEntry](/docs/api/tree/get-entry).
+
+## Example
+
+```tsx
+import type { TreeNode } from "@qino/cms";
+
+function Sidebar({ nodes }: { nodes: Array<TreeNode> }) {
+  return (
+    <ul>
+      {nodes.map((node) => (
+        <li key={node.slug}>
+          {node.title}
+          {node.children.length > 0 && <Sidebar nodes={node.children} />}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```

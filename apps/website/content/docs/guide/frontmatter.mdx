@@ -1,0 +1,70 @@
+---
+title: Frontmatter
+description: How YAML frontmatter is parsed and which values become which types.
+---
+
+Markdown, MDX, and `.markdown` files may start with a YAML block delimited by `---` lines. Qino parses it with [js-yaml](https://github.com/nodeca/js-yaml) using the YAML 1.2 core schema, then validates the result together with the body against your schema.
+
+```md
+---
+title: Hello
+draft: false
+tags: [intro, markdown]
+---
+
+The body starts here.
+```
+
+## Shape
+
+- The block must be a single mapping of field names to values.
+- An empty or comment-only block yields `{}`.
+- A scalar, a list, or several `---` documents at the top level is an error.
+- Duplicate keys in a mapping are an error.
+- A file without frontmatter is valid. The schema still runs, with only `markdown` supplied.
+
+## Scalar resolution
+
+Unquoted values resolve by shape:
+
+| YAML                                   | JavaScript           |
+| -------------------------------------- | -------------------- |
+| `true`, `false` (any case)             | boolean              |
+| `null`, `~`, `Null`, or an empty value | `null`               |
+| `42`, `-7`, `0x1F`, `0o17`, `017`      | number (`017` is 17) |
+| `1.5`, `1e3`, `.inf`, `.nan`           | number               |
+| `[a, b]` or a `-` list                 | array                |
+| `{a: 1}` or an indented block          | plain object         |
+| anything else                          | string               |
+
+YAML 1.1 forms are not resolved. `yes`, `no`, `on`, `off`, `12:34:56`, `1_000`, and `0b11` stay strings. Quote a value to force a string, such as `zip: "01234"`.
+
+## Dates
+
+Dates are never converted. `2023-11-14` and `2023-11-14T12:34:56Z` arrive as strings. Validate them with `z.iso.date()` or coerce with `z.coerce.date()`. To receive a `Date` directly, tag the value:
+
+```yaml
+published: !!timestamp 2023-11-14
+```
+
+## Anchors, aliases, and merge keys
+
+`&name` defines a node, `*name` reuses it, and `<<` copies a mapping's keys into another. Keys written directly win over merged ones:
+
+```yaml
+defaults: &defaults
+  draft: false
+  layout: post
+
+article:
+  <<: *defaults
+  title: Hello
+```
+
+## Tags
+
+The built-in `!!str`, `!!int`, `!!float`, `!!bool`, `!!null`, and `!!timestamp` tags work. Custom tags such as `!foo` and the YAML 1.1 collection tags `!!binary`, `!!set`, `!!omap`, and `!!pairs` raise an error.
+
+## The body
+
+Everything after the closing `---` is supplied to the schema as `markdown`, a string, before validation. An empty body is an empty string. Declaring `markdown` in frontmatter is an error. See [Schemas](/docs/concepts/schemas) for how to keep, transform, or drop it.

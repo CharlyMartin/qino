@@ -1,0 +1,77 @@
+---
+title: Entry metadata
+description: CollectionEntryMeta, TreeEntryMeta, ItemEntryMeta, and AnyEntry.
+since: "releases/0.1.0.md"
+---
+
+Every entry returned by a content getter carries a `_meta` object. Its shape depends on the primitive.
+
+```ts
+import type {
+  AnyEntry,
+  CollectionEntryMeta,
+  ItemEntryMeta,
+  TreeEntryMeta,
+} from "@qino/cms";
+```
+
+## CollectionEntryMeta
+
+```ts
+type CollectionEntryMeta<
+  Ext extends SupportedFileExtension = SupportedFileExtension,
+> = {
+  slug: string;
+  fileName: `${string}${Ext}`;
+  filePath: `${string}${Ext}`;
+};
+```
+
+## TreeEntryMeta
+
+Same shape as `CollectionEntryMeta`. `slug` is the slash-joined path, such as `guides/setup`.
+
+```ts
+type TreeEntryMeta<
+  Ext extends SupportedFileExtension = SupportedFileExtension,
+> = {
+  slug: string;
+  fileName: `${string}${Ext}`;
+  filePath: `${string}${Ext}`;
+};
+```
+
+## ItemEntryMeta
+
+No `slug`.
+
+```ts
+type ItemEntryMeta<
+  Ext extends SupportedFileExtension = SupportedFileExtension,
+> = {
+  fileName: `${string}${Ext}`;
+  filePath: `${string}${Ext}`;
+};
+```
+
+## AnyEntry
+
+The loosest entry type: any record with a `_meta`.
+
+```ts
+type AnyEntry = Record<string, unknown> & {
+  _meta: CollectionEntryMeta | ItemEntryMeta | TreeEntryMeta;
+};
+```
+
+Useful for helpers that accept an entry from any primitive without caring about its schema.
+
+## Fields
+
+| Field      | Description                          |
+| ---------- | ------------------------------------ |
+| `slug`     | Filename or path minus the extension |
+| `fileName` | Basename with extension              |
+| `filePath` | Absolute path on disk                |
+
+`Ext` narrows `fileName` and `filePath` to end with the primitive's extension. Its default is the union of all four supported extensions.

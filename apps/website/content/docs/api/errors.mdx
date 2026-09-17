@@ -1,0 +1,99 @@
+---
+title: Errors
+description: Every error message Qino can throw, what causes it, and how to fix it.
+since: "releases/0.1.0.md"
+---
+
+Messages are listed verbatim with placeholders in angle brackets. The CLI prints them as `Error: <message>` and exits with code 1.
+
+## Definition time
+
+Thrown when a `define*` call runs, usually at import.
+
+| Message                                                                                                          | Cause                                                            | Fix                                                          |
+| ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------ |
+| `Configure "<key>" inside views.default or a custom view, not at the root.`                                      | `resolveRelations`, `augment`, `filter`, or `sort` on the params | Move it into `views: (view) => ({ default: view({ ... }) })` |
+| `Configure views with views: (view) => ({ default: view({ ... }) }). Object-form views are no longer supported.` | `views` is an object, not a function                             | Wrap it in a factory                                         |
+| `The views factory must synchronously return an object of named views.`                                          | Factory returned a Promise or a non-object                       | Return the object directly                                   |
+| `The views factory must return a "default" view created with view({ ... }).`                                     | No own `default` key                                             | Add `default: view({})`                                      |
+| `View "<name>" must be created with view({ ... }).`                                                              | A plain object was used as a view                                | Wrap it with the helper                                      |
+| `view() requires a configuration object.`                                                                        | `view()` called with nothing, `null`, or an array                | Pass an object, `view({})` at minimum                        |
+| `tree views do not support filter or sort.` / `item views do not support filter or sort.`                        | `filter` or `sort` passed to a tree or item helper               | Remove them; only collections filter and sort                |
+| `tree view "<name>" does not support filter or sort.` / `item view "<name>" does not support filter or sort.`    | Same, caught when views are assembled                            | Remove them                                                  |
+| `extractExtension: file "<file>" must end with one of .md, .mdx, .markdown, .json.`                              | Item `file` has an unsupported extension                         | Use a supported extension                                    |
+
+## Getter options
+
+| Message                                                                                                | Cause                                             | Fix                              |
+| ------------------------------------------------------------------------------------------------------ | ------------------------------------------------- | -------------------------------- |
+| `Unknown view "<name>". Available views: <names>.`                                                     | `view` not declared. `(none)` when no views exist | Declare it or pick a listed name |
+| `Getter resolveRelations is no longer supported. Configure it in a view and select that view instead.` | `resolveRelations` passed to a getter             | Configure it in a view           |
+| `Getter filter and sort are not supported. Configure them in a collection view instead.`               | `filter` or `sort` passed to a getter             | Configure them in a view         |
+| `Entry "<slug>" in collection "<directory>" is excluded by view "<view>".`                             | `getOne` on an entry the view's filter rejects    | Select a view without a filter   |
+
+## Parsing and validation
+
+| Message                                                                                            | Cause                                                  | Fix                                     |
+| -------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | --------------------------------------- |
+| `YAML frontmatter must contain a single document.`                                                 | Several `---` documents at the top of a file           | Keep one frontmatter block              |
+| `YAML frontmatter must be a mapping of field names to values.`                                     | Frontmatter is a scalar or a list                      | Use `key: value` pairs                  |
+| `Validation failed for <filePath>:` followed by `  <path>: <message>` lines                        | Schema rejected the entry                              | Fix the content or the schema           |
+| `Schema for <filePath> returned a Promise. Qino requires synchronous Standard Schema validators.`  | Async validator                                        | Use a synchronous schema                |
+| `<filePath>: fields reserved for Qino cannot appear in content or schema output: _meta.`           | `_meta` in content, or introduced by a transform       | Rename the field                        |
+| `<filePath>: fields reserved for Qino cannot appear in content or schema output: _meta, markdown.` | `markdown` or `_meta` declared in Markdown frontmatter | Remove it; the body supplies `markdown` |
+
+A `.json` file that is not valid JSON throws the raw `SyntaxError` from `JSON.parse`. A missing file throws the raw Node `ENOENT` error.
+
+## Trees
+
+| Message                                                                                                             | Cause                                                                  | Fix                                  |
+| ------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------ |
+| `Tree: folder "<path>" is missing its sibling file "<path><ext>".`                                                  | Non-empty folder without an anchor file                                | Add `<name><ext>` next to the folder |
+| `Tree entry "<slug>" not found in tree "<directory>".`                                                              | `getTree(slug)`, `getNextNode`, `getPreviousNode` with an unknown slug | Check the slug                       |
+| `<filePath>: expected titleField "<field>" to resolve to a string, got <type>.`                                     | The title field is missing or not a string                             | Set it in frontmatter                |
+| `<orderPath> is not valid JSON.`                                                                                    | Malformed `_order.json`                                                | Fix the JSON                         |
+| `<orderPath>: expected an array of filenames ending in "<ext>".` followed by `Each filename must end with "<ext>".` | Not an array, or an entry without the extension                        | List filenames with the extension    |
+| `<orderPath>: entry "<file>" does not exist on disk (no matching "<file>" file or non-empty "<name>/" folder).`     | Listed file is missing                                                 | Remove the entry or add the file     |
+
+## Relations
+
+| Message                                                                                                                                                            | Cause                                           | Fix                                    |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------- | -------------------------------------- |
+| `Relation "<key>" (from <filePath>) points to a primitive created by a different createQino() call. All related primitives must come from the same Qino instance.` | Target from another instance                    | Define everything from one instance    |
+| `Expected string at relation "<key>" in <filePath>; got <type>.`                                                                                                   | Relation field is not a string                  | Store a content path string            |
+| `Empty relation reference at "<key>" in <filePath>.`                                                                                                               | Empty string                                    | Store a content path                   |
+| `Relation "<key>" in <filePath>: expected value "<file>" (target item "<file>"), got "<value>".`                                                                   | Item reference does not equal the item's `file` | Use the exact file path                |
+| `Relation "<key>" in <filePath>: expected value under "<dir>/" (target <kind> "<dir>"), got "<value>".`                                                            | Bare slug or wrong directory                    | Prefix with the target directory       |
+| `Relation "<key>" in <filePath>: expected value ending with "<ext>" (target <kind> "<dir>"), got "<value>".`                                                       | Missing or wrong extension                      | Add the target's extension             |
+| `Failed to resolve relation "<key>" → <dir>/<slug> (from <filePath>): <message>`                                                                                   | Target file missing or invalid                  | Fix the target entry                   |
+| `Expected array at "[*]" segment; got <type>.`                                                                                                                     | `[*]` in the path but the value is not an array | Fix the content or the path            |
+| `Relation path cannot be empty.` / `Invalid relation path "<path>": empty segment.` / `Invalid relation path "<path>": bare "[*]" segment.`                        | Malformed relation key                          | Use `field`, `field[*]`, or `a.b[*].c` |
+
+## Augment
+
+| Message                                                                         | Cause                                      | Fix                       |
+| ------------------------------------------------------------------------------- | ------------------------------------------ | ------------------------- |
+| `<filePath>: augment failed: <message>`                                         | The callback threw                         | Fix the callback          |
+| `<filePath>: augment must return an object.`                                    | Returned a non-object                      | Return an object          |
+| `<filePath>: augment cannot add reserved or overwrite existing fields: <keys>.` | Output overlaps entry fields or `markdown` | Rename the derived fields |
+
+## CLI
+
+| Message                                                                                                                                                      | Cause                                       | Fix                                     |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- | --------------------------------------- |
+| `Unknown command: <command>`                                                                                                                                 | Not `lint`, `check`, or `build`             | Use one of the three                    |
+| `"qino" folder not found at "<path>"`                                                                                                                        | No `qino/` in the working directory         | Run from the project root               |
+| `No createQino() instance found as the default export of "qino/index.ts". Export it with \`export default createQino(...)\`.`                                | Wrong or missing default export             | Default-export the instance             |
+| `"<path>" is not a directory`                                                                                                                                | `contentFolder` or `mediaFolder` missing    | Create the folder or fix the path       |
+| `No primitives found under "qino/". Define at least one collection, item, or tree.`                                                                          | No exported definitions                     | Export at least one                     |
+| `Collection directories overlap: "<a>" and "<b>". Each collection must own a distinct, non-overlapping directory.`                                           | Two collections share or nest paths         | Give each its own directory             |
+| `Tree directories overlap: "<a>" and "<b>". Each tree must own a distinct, non-overlapping directory.`                                                       | Two trees share or nest paths               | Give each its own directory             |
+| `Two items target the same file: "<file>". Each item must own a distinct file.`                                                                              | Duplicate item file                         | Remove one                              |
+| `Tree directory "<dir>" overlaps with collection directory "<dir>". Trees and collections must own distinct directories.`                                    | A tree and a collection share or nest paths | Separate them                           |
+| `Item file "<file>" sits inside tree directory "<dir>". A tree owns its directory exclusively.`                                                              | Item inside a tree                          | Move the item                           |
+| `Item file "<file>" sits inside collection directory "<dir>". A collection owns its directory exclusively.`                                                  | Item inside a collection                    | Move the item                           |
+| `Primitive "<kind>" was created by a different Qino instance. Expected "<a>" but got "<b>". Make sure all primitives are created with the same Qino config.` | Several `createQino` calls                  | Use one instance                        |
+| `Relation "<field>" points to a primitive created by a different createQino() call. All related primitives must come from the same Qino instance.`           | Relation target from another instance       | Use one instance                        |
+| `Collection "<dir>" failed validation: <message>` / `Tree "<dir>" failed validation: <message>` / `Item "<file>" failed validation: <message>`               | `qino check` found an invalid file          | Fix the file named in the inner message |
+
+`qino check` also warns, without failing, with `Collection "<dir>" is empty.` and `Tree "<dir>" is empty.`

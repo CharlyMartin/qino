@@ -1,0 +1,65 @@
+---
+title: defineItem
+description: Define a single content file with its own role.
+since: "releases/0.1.0.md"
+---
+
+Defines an item: one file at a fixed path. Returns a single getter.
+
+```ts
+import { z } from "zod";
+
+import qino from "../";
+import { postCollection } from "../collections/posts";
+
+export const homeItem = qino.defineItem({
+  file: "/pages/home.md",
+  schema: z.object({
+    title: z.string(),
+    "featured-posts": z.array(z.string()),
+    markdown: z.string(),
+  }),
+  relations: { "featured-posts[*]": postCollection },
+  views: (view) => ({
+    default: view({ resolveRelations: true }),
+  }),
+});
+```
+
+## Signature
+
+```ts
+qino.defineItem(params: {
+  file: `/${string}.md` | `/${string}.mdx` | `/${string}.markdown` | `/${string}.json`;
+  schema: StandardSchemaV1<unknown, Record<string, unknown>>;
+  relations?: Record<RelationPath, Primitive | (() => Primitive)>;
+  views?: (view: ViewHelper) => Record<string, View> & { default: View };
+}): Item;
+```
+
+## Parameters
+
+| Name        | Type                                         | Required | Default | Description                                                                   |
+| ----------- | -------------------------------------------- | -------- | ------- | ----------------------------------------------------------------------------- |
+| `file`      | `` `/${string}<ext>` ``                      | yes      |         | Path under `contentFolder`, with extension. The extension is inferred from it |
+| `schema`    | Standard Schema object validator             | yes      |         | Synchronous. May not declare `_meta`                                          |
+| `relations` | `Record<path, primitive \| () => primitive>` | no       | `{}`    | Same grammar as collections                                                   |
+| `views`     | `(view) => { default: View; [name]: View }`  | no       |         | Helper offers `resolveRelations` and `augment` only                           |
+
+There is no `extension` option and no slug.
+
+## Returns
+
+An `Item` with one getter: [`getData(options?)`](/docs/api/item/get-data).
+
+## Throws
+
+At definition time, the shared view errors listed on [defineCollection](/docs/api/collection), plus:
+
+- `extractExtension: file "<file>" must end with one of .md, .mdx, .markdown, .json.`
+- `item views do not support filter or sort.`
+- `item view "<name>" does not support filter or sort.`
+
+## See also
+
+- [Items](/docs/concepts/items)

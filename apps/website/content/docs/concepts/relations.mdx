@@ -1,0 +1,77 @@
+---
+title: Relations
+description: Typed references between entries and how they resolve.
+---
+
+A relation links a field in one primitive to an entry of another. Any of the three primitives can point at any of the three. Relations are directional; reverse links are not created.
+
+## Declaring
+
+`relations` maps a JSON path in the schema output to a target primitive:
+
+```ts
+export const postCollection = qino.defineCollection({
+  directory: "/posts",
+  extension: ".md",
+  schema: z.object({
+    title: z.string(),
+    author: z.string(),
+    categories: z.array(z.string()),
+    markdown: z.string(),
+  }),
+  relations: {
+    author: authorCollection,
+    "categories[*]": categoryCollection,
+  },
+});
+```
+
+Path grammar:
+
+- `author` targets a top-level string field.
+- `categories[*]` targets every element of an array.
+- `meta.editor` and `sections[*].author` reach into nested objects and arrays.
+
+Only paths that lead to a string in the schema output are accepted. TypeScript narrows the keys accordingly.
+
+For forward references and cycles, pass a function:
+
+```ts
+relations: { related: () => postCollection },
+```
+
+All related primitives must come from the same `createQino` instance.
+
+## Authoring
+
+Content stores the target's path relative to the content folder, with the extension:
+
+```yaml
+author: "authors/camille-laurent.json"
+categories:
+  - "categories/content-modeling.json"
+```
+
+The directory and extension must match the target, and a leading `/` is optional. Item targets must equal the item's `file`. Bare slugs are rejected with a message that names the expected prefix.
+
+## Resolving
+
+Relations resolve only when a view asks for it:
+
+```ts
+views: (view) => ({
+  default: view({}), // author stays "authors/camille-laurent.json"
+  detail: view({ resolveRelations: 1 }), // author becomes the author entry
+}),
+```
+
+`resolveRelations` accepts `false`, `true`, or a depth from `1` to `6`. `true` means `6`. Depth counts hops: at `1` the post's author resolves, but relations declared on the author stay raw strings. At `2` they resolve too.
+
+Resolved targets contain the target's validated fields plus `_meta`. They bypass the target's own views and augment callbacks. A resolved tree entry is content plus `_meta`, without children or navigation.
+
+A nullable or optional relation field stays nullable after resolution. Within one getter call, repeated references to the same target are fetched once.
+
+## Where relations are and are not checked
+
+- `getMany`, `getOne`, `getEntry`, `getData` with a resolving view: the reference is validated and the target is read. A bad reference throws.
+- Views without resolution, `getAllSlugs`, and `qino check`: the reference is an ordinary string and is not followed.

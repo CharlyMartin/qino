@@ -1,0 +1,43 @@
+---
+title: Infer
+description: Name the entry types a primitive produces, per view.
+since: "releases/0.1.0.md"
+---
+
+A type-only helper that describes a primitive's getter outputs.
+
+```ts
+import type { Infer } from "@qino/cms";
+
+type PostTypes = Infer<typeof postCollection>;
+type Post = PostTypes["output"];
+type DetailPost = PostTypes["views"]["detail"];
+```
+
+## Signature
+
+```ts
+type Infer<Primitive extends Collection | Tree | Item> = {
+  output: Entry; // default view
+  views: { [Name in ViewNames]: Entry };
+};
+```
+
+## Generics
+
+| Parameter   | Constraint                                                 | Description               |
+| ----------- | ---------------------------------------------------------- | ------------------------- |
+| `Primitive` | a `defineCollection`, `defineTree`, or `defineItem` result | The primitive to describe |
+
+## Shape
+
+- `output` is one entry as returned by the default view. Use `Array<Post>` for a list.
+- `views` has one key per declared view, including `default`, whose type equals `output`. Without configured views, `views` is empty.
+
+Outputs include schema transformations, resolved relations at the view's depth, awaited augment output, and `_meta`.
+
+## Notes
+
+- A primitive that has been widened, such as one annotated as `AnyEntry`-producing or passed through a generic that drops its inference metadata, resolves to `never`.
+- Unknown view names are type errors.
+- The descriptor exists only in TypeScript.

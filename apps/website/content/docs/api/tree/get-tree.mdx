@@ -1,0 +1,67 @@
+---
+title: getTree
+description: Walk the directory and return the nested node structure.
+since: "releases/0.1.0.md"
+---
+
+Walks the tree directory and returns nested `TreeNode` objects. With a slug, returns the matching subtree.
+
+```ts
+const nodes = await docsTree.getTree();
+const guides = await docsTree.getTree("guides");
+```
+
+## Signature
+
+```ts
+tree.getTree(): Promise<Array<TreeNode>>;
+tree.getTree(slug: Slug): Promise<TreeNode>;
+```
+
+## Parameters
+
+| Name   | Type     | Required | Description                                           |
+| ------ | -------- | -------- | ----------------------------------------------------- |
+| `slug` | `string` | no       | Slash-joined slug of the node to return with children |
+
+## Returns
+
+Without a slug, `Promise<Array<TreeNode>>` for the root level. With a slug, `Promise<TreeNode>` for that node.
+
+Each [TreeNode](/docs/api/types/tree-node) has `slug`, `title`, `fileName`, `filePath`, and `children`. Nodes are structural: no schema fields, no augment output. `children` is always an array.
+
+## Walk rules
+
+- Files with other extensions and the order file are skipped.
+- A file paired with a same-named non-empty folder becomes a node with children.
+- An empty folder is ignored.
+- Per folder, listed `_order.json` entries come first in order, then unlisted files alphabetically.
+- `title` is read from `titleField` by validating each file's frontmatter, so invalid files fail here too.
+
+## Throws
+
+- `Tree: folder "<path>" is missing its sibling file "<path><ext>".`
+- `Tree entry "<slug>" not found in tree "<directory>".`
+- `<path>/_order.json is not valid JSON.`
+- `<path>/_order.json: expected an array of filenames ending in "<ext>".`
+- `<path>/_order.json: entry "<file>" does not exist on disk (no matching "<file>" file or non-empty "<name>/" folder).`
+- `<filePath>: expected titleField "<field>" to resolve to a string, got <type>.`
+
+## Example
+
+```tsx
+const nodes = await docsTree.getTree();
+
+function Sidebar({ nodes }: { nodes: Array<TreeNode> }) {
+  return (
+    <ul>
+      {nodes.map((node) => (
+        <li key={node.slug}>
+          <a href={`/docs/${node.slug}`}>{node.title}</a>
+          {node.children.length > 0 && <Sidebar nodes={node.children} />}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```

@@ -1,0 +1,61 @@
+---
+title: getMarkdownStats
+description: Word and character counts for a Markdown or MDX body.
+since: "releases/0.1.0.md"
+---
+
+Counts readable prose in a Markdown or MDX string. Exported from `@qino/cms/utils`.
+
+```ts
+import { getMarkdownStats } from "@qino/cms/utils";
+
+const stats = getMarkdownStats(post.markdown);
+const readingMinutes = Math.ceil(stats.wordCount / 220);
+```
+
+## Signature
+
+```ts
+function getMarkdownStats(body: string): MarkdownStats;
+```
+
+## Parameters
+
+| Name   | Type     | Required | Description                                            |
+| ------ | -------- | -------- | ------------------------------------------------------ |
+| `body` | `string` | yes      | Raw Markdown or MDX source, typically `entry.markdown` |
+
+## Returns
+
+A [MarkdownStats](/docs/api/types/markdown-stats) object:
+
+| Field                  | Meaning                                            |
+| ---------------------- | -------------------------------------------------- |
+| `wordCount`            | Word-like segments in the prose                    |
+| `proseCharacterCount`  | Graphemes in the prose after whitespace collapsing |
+| `sourceCharacterCount` | Graphemes in the untouched input                   |
+
+## What counts as prose
+
+The body is parsed with remark, GFM, and MDX. Text nodes are kept. Code blocks, inline code, HTML, MDX expressions, MDX components, and import or export statements are excluded. Link and image URLs are excluded. Line breaks become newlines and block nodes are joined with newlines, then whitespace is collapsed.
+
+Words are segmented with `Intl.Segmenter`, and characters are counted as graphemes rather than UTF-16 code units, so multi-byte scripts and emoji count once each.
+
+## Throws
+
+Nothing. If MDX parsing fails, such as on an HTML comment, the body is re-parsed as plain Markdown.
+
+## Example
+
+Reading time as an augment field:
+
+```ts
+views: (view) => ({
+  default: view({
+    augment: (post) => {
+      const stats = getMarkdownStats(post.markdown);
+      return { ...stats, readingMinutes: Math.ceil(stats.wordCount / 220) };
+    },
+  }),
+}),
+```

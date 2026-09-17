@@ -1,0 +1,44 @@
+---
+title: getOne
+description: Read one entry by slug.
+since: "releases/0.1.0.md"
+---
+
+Reads a single file by slug, validates it, and applies the selected view.
+
+```ts
+const post = await postCollection.getOne("hello-world");
+const detail = await postCollection.getOne("hello-world", { view: "detail" });
+```
+
+## Signature
+
+```ts
+collection.getOne(slug: Slug, options?: { view?: ViewName }): Promise<Entry>;
+```
+
+## Parameters
+
+| Name           | Type      | Required | Default     | Description                                                      |
+| -------------- | --------- | -------- | ----------- | ---------------------------------------------------------------- |
+| `slug`         | `string`  | yes      |             | Filename without the extension. Autocompletes after `qino build` |
+| `options.view` | view name | no       | `"default"` | A view declared in `views`                                       |
+
+## Returns
+
+`Promise<Entry>`, shaped like one element of [getMany](/docs/api/collection/get-many).
+
+## Filter interaction
+
+If the selected view has a `filter` and it rejects this entry, `getOne` throws rather than returning it. Select a view without a filter, such as `view({})`, to read every entry.
+
+## Throws
+
+- `Entry "<slug>" in collection "<directory>" is excluded by view "<view>".`
+- A raw `ENOENT` error from Node when the file does not exist.
+- `Unknown view "<name>". Available views: <names>.`
+- Validation, relation, and augment errors. See [Errors](/docs/api/errors).
+
+## See also
+
+- [getAllSlugs](/docs/api/collection/get-all-slugs)

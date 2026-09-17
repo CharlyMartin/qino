@@ -1,0 +1,86 @@
+---
+title: Views
+description: Named shapes of the same content, with resolution, augmentation, filtering, and sorting.
+---
+
+A view is a named configuration for how a getter shapes entries. Every primitive can declare views, and every getter that reads content accepts `{ view: "name" }`.
+
+```ts
+export const postCollection = qino.defineCollection({
+  directory: "/posts",
+  extension: ".md",
+  schema: PostSchema,
+  relations: { author: authorCollection },
+  views: (view) => ({
+    default: view({}),
+    detail: view({
+      resolveRelations: 1,
+      augment: (post) => ({ authorName: post.author.name }),
+    }),
+  }),
+});
+
+const listing = await postCollection.getMany(); // default view
+const post = await postCollection.getOne("hello", { view: "detail" });
+```
+
+## The factory and the helper
+
+`views` is a function that receives a `view` helper and synchronously returns an object of named views. Every value must be created with `view({ ... })`, and the object must contain `default`. The factory runs once when the primitive is defined. Object-form views and unwrapped definitions are rejected.
+
+Without `views`, getters return validated entries with raw relation references and nothing else.
+
+## Options
+
+| Option             | Collection | Tree | Item | Meaning                                               |
+| ------------------ | ---------- | ---- | ---- | ----------------------------------------------------- |
+| `resolveRelations` | yes        | yes  | yes  | `false`, `true`, or depth `1` to `6`. Default `false` |
+| `augment`          | yes        | yes  | yes  | Derive extra fields, may be async                     |
+| `filter`           | yes        | no   | no   | Keep entries where the predicate is true              |
+| `sort`             | yes        | no   | no   | Comparator for `getMany`                              |
+
+Tree and item helpers reject `filter` and `sort` in TypeScript and at runtime.
+
+## Pipeline
+
+For each getter call: read and validate, resolve relations at the view's depth, run `augment`, then for collections `filter`, then for `getMany` `sort`. Augment receives resolved relations when the view resolves them. Filter and sort receive augmented entries.
+
+`augment` must return an object. It cannot overwrite an existing field, and cannot add `markdown` to a Markdown entry.
+
+## Views are independent
+
+A custom view inherits nothing from `default`. Reuse a base by spreading it:
+
+```ts
+views: (view) => {
+  const base = view({
+    augment: (post) => ({ stats: getMarkdownStats(post.markdown) }),
+    sort: (a, b) => b.stats.wordCount - a.stats.wordCount,
+  });
+  return {
+    default: base,
+    highlight: view({ ...base, filter: (post) => post.highlight }),
+  };
+},
+```
+
+Spreading copies settings; it does not compose callbacks. Set `filter: undefined` or `sort: undefined` to clear a copied callback.
+
+## Selecting
+
+- Omit `view`, or pass `{ view: "default" }`, to use the default.
+- Unknown names fail in TypeScript and at runtime.
+- Passing `resolveRelations`, `filter`, or `sort` to a getter throws. Configure them in a view.
+- An explicit `undefined` in getter options is treated as omitted.
+
+## Inferring the output
+
+```ts
+import type { Infer } from "@qino/cms";
+
+type PostTypes = Infer<typeof postCollection>;
+type Post = PostTypes["output"]; // default view
+type DetailPost = PostTypes["views"]["detail"];
+```
+
+See [Types](/docs/concepts/types).

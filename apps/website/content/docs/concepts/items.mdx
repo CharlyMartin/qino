@@ -1,0 +1,56 @@
+---
+title: Items
+description: A single well-known content file with its own role.
+---
+
+An item is one file with a fixed path and its own role: a home page, an about page, site settings. It is not a one-entry collection. There is no slug and no listing, just the file.
+
+```ts
+// qino/items/home.ts
+import { z } from "zod";
+
+import qino from "../";
+import { postCollection } from "../collections/posts";
+
+export const homeItem = qino.defineItem({
+  file: "/pages/home.md",
+  schema: z.object({
+    title: z.string(),
+    tagline: z.string(),
+    "featured-posts": z.array(z.string()),
+    markdown: z.string(),
+  }),
+  relations: {
+    "featured-posts[*]": postCollection,
+  },
+  views: (view) => ({
+    default: view({ resolveRelations: true }),
+  }),
+});
+```
+
+## File
+
+`file` starts with `/` and is joined onto `contentFolder`. The extension is taken from the path, so there is no `extension` option. Any of `.md`, `.mdx`, `.markdown`, or `.json` works. A missing file is an error when read.
+
+## Getter
+
+`getData(options?)` reads, validates, and applies the selected view:
+
+```ts
+const home = await homeItem.getData();
+
+home.title;
+home["featured-posts"][0].title; // resolved post
+home._meta.fileName; // "home.md"
+```
+
+`_meta` has `fileName` and `filePath` but no `slug`.
+
+## Views
+
+Items support `resolveRelations` and `augment` in views, but not `filter` or `sort`. See [Views](/docs/concepts/views).
+
+## As a relation target
+
+Other primitives can point at an item. The stored value must equal the item's `file`, such as `"pages/home.md"`, with the leading slash optional. See [Relations](/docs/concepts/relations).
