@@ -1,26 +1,24 @@
-import yaml, { type SchemaDefinition } from "js-yaml";
+import {
+  CORE_SCHEMA,
+  defineScalarTag,
+  loadAll,
+  mergeTag,
+  timestampTag,
+} from "js-yaml";
 
-const { DEFAULT_SAFE_SCHEMA, Schema, safeLoad } = yaml;
-const defaultSchema = DEFAULT_SAFE_SCHEMA as Required<SchemaDefinition>;
-
-const YAML_TIMESTAMP_TAG = "tag:yaml.org,2002:timestamp";
-
-const schema = new Schema({
-  ...defaultSchema,
-  // Only explicit !!timestamp tags should construct dates.
-  implicit: defaultSchema.implicit.filter(
-    (type: { tag: string }) => type.tag != YAML_TIMESTAMP_TAG,
-  ),
-  explicit: [
-    ...defaultSchema.explicit,
-    ...defaultSchema.implicit.filter(
-      (type: { tag: string }) => type.tag == YAML_TIMESTAMP_TAG,
-    ),
-  ],
-});
+// YAML 1.2 core schema, plus merge keys (`<<`) and explicit-only
+// `!!timestamp` tags. Untagged dates stay strings.
+const schema = CORE_SCHEMA.withTags(
+  mergeTag,
+  defineScalarTag(timestampTag.tagName, { ...timestampTag, implicit: false }),
+);
 
 export function parseYaml(data: string) {
-  const parsed = safeLoad(data, { schema });
+  const [parsed, ...rest] = loadAll(data, { schema });
+
+  if (rest.length > 0) {
+    throw new Error("YAML frontmatter must contain a single document.");
+  }
 
   if (parsed == null) return {};
 

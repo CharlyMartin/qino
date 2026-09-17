@@ -67,7 +67,6 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
-    "@types/js-yaml": "3.12.10",
     "@types/node": "22.19.18",
     "@types/pluralize": "0.0.33",
     "publint": "0.3.24",
