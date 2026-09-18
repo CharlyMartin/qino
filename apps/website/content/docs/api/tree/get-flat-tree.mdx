@@ -1,0 +1,39 @@
+---
+title: getFlatTree
+description: Return every node in depth-first reading order.
+since: "releases/0.1.0.md"
+---
+
+Walks the tree and flattens it depth-first, so a section comes right before its children.
+
+```ts
+const nodes = await docsTree.getFlatTree();
+// introduction, guides, guides/setup, guides/deploy, faq
+```
+
+## Signature
+
+```ts
+tree.getFlatTree(): Promise<Array<TreeNode>>;
+```
+
+## Parameters
+
+None.
+
+## Returns
+
+`Promise<Array<TreeNode>>` in pre-order. Each node still carries its own `children`.
+
+## Throws
+
+The same walk errors as [getTree](/docs/api/tree/get-tree).
+
+## Example
+
+```ts
+export async function generateStaticParams() {
+  const nodes = await docsTree.getFlatTree();
+  return nodes.map((node) => ({ slug: node.slug.split("/") }));
+}
+```

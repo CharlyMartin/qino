@@ -1,0 +1,46 @@
+---
+title: getNextNode
+description: The node after a slug in reading order.
+since: "releases/0.1.0.md"
+---
+
+Flattens the tree depth-first and returns the node after the given slug, or `null` at the end.
+
+```ts
+const next = await docsTree.getNextNode("guides/setup");
+// TreeNode for "guides/deploy", or null
+```
+
+## Signature
+
+```ts
+tree.getNextNode(slug: Slug): Promise<TreeNode | null>;
+```
+
+## Parameters
+
+| Name   | Type     | Required | Description              |
+| ------ | -------- | -------- | ------------------------ |
+| `slug` | `string` | yes      | Slug of the current node |
+
+## Returns
+
+`Promise<TreeNode | null>`. `null` when the slug is the last node.
+
+## Throws
+
+- `Tree entry "<slug>" not found in tree "<directory>".`
+- The walk errors listed on [getTree](/docs/api/tree/get-tree).
+
+## Example
+
+```tsx
+const [previous, next] = await Promise.all([
+  docsTree.getPreviousNode(slug),
+  docsTree.getNextNode(slug),
+]);
+
+{
+  next ? <a href={`/docs/${next.slug}`}>{next.title}</a> : null;
+}
+```

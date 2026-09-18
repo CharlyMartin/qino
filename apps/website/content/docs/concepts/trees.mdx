@@ -1,0 +1,79 @@
+---
+title: Trees
+description: Hierarchical, ordered content backed by nested folders and anchor files.
+---
+
+A tree is a hierarchical, ordered set of entries, such as a documentation sidebar or a nested category structure. Hierarchy and order are first-class, so a tree is not a sorted collection.
+
+```ts
+// qino/trees/docs.ts
+import { z } from "zod";
+
+import qino from "../";
+
+export const docsTree = qino.defineTree({
+  directory: "/docs",
+  extension: ".md",
+  titleField: "title",
+  schema: z.object({
+    title: z.string(),
+    markdown: z.string(),
+  }),
+});
+```
+
+`titleField` names the schema field that titles each node. It must be a key whose validated type is `string`.
+
+## Layout
+
+Every node is a file. A node with children is a file plus a same-named folder:
+
+```txt
+docs/
+  _order.json
+  introduction.md
+  guides.md
+  guides/
+    _order.json
+    setup.md
+```
+
+`guides.md` is the anchor for `guides/`. Its frontmatter titles the node and its body is the section's content. A non-empty folder without its anchor is an error. There are no index files. Slugs are slash-joined: `guides/setup`. Full rules are in [Content folder](/docs/guide/content-folder).
+
+## Ordering
+
+Each folder may hold an `_order.json` listing its children by filename:
+
+```json
+["introduction.md", "guides.md"]
+```
+
+Listed files come first, unlisted ones follow alphabetically. Without the file, children sort alphabetically. The filename is configurable with `orderFileName`.
+
+## Structure versus content
+
+A tree exposes two kinds of data.
+
+**Nodes** describe structure. `getTree()` returns nested `TreeNode` objects with `slug`, `title`, `fileName`, `filePath`, and `children`. Nodes carry no schema fields and no augment output, so building a sidebar never validates a body.
+
+**Entries** carry content. `getEntry(slug)` reads, validates, and applies the selected view to one file, returning the schema output plus `_meta`.
+
+```ts
+const nodes = await docsTree.getTree(); // sidebar
+const entry = await docsTree.getEntry("guides/setup"); // page
+```
+
+## Navigation
+
+The tree order is also the reading order. `getFlatTree()` returns nodes depth-first, and `getNextNode(slug)` and `getPreviousNode(slug)` walk that flat list, returning `null` at either end.
+
+```ts
+export async function generateStaticParams() {
+  const nodes = await docsTree.getFlatTree();
+  return nodes.map((node) => ({ slug: node.slug.split("/") }));
+}
+```
+
+## What trees do not have
+
+Trees support `resolveRelations` and `augment` in views, but not `filter` or `sort`. Order comes from `_order.json`, and filtering is not available in the current release.

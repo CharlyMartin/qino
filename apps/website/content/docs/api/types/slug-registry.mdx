@@ -1,0 +1,53 @@
+---
+title: QinoSlugRegistry
+description: The interface that generated slug types augment.
+since: "releases/0.1.0.md"
+---
+
+An empty interface that `qino build` augments through `qino/_generated/types.d.ts`. Getters look up their primitive's `directory` in it to narrow slug parameters and results.
+
+```ts
+import type { QinoSlugRegistry } from "@qino/cms";
+
+interface QinoSlugRegistry {}
+```
+
+## Generated augmentation
+
+```ts
+// qino/_generated/types.d.ts
+export {};
+
+declare module "@qino/cms" {
+  export type PostSlug = "hello-world" | "second-post" | (string & {});
+  export type DocSlug =
+    | "introduction"
+    | "guides"
+    | "guides/setup"
+    | (string & {});
+
+  interface QinoSlugRegistry {
+    "/docs": DocSlug;
+    "/posts": PostSlug;
+  }
+}
+```
+
+The named aliases such as `PostSlug` are also importable from `@qino/cms` once the file exists.
+
+## Resolution
+
+For a primitive with `directory: Dir`:
+
+- If `Dir` is a key of `QinoSlugRegistry`, slug parameters and `getAllSlugs` results use that union.
+- Otherwise they are `string`.
+
+The union ends in `(string & {})`, so it autocompletes without rejecting unknown strings.
+
+## Naming
+
+The directory is PascalCased and only its last segment is singularized: `/posts` gives `PostSlug`, `/docs/v1` gives `DocsV1Slug`. Collisions get a numeric suffix. Directories with no entries are omitted, and items never appear.
+
+## Manual augmentation
+
+You can augment the interface yourself in any `.d.ts` if you do not run the CLI, using the same shape.

@@ -1,0 +1,73 @@
+---
+title: defineTree
+description: Define hierarchical, ordered content backed by nested folders.
+since: "releases/0.1.0.md"
+---
+
+Defines a tree: a nested directory where every node is a file and sections are a file plus a same-named folder. Returns getters for structure, content, and navigation.
+
+```ts
+import { z } from "zod";
+
+import qino from "../";
+
+export const docsTree = qino.defineTree({
+  directory: "/docs",
+  extension: ".md",
+  titleField: "title",
+  schema: z.object({
+    title: z.string(),
+    markdown: z.string(),
+  }),
+});
+```
+
+## Signature
+
+```ts
+qino.defineTree(params: {
+  directory: `/${string}`;
+  extension: ".md" | ".mdx" | ".markdown" | ".json";
+  schema: StandardSchemaV1<unknown, Record<string, unknown>>;
+  titleField: StringKeyOfSchemaOutput;
+  orderFileName?: string;
+  relations?: Record<RelationPath, Primitive | (() => Primitive)>;
+  views?: (view: ViewHelper) => Record<string, View> & { default: View };
+}): Tree;
+```
+
+## Parameters
+
+| Name            | Type                                         | Required | Default         | Description                                                                           |
+| --------------- | -------------------------------------------- | -------- | --------------- | ------------------------------------------------------------------------------------- |
+| `directory`     | `` `/${string}` ``                           | yes      |                 | Directory under `contentFolder`. Walked recursively. Owned exclusively by this tree   |
+| `extension`     | `".md" \| ".mdx" \| ".markdown" \| ".json"`  | yes      |                 | Only files with this extension are nodes                                              |
+| `schema`        | Standard Schema object validator             | yes      |                 | Synchronous. May not declare `_meta`                                                  |
+| `titleField`    | key of schema output                         | yes      |                 | Field whose string value titles each node. Non-string keys are a type error           |
+| `orderFileName` | `string`                                     | no       | `"_order.json"` | Per-folder ordering file                                                              |
+| `relations`     | `Record<path, primitive \| () => primitive>` | no       | `{}`            | Same grammar as collections                                                           |
+| `views`         | `(view) => { default: View; [name]: View }`  | no       |                 | Helper offers `resolveRelations` and `augment` only. `filter` and `sort` are rejected |
+
+## Returns
+
+A `Tree` with five getters:
+
+- [`getTree(slug?)`](/docs/api/tree/get-tree)
+- [`getFlatTree()`](/docs/api/tree/get-flat-tree)
+- [`getEntry(slug, options?)`](/docs/api/tree/get-entry)
+- [`getNextNode(slug)`](/docs/api/tree/get-next-node)
+- [`getPreviousNode(slug)`](/docs/api/tree/get-previous-node)
+
+## Throws
+
+At definition time, the shared view errors listed on [defineCollection](/docs/api/collection), plus:
+
+- `tree views do not support filter or sort.`
+- `tree view "<name>" does not support filter or sort.`
+
+Layout errors surface when a getter walks the tree. See [getTree](/docs/api/tree/get-tree).
+
+## See also
+
+- [Trees](/docs/concepts/trees)
+- [Content folder](/docs/guide/content-folder)

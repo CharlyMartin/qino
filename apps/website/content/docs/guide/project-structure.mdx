@@ -1,0 +1,88 @@
+---
+title: Project structure
+description: The qino/ folder, the entry file, and where definitions live.
+---
+
+A Qino project has two folders that Qino cares about: the `qino/` folder that holds definitions, and the content folder that holds files. This page covers `qino/`. The content folder has [its own page](/docs/guide/content-folder).
+
+## The qino/ folder
+
+```txt
+qino/
+  index.ts             createQino instance, default export
+  collections/
+    posts.ts
+    authors.ts
+  trees/
+    docs.ts
+  items/
+    home.ts
+  _generated/
+    types.d.ts         written by `qino build`, gitignored
+```
+
+The CLI looks for `qino/` in the working directory. The folder name and the `index.ts` entry file are conventions, not options.
+
+## The entry file
+
+`qino/index.ts` must default-export the instance:
+
+```ts
+import { createQino } from "@qino/cms";
+
+export default createQino({
+  contentFolder: "src/content",
+  mediaFolder: "public",
+});
+```
+
+The CLI fails with a clear message when the default export is not a `createQino` result.
+
+## Definition files
+
+Each definition is a named export from any `.ts`, `.tsx`, `.js`, or `.mjs` file under `qino/`. The CLI globs the folder and picks up every export created by `defineCollection`, `defineTree`, or `defineItem`. Nothing needs to be registered by hand.
+
+Grouping by primitive (`collections/`, `trees/`, `items/`) is the layout used by the reference example. It is a convention, not a requirement.
+
+```ts
+// qino/collections/posts.ts
+import { z } from "zod";
+
+import qino from "../";
+
+export const postCollection = qino.defineCollection({
+  directory: "/posts",
+  extension: ".md",
+  schema: z.object({ title: z.string(), markdown: z.string() }),
+});
+```
+
+All definitions must come from the same instance. `qino lint` rejects primitives and relation targets created by a different `createQino` call.
+
+## Consuming definitions
+
+Your app imports the definition and calls its getters:
+
+```ts
+import { postCollection } from "../qino/collections/posts";
+
+const posts = await postCollection.getMany();
+```
+
+There is nothing to import from `qino/index.ts` in app code.
+
+## Generated types
+
+`qino build` writes `qino/_generated/types.d.ts`. It augments `@qino/cms` with one slug union per collection and tree, so getters autocomplete slugs. The folder uses an underscore, not a dot, so the `**/*.ts` include pattern in `tsconfig.json` picks it up with no changes. See [Types](/docs/concepts/types).
+
+Add it to `.gitignore`:
+
+```txt
+qino/_generated/
+```
+
+## Path rules
+
+- `contentFolder` and `mediaFolder` are relative to the working directory and must be directories.
+- `directory` on collections and trees, and `file` on items, start with `/` and are joined onto `contentFolder`. The leading slash marks the content root, not the filesystem root.
+- Two primitives cannot own overlapping paths. A tree and a collection cannot share or nest directories, and an item file cannot sit inside either.

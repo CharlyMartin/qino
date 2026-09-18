@@ -1,0 +1,79 @@
+---
+title: defineCollection
+description: Define a flat directory of entries that share one schema.
+since: "releases/0.1.0.md"
+---
+
+Defines a collection: a flat directory of files with one extension and one schema. Returns getters for listing, reading, and enumerating slugs.
+
+```ts
+import { z } from "zod";
+
+import qino from "../";
+import { authorCollection } from "./authors";
+
+export const postCollection = qino.defineCollection({
+  directory: "/posts",
+  extension: ".md",
+  schema: z.object({
+    title: z.string(),
+    author: z.string(),
+    draft: z.boolean(),
+    markdown: z.string(),
+  }),
+  relations: { author: authorCollection },
+  views: (view) => ({
+    default: view({ filter: (post) => !post.draft }),
+    detail: view({ resolveRelations: 1 }),
+  }),
+});
+```
+
+## Signature
+
+```ts
+qino.defineCollection(params: {
+  directory: `/${string}`;
+  extension: ".md" | ".mdx" | ".markdown" | ".json";
+  schema: StandardSchemaV1<unknown, Record<string, unknown>>;
+  relations?: Record<RelationPath, Primitive | (() => Primitive)>;
+  views?: (view: ViewHelper) => Record<string, View> & { default: View };
+}): Collection;
+```
+
+## Parameters
+
+| Name        | Type                                         | Required | Default | Description                                                                                    |
+| ----------- | -------------------------------------------- | -------- | ------- | ---------------------------------------------------------------------------------------------- |
+| `directory` | `` `/${string}` ``                           | yes      |         | Directory under `contentFolder`. Must start with `/`. Flat: nested files are ignored           |
+| `extension` | `".md" \| ".mdx" \| ".markdown" \| ".json"`  | yes      |         | Only files with this extension are entries                                                     |
+| `schema`    | Standard Schema object validator             | yes      |         | Synchronous. Receives frontmatter plus `markdown`, or the JSON object. May not declare `_meta` |
+| `relations` | `Record<path, primitive \| () => primitive>` | no       | `{}`    | JSON paths into the schema output mapped to target primitives. `[*]` marks an array hop        |
+| `views`     | `(view) => { default: View; [name]: View }`  | no       |         | Factory run once at definition. Must return a `default` view made with the helper              |
+
+`resolveRelations`, `augment`, `filter`, and `sort` are rejected at the root. Put them inside a view. See [view](/docs/api/view).
+
+## Returns
+
+A `Collection` with three getters:
+
+- [`getMany(options?)`](/docs/api/collection/get-many)
+- [`getOne(slug, options?)`](/docs/api/collection/get-one)
+- [`getAllSlugs()`](/docs/api/collection/get-all-slugs)
+
+Use `Infer<typeof postCollection>` to name the entry types. See [Infer](/docs/api/types/infer).
+
+## Throws
+
+At definition time:
+
+- `Configure "<key>" inside views.default or a custom view, not at the root.`
+- `Configure views with views: (view) => ({ default: view({ ... }) }). Object-form views are no longer supported.`
+- `The views factory must synchronously return an object of named views.`
+- `The views factory must return a "default" view created with view({ ... }).`
+- `View "<name>" must be created with view({ ... }).`
+
+## See also
+
+- [Collections](/docs/concepts/collections)
+- [Content folder](/docs/guide/content-folder)

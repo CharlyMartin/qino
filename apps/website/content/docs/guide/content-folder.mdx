@@ -1,0 +1,94 @@
+---
+title: Content folder
+description: Allowed file types and how collections, trees, and items are laid out on disk.
+---
+
+The content folder is the directory passed as `contentFolder` to `createQino`. Each primitive owns a path inside it.
+
+## Allowed file types
+
+| Extension   | Parsed as                        |
+| ----------- | -------------------------------- |
+| `.md`       | YAML frontmatter + Markdown body |
+| `.mdx`      | YAML frontmatter + MDX body      |
+| `.markdown` | YAML frontmatter + Markdown body |
+| `.json`     | A JSON object                    |
+
+For the three Markdown formats, the body is supplied to the schema as a `markdown` string. Declare `markdown: z.string()` to keep it. See [Frontmatter](/docs/guide/frontmatter) and [Schemas](/docs/concepts/schemas).
+
+## Collections
+
+A collection is a flat directory. Every file with the configured extension is an entry, and the slug is the filename without that extension.
+
+```txt
+src/content/posts/
+  hello-world.md        slug "hello-world"
+  second-post.md        slug "second-post"
+  notes.txt             ignored, wrong extension
+  drafts/wip.md         ignored, nested
+  .hidden.md            ignored, hidden
+```
+
+Dots elsewhere in a filename stay in the slug. Nested files, hidden files, and other extensions are skipped.
+
+## Trees
+
+A tree is a nested directory. Every node is backed by a file, and a node with children is a file plus a folder of the same name:
+
+```txt
+src/content/docs/
+  _order.json
+  introduction.md               slug "introduction"
+  guides.md                     slug "guides", anchor for guides/
+  guides/
+    _order.json
+    setup.md                    slug "guides/setup"
+    deploy.md                   slug "guides/deploy"
+```
+
+Rules:
+
+- **Every non-empty folder needs a sibling file** with the same name and the tree's extension. `guides/` requires `guides.md`. A missing anchor is an error. An empty folder is ignored.
+- **No index files.** The anchor's frontmatter titles the node and its body is the section's content.
+- **Slugs are slash-joined paths** minus the extension: `guides/setup`.
+- **`_order.json` is optional** and orders one folder's children. It is a JSON array of filenames including the extension:
+
+```json
+["introduction.md", "guides.md"]
+```
+
+Listed files come first in the given order. Unlisted files follow in alphabetical order. Entries must name the anchor file, never the folder, and must end in the tree's extension. An entry that does not exist on disk is an error. Without the file, a folder sorts alphabetically. The filename is configurable per tree with `orderFileName`.
+
+## Items
+
+An item is a single file at a fixed path. The extension is taken from the path, so there is no `extension` option:
+
+```txt
+src/content/pages/
+  home.md               defineItem({ file: "/pages/home.md" })
+```
+
+A missing file is an error at read time.
+
+## Relation values
+
+A relation stores the content path of the target, relative to the content folder, with the extension:
+
+```yaml
+author: "authors/camille-laurent.json"
+categories:
+  - "categories/content-modeling.json"
+```
+
+Bare slugs are rejected. The directory and extension must match the target primitive, and a leading `/` is optional. For item targets, the value must equal the item's `file`. See [Relations](/docs/concepts/relations).
+
+## Reserved names
+
+- `_meta` is reserved at the top level of every content file and every schema.
+- `markdown` cannot appear in Markdown frontmatter; the body owns it. In JSON files, `markdown` is an ordinary field.
+
+Nested keys with those names are ordinary user fields.
+
+## Media folder
+
+`mediaFolder` is declared on `createQino` and must exist. The current release only checks that the folder exists during `qino lint`. Image and asset paths in content are plain strings; validate them in your schema as you see fit.

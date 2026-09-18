@@ -1,0 +1,37 @@
+---
+title: getPreviousNode
+description: The node before a slug in reading order.
+since: "releases/0.1.0.md"
+---
+
+Flattens the tree depth-first and returns the node before the given slug, or `null` at the start.
+
+```ts
+const previous = await docsTree.getPreviousNode("guides/setup");
+// TreeNode for "guides", or null
+```
+
+## Signature
+
+```ts
+tree.getPreviousNode(slug: Slug): Promise<TreeNode | null>;
+```
+
+## Parameters
+
+| Name   | Type     | Required | Description              |
+| ------ | -------- | -------- | ------------------------ |
+| `slug` | `string` | yes      | Slug of the current node |
+
+## Returns
+
+`Promise<TreeNode | null>`. `null` when the slug is the first node.
+
+## Throws
+
+- `Tree entry "<slug>" not found in tree "<directory>".`
+- The walk errors listed on [getTree](/docs/api/tree/get-tree).
+
+## See also
+
+- [getNextNode](/docs/api/tree/get-next-node)

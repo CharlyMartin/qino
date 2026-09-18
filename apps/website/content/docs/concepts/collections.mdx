@@ -1,0 +1,74 @@
+---
+title: Collections
+description: A flat folder of similarly shaped entries with one schema.
+---
+
+A collection is a flat directory of files that share one schema, such as blog posts or authors. It is the primitive for "many of the same thing".
+
+```ts
+// qino/collections/posts.ts
+import { z } from "zod";
+
+import qino from "../";
+
+export const postCollection = qino.defineCollection({
+  directory: "/posts",
+  extension: ".md",
+  schema: z.object({
+    title: z.string(),
+    draft: z.boolean(),
+    markdown: z.string(),
+  }),
+});
+```
+
+## Entries and slugs
+
+Every file in `directory` with the configured `extension` is an entry. The slug is the filename minus that extension, so `posts/hello-world.md` has the slug `hello-world`. Subfolders, hidden files, and other extensions are ignored. See [Content folder](/docs/guide/content-folder).
+
+Each entry is the validated schema output plus `_meta`:
+
+```ts
+const post = await postCollection.getOne("hello-world");
+
+post._meta.slug; // "hello-world"
+post._meta.fileName; // "hello-world.md"
+post._meta.filePath; // absolute path
+```
+
+## Getters
+
+| Getter                   | Reads content | Applies view | Returns                |
+| ------------------------ | ------------- | ------------ | ---------------------- |
+| `getMany(options?)`      | all files     | yes          | `Array<Entry>`         |
+| `getOne(slug, options?)` | one file      | yes          | `Entry`                |
+| `getAllSlugs()`          | no            | no           | `Array<string>` sorted |
+
+`getMany` returns entries in discovery order unless the selected view sorts them. `getAllSlugs` is the cheap way to build routes, since it never parses or validates anything.
+
+## Filtering and sorting
+
+Collections are the only primitive with `filter` and `sort`. Both live inside a view, never on the getter call:
+
+```ts
+views: (view) => ({
+  default: view({
+    filter: (post) => !post.draft,
+    sort: (a, b) => a.title.localeCompare(b.title),
+  }),
+  all: view({}),
+}),
+```
+
+Filtering runs after relation resolution and augmentation. Sorting runs after filtering, for `getMany` only. `getOne` throws when the selected view's filter excludes the entry. See [Views](/docs/concepts/views).
+
+Because `getAllSlugs` ignores views, it can list slugs that a filtering default view excludes. When the default view filters, derive route slugs from the viewed set instead:
+
+```ts
+const slugs = (await postCollection.getMany()).map((post) => post._meta.slug);
+```
+
+## When to reach for something else
+
+- One well-known file, such as a home page: use an [item](/docs/concepts/items).
+- Nested, ordered content, such as docs: use a [tree](/docs/concepts/trees).

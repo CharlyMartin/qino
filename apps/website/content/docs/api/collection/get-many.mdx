@@ -1,0 +1,52 @@
+---
+title: getMany
+description: Read, validate, and shape every entry in a collection.
+since: "releases/0.1.0.md"
+---
+
+Reads every file in the collection, validates each one, and applies the selected view.
+
+```ts
+const posts = await postCollection.getMany();
+const detailed = await postCollection.getMany({ view: "detail" });
+```
+
+## Signature
+
+```ts
+collection.getMany(options?: { view?: ViewName }): Promise<Array<Entry>>;
+```
+
+## Parameters
+
+| Name           | Type      | Required | Default     | Description                                     |
+| -------------- | --------- | -------- | ----------- | ----------------------------------------------- |
+| `options.view` | view name | no       | `"default"` | A view declared in `views`. Unknown names throw |
+
+`view` is the only accepted option. Passing `resolveRelations`, `filter`, or `sort` throws. An explicit `undefined` for `view` is treated as omitted.
+
+## Returns
+
+`Promise<Array<Entry>>`, where `Entry` is the schema output, `_meta` (`slug`, `fileName`, `filePath`), resolved relations at the view's depth, and the awaited augment output.
+
+Order is discovery order unless the view has `sort`. Entries the view's `filter` rejects are dropped.
+
+## Pipeline
+
+1. Read and validate every file.
+2. Resolve relations to the view's depth.
+3. Run `augment`.
+4. Apply `filter`.
+5. Apply `sort` with `toSorted` semantics, so ties keep their relative order.
+
+## Throws
+
+- `Unknown view "<name>". Available views: <names>.`
+- `Getter resolveRelations is no longer supported. Configure it in a view and select that view instead.`
+- `Getter filter and sort are not supported. Configure them in a collection view instead.`
+- Validation, relation, and augment errors for any entry. See [Errors](/docs/api/errors).
+
+## See also
+
+- [getOne](/docs/api/collection/get-one)
+- [Views](/docs/concepts/views)

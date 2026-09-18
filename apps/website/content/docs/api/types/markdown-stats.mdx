@@ -1,0 +1,25 @@
+---
+title: MarkdownStats
+description: The return type of getMarkdownStats.
+since: "releases/0.1.0.md"
+---
+
+```ts
+import type { MarkdownStats } from "@qino/cms/utils";
+
+type MarkdownStats = {
+  wordCount: number;
+  proseCharacterCount: number;
+  sourceCharacterCount: number;
+};
+```
+
+## Fields
+
+| Field                  | Description                                                |
+| ---------------------- | ---------------------------------------------------------- |
+| `wordCount`            | Word-like segments in the extracted prose                  |
+| `proseCharacterCount`  | Grapheme count of the prose after whitespace collapsing    |
+| `sourceCharacterCount` | Grapheme count of the raw input, including syntax and code |
+
+See [getMarkdownStats](/docs/api/utils/get-markdown-stats) for what counts as prose.

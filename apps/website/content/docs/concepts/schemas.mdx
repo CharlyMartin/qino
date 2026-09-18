@@ -1,0 +1,62 @@
+---
+title: Schemas
+description: How entries are validated and what Qino adds or reserves.
+---
+
+Every primitive takes a `schema`. Qino accepts any [Standard Schema](https://standardschema.dev) validator and treats it as a black box: it calls the standard validate function and never touches validator-specific APIs. Zod, Valibot, and ArkType all work.
+
+The schema must be synchronous. A validator that returns a Promise is rejected.
+
+## What the schema receives
+
+For Markdown, MDX, and `.markdown` files, the input is the parsed frontmatter plus the raw body as `markdown`:
+
+```ts
+// input for a .md file
+{
+  title: "Hello",
+  draft: false,
+  markdown: "The body, without frontmatter.",
+}
+```
+
+For `.json` files, the input is the parsed object as-is.
+
+## The markdown field
+
+The body is supplied as `markdown` before validation. What happens next follows your validator:
+
+- Declare `markdown: z.string()` to keep it.
+- Use a synchronous transform to change its value or type. Getters, views, and resolved relations follow the schema output.
+- Leave it undeclared and an ordinary Zod object strips it. A passthrough object keeps it. A strict object rejects it.
+
+An empty body is an empty string. Frontmatter cannot declare `markdown`; the body owns it. Augment callbacks cannot add or replace `markdown` on Markdown entries either. In JSON files, `markdown` is an ordinary field.
+
+Schemas are required even for files with no frontmatter.
+
+## Reserved: \_meta
+
+`_meta` is reserved at the top level of content, schema input, and schema output, for every format. Declaring it in a schema is a type error. A transform that introduces it fails at runtime. Nested keys named `_meta` are ordinary fields.
+
+After validation, Qino adds `_meta`:
+
+| Primitive  | `_meta` fields                 |
+| ---------- | ------------------------------ |
+| Collection | `slug`, `fileName`, `filePath` |
+| Tree       | `slug`, `fileName`, `filePath` |
+| Item       | `fileName`, `filePath`         |
+
+## Dates
+
+YAML never produces `Date` objects on its own. Validate date strings with `z.iso.date()` or coerce with `z.coerce.date()`. See [Frontmatter](/docs/guide/frontmatter).
+
+## Validation errors
+
+A failing entry throws with the file path and every issue:
+
+```txt
+Validation failed for /abs/path/posts/hello.md:
+  title: Invalid input: expected string, received undefined
+```
+
+`qino check` runs the same validation for every file. See [CLI](/docs/guide/cli).

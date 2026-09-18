@@ -1,0 +1,86 @@
+---
+title: Installation
+description: Add @qino/cms to a project and create a first collection.
+---
+
+## Requirements
+
+- Node.js 22 or newer.
+- TypeScript is optional. If you use it, 5.9 or newer with `strict: true`.
+- A [Standard Schema](https://standardschema.dev) validator. The examples use Zod.
+
+## Install
+
+```sh
+pnpm add @qino/cms zod
+# npm install @qino/cms zod
+# yarn add @qino/cms zod
+```
+
+Zod is only an example. Any Standard Schema validator works.
+
+## Create the instance
+
+The CLI expects a `qino/` folder at the project root with an `index.ts` that default-exports a `createQino` instance:
+
+```ts
+// qino/index.ts
+import { createQino } from "@qino/cms";
+
+export default createQino({
+  contentFolder: "src/content",
+  mediaFolder: "public",
+});
+```
+
+Both paths are relative to the working directory and must exist.
+
+## Define a collection
+
+```ts
+// qino/collections/posts.ts
+import { z } from "zod";
+
+import qino from "../";
+
+export const postCollection = qino.defineCollection({
+  directory: "/posts",
+  extension: ".md",
+  schema: z.object({
+    title: z.string(),
+    markdown: z.string(),
+  }),
+});
+```
+
+Every file in `src/content/posts/*.md` is validated against the schema. The Markdown body arrives as `markdown`, and Qino adds `_meta` with the slug and file path.
+
+## Read content
+
+```ts
+const posts = await postCollection.getMany();
+const post = await postCollection.getOne("hello-world");
+
+post.title; // string
+post.markdown; // string
+post._meta.slug; // "hello-world"
+```
+
+## Validate on build
+
+Add `qino build` as a `prebuild` step so lint, content validation, and type generation run before the app builds:
+
+```json
+{
+  "scripts": {
+    "prebuild": "qino build",
+    "build": "next build"
+  }
+}
+```
+
+`qino build` writes `qino/_generated/types.d.ts`. Add that folder to `.gitignore`.
+
+## Next.js note
+
+Next.js needs `transpilePackages: ["@qino/cms"]` in `next.config.ts`. See the [Next.js example](/docs/examples/next-js).

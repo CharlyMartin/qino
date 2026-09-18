@@ -1,0 +1,23 @@
+---
+title: Types
+description: Every type exported from @qino/cms and @qino/cms/utils.
+since: "releases/0.1.0.md"
+---
+
+`@qino/cms` exports these types:
+
+| Type                                                                                              | Purpose                                       |
+| ------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| [`Infer`](/docs/api/types/infer)                                                                  | Entry types of a primitive, per view          |
+| [`Collection`, `Tree`, `Item`](/docs/api/types/primitives)                                        | Return types of the three define functions    |
+| [`CollectionEntryMeta`, `TreeEntryMeta`, `ItemEntryMeta`, `AnyEntry`](/docs/api/types/entry-meta) | The `_meta` shapes and the loosest entry type |
+| [`TreeNode`](/docs/api/types/tree-node)                                                           | Structural node returned by tree getters      |
+| [`QinoSlugRegistry`](/docs/api/types/slug-registry)                                               | Interface augmented by generated slug types   |
+
+`@qino/cms/utils` exports:
+
+| Type                                              | Purpose                           |
+| ------------------------------------------------- | --------------------------------- |
+| [`MarkdownStats`](/docs/api/types/markdown-stats) | Return type of `getMarkdownStats` |
+
+Option shapes such as the config passed to `createQino`, the relation depth, or getter options are not exported. They are documented inline on the function pages.

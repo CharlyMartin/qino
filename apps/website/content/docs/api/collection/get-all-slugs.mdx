@@ -1,0 +1,52 @@
+---
+title: getAllSlugs
+description: List every slug without reading content.
+since: "releases/0.1.0.md"
+---
+
+Lists the filenames in the collection directory, strips the extension, and sorts them. Nothing is read or validated.
+
+```ts
+const slugs = await postCollection.getAllSlugs();
+// ["hello-world", "second-post"]
+```
+
+## Signature
+
+```ts
+collection.getAllSlugs(): Promise<Array<Slug>>;
+```
+
+## Parameters
+
+None.
+
+## Returns
+
+`Promise<Array<Slug>>`, sorted with `.sort()`. After `qino build`, `Slug` is the generated union for this directory; before, it is `string`.
+
+## Behavior
+
+- Discovers `*<extension>` at the top level only. Nested and hidden files are excluded.
+- Never reads content, validates schemas, resolves relations, or runs view callbacks.
+- Includes slugs whose content is malformed or invalid.
+- Returns `[]` for an empty or missing directory.
+
+Because views are ignored, the list can contain slugs that a filtering default view excludes, and [getOne](/docs/api/collection/get-one) throws for those. Use `getAllSlugs` for routes when the default view has no `filter`. Otherwise derive slugs from the viewed set:
+
+```ts
+const slugs = (await postCollection.getMany()).map((post) => post._meta.slug);
+```
+
+## Throws
+
+Nothing beyond filesystem errors.
+
+## Example
+
+```ts
+export async function generateStaticParams() {
+  const slugs = await postCollection.getAllSlugs();
+  return slugs.map((slug) => ({ slug }));
+}
+```
