@@ -34,6 +34,7 @@ export function DocsGroup({
           to="/docs/$"
           params={{ _splat: node.slug }}
           aria-current={isActive ? "page" : undefined}
+          onClick={() => setOpen(isActive ? !open : true)}
           className={
             isActive
               ? "flex-1 rounded-md bg-zinc-100 px-2 py-1 font-medium text-zinc-950 dark:bg-zinc-900 dark:text-zinc-50"
