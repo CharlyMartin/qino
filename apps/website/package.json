@@ -11,10 +11,12 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@base-ui/react": "1.8.0",
     "@qino/cms": "workspace:*",
     "@tanstack/react-router": "1.170.38",
     "@tanstack/react-start": "1.168.56",
     "highlight.js": "11.12.0",
+    "lucide-react": "1.47.0",
     "next-mdx-remote": "6.0.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -22,6 +24,7 @@
     "rehype-highlight": "7.0.2",
     "rehype-slug": "6.0.0",
     "remark-gfm": "4.0.1",
+    "shadcn": "4.21.0",
     "zod": "4.6.4"
   },
   "devDependencies": {

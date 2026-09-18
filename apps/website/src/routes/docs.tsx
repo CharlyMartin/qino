@@ -29,9 +29,6 @@ function DocsLayout() {
         >
           Qino
         </Link>
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-          Docs
-        </h2>
         <DocsSidebar nodes={nodes} activeSlug={activeSlug} />
       </aside>
       <main id="docs-content" className="min-w-0 flex-1">
