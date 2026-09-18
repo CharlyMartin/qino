@@ -23,3 +23,15 @@ updates:
     versioning-strategy: increase
     ignore:
       - dependency-name: "@types/node"
+
+  - package-ecosystem: npm
+    directory: "/apps/website"
+    schedule:
+      interval: weekly
+    versioning-strategy: increase
+    ignore:
+      - dependency-name: "@types/node"
+    groups:
+      tanstack:
+        patterns:
+          - "@tanstack/*"
