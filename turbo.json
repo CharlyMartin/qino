@@ -7,6 +7,12 @@
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
+    "website#build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [".output/**", ".vercel/output/**", "qino/_generated/**"],
+      "env": ["NITRO_PRESET", "VERCEL"]
+    },
     "check-types": {
       "dependsOn": ["^check-types"]
     },

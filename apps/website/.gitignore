@@ -1,2 +1,4 @@
 qino/_generated/
 *.tsbuildinfo
+.nitro/
+.output/
