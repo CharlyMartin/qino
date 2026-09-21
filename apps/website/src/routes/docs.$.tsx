@@ -1,13 +1,22 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { MDXRemote } from "next-mdx-remote";
 
 import { DocsNotFound } from "../components/docs/docs-not-found";
 import { DocsPagination } from "../components/docs/docs-pagination";
 import { mdxComponents } from "../components/docs/mdx-components";
+import { hasDocsSlug } from "../lib/has-docs-slug";
 import { getDocsPage } from "../server/get-docs-page";
 
 export const Route = createFileRoute("/docs/$")({
-  loader: ({ params }) => getDocsPage({ data: params._splat ?? "" }),
+  loader: async ({ params, parentMatchPromise }) => {
+    const slug = params._splat ?? "";
+    const { loaderData } = await parentMatchPromise;
+    if (!loaderData || !hasDocsSlug(loaderData, slug)) throw notFound();
+
+    return getDocsPage({ data: slug });
+  },
+  staleTime: Infinity,
+  preloadStaleTime: Infinity,
   head: ({ loaderData }) => ({
     meta: loaderData
       ? [

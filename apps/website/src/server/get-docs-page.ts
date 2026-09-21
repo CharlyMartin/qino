@@ -1,5 +1,6 @@
 import { notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
+import { staticFunctionMiddleware } from "@tanstack/start-static-server-functions";
 import { serialize } from "next-mdx-remote/serialize";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeHighlight from "rehype-highlight";
@@ -12,6 +13,7 @@ import { toDocsNode } from "./to-docs-node";
 
 export const getDocsPage = createServerFn({ method: "GET" })
   .validator(z.string())
+  .middleware([staticFunctionMiddleware])
   .handler(async ({ data: slug }) => {
     const flat = await docsTree.getFlatTree();
     const node = flat.find((candidate) => candidate.slug == slug);
@@ -22,6 +24,7 @@ export const getDocsPage = createServerFn({ method: "GET" })
       docsTree.getPreviousNode(node.slug),
       docsTree.getNextNode(node.slug),
     ]);
+
     const mdx = await serialize<Record<string, never>, Record<string, never>>(
       entry.markdown,
       {
