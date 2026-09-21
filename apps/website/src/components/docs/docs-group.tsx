@@ -24,7 +24,7 @@ export function DocsGroup({
   const [open, setOpen] = useState(isInside);
 
   useEffect(() => {
-    setOpen(isInside);
+    if (isInside) setOpen(true);
   }, [isInside]);
 
   return (
