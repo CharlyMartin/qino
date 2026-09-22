@@ -31,12 +31,23 @@ than compiling MDX through a server-function request. Deploy these assets alongs
 the HTML; Nitro includes them in Vercel's static output. Keep the Start server
 runtime for redirects and requests that are not prerendered.
 
+Use `vite preview` for local production checks. When self-hosting the Node output,
+serve `.output/public` through a static file server alongside the Start runtime:
+Nitro's generated asset manifest does not include the HTML and JSON created by
+Start's later prerender step.
+
 Links preload on intent (hover, focus, or touch). Docs loader results stay fresh
 while retained in the router's cache, using its default retention period. Content
 updates require a rebuild; refresh an open page to pick up the new deployment.
-Development continues to use live server functions. Unknown docs slugs are checked
+Development uses live server functions and marks docs loaders stale immediately,
+so revisiting a page refreshes its content. Content edits do not trigger automatic
+hot reload. Internal documentation links in MDX use the router and intent
+preloading; external links, downloads, and heading anchors use native links.
+Unknown docs slugs are checked
 against the docs tree and display the existing not-found page. Missing static
 assets for known pages are deployment errors, with no runtime compilation fallback.
+The error screen offers a full-page reload to recover from a failed request or
+pick up a newer deployment. Other unknown URLs show a site-wide not-found page.
 
 Checks:
 

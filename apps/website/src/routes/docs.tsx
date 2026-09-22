@@ -11,8 +11,6 @@ import { getDocsTree } from "../server/get-docs-tree";
 
 export const Route = createFileRoute("/docs")({
   loader: () => getDocsTree(),
-  staleTime: Infinity,
-  preloadStaleTime: Infinity,
   component: DocsLayout,
 });
 
