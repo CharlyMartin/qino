@@ -15,8 +15,6 @@ export const Route = createFileRoute("/docs/$")({
 
     return getDocsPage({ data: slug });
   },
-  staleTime: Infinity,
-  preloadStaleTime: Infinity,
   head: ({ loaderData }) => ({
     meta: loaderData
       ? [

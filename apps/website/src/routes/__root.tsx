@@ -1,6 +1,8 @@
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
+import { PageError } from "../components/page-error";
+import { PageNotFound } from "../components/page-not-found";
 import appCss from "../styles/app.css?url";
 
 export const Route = createRootRoute({
@@ -13,6 +15,8 @@ export const Route = createRootRoute({
     links: [{ rel: "stylesheet", href: appCss }],
   }),
   shellComponent: RootDocument,
+  errorComponent: PageError,
+  notFoundComponent: PageNotFound,
 });
 
 function RootDocument({ children }: { children: ReactNode }) {
