@@ -1,5 +1,11 @@
 # @qino/cms
 
+## 0.2.0
+
+### Minor Changes
+
+- [#152](https://github.com/CharlyMartin/qino/pull/152) [`4c19eb4`](https://github.com/CharlyMartin/qino/commit/4c19eb40cb3a713e1dfa30f28ac8bcf352864a05) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Renames `createQino` to `initQino`. This is a breaking change: replace `createQino` imports and calls with `initQino`. CLI error messages now name `initQino()`.
+
 ## 0.1.0
 
 ### Minor Changes
