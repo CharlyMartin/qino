@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "highlight.js": "11.12.0",
-    "next": "16.3.4",
+    "next": "16.3.5",
     "next-mdx-remote": "6.0.0",
     "@qino/cms": "workspace:*",
     "react": "19.3.0",
