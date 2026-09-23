@@ -35,7 +35,7 @@ export function createRelationResolver(cache: ResolveCache) {
 
       if (resolvedTarget[QinoPrimitiveMarker].instanceId != sourceInstanceId) {
         throw new Error(
-          `Relation "${relationKey}" (from ${entry[META_FIELD_NAME].filePath}) points to a primitive created by a different createQino() call. All related primitives must come from the same Qino instance.`,
+          `Relation "${relationKey}" (from ${entry[META_FIELD_NAME].filePath}) points to a primitive created by a different initQino() call. All related primitives must come from the same Qino instance.`,
         );
       }
 

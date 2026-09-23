@@ -5,7 +5,7 @@ import nodePath from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { createQino } from "../../runtime/qino/create-qino";
+import { initQino } from "../../runtime/qino/init-qino";
 import { collectTreeSlugs } from "./collect-tree-slugs";
 
 const Schema = z.object({
@@ -30,7 +30,7 @@ async function writeMd(dir: string, name: string, title: string) {
 }
 
 function makeTree() {
-  const { defineTree } = createQino({ contentFolder: tmp, mediaFolder: tmp });
+  const { defineTree } = initQino({ contentFolder: tmp, mediaFolder: tmp });
   return defineTree({
     directory: "/guides",
     schema: Schema,

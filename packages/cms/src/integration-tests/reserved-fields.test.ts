@@ -9,7 +9,7 @@ import { z } from "zod";
 import { validateCollection } from "../cli/check/validate-collection";
 import { validateItem } from "../cli/check/validate-item";
 import { validateTree } from "../cli/check/validate-tree";
-import { createQino } from "../runtime/qino/create-qino";
+import { initQino } from "../runtime/qino/init-qino";
 
 let tmp: string;
 beforeEach(async () => {
@@ -26,7 +26,7 @@ describe.each([".md", ".mdx", ".markdown", ".json"] as const)(
     test.each(["content", "transform"])(
       "rejects reserved fields from %s in getters and CLI validation",
       async (source) => {
-        const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+        const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
         for (const field of extension == ".json" || source == "transform"
           ? ["_meta"]
           : ["_meta", "markdown"]) {
@@ -89,7 +89,7 @@ test("resolved Markdown targets retain their markdown", async () => {
       doc: "/entries/hello.md",
     }),
   );
-  const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+  const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const schema = z.strictObject({ title: z.string(), markdown: z.string() });
   const posts = qino.defineCollection({
     directory: "/entries",
@@ -131,7 +131,7 @@ test.each([".md", ".mdx", ".markdown", ".json"] as const)(
       body: z.number(),
       ...(extension == ".json" ? {} : { markdown: z.string() }),
     });
-    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const posts = qino.defineCollection({
       directory: "/entries",
       extension,
@@ -164,7 +164,7 @@ test.each(["_meta", "markdown"])(
       path.join(tmp, "home.md"),
       "---\ntitle: Hello\n---\n# Hello",
     );
-    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const item = qino.defineItem({
       file: "/home.md",
       schema: z.object({ title: z.string() }),
@@ -187,7 +187,7 @@ test("JSON markdown and nested reserved names remain user fields", async () => {
     nested: { _meta: "custom", markdown: "custom" },
   };
   await fs.writeFile(path.join(tmp, "home.json"), JSON.stringify(data));
-  const item = createQino({ contentFolder: tmp, mediaFolder: tmp }).defineItem({
+  const item = initQino({ contentFolder: tmp, mediaFolder: tmp }).defineItem({
     file: "/home.json",
     schema: z.object({
       markdown: z.number(),
@@ -204,7 +204,7 @@ test.each([".md", ".mdx", ".markdown"] as const)(
       path.join(tmp, `entries/hello${extension}`),
       "---\ntitle: Hello\n---\n# Hello",
     );
-    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const schema = z.object({
       title: z.string(),
       markdown: z.string().transform((text) => text.length),

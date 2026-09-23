@@ -1,5 +1,5 @@
 import { QinoConfigMarker } from "../data/globals";
-import type { QinoConfig } from "../runtime/qino/create-qino";
+import type { QinoConfig } from "../runtime/qino/init-qino";
 import type { AnyQinoConfig } from "../types/config";
 import { DUMMY_CONFIG, DUMMY_INSTANCE_ID } from "./dummy-config";
 

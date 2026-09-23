@@ -31,7 +31,7 @@ import type {
   ViewSelection,
   ViewsConfig,
 } from "../../types/views";
-import type { QinoContext } from "../qino/create-qino";
+import type { QinoContext } from "../qino/init-qino";
 import { buildItemMeta } from "./build-item-meta";
 
 export type DefineItemParams<

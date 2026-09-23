@@ -47,7 +47,7 @@ describe("assertRelationInstanceIds", () => {
 
     expect(() =>
       assertRelationInstanceIds(primitives, DUMMY_INSTANCE_ID),
-    ).toThrow(/different createQino\(\) call/);
+    ).toThrow(/different initQino\(\) call/);
   });
 
   test("resolves lazy relation targets", () => {
@@ -65,7 +65,7 @@ describe("assertRelationInstanceIds", () => {
 
     expect(() =>
       assertRelationInstanceIds(primitives, DUMMY_INSTANCE_ID),
-    ).toThrow(/different createQino\(\) call/);
+    ).toThrow(/different initQino\(\) call/);
   });
 });
 
@@ -86,7 +86,7 @@ test.each([false, true])(
       const validate = () =>
         assertRelationInstanceIds([source], DUMMY_INSTANCE_ID);
       if (instanceId == DUMMY_INSTANCE_ID) expect(validate).not.toThrow();
-      else expect(validate).toThrow(/different createQino\(\) call/);
+      else expect(validate).toThrow(/different initQino\(\) call/);
     }
   },
 );

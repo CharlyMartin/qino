@@ -13,8 +13,8 @@ export async function loadQinoConfig(entryFilePath: string) {
 
   if (!isQinoConfig(config)) {
     throw new Error(
-      `No createQino() instance found as the default export of "${ROOT_FOLDER_NAME}/${ENTRY_FILE_NAME}". ` +
-        `Export it with \`export default createQino(...)\`.`,
+      `No initQino() instance found as the default export of "${ROOT_FOLDER_NAME}/${ENTRY_FILE_NAME}". ` +
+        `Export it with \`export default initQino(...)\`.`,
     );
   }
 

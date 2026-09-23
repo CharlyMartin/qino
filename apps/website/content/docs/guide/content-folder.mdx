@@ -3,7 +3,7 @@ title: Content folder
 description: Allowed file types and how collections, trees, and items are laid out on disk.
 ---
 
-The content folder is the directory passed as `contentFolder` to `createQino`. Each primitive owns a path inside it.
+The content folder is the directory passed as `contentFolder` to `initQino`. Each primitive owns a path inside it.
 
 ## Allowed file types
 
@@ -91,4 +91,4 @@ Nested keys with those names are ordinary user fields.
 
 ## Media folder
 
-`mediaFolder` is declared on `createQino` and must exist. The current release only checks that the folder exists during `qino lint`. Image and asset paths in content are plain strings; validate them in your schema as you see fit.
+`mediaFolder` is declared on `initQino` and must exist. The current release only checks that the folder exists during `qino lint`. Image and asset paths in content are plain strings; validate them in your schema as you see fit.

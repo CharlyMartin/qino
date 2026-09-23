@@ -10,14 +10,14 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
-import { createQino } from "../qino/create-qino";
+import { initQino } from "../qino/init-qino";
 
 let tmp: string;
-let defineTree: ReturnType<typeof createQino>["defineTree"];
+let defineTree: ReturnType<typeof initQino>["defineTree"];
 
 beforeEach(async () => {
   tmp = await fs.mkdtemp(nodePath.join(os.tmpdir(), "qino-tree-"));
-  ({ defineTree } = createQino({ contentFolder: tmp, mediaFolder: tmp }));
+  ({ defineTree } = initQino({ contentFolder: tmp, mediaFolder: tmp }));
 });
 
 afterEach(async () => {
@@ -350,7 +350,7 @@ describe("defineTree", () => {
 });
 
 test("relations load nested Markdown tree entries without navigation or target augment", async () => {
-  const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+  const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const dir = nodePath.join(tmp, "docs/guides");
   await fs.mkdir(dir, { recursive: true });
   await writeMd(dir, "setup", "Setup", "Installation instructions");

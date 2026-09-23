@@ -342,7 +342,7 @@ describe("createRelationResolver", () => {
           }),
           { relations: { author: target }, depth: 1, sourceInstanceId },
         ),
-      ).rejects.toThrow(/different createQino/);
+      ).rejects.toThrow(/different initQino/);
     });
   });
 
@@ -499,6 +499,6 @@ describe("tree references", () => {
         depth: 1,
         sourceInstanceId,
       }),
-    ).rejects.toThrow(/doc.*source.json.*different createQino/);
+    ).rejects.toThrow(/doc.*source.json.*different initQino/);
   });
 });

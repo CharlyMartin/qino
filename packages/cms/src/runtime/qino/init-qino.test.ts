@@ -2,13 +2,13 @@ import { describe, expect, test } from "vitest";
 import { z } from "zod";
 
 import { QinoPrimitiveMarker, QinoPrimitives } from "../../data/globals";
-import { createQino } from "./create-qino";
+import { initQino } from "./init-qino";
 
 const Schema = z.object({ title: z.string() }).strict();
 
-describe("createQino", () => {
+describe("initQino", () => {
   test("returns defineCollection, defineItem, defineTree", () => {
-    const qino = createQino({
+    const qino = initQino({
       contentFolder: "src/content",
       mediaFolder: "public",
     });
@@ -18,7 +18,7 @@ describe("createQino", () => {
   });
 
   test("stamps an instance id onto each primitive's QinoPrimitiveMarker", () => {
-    const { defineCollection, defineItem, defineTree } = createQino({
+    const { defineCollection, defineItem, defineTree } = initQino({
       contentFolder: "src/content",
       mediaFolder: "public",
     });
@@ -45,7 +45,7 @@ describe("createQino", () => {
   });
 
   test("primitives from the same instance share the same instance id", () => {
-    const { defineCollection, defineItem, defineTree } = createQino({
+    const { defineCollection, defineItem, defineTree } = initQino({
       contentFolder: "src/content",
       mediaFolder: "public",
     });
@@ -74,8 +74,8 @@ describe("createQino", () => {
   });
 
   test("primitives from different instances have different instance ids", () => {
-    const a = createQino({ contentFolder: "a", mediaFolder: "p" });
-    const b = createQino({ contentFolder: "b", mediaFolder: "p" });
+    const a = initQino({ contentFolder: "a", mediaFolder: "p" });
+    const b = initQino({ contentFolder: "b", mediaFolder: "p" });
     const ca = a.defineCollection({
       directory: "/posts",
       schema: Schema,
@@ -92,7 +92,7 @@ describe("createQino", () => {
   });
 
   test("destructured definition helpers still produce valid primitives", () => {
-    const { defineCollection } = createQino({
+    const { defineCollection } = initQino({
       contentFolder: "src/content",
       mediaFolder: "public",
     });
@@ -105,9 +105,9 @@ describe("createQino", () => {
   });
 });
 
-describe("createQino definition reloads", () => {
+describe("initQino definition reloads", () => {
   test("recreates a collection with updated metadata on the same instance", () => {
-    const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
+    const qino = initQino({ contentFolder: "c", mediaFolder: "p" });
     const UpdatedSchema = Schema.extend({ description: z.string() });
     const original = qino.defineCollection({
       views: (view) => ({
@@ -141,7 +141,7 @@ describe("createQino definition reloads", () => {
   });
 
   test("recreates an item with updated metadata on the same instance", () => {
-    const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
+    const qino = initQino({ contentFolder: "c", mediaFolder: "p" });
     const UpdatedSchema = Schema.extend({ description: z.string() });
     const original = qino.defineItem({
       views: (view) => ({
@@ -173,7 +173,7 @@ describe("createQino definition reloads", () => {
   });
 
   test("recreates a tree with updated metadata on the same instance", () => {
-    const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
+    const qino = initQino({ contentFolder: "c", mediaFolder: "p" });
     const UpdatedSchema = Schema.extend({ description: z.string() });
     const original = qino.defineTree({
       views: (view) => ({
@@ -209,7 +209,7 @@ describe("createQino definition reloads", () => {
   });
 
   test("allows a directory change and reuse of the previous directory", () => {
-    const qino = createQino({ contentFolder: "c", mediaFolder: "p" });
+    const qino = initQino({ contentFolder: "c", mediaFolder: "p" });
     qino.defineCollection({
       directory: "/posts",
       schema: Schema,

@@ -22,7 +22,7 @@ export type QinoContext = {
   readonly instanceId: symbol;
 } & QinoConfig;
 
-export function createQino(config: QinoConfig) {
+export function initQino(config: QinoConfig) {
   const ctx: QinoContext = {
     instanceId: Symbol("qino.instance"),
     ...config,

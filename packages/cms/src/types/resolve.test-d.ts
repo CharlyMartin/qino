@@ -1,10 +1,10 @@
 import { assert, describe, expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
-import { createQino } from "../runtime/qino/create-qino";
+import { initQino } from "../runtime/qino/init-qino";
 import type { TreeEntryMeta } from "./tree";
 
-const { defineCollection, defineItem, defineTree } = createQino({
+const { defineCollection, defineItem, defineTree } = initQino({
   contentFolder: "src/content",
   mediaFolder: "public",
 });

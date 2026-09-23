@@ -9,7 +9,7 @@ import { collectTreeSlugs } from "../cli/build/collect-tree-slugs";
 import { validateCollection } from "../cli/check/validate-collection";
 import { validateItem } from "../cli/check/validate-item";
 import { validateTree } from "../cli/check/validate-tree";
-import { createQino } from "../runtime/qino/create-qino";
+import { initQino } from "../runtime/qino/init-qino";
 
 let tmp: string;
 beforeEach(async () => {
@@ -53,7 +53,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
     "%s views",
     (kind) => {
       test("resolves before augmenting, keeps views independent, and bypasses target augments", async () => {
-        const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+        const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
         const targetAugment = vi.fn(() => {
           throw new Error("Target augment must not execute");
         });
@@ -237,7 +237,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
 });
 
 test("default getters preserve references and run augment without loading targets", async () => {
-  const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+  const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const authors = qino.defineCollection({
     directory: "/authors",
     extension: ".json",
@@ -283,7 +283,7 @@ test("default getters preserve references and run augment without loading target
 });
 
 test("collection listing callbacks receive resolved augmented entries and bypass target callbacks", async () => {
-  const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+  const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const targetFilter = vi.fn(() => false);
   const targetSort = vi.fn(() => {
     throw new Error("Target sort must not run");
@@ -339,7 +339,7 @@ test("collection listing callbacks receive resolved augmented entries and bypass
 });
 
 test("explicit resolution on the default runs before augmenting on every primitive", async () => {
-  const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+  const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const authors = qino.defineCollection({
     directory: "/authors",
     extension: ".json",
@@ -393,7 +393,7 @@ test("explicit resolution on the default runs before augmenting on every primiti
 });
 
 test("CLI validation and slug generation skip views and relation resolution", async () => {
-  const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+  const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const authors = qino.defineCollection({
     directory: "/authors",
     extension: ".json",
@@ -460,7 +460,7 @@ test("CLI validation and slug generation skip views and relation resolution", as
 });
 
 test("view errors retain the source path and reject conflicting output at runtime", async () => {
-  const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+  const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const collection = qino.defineCollection({
     directory: "/posts",
     extension: ".json",
@@ -499,7 +499,7 @@ test("view errors retain the source path and reject conflicting output at runtim
 test.each(["collection", "tree", "item"] as const)(
   "%s validates optional views and root settings",
   async (kind) => {
-    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const config = {
       schema: z.object({ title: z.string(), author: z.string() }),
     };
@@ -554,7 +554,7 @@ test.each(["collection", "tree", "item"] as const)(
 );
 
 test("spread reuse preserves default augmentation and sort while adding a custom filter", async () => {
-  const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+  const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const posts = qino.defineCollection({
     directory: "/posts",
     extension: ".json",

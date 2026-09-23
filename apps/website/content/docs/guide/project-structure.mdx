@@ -9,7 +9,7 @@ A Qino project has two folders that Qino cares about: the `qino/` folder that ho
 
 ```txt
 qino/
-  index.ts             createQino instance, default export
+  index.ts             initQino instance, default export
   collections/
     posts.ts
     authors.ts
@@ -28,15 +28,15 @@ The CLI looks for `qino/` in the working directory. The folder name and the `ind
 `qino/index.ts` must default-export the instance:
 
 ```ts
-import { createQino } from "@qino/cms";
+import { initQino } from "@qino/cms";
 
-export default createQino({
+export default initQino({
   contentFolder: "src/content",
   mediaFolder: "public",
 });
 ```
 
-The CLI fails with a clear message when the default export is not a `createQino` result.
+The CLI fails with a clear message when the default export is not an `initQino` result.
 
 ## Definition files
 
@@ -57,7 +57,7 @@ export const postCollection = qino.defineCollection({
 });
 ```
 
-All definitions must come from the same instance. `qino lint` rejects primitives and relation targets created by a different `createQino` call.
+All definitions must come from the same instance. `qino lint` rejects primitives and relation targets created by a different `initQino` call.
 
 ## Consuming definitions
 
