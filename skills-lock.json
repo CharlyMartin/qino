@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "changeset": {
+      "source": "withastro/astro",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/changeset/SKILL.md",
+      "computedHash": "44a2cd29de5b0fd23437e9d414c2fab1efbb33e1bd0da71cb80d60573d257a50"
+    }
+  }
+}
