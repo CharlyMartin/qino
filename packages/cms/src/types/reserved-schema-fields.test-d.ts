@@ -1,10 +1,10 @@
-import { createQino, type Infer } from "@qino/cms";
+import { type Infer, initQino } from "@qino/cms";
 import { expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
 import type { ObjectSchema } from "./schema";
 
-const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
+const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
 const metaSchema = z.object({
   title: z.string(),
   _meta: z.string().optional(),

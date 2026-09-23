@@ -1,4 +1,4 @@
-import type { QinoConfig } from "../runtime/qino/create-qino";
+import type { QinoConfig } from "../runtime/qino/init-qino";
 
 export const DUMMY_INSTANCE_ID = Symbol.for("qino.tests.instance");
 

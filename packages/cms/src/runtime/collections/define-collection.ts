@@ -36,7 +36,7 @@ import type {
   ViewSelection,
   ViewsConfig,
 } from "../../types/views";
-import type { QinoContext } from "../qino/create-qino";
+import type { QinoContext } from "../qino/init-qino";
 import { globCollectionPaths } from "./glob-collection-paths";
 
 export type DefineCollectionParams<

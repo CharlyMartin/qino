@@ -1,9 +1,9 @@
 import { assert, describe, expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
-import { createQino } from "../runtime/qino/create-qino";
+import { initQino } from "../runtime/qino/init-qino";
 
-const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
+const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
 
 const schema = z
   .object({

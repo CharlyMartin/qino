@@ -1,15 +1,15 @@
 ---
-title: createQino
-description: Create the instance that all definitions hang off.
+title: initQino
+description: Initialize the instance that all definitions hang off.
 since: "releases/0.1.0.md"
 ---
 
-Creates a Qino instance bound to a content folder and a media folder. Every collection, tree, and item is defined through the returned instance.
+Initializes a Qino instance bound to a content folder and a media folder. Every collection, tree, and item is defined through the returned instance.
 
 ```ts
-import { createQino } from "@qino/cms";
+import { initQino } from "@qino/cms";
 
-const qino = createQino({
+const qino = initQino({
   contentFolder: "src/content",
   mediaFolder: "public",
 });
@@ -18,7 +18,7 @@ const qino = createQino({
 ## Signature
 
 ```ts
-function createQino(config: {
+function initQino(config: {
   readonly contentFolder: string;
   readonly mediaFolder: string;
 }): {
@@ -48,7 +48,7 @@ An instance with three methods:
 The methods are closures, so destructuring them is fine:
 
 ```ts
-export const { defineCollection, defineTree, defineItem } = createQino({
+export const { defineCollection, defineTree, defineItem } = initQino({
   contentFolder: "src/content",
   mediaFolder: "public",
 });

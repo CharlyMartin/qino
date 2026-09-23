@@ -37,7 +37,7 @@ import type {
   ViewSelection,
   ViewsConfig,
 } from "../../types/views";
-import type { QinoContext } from "../qino/create-qino";
+import type { QinoContext } from "../qino/init-qino";
 import { findNode } from "./find-node";
 import { flattenTree } from "./flatten-tree";
 import { getNeighborNode } from "./get-neighbor-node";

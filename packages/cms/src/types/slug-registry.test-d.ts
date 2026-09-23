@@ -1,4 +1,4 @@
-import { createQino } from "@qino/cms";
+import { initQino } from "@qino/cms";
 import { describe, expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
@@ -10,7 +10,7 @@ declare module "@qino/cms" {
   }
 }
 
-const { defineCollection, defineTree } = createQino({
+const { defineCollection, defineTree } = initQino({
   contentFolder: "src/content",
   mediaFolder: "public",
 });

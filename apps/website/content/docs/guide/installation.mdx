@@ -21,13 +21,13 @@ Zod is only an example. Any Standard Schema validator works.
 
 ## Create the instance
 
-The CLI expects a `qino/` folder at the project root with an `index.ts` that default-exports a `createQino` instance:
+The CLI expects a `qino/` folder at the project root with an `index.ts` that default-exports an `initQino` instance:
 
 ```ts
 // qino/index.ts
-import { createQino } from "@qino/cms";
+import { initQino } from "@qino/cms";
 
-export default createQino({
+export default initQino({
   contentFolder: "src/content",
   mediaFolder: "public",
 });

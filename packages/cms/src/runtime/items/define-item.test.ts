@@ -5,7 +5,7 @@ import nodePath from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { createQino } from "../qino/create-qino";
+import { initQino } from "../qino/init-qino";
 
 let tmp: string;
 
@@ -26,7 +26,7 @@ describe("defineItem", () => {
       ["---", "title: Home", "---", "", "One two"].join("\n"),
     );
 
-    const qino = createQino({ contentFolder: tmp, mediaFolder: tmp });
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const item = qino.defineItem({
       views: (view) => ({
         default: view({

@@ -87,7 +87,7 @@ recognized and raise an error. The built-in `!!str`, `!!int`, `!!float`,
 Collections, trees, and items can expose different shapes of the same content:
 
 ```ts
-const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
+const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
 
 const authors = qino.defineCollection({
   directory: "/authors",
@@ -120,7 +120,7 @@ const defaults = await posts.getMany(); // declared default view
 const same = await posts.getMany({ view: "default" });
 ```
 
-Import `createQino` from `@qino/cms` and `z` from `zod`. Authored relations use
+Import `initQino` from `@qino/cms` and `z` from `zod`. Authored relations use
 content paths, such as `authors/alice.json`.
 
 View names autocomplete. Each view independently defaults to
@@ -200,11 +200,11 @@ Create a local base with the supplied helper and spread it into another view.
 No type annotations are needed; ordinary spread ordering controls overrides:
 
 ```ts
-import { createQino } from "@qino/cms";
+import { initQino } from "@qino/cms";
 import { getMarkdownStats } from "@qino/cms/utils";
 import { z } from "zod";
 
-const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
+const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
 const posts = qino.defineCollection({
   directory: "/posts",
   extension: ".md",
@@ -351,7 +351,7 @@ must match the item's configured file.
 Relations resolve only when enabled on the source's default or named view.
 Numeric depths allow 1–6 relation hops; `true` means 6. Embedded targets bypass
 their own views and augment callbacks. All related primitives must belong to the
-same `createQino()` instance. Relations are directional; reverse links are not
+same `initQino()` instance. Relations are directional; reverse links are not
 created automatically.
 
 ## Collection slugs

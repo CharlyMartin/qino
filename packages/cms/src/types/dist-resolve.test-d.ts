@@ -1,4 +1,4 @@
-import { createQino } from "@qino/cms";
+import { initQino } from "@qino/cms";
 import { assert, expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
@@ -14,7 +14,7 @@ class Price {
   }
 }
 
-const { defineCollection } = createQino({
+const { defineCollection } = initQino({
   contentFolder: "content",
   mediaFolder: "public",
 });

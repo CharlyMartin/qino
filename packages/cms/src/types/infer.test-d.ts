@@ -1,14 +1,14 @@
 import {
   type Collection,
-  createQino,
   type Infer,
   type Item,
+  initQino,
   type Tree,
 } from "@qino/cms";
 import { expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
-const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
+const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
 const site = qino.defineItem({
   file: "/site.json",
   schema: z.object({ name: z.string() }),

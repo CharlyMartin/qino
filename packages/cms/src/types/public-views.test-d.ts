@@ -1,9 +1,9 @@
-import { createQino } from "@qino/cms";
+import { initQino } from "@qino/cms";
 import { expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
 const schema = z.object({ markdown: z.string(), title: z.string() });
-const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
+const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
 
 // Derive helpers from the public API so source and dist checks use the same symbols.
 type CollectionView = Parameters<

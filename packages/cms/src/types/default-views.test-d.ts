@@ -1,8 +1,8 @@
-import { createQino, type Infer } from "@qino/cms";
+import { type Infer, initQino } from "@qino/cms";
 import { expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
-const qino = createQino({ contentFolder: "content", mediaFolder: "public" });
+const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
 const schema = z.object({
   markdown: z.string(),
   title: z.string(),
