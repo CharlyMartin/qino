@@ -19,9 +19,13 @@ export const Route = createRootRoute({
   notFoundComponent: PageNotFound,
 });
 
-function RootDocument({ children }: { children: ReactNode }) {
+type RootDocumentProps = {
+  children: ReactNode;
+};
+
+function RootDocument({ children }: RootDocumentProps) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <HeadContent />
       </head>

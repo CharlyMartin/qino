@@ -1,13 +1,49 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/")({ component: HomePage });
+import { CliSection } from "@/components/landing/cli-section";
+import { FileTypes } from "@/components/landing/file-types";
+import { FinalCta } from "@/components/landing/final-cta";
+import { Hero } from "@/components/landing/hero";
+import { Pipeline } from "@/components/landing/pipeline";
+import { PrimitivesSection } from "@/components/landing/primitives-section";
+import { RelationsSection } from "@/components/landing/relations-section";
+import { SiteFooter } from "@/components/landing/site-footer";
+import { SiteHeader } from "@/components/landing/site-header";
+
+export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Qino — Markdown in. Typed content out." },
+      {
+        name: "description",
+        content:
+          "A headless flat-file CMS for Markdown, MDX and JSON. Query your content with schema validation, resolved relations and inferred TypeScript types. Nothing to deploy.",
+      },
+    ],
+  }),
+  component: HomePage,
+});
 
 function HomePage() {
   return (
-    <main className="mx-auto max-w-5xl px-6 py-16">
-      <Link to="/docs" className="text-sm underline underline-offset-4">
-        Documentation
-      </Link>
-    </main>
+    <>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-10 focus:bg-background focus:p-4"
+      >
+        Skip to content
+      </a>
+      <SiteHeader />
+      <main id="main-content">
+        <Hero />
+        <Pipeline />
+        <FileTypes />
+        <PrimitivesSection />
+        <RelationsSection />
+        <CliSection />
+        <FinalCta />
+      </main>
+      <SiteFooter />
+    </>
   );
 }
