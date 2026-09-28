@@ -1,5 +1,20 @@
 # @qino/cms
 
+## 0.3.0
+
+### Minor Changes
+
+- [#154](https://github.com/CharlyMartin/qino/pull/154) [`656cf63`](https://github.com/CharlyMartin/qino/commit/656cf631792fdbf9e4bfce4a94b81857929c0c47) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Renames collection and item getters so every primitive reads entries with `getEntry`. This is a breaking change:
+
+  ```diff
+  - await posts.getMany();
+  - await posts.getOne("hello-world");
+  - await home.getData();
+  + await posts.getEntries();
+  + await posts.getEntry("hello-world");
+  + await home.getEntry();
+  ```
+
 ## 0.2.0
 
 ### Minor Changes
