@@ -22,7 +22,7 @@ describe("fetchTargetEntry", () => {
         extension: ".json",
         store: new Map([["alice", entry]]),
       });
-      const spy = vi.spyOn(target[QinoPrimitiveMarker], "readOne");
+      const spy = vi.spyOn(target[QinoPrimitiveMarker], "readEntry");
 
       const result = await fetchTargetEntry(target, "alice", ctx);
 
@@ -47,7 +47,7 @@ describe("fetchTargetEntry", () => {
         extension: ".json",
       });
       const original = new Error("disk failure");
-      vi.spyOn(target[QinoPrimitiveMarker], "readOne").mockRejectedValueOnce(
+      vi.spyOn(target[QinoPrimitiveMarker], "readEntry").mockRejectedValueOnce(
         original,
       );
 
@@ -64,7 +64,7 @@ describe("fetchTargetEntry", () => {
         directory: "/authors",
         extension: ".json",
       });
-      vi.spyOn(target[QinoPrimitiveMarker], "readOne").mockRejectedValueOnce(
+      vi.spyOn(target[QinoPrimitiveMarker], "readEntry").mockRejectedValueOnce(
         "boom",
       );
 
@@ -84,7 +84,7 @@ describe("fetchTargetEntry", () => {
         file: "/config/site.json",
         data,
       });
-      const spy = vi.spyOn(target[QinoPrimitiveMarker], "readData");
+      const spy = vi.spyOn(target[QinoPrimitiveMarker], "readEntry");
 
       const result = await fetchTargetEntry(target, "ignored", ctx);
 
@@ -94,7 +94,7 @@ describe("fetchTargetEntry", () => {
 
     test("wraps a source read error with the item file path", async () => {
       const target = makeDummyItem({ file: "/config/site.json" });
-      vi.spyOn(target[QinoPrimitiveMarker], "readData").mockRejectedValueOnce(
+      vi.spyOn(target[QinoPrimitiveMarker], "readEntry").mockRejectedValueOnce(
         new Error("parse error"),
       );
 
@@ -105,7 +105,7 @@ describe("fetchTargetEntry", () => {
 
     test("uses targetMeta.file (not directory) in the wrapped message", async () => {
       const target = makeDummyItem({ file: "/config/site.json" });
-      vi.spyOn(target[QinoPrimitiveMarker], "readData").mockRejectedValueOnce(
+      vi.spyOn(target[QinoPrimitiveMarker], "readEntry").mockRejectedValueOnce(
         new Error("nope"),
       );
 

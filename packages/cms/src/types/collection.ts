@@ -38,7 +38,7 @@ export type Collection<
 > = PrimitiveInference<Schema, CollectionEntryMeta<Ext>, Rels, Views> & {
   readonly [QinoPrimitiveMarker]: CollectionMeta<Schema, Ext, Rels>;
   getAllSlugs(): Promise<Array<SlugFor<Dir>>>;
-  getMany<Args extends ViewArguments<Views> = []>(
+  getEntries<Args extends ViewArguments<Views> = []>(
     ...args: Args
   ): Promise<
     Array<
@@ -51,7 +51,7 @@ export type Collection<
       >
     >
   >;
-  getOne<Args extends ViewArguments<Views> = []>(
+  getEntry<Args extends ViewArguments<Views> = []>(
     slug: SlugFor<Dir>,
     ...args: Args
   ): Promise<
@@ -89,10 +89,10 @@ export type CollectionMeta<
   readonly extension: Ext;
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
-  readonly readAll: () => Promise<
+  readonly readEntries: () => Promise<
     Array<ResolvedCollectionView<Schema, Ext, Rels, false>>
   >;
-  readonly readOne: (
+  readonly readEntry: (
     slug: Slug,
   ) => Promise<ResolvedCollectionView<Schema, Ext, Rels, false>>;
 };
@@ -100,14 +100,14 @@ export type CollectionMeta<
 export type AnyCollection = {
   readonly [QinoPrimitiveMarker]: CollectionMeta<ObjectSchema>;
   getAllSlugs(): Promise<Array<Slug>>;
-  getMany(options?: GetterOptions<undefined>): Promise<
+  getEntries(options?: GetterOptions<undefined>): Promise<
     Array<
       Record<string, unknown> & {
         [K in typeof META_FIELD_NAME]: CollectionEntryMeta;
       }
     >
   >;
-  getOne(
+  getEntry(
     slug: Slug,
     options?: GetterOptions<undefined>,
   ): Promise<

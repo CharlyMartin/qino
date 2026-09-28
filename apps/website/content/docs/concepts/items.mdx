@@ -35,10 +35,10 @@ export const homeItem = qino.defineItem({
 
 ## Getter
 
-`getData(options?)` reads, validates, and applies the selected view:
+`getEntry(options?)` reads, validates, and applies the selected view:
 
 ```ts
-const home = await homeItem.getData();
+const home = await homeItem.getEntry();
 
 home.title;
 home["featured-posts"][0].title; // resolved post

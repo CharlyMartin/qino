@@ -39,6 +39,6 @@ describe("defineItem", () => {
       schema: z.object({ markdown: z.string(), title: z.string() }).strict(),
     });
 
-    await expect(item.getData()).resolves.toMatchObject({ words: 2 });
+    await expect(item.getEntry()).resolves.toMatchObject({ words: 2 });
   });
 });

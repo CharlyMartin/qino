@@ -36,26 +36,26 @@ test("spreads locally inferred views and selects the declared default", async ()
       };
     },
   });
-  const baseline = await posts.getOne("hello");
-  const explicit = await posts.getOne("hello", { view: "default" });
-  expectTypeOf(await posts.getMany({})).items.toEqualTypeOf(baseline);
-  expectTypeOf(await posts.getMany(undefined)).items.toEqualTypeOf(baseline);
-  expectTypeOf(await posts.getMany({ view: undefined })).items.toEqualTypeOf(
+  const baseline = await posts.getEntry("hello");
+  const explicit = await posts.getEntry("hello", { view: "default" });
+  expectTypeOf(await posts.getEntries({})).items.toEqualTypeOf(baseline);
+  expectTypeOf(await posts.getEntries(undefined)).items.toEqualTypeOf(baseline);
+  expectTypeOf(await posts.getEntries({ view: undefined })).items.toEqualTypeOf(
     baseline,
   );
-  const highlight = await posts.getOne("hello", { view: "highlight" });
+  const highlight = await posts.getEntry("hello", { view: "highlight" });
   expectTypeOf(explicit).toEqualTypeOf(baseline);
   expectTypeOf(highlight).toEqualTypeOf(baseline);
-  expectTypeOf(await posts.getMany()).items.toEqualTypeOf(baseline);
-  expectTypeOf(await posts.getMany({ view: "default" })).items.toEqualTypeOf(
+  expectTypeOf(await posts.getEntries()).items.toEqualTypeOf(baseline);
+  expectTypeOf(await posts.getEntries({ view: "default" })).items.toEqualTypeOf(
     baseline,
   );
   expectTypeOf<Infer<typeof posts>["output"]>().toEqualTypeOf(baseline);
   expectTypeOf<Infer<typeof posts>["views"]["default"]>().toEqualTypeOf(
     baseline,
   );
-  const optional = await posts.getOne("hello", {} as { view?: "plain" });
-  const plain = await posts.getOne("hello", { view: "plain" });
+  const optional = await posts.getEntry("hello", {} as { view?: "plain" });
+  const plain = await posts.getEntry("hello", { view: "plain" });
   expectTypeOf(optional).toEqualTypeOf<typeof baseline | typeof plain>();
 });
 
@@ -111,7 +111,7 @@ test("Collection requires default only when views exist", async () => {
   });
   expectTypeOf<keyof Infer<typeof plain>["views"]>().toEqualTypeOf<never>();
   // @ts-expect-error Without views, default is not a selectable name.
-  plain.getOne("hello", { view: "default" });
+  plain.getEntry("hello", { view: "default" });
   qino.defineCollection({
     directory: "/plain",
     extension: ".json",
@@ -141,8 +141,8 @@ test("Collection requires default only when views exist", async () => {
       default: view({ augment: (entry) => ({ label: entry.title }) }),
     }),
   });
-  const implicit = await configured.getOne("hello");
-  const explicit = await configured.getOne("hello", { view: "default" });
+  const implicit = await configured.getEntry("hello");
+  const explicit = await configured.getEntry("hello", { view: "default" });
   expectTypeOf(explicit).toEqualTypeOf(implicit);
   expectTypeOf(implicit.label).toEqualTypeOf<string>();
   expectTypeOf<Infer<typeof configured>["output"]>().toEqualTypeOf(implicit);
@@ -361,7 +361,7 @@ test("Item requires default only when views exist", async () => {
   const plain = qino.defineItem({ file: "/home.json", schema });
   expectTypeOf<keyof Infer<typeof plain>["views"]>().toEqualTypeOf<never>();
   // @ts-expect-error Without views, default is not a selectable name.
-  plain.getData({ view: "default" });
+  plain.getEntry({ view: "default" });
   qino.defineItem({
     file: "/home.json",
     schema,
@@ -387,9 +387,9 @@ test("Item requires default only when views exist", async () => {
       default: view({ augment: (entry) => ({ label: entry.title }) }),
     }),
   });
-  const implicit = await configured.getData();
-  expectTypeOf(await configured.getData({})).toEqualTypeOf(implicit);
-  const explicit = await configured.getData({ view: "default" });
+  const implicit = await configured.getEntry();
+  expectTypeOf(await configured.getEntry({})).toEqualTypeOf(implicit);
+  const explicit = await configured.getEntry({ view: "default" });
   expectTypeOf(explicit).toEqualTypeOf(implicit);
   expectTypeOf(implicit.label).toEqualTypeOf<string>();
   expectTypeOf<Infer<typeof configured>["output"]>().toEqualTypeOf(implicit);

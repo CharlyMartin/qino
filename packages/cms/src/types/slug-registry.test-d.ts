@@ -50,14 +50,14 @@ describe("typed slugs", () => {
     >();
   });
 
-  test("a registered collection narrows getOne's slug to the union", () => {
-    expectTypeOf(typedPosts.getOne)
+  test("a registered collection narrows getEntry's slug to the union", () => {
+    expectTypeOf(typedPosts.getEntry)
       .parameter(0)
       .toEqualTypeOf<"hello-world" | "second-post">();
   });
 
   test("an unregistered directory falls back to string (back-compat)", () => {
-    expectTypeOf(untypedPosts.getOne).parameter(0).toEqualTypeOf<string>();
+    expectTypeOf(untypedPosts.getEntry).parameter(0).toEqualTypeOf<string>();
   });
 
   test("a registered tree narrows every slug-taking getter", () => {

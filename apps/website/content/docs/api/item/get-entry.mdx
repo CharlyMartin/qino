@@ -1,5 +1,5 @@
 ---
-title: getData
+title: getEntry
 description: Read the item's file.
 since: "releases/0.1.0.md"
 ---
@@ -7,7 +7,7 @@ since: "releases/0.1.0.md"
 Reads the item's file, validates it, and applies the selected view.
 
 ```ts
-const home = await homeItem.getData();
+const home = await homeItem.getEntry();
 home.title;
 home["featured-posts"][0].title; // resolved by the default view
 home._meta.fileName; // "home.md"
@@ -16,7 +16,7 @@ home._meta.fileName; // "home.md"
 ## Signature
 
 ```ts
-item.getData(options?: { view?: ViewName }): Promise<Entry>;
+item.getEntry(options?: { view?: ViewName }): Promise<Entry>;
 ```
 
 ## Parameters

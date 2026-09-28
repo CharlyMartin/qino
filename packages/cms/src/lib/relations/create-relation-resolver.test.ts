@@ -84,7 +84,7 @@ describe("createRelationResolver", () => {
       expect(result.author).toMatchObject({ name: "Alice" });
     });
 
-    test("resolves an item reference via getData", async () => {
+    test("resolves an item reference via getEntry", async () => {
       const target = makeDummyItem({
         file: "/config/site.json",
         data: { siteName: "Qino" },
@@ -227,7 +227,7 @@ describe("createRelationResolver", () => {
         extension: ".json",
         store: authors,
       });
-      const getOneSpy = vi.spyOn(target[QinoPrimitiveMarker], "readOne");
+      const readSpy = vi.spyOn(target[QinoPrimitiveMarker], "readEntry");
       const resolver = createRelationResolver(createResolveCache());
 
       const [a, b] = await Promise.all([
@@ -250,7 +250,7 @@ describe("createRelationResolver", () => {
       ]);
 
       expect(a.author).toBe(b.author);
-      expect(getOneSpy).toHaveBeenCalledTimes(1);
+      expect(readSpy).toHaveBeenCalledTimes(1);
     });
 
     test("keys the cache per target so unrelated collections do not share entries", async () => {
@@ -274,8 +274,8 @@ describe("createRelationResolver", () => {
         extension: ".json",
         store: new Map([["alice", aliceEditor]]),
       });
-      const authorsSpy = vi.spyOn(authors[QinoPrimitiveMarker], "readOne");
-      const editorsSpy = vi.spyOn(editors[QinoPrimitiveMarker], "readOne");
+      const authorsSpy = vi.spyOn(authors[QinoPrimitiveMarker], "readEntry");
+      const editorsSpy = vi.spyOn(editors[QinoPrimitiveMarker], "readEntry");
 
       const resolver = createRelationResolver(createResolveCache());
 

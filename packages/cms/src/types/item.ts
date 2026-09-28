@@ -38,12 +38,12 @@ export type ItemMeta<
   readonly extension: Ext;
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
-  readonly readData: () => Promise<ResolvedItemView<Schema, Ext, Rels, false>>;
+  readonly readEntry: () => Promise<ResolvedItemView<Schema, Ext, Rels, false>>;
 };
 
 export type AnyItem = {
   readonly [QinoPrimitiveMarker]: ItemMeta<ObjectSchema>;
-  getData(options?: GetterOptions<undefined>): Promise<
+  getEntry(options?: GetterOptions<undefined>): Promise<
     Record<string, unknown> & {
       [K in typeof META_FIELD_NAME]: ItemEntryMeta;
     }
@@ -59,7 +59,7 @@ export type Item<
   Views extends object = object,
 > = PrimitiveInference<Schema, ItemEntryMeta<Ext>, Rels, Views> & {
   readonly [QinoPrimitiveMarker]: ItemMeta<Schema, Ext, Rels>;
-  getData<Args extends ViewArguments<Views> = []>(
+  getEntry<Args extends ViewArguments<Views> = []>(
     ...args: Args
   ): Promise<
     SelectedView<

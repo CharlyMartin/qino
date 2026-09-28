@@ -73,5 +73,5 @@ A nullable or optional relation field stays nullable after resolution. Within on
 
 ## Where relations are and are not checked
 
-- `getMany`, `getOne`, `getEntry`, `getData` with a resolving view: the reference is validated and the target is read. A bad reference throws.
+- `getEntries` and `getEntry` with a resolving view: the reference is validated and the target is read. A bad reference throws.
 - Views without resolution, `getAllSlugs`, and `qino check`: the reference is an ordinary string and is not followed.

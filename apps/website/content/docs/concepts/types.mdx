@@ -10,7 +10,7 @@ Qino gives you two layers of typing: entry shapes inferred from the schema, and 
 Getter results are inferred from the schema output, the selected view's relation depth, the awaited augment output, and `_meta`. No annotations are needed:
 
 ```ts
-const post = await postCollection.getOne("hello", { view: "detail" });
+const post = await postCollection.getEntry("hello", { view: "detail" });
 post.author.name; // resolved at depth 1
 post.authorName; // from augment
 post._meta.slug; // string
@@ -42,7 +42,7 @@ declare module "@qino/cms" {
 }
 ```
 
-`QinoSlugRegistry` maps a directory to its slug union. Getters that take a slug look up the registry by the primitive's `directory`, so `getOne`, `getEntry`, `getTree(slug)`, `getNextNode`, and `getPreviousNode` autocomplete known slugs, and `getAllSlugs` returns the union.
+`QinoSlugRegistry` maps a directory to its slug union. Getters that take a slug look up the registry by the primitive's `directory`, so `getEntry`, `getTree(slug)`, `getNextNode`, and `getPreviousNode` autocomplete known slugs, and `getAllSlugs` returns the union.
 
 The union ends in `(string & {})`, so any string is still accepted. The types are assistive, not strict. Before the first `qino build`, or for a directory with no entries, the slug type is plain `string`.
 

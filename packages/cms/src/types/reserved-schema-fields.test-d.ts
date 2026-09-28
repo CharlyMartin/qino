@@ -98,25 +98,25 @@ test("allows nested names, JSON markdown, and erased schemas", async () => {
   expectTypeOf<
     Infer<typeof posts>["output"]["markdown"]
   >().toEqualTypeOf<string>();
-  expectTypeOf((await home.getData()).markdown).toEqualTypeOf<string>();
+  expectTypeOf((await home.getEntry()).markdown).toEqualTypeOf<string>();
   expectTypeOf((await docs.getEntry("intro")).markdown).toEqualTypeOf<string>();
   // @ts-expect-error Qino no longer generates body or provides an alias.
-  expectTypeOf((await home.getData()).body);
+  expectTypeOf((await home.getEntry()).body);
   expectTypeOf(
-    (await posts.getOne("hello")).nested.markdown,
+    (await posts.getEntry("hello")).nested.markdown,
   ).toEqualTypeOf<number>();
 
   const json = qino.defineItem({
     file: "/home.json",
     schema: z.object({ markdown: z.number() }),
   });
-  expectTypeOf((await json.getData()).markdown).toEqualTypeOf<number>();
+  expectTypeOf((await json.getEntry()).markdown).toEqualTypeOf<number>();
   const plain = qino.defineItem({
     file: "/plain.json",
     schema: z.object({ title: z.string() }),
   });
   // @ts-expect-error JSON has no automatic markdown.
-  expectTypeOf((await plain.getData()).markdown);
+  expectTypeOf((await plain.getEntry()).markdown);
 
   const erased: ObjectSchema = schema;
   qino.defineItem({ file: "/erased.md", schema: erased });
@@ -141,10 +141,10 @@ test("body is available for user-defined fields in every format", async () => {
     schema,
   });
   const json = qino.defineItem({ file: "/home.json", schema });
-  expectTypeOf((await posts.getOne("hello")).body).toEqualTypeOf<number>();
-  expectTypeOf((await home.getData()).body).toEqualTypeOf<number>();
+  expectTypeOf((await posts.getEntry("hello")).body).toEqualTypeOf<number>();
+  expectTypeOf((await home.getEntry()).body).toEqualTypeOf<number>();
   expectTypeOf((await docs.getEntry("intro")).body).toEqualTypeOf<number>();
-  expectTypeOf((await json.getData()).body).toEqualTypeOf<number>();
+  expectTypeOf((await json.getEntry()).body).toEqualTypeOf<number>();
 });
 
 test("resolved Markdown targets expose markdown in getters and view callbacks", async () => {
@@ -177,7 +177,7 @@ test("resolved Markdown targets expose markdown in getters and view callbacks", 
       }),
     }),
   });
-  const entry = await links.getData();
+  const entry = await links.getEntry();
   expectTypeOf(entry.post.markdown).toEqualTypeOf<string>();
   expectTypeOf(entry.home.markdown).toEqualTypeOf<string>();
   expectTypeOf(entry.doc.markdown).toEqualTypeOf<string>();
@@ -200,11 +200,13 @@ test("markdown output follows schema transformations and omission", async () => 
     titleField: "title",
     schema,
   });
-  expectTypeOf((await item.getData()).markdown).toEqualTypeOf<number>();
+  expectTypeOf((await item.getEntry()).markdown).toEqualTypeOf<number>();
   expectTypeOf<
     Infer<typeof item>["output"]["markdown"]
   >().toEqualTypeOf<number>();
-  expectTypeOf((await posts.getOne("hello")).markdown).toEqualTypeOf<number>();
+  expectTypeOf(
+    (await posts.getEntry("hello")).markdown,
+  ).toEqualTypeOf<number>();
   expectTypeOf((await docs.getEntry("hello")).markdown).toEqualTypeOf<number>();
   const link = qino.defineItem({
     file: "/link.json",
@@ -220,7 +222,7 @@ test("markdown output follows schema transformations and omission", async () => 
       }),
     }),
   });
-  expectTypeOf((await link.getData()).target.markdown).toEqualTypeOf<number>();
+  expectTypeOf((await link.getEntry()).target.markdown).toEqualTypeOf<number>();
   const plain = qino.defineItem({
     file: "/plain.md",
     schema: z.object({ title: z.string() }),
@@ -233,5 +235,5 @@ test("markdown output follows schema transformations and omission", async () => 
     }),
   });
   // @ts-expect-error An undeclared markdown field is absent from schema output.
-  expectTypeOf((await plain.getData()).markdown);
+  expectTypeOf((await plain.getEntry()).markdown);
 });

@@ -78,14 +78,14 @@ export function defineItem<
       extension,
       relations: itemRelations,
       resolveRelations: defaultResolve,
-      readData,
+      readEntry,
     },
-    getData,
+    getEntry,
   } as const satisfies Item<S, Ext, Rels, ConfiguredViews<Views>>;
 
   return item;
 
-  async function readData() {
+  async function readEntry() {
     const meta = buildItemMeta({ filePath: absoluteFilePath });
 
     const raw = await fs.readFile(absoluteFilePath, "utf-8");
@@ -101,11 +101,11 @@ export function defineItem<
     };
   }
 
-  async function getData<
+  async function getEntry<
     Args extends ViewArguments<ConfiguredViews<Views>> = [],
   >(...[options]: Args) {
     const view = selectView(views, options);
-    const entry = await readData();
+    const entry = await readEntry();
     const [result] = await applyView(
       [entry],
       view,

@@ -13,7 +13,7 @@ describe("validateItem", () => {
 
   test("wraps source reading errors with the item file", async () => {
     const item = makeDummyItem({ file: "/settings.json" });
-    vi.spyOn(item[QinoPrimitiveMarker], "readData").mockRejectedValue(
+    vi.spyOn(item[QinoPrimitiveMarker], "readEntry").mockRejectedValue(
       new Error("missing field"),
     );
 

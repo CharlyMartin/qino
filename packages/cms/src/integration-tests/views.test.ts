@@ -172,17 +172,17 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
         });
         const readers = {
           "collection one": async (
-            options?: NonNullable<Parameters<typeof collection.getMany>[0]>,
-          ) => [await collection.getOne("hello", options)],
+            options?: NonNullable<Parameters<typeof collection.getEntries>[0]>,
+          ) => [await collection.getEntry("hello", options)],
           "collection all": (
-            options?: NonNullable<Parameters<typeof collection.getMany>[0]>,
-          ) => collection.getMany(options),
+            options?: NonNullable<Parameters<typeof collection.getEntries>[0]>,
+          ) => collection.getEntries(options),
           tree: async (
-            options?: NonNullable<Parameters<typeof collection.getMany>[0]>,
+            options?: NonNullable<Parameters<typeof collection.getEntries>[0]>,
           ) => [await tree.getEntry("hello", options)],
           item: async (
-            options?: NonNullable<Parameters<typeof collection.getMany>[0]>,
-          ) => [await item.getData(options)],
+            options?: NonNullable<Parameters<typeof collection.getEntries>[0]>,
+          ) => [await item.getEntry(options)],
         };
         const read = readers[kind as keyof typeof readers];
         const defaultEntries = await read();
@@ -270,10 +270,10 @@ test("default getters preserve references and run augment without loading target
     file: "/home.json",
   });
   for (const entry of [
-    await collection.getOne("hello"),
-    ...(await collection.getMany()),
+    await collection.getEntry("hello"),
+    ...(await collection.getEntries()),
     await tree.getEntry("hello"),
-    await item.getData(),
+    await item.getEntry(),
   ]) {
     expect(entry).toMatchObject({
       author: "/authors/alice.json",
@@ -318,24 +318,26 @@ test("collection listing callbacks receive resolved augmented entries and bypass
     }),
   });
   expect(
-    (await collection.getMany({ view: "listing" })).map((entry) => entry.label),
+    (await collection.getEntries({ view: "listing" })).map(
+      (entry) => entry.label,
+    ),
   ).toEqual(["Alice: Hello"]);
   expect(targetFilter).not.toHaveBeenCalled();
   expect(targetSort).not.toHaveBeenCalled();
   await expect(
-    collection.getOne("hello", { view: "listing" }),
+    collection.getEntry("hello", { view: "listing" }),
   ).resolves.toMatchObject({
     author: { name: "Alice" },
     label: "Alice: Hello",
   });
   await expect(
-    collection.getOne("second", { view: "listing" }),
+    collection.getEntry("second", { view: "listing" }),
   ).rejects.toThrow(
     'Entry "second" in collection "/posts" is excluded by view "listing".',
   );
   expect(targetFilter).not.toHaveBeenCalled();
   expect(targetSort).not.toHaveBeenCalled();
-  expect(await authors.getMany()).toEqual([]);
+  expect(await authors.getEntries()).toEqual([]);
 });
 
 test("explicit resolution on the default runs before augmenting on every primitive", async () => {
@@ -374,18 +376,18 @@ test("explicit resolution on the default runs before augmenting on every primiti
     file: "/home.json",
   });
   for (const entry of [
-    await collection.getOne("hello"),
-    ...(await collection.getMany()),
+    await collection.getEntry("hello"),
+    ...(await collection.getEntries()),
     await tree.getEntry("hello"),
-    await item.getData(),
+    await item.getEntry(),
   ]) {
     expect(entry).toMatchObject({ author: { name: "Alice" }, name: "Alice" });
   }
   for (const entry of [
-    await collection.getOne("hello", { view: "raw" }),
-    ...(await collection.getMany({ view: "raw" })),
+    await collection.getEntry("hello", { view: "raw" }),
+    ...(await collection.getEntries({ view: "raw" })),
     await tree.getEntry("hello", { view: "raw" }),
-    await item.getData({ view: "raw" }),
+    await item.getEntry({ view: "raw" }),
   ]) {
     expect(entry.author).toBe("/authors/alice.json");
     expect(entry).not.toHaveProperty("name");
@@ -444,7 +446,7 @@ test("CLI validation and slug generation skip views and relation resolution", as
   expect(await collectTreeSlugs(tree)).toEqual(["hello"]);
   expect(augment).not.toHaveBeenCalled();
   await fs.unlink(path.join(tmp, "authors/alice.json"));
-  await expect(collection.getOne("hello")).rejects.toThrow(
+  await expect(collection.getEntry("hello")).rejects.toThrow(
     /Failed to resolve relation/,
   );
   await Promise.all([
@@ -476,17 +478,17 @@ test("view errors retain the source path and reject conflicting output at runtim
       invalid: view({ augment: (() => null) as never }),
     }),
   });
-  await expect(collection.getOne("hello", { view: "failing" })).rejects.toThrow(
-    /hello.json: augment failed: callback failed/,
-  );
   await expect(
-    collection.getOne("hello", { view: "conflict" }),
+    collection.getEntry("hello", { view: "failing" }),
+  ).rejects.toThrow(/hello.json: augment failed: callback failed/);
+  await expect(
+    collection.getEntry("hello", { view: "conflict" }),
   ).rejects.toThrow(
     /hello.json: augment cannot add reserved or overwrite.*title/,
   );
-  await expect(collection.getOne("hello", { view: "invalid" })).rejects.toThrow(
-    /hello.json: augment must return an object/,
-  );
+  await expect(
+    collection.getEntry("hello", { view: "invalid" }),
+  ).rejects.toThrow(/hello.json: augment must return an object/);
   expect(() =>
     qino.defineItem({
       file: "/reserved.json",
@@ -523,9 +525,9 @@ test.each(["collection", "tree", "item"] as const)(
     };
     const baseline = create({});
     const read = (options?: never) => {
-      if ("getOne" in baseline) return baseline.getOne("hello", options);
-      if ("getEntry" in baseline) return baseline.getEntry("hello", options);
-      return baseline.getData(options);
+      if ("getAllSlugs" in baseline) return baseline.getEntry("hello", options);
+      if ("getTree" in baseline) return baseline.getEntry("hello", options);
+      return baseline.getEntry(options);
     };
     expect(await read()).toMatchObject({
       title: "Hello",
@@ -571,17 +573,17 @@ test("spread reuse preserves default augmentation and sort while adding a custom
       };
     },
   });
-  const defaults = await posts.getMany();
+  const defaults = await posts.getEntries();
   expect(defaults.map((entry) => entry.title)).toEqual(["Second", "Hello"]);
-  expect(await posts.getMany({ view: "default" })).toEqual(defaults);
+  expect(await posts.getEntries({ view: "default" })).toEqual(defaults);
   expect(
-    (await posts.getMany({ view: "highlight" })).map((entry) => entry.title),
+    (await posts.getEntries({ view: "highlight" })).map((entry) => entry.title),
   ).toEqual(["Hello"]);
-  expect((await posts.getOne("hello", { view: "highlight" })).length).toBe(5);
-  await expect(posts.getOne("second", { view: "highlight" })).rejects.toThrow(
+  expect((await posts.getEntry("hello", { view: "highlight" })).length).toBe(5);
+  await expect(posts.getEntry("second", { view: "highlight" })).rejects.toThrow(
     /excluded by view "highlight"/,
   );
-  expect(await posts.getOne("second", { view: "plain" })).not.toHaveProperty(
+  expect(await posts.getEntry("second", { view: "plain" })).not.toHaveProperty(
     "length",
   );
 });

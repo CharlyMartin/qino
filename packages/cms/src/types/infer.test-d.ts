@@ -55,10 +55,10 @@ const posts = qino.defineCollection({
 
 test("collection inference matches default and named getter outputs", async () => {
   type PostTypes = Infer<typeof posts>;
-  const post = await posts.getOne("hello");
-  const all = await posts.getMany();
-  const highlight = await posts.getOne("hello", { view: "highlight" });
-  const highlights = await posts.getMany({ view: "highlight" });
+  const post = await posts.getEntry("hello");
+  const all = await posts.getEntries();
+  const highlight = await posts.getEntry("hello", { view: "highlight" });
+  const highlights = await posts.getEntries({ view: "highlight" });
   expectTypeOf<PostTypes["output"]>().toEqualTypeOf<typeof post>();
   expectTypeOf<Array<PostTypes["output"]>>().toEqualTypeOf<typeof all>();
   expectTypeOf<PostTypes["views"]["highlight"]>().toEqualTypeOf<
@@ -85,9 +85,9 @@ test("collection inference matches default and named getter outputs", async () =
 
 test("views preserve independent augmentation and relation depths", async () => {
   type Views = Infer<typeof posts>["views"];
-  const raw = await posts.getOne("hello", { view: "raw" });
-  const deep = await posts.getOne("hello", { view: "deep" });
-  const full = await posts.getOne("hello", { view: "full" });
+  const raw = await posts.getEntry("hello", { view: "raw" });
+  const deep = await posts.getEntry("hello", { view: "deep" });
+  const full = await posts.getEntry("hello", { view: "full" });
   expectTypeOf<Views["raw"]>().toEqualTypeOf<typeof raw>();
   expectTypeOf<Views["deep"]>().toEqualTypeOf<typeof deep>();
   expectTypeOf<Views["full"]>().toEqualTypeOf<typeof full>();
@@ -126,9 +126,9 @@ test("item inference matches getters and item metadata", async () => {
     }),
   });
   type HomeTypes = Infer<typeof home>;
-  const data = await home.getData();
-  const highlight = await home.getData({ view: "highlight" });
-  const raw = await home.getData({ view: "raw" });
+  const data = await home.getEntry();
+  const highlight = await home.getEntry({ view: "highlight" });
+  const raw = await home.getEntry({ view: "raw" });
   expectTypeOf<HomeTypes["output"]>().toEqualTypeOf<typeof data>();
   expectTypeOf<HomeTypes["views"]["highlight"]>().toEqualTypeOf<
     typeof highlight

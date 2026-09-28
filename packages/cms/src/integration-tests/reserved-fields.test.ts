@@ -63,9 +63,9 @@ describe.each([".md", ".mdx", ".markdown", ".json"] as const)(
             schema,
           });
           const error = `${filePath}: fields reserved for Qino cannot appear in content or schema output: ${field}.`;
-          await expect(collection.getOne("hello")).rejects.toThrow(error);
-          await expect(collection.getMany()).rejects.toThrow(error);
-          await expect(item.getData()).rejects.toThrow(error);
+          await expect(collection.getEntry("hello")).rejects.toThrow(error);
+          await expect(collection.getEntries()).rejects.toThrow(error);
+          await expect(item.getEntry()).rejects.toThrow(error);
           await expect(tree.getEntry("hello")).rejects.toThrow(error);
           await expect(validateCollection(collection)).rejects.toThrow(error);
           await expect(validateItem(item)).rejects.toThrow(error);
@@ -109,7 +109,7 @@ test("resolved Markdown targets retain their markdown", async () => {
     relations: { post: posts, home, doc: docs },
     views: (view) => ({ default: view({ resolveRelations: true }) }),
   });
-  const entry = await links.getData();
+  const entry = await links.getEntry();
   for (const target of [entry.post, entry.home, entry.doc]) {
     expect(target.markdown).toBe("# Hello");
     expect(target).not.toHaveProperty("body");
@@ -145,8 +145,8 @@ test.each([".md", ".mdx", ".markdown", ".json"] as const)(
       schema,
     });
     const entries = await Promise.all([
-      posts.getOne("hello"),
-      home.getData(),
+      posts.getEntry("hello"),
+      home.getEntry(),
       docs.getEntry("hello"),
     ]);
     for (const entry of entries) {
@@ -175,7 +175,7 @@ test.each(["_meta", "markdown"])(
         }),
       }),
     });
-    await expect(item.getData()).rejects.toThrow(
+    await expect(item.getEntry()).rejects.toThrow(
       `augment cannot add reserved or overwrite existing fields: ${field}.`,
     );
   },
@@ -194,7 +194,7 @@ test("JSON markdown and nested reserved names remain user fields", async () => {
       nested: z.object({ _meta: z.string(), markdown: z.string() }),
     }),
   });
-  await expect(item.getData()).resolves.toMatchObject(data);
+  await expect(item.getEntry()).resolves.toMatchObject(data);
 });
 
 test.each([".md", ".mdx", ".markdown"] as const)(
@@ -225,8 +225,8 @@ test.each([".md", ".mdx", ".markdown"] as const)(
       schema,
     });
     for (const entry of await Promise.all([
-      item.getData(),
-      collection.getOne("hello"),
+      item.getEntry(),
+      collection.getEntry("hello"),
       tree.getEntry("hello"),
     ])) {
       expect(entry.markdown).toBe(7);

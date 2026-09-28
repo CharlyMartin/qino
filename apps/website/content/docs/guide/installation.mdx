@@ -58,8 +58,8 @@ Every file in `src/content/posts/*.md` is validated against the schema. The Mark
 ## Read content
 
 ```ts
-const posts = await postCollection.getMany();
-const post = await postCollection.getOne("hello-world");
+const posts = await postCollection.getEntries();
+const post = await postCollection.getEntry("hello-world");
 
 post.title; // string
 post.markdown; // string

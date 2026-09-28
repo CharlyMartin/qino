@@ -32,10 +32,10 @@ None.
 - Includes slugs whose content is malformed or invalid.
 - Returns `[]` for an empty or missing directory.
 
-Because views are ignored, the list can contain slugs that a filtering default view excludes, and [getOne](/docs/api/collection/get-one) throws for those. Use `getAllSlugs` for routes when the default view has no `filter`. Otherwise derive slugs from the viewed set:
+Because views are ignored, the list can contain slugs that a filtering default view excludes, and [getEntry](/docs/api/collection/get-entry) throws for those. Use `getAllSlugs` for routes when the default view has no `filter`. Otherwise derive slugs from the viewed set:
 
 ```ts
-const slugs = (await postCollection.getMany()).map((post) => post._meta.slug);
+const slugs = (await postCollection.getEntries()).map((post) => post._meta.slug);
 ```
 
 ## Throws

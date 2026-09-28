@@ -1,5 +1,5 @@
 ---
-title: getMany
+title: getEntries
 description: Read, validate, and shape every entry in a collection.
 since: "releases/0.1.0.md"
 ---
@@ -7,14 +7,14 @@ since: "releases/0.1.0.md"
 Reads every file in the collection, validates each one, and applies the selected view.
 
 ```ts
-const posts = await postCollection.getMany();
-const detailed = await postCollection.getMany({ view: "detail" });
+const posts = await postCollection.getEntries();
+const detailed = await postCollection.getEntries({ view: "detail" });
 ```
 
 ## Signature
 
 ```ts
-collection.getMany(options?: { view?: ViewName }): Promise<Array<Entry>>;
+collection.getEntries(options?: { view?: ViewName }): Promise<Array<Entry>>;
 ```
 
 ## Parameters
@@ -48,5 +48,5 @@ Order is discovery order unless the view has `sort`. Entries the view's `filter`
 
 ## See also
 
-- [getOne](/docs/api/collection/get-one)
+- [getEntry](/docs/api/collection/get-entry)
 - [Views](/docs/concepts/views)
