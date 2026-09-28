@@ -23,7 +23,7 @@ export function Hero() {
           <Title as="h1" size="display" id="hero-heading">
             Markdown in.
             <br />
-            Typed content out.
+            TypeScript out.
           </Title>
         </div>
 

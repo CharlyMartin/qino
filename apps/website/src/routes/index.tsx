@@ -13,7 +13,7 @@ import { SiteHeader } from "@/components/landing/site-header";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Qino — Markdown in. Typed content out." },
+      { title: "Qino — Markdown in. TypeScript out." },
       {
         name: "description",
         content:
