@@ -12,11 +12,10 @@ export async function fetchTargetEntry(
   try {
     switch (meta.is) {
       case QinoPrimitives.item:
-        return await meta.readData();
+        return await meta.readEntry();
       case QinoPrimitives.tree:
-        return await meta.readEntry(slug);
       case QinoPrimitives.collection:
-        return await meta.readOne(slug);
+        return await meta.readEntry(slug);
     }
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : String(cause);

@@ -66,7 +66,7 @@ Your app imports the definition and calls its getters:
 ```ts
 import { postCollection } from "../qino/collections/posts";
 
-const posts = await postCollection.getMany();
+const posts = await postCollection.getEntries();
 ```
 
 There is nothing to import from `qino/index.ts` in app code.

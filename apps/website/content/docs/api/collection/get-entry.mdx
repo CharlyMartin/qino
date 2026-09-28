@@ -1,5 +1,5 @@
 ---
-title: getOne
+title: getEntry
 description: Read one entry by slug.
 since: "releases/0.1.0.md"
 ---
@@ -7,14 +7,14 @@ since: "releases/0.1.0.md"
 Reads a single file by slug, validates it, and applies the selected view.
 
 ```ts
-const post = await postCollection.getOne("hello-world");
-const detail = await postCollection.getOne("hello-world", { view: "detail" });
+const post = await postCollection.getEntry("hello-world");
+const detail = await postCollection.getEntry("hello-world", { view: "detail" });
 ```
 
 ## Signature
 
 ```ts
-collection.getOne(slug: Slug, options?: { view?: ViewName }): Promise<Entry>;
+collection.getEntry(slug: Slug, options?: { view?: ViewName }): Promise<Entry>;
 ```
 
 ## Parameters
@@ -26,11 +26,11 @@ collection.getOne(slug: Slug, options?: { view?: ViewName }): Promise<Entry>;
 
 ## Returns
 
-`Promise<Entry>`, shaped like one element of [getMany](/docs/api/collection/get-many).
+`Promise<Entry>`, shaped like one element of [getEntries](/docs/api/collection/get-entries).
 
 ## Filter interaction
 
-If the selected view has a `filter` and it rejects this entry, `getOne` throws rather than returning it. Select a view without a filter, such as `view({})`, to read every entry.
+If the selected view has a `filter` and it rejects this entry, `getEntry` throws rather than returning it. Select a view without a filter, such as `view({})`, to read every entry.
 
 ## Throws
 

@@ -114,10 +114,10 @@ const posts = qino.defineCollection({
   }),
 });
 
-const listing = await posts.getMany({ view: "listing" }); // author is a path string
-const detail = await posts.getOne("hello", { view: "detail" }); // author resolves; authorName exists
-const defaults = await posts.getMany(); // declared default view
-const same = await posts.getMany({ view: "default" });
+const listing = await posts.getEntries({ view: "listing" }); // author is a path string
+const detail = await posts.getEntry("hello", { view: "detail" }); // author resolves; authorName exists
+const defaults = await posts.getEntries(); // declared default view
+const same = await posts.getEntries({ view: "default" });
 ```
 
 Import `initQino` from `@qino/cms` and `z` from `zod`. Authored relations use
@@ -225,7 +225,7 @@ const posts = qino.defineCollection({
   },
 });
 
-const entries = await posts.getMany({ view: "highlight" });
+const entries = await posts.getEntries({ view: "highlight" });
 // entries[number].stats.wordCount is inferred as number.
 ```
 
@@ -259,8 +259,8 @@ item definitions while rejecting any supplied value, including `null`.
 
 Configure synchronous `filter(entry): boolean` and `sort(a, b): number` callbacks
 inside a collection view. Filtering runs after relation resolution and
-augmentation for both `getMany()` and `getOne()`. Sorting follows filtering for
-`getMany()` only.
+augmentation for both `getEntries()` and `getEntry()`. Sorting follows filtering for
+`getEntries()` only.
 
 ```ts
 const posts = qino.defineCollection({
@@ -286,9 +286,9 @@ const posts = qino.defineCollection({
   }),
 });
 
-await posts.getMany(); // Default filter and sort.
-await posts.getMany({ view: "alphabetical" }); // Independent view callbacks.
-await posts.getMany({ view: "all" }); // Every entry, in discovery order.
+await posts.getEntries(); // Default filter and sort.
+await posts.getEntries({ view: "alphabetical" }); // Independent view callbacks.
+await posts.getEntries({ view: "all" }); // Every entry, in discovery order.
 ```
 
 The `view` helper preserves inference for augmented fields and resolved relations
@@ -300,7 +300,7 @@ Filtering retains matching entries; sorting uses native `toSorted` comparator
 semantics, preserving relative order for ties. Without callbacks, all entries
 remain in discovery order. Callback errors reject the read.
 
-`getOne(slug, { view })` throws if the selected view’s filter excludes the entry.
+`getEntry(slug, { view })` throws if the selected view’s filter excludes the entry.
 The error names the slug, collection, and view. Omitting `view` uses the default
 filter; an independent view without a filter can read every entry.
 Slug discovery, CLI validation, and relation loading bypass both callbacks. Getters accept view selection, not
@@ -367,15 +367,17 @@ It takes no options and does not read content, validate schemas, resolve relatio
 or run augment, filter, or sort callbacks. Invalid content still has a slug. Empty or missing
 directories return `[]`; hidden files and nested files are excluded.
 
-Use `getMany()` / `getOne()` to read and validate content and apply views.
-CLI validation uses the internal `readAll()` source reader without running views;
+Use `getEntries()` / `getEntry()` to read and validate content and apply views.
+CLI validation uses the internal `readEntries()` source reader without running views;
 collection slug generation uses `getAllSlugs()` for filename discovery.
 
 Because `getAllSlugs()` ignores views, it can list slugs that a filtering view
-excludes, and `getOne(slug)` throws for those. Use `getAllSlugs()` for routes
+excludes, and `getEntry(slug)` throws for those. Use `getAllSlugs()` for routes
 (e.g. `generateStaticParams`) when the default view has no `filter`. Otherwise
 derive slugs from the viewed set:
 
 ```ts
-const slugs = (await posts.getMany({ view })).map((entry) => entry._meta.slug);
+const slugs = (await posts.getEntries({ view })).map(
+  (entry) => entry._meta.slug,
+);
 ```

@@ -80,12 +80,12 @@ export function defineCollection<
       extension,
       relations: collectionRelations,
       resolveRelations: defaultResolve,
-      readAll,
-      readOne,
+      readEntries,
+      readEntry,
     },
-    getMany,
+    getEntries,
     getAllSlugs,
-    getOne,
+    getEntry,
   } as const satisfies Collection<S, Ext, Rels, Dir, ConfiguredViews<Views>>;
 
   return collection;
@@ -99,7 +99,7 @@ export function defineCollection<
     return paths.map((path) => removeExtension(path) as SlugFor<Dir>).sort();
   }
 
-  async function readOne(slug: Slug) {
+  async function readEntry(slug: Slug) {
     const meta = buildEntryMeta({
       directory: collectionDirectory,
       relativePath: `${slug}${extension}`,
@@ -117,21 +117,21 @@ export function defineCollection<
     };
   }
 
-  async function readAll() {
+  async function readEntries() {
     const paths = await globCollectionPaths({
       absoluteDirPath: collectionDirectory,
       extension,
     });
     return Promise.all(
-      paths.map((path) => readOne(path.slice(0, -extension.length))),
+      paths.map((path) => readEntry(path.slice(0, -extension.length))),
     );
   }
 
-  async function getMany<
+  async function getEntries<
     Args extends ViewArguments<ConfiguredViews<Views>> = [],
   >(...[options]: Args) {
     const view = selectView(views, options) as CollectionViewDefinition;
-    const entries = await readAll();
+    const entries = await readEntries();
     const augmented = await applyView(
       entries,
       view,
@@ -157,11 +157,11 @@ export function defineCollection<
     >;
   }
 
-  async function getOne<
+  async function getEntry<
     Args extends ViewArguments<ConfiguredViews<Views>> = [],
   >(slug: Slug, ...[options]: Args) {
     const view = selectView(views, options) as CollectionViewDefinition;
-    const entry = await readOne(slug);
+    const entry = await readEntry(slug);
     const [result] = await applyView(
       [entry],
       view,

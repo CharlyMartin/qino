@@ -43,7 +43,7 @@ describe("validateCollection", () => {
       directory: "/posts",
       extension: ".md",
     });
-    vi.spyOn(collection[QinoPrimitiveMarker], "readAll").mockRejectedValue(
+    vi.spyOn(collection[QinoPrimitiveMarker], "readEntries").mockRejectedValue(
       new Error("bad frontmatter"),
     );
 

@@ -65,8 +65,8 @@ export const postCollection = qino.defineCollection({
   }),
 });
 
-const posts = await postCollection.getMany();
-const post = await postCollection.getOne("hello-world");
+const posts = await postCollection.getEntries();
+const post = await postCollection.getEntry("hello-world");
 ```
 
 Each entry in `src/content/posts/*.md` is validated against the schema. The Markdown body is passed as `markdown`, and Qino adds `_meta` (slug, path) to every entry.

@@ -50,9 +50,9 @@ const tree = qino.defineTree({
 
 describe("augment type behaviour", () => {
   test("infers fields returned by every hydrated primitive", async () => {
-    const [post] = await collection.getMany();
+    const [post] = await collection.getEntries();
     assert(post);
-    const home = await item.getData();
+    const home = await item.getEntry();
     const doc = await tree.getEntry("intro");
 
     expectTypeOf(post.stats.wordCount).toEqualTypeOf<number>();

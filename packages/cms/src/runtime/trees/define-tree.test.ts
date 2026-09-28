@@ -384,7 +384,7 @@ test("relations load nested Markdown tree entries without navigation or target a
     schema: z.object({ doc: z.string() }),
     relations: { doc: docs },
   });
-  const entry = await home.getData();
+  const entry = await home.getEntry();
   expect(entry.doc).toMatchObject({
     title: "Setup",
     markdown: "\nInstallation instructions",

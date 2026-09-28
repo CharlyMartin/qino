@@ -29,7 +29,7 @@ Thrown when a `define*` call runs, usually at import.
 | `Unknown view "<name>". Available views: <names>.`                                                     | `view` not declared. `(none)` when no views exist | Declare it or pick a listed name |
 | `Getter resolveRelations is no longer supported. Configure it in a view and select that view instead.` | `resolveRelations` passed to a getter             | Configure it in a view           |
 | `Getter filter and sort are not supported. Configure them in a collection view instead.`               | `filter` or `sort` passed to a getter             | Configure them in a view         |
-| `Entry "<slug>" in collection "<directory>" is excluded by view "<view>".`                             | `getOne` on an entry the view's filter rejects    | Select a view without a filter   |
+| `Entry "<slug>" in collection "<directory>" is excluded by view "<view>".`                             | `getEntry` on an entry the view's filter rejects    | Select a view without a filter   |
 
 ## Parsing and validation
 

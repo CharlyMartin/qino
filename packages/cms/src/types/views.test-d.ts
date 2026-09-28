@@ -218,40 +218,40 @@ describe("views inference", () => {
       relations: { author: authors },
     });
     expectTypeOf(
-      (await collection.getOne("hello")).author,
+      (await collection.getEntry("hello")).author,
     ).toEqualTypeOf<string>();
-    expectTypeOf(await collection.getMany())
+    expectTypeOf(await collection.getEntries())
       .items.toHaveProperty("authorSlug")
       .toEqualTypeOf<string>();
     expectTypeOf((await docs.getEntry("hello")).author).toEqualTypeOf<string>();
     expectTypeOf(
       (await docs.getEntry("hello")).authorSlug,
     ).toEqualTypeOf<string>();
-    expectTypeOf((await page.getData()).author).toEqualTypeOf<string>();
-    expectTypeOf((await page.getData()).authorSlug).toEqualTypeOf<string>();
+    expectTypeOf((await page.getEntry()).author).toEqualTypeOf<string>();
+    expectTypeOf((await page.getEntry()).authorSlug).toEqualTypeOf<string>();
   });
 
   test("infers callback inputs and selected outputs", async () => {
     expectTypeOf(
-      (await posts.getOne("hello")).defaultName,
+      (await posts.getEntry("hello")).defaultName,
     ).toEqualTypeOf<string>();
     expectTypeOf(
-      (await posts.getOne("hello", { view: "raw" })).author,
+      (await posts.getEntry("hello", { view: "raw" })).author,
     ).toEqualTypeOf<string>();
-    expectTypeOf(await posts.getMany({ view: "raw" }))
+    expectTypeOf(await posts.getEntries({ view: "raw" }))
       .items.toHaveProperty("slugLength")
       .toEqualTypeOf<number>();
     expectTypeOf(
-      (await posts.getOne("hello", { view: "shallow" })).leadSlug,
+      (await posts.getEntry("hello", { view: "shallow" })).leadSlug,
     ).toEqualTypeOf<string>();
     expectTypeOf(
-      (await posts.getOne("hello", { view: "detail" })).leadName,
+      (await posts.getEntry("hello", { view: "detail" })).leadName,
     ).toEqualTypeOf<string>();
     expectTypeOf(
-      (await posts.getOne("hello", { view: "augmented" })).name,
+      (await posts.getEntry("hello", { view: "augmented" })).name,
     ).toEqualTypeOf<string>();
     expectTypeOf(
-      (await posts.getOne("hello", { view: "empty" })).author,
+      (await posts.getEntry("hello", { view: "empty" })).author,
     ).toEqualTypeOf<string>();
     expectTypeOf(
       (await tree.getEntry("hello", { view: "raw" })).authorSlug,
@@ -259,17 +259,17 @@ describe("views inference", () => {
     expectTypeOf(
       (await tree.getEntry("hello", { view: "detail" })).source,
     ).toEqualTypeOf<string>();
-    expectTypeOf((await home.getData()).defaultSlug).toEqualTypeOf<string>();
+    expectTypeOf((await home.getEntry()).defaultSlug).toEqualTypeOf<string>();
     expectTypeOf(
-      (await home.getData({ view: "detail" })).authorName,
+      (await home.getEntry({ view: "detail" })).authorName,
     ).toEqualTypeOf<string>();
     expectTypeOf(
-      (await home.getData({ view: "raw" })).authorSlug,
+      (await home.getEntry({ view: "raw" })).authorSlug,
     ).toEqualTypeOf<string>();
   });
 
   test("keeps the exact view-name union for autocomplete", () => {
-    type Options = NonNullable<Parameters<typeof posts.getMany>[0]>;
+    type Options = NonNullable<Parameters<typeof posts.getEntries>[0]>;
     expectTypeOf<Options["view"]>().toEqualTypeOf<
       | "default"
       | "raw"
@@ -283,7 +283,7 @@ describe("views inference", () => {
 
   test("returns a union for a union of view names", async () => {
     const name = "" as "raw" | "detail";
-    const value = await posts.getOne("hello", { view: name });
+    const value = await posts.getEntry("hello", { view: name });
     if ("slugLength" in value)
       expectTypeOf(value.author).toEqualTypeOf<string>();
     if ("leadName" in value)
@@ -292,8 +292,8 @@ describe("views inference", () => {
 
   test("includes the default when the selected name is optional", async () => {
     const options: { view?: "raw" } = {};
-    const value = await posts.getOne("hello", options);
-    const defaultEntry = await posts.getOne("hello");
+    const value = await posts.getEntry("hello", options);
+    const defaultEntry = await posts.getEntry("hello");
     expectTypeOf(value.author).toEqualTypeOf<
       string | typeof defaultEntry.author
     >();
@@ -303,29 +303,29 @@ describe("views inference", () => {
 
   test("includes the default when the entire options object is optional", async () => {
     const options = undefined as { view: "raw" } | undefined;
-    const value = await posts.getOne("hello", options);
+    const value = await posts.getEntry("hello", options);
     // @ts-expect-error No options selects the default view.
     value.slugLength;
   });
 
   test("rejects invalid selections and does not leak derived fields", async () => {
-    posts.getMany({ view: "default" });
+    posts.getEntries({ view: "default" });
     // @ts-expect-error Unknown view.
-    posts.getOne("hello", { view: "missing" });
+    posts.getEntry("hello", { view: "missing" });
     // @ts-expect-error Per-call resolution has been removed.
-    posts.getMany({ resolveRelations: false });
+    posts.getEntries({ resolveRelations: false });
     // @ts-expect-error Selecting a view cannot override its fixed depth.
-    posts.getMany({ view: "detail", resolveRelations: false });
+    posts.getEntries({ view: "detail", resolveRelations: false });
     // @ts-expect-error Per-call resolution is also removed without views.
-    authors.getOne("alice", { resolveRelations: false });
+    authors.getEntry("alice", { resolveRelations: false });
     // @ts-expect-error Tree view names are restricted.
     tree.getEntry("hello", { view: "missing" });
     // @ts-expect-error Item view names are restricted.
-    home.getData({ view: "missing" });
-    const entry = await posts.getOne("hello", { view: "empty" });
+    home.getEntry({ view: "missing" });
+    const entry = await posts.getEntry("hello", { view: "empty" });
     // @ts-expect-error Named views do not inherit the default augmentation.
     entry.defaultName;
-    const resolved = await posts.getOne("hello", { view: "detail" });
+    const resolved = await posts.getEntry("hello", { view: "detail" });
     // @ts-expect-error Nested targets never include augmentation.
     resolved.author.privateDerived;
     // @ts-expect-error Nested item targets never include augmentation.

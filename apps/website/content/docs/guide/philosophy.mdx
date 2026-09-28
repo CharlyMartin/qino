@@ -21,7 +21,7 @@ An item is not a one-entry collection, and a tree is not a sorted collection. Co
 
 ## Validation is a black box
 
-Every entry is validated against a schema you provide. Qino accepts any [Standard Schema](https://standardschema.dev) validator, such as Zod, Valibot, or ArkType, and never calls validator-specific APIs. Types flow from the schema into the getters, so `await posts.getOne("hello")` is fully typed without a code generation step for the shape of an entry.
+Every entry is validated against a schema you provide. Qino accepts any [Standard Schema](https://standardschema.dev) validator, such as Zod, Valibot, or ArkType, and never calls validator-specific APIs. Types flow from the schema into the getters, so `await posts.getEntry("hello")` is fully typed without a code generation step for the shape of an entry.
 
 ## Qino sits on top of the content folder
 

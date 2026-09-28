@@ -21,8 +21,8 @@ type Collection<
   Views extends object = object,
 > = {
   getAllSlugs(): Promise<Array<SlugFor<Dir>>>;
-  getMany(options?: { view?: keyof Views }): Promise<Array<Entry>>;
-  getOne(slug: SlugFor<Dir>, options?: { view?: keyof Views }): Promise<Entry>;
+  getEntries(options?: { view?: keyof Views }): Promise<Array<Entry>>;
+  getEntry(slug: SlugFor<Dir>, options?: { view?: keyof Views }): Promise<Entry>;
 };
 ```
 
@@ -53,7 +53,7 @@ type Tree<
 
 ```ts
 type Item<Schema, Ext, Rels = object, Views extends object = object> = {
-  getData(options?: { view?: keyof Views }): Promise<Entry>;
+  getEntry(options?: { view?: keyof Views }): Promise<Entry>;
 };
 ```
 

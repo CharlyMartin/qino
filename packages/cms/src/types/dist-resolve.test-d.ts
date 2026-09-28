@@ -57,7 +57,7 @@ const articles = defineCollection({
 
 for (const view of ["shallow", "full"] as const) {
   test(`${view} preserves schema instances and optional nested relation containers`, async () => {
-    const [article] = await articles.getMany({ view });
+    const [article] = await articles.getEntries({ view });
     assert(article);
     expectTypeOf(article.dates).toEqualTypeOf<{
       start: Date;

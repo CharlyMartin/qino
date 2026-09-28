@@ -4,7 +4,7 @@ import Link from "next/link";
 import { homeItem } from "../../qino/items/home";
 
 export default async function Home() {
-  const home = await homeItem.getData();
+  const home = await homeItem.getEntry();
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-col gap-12 px-6 py-16">

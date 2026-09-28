@@ -44,7 +44,7 @@ describe("defineCollection", () => {
       extension: ".md",
     });
 
-    await expect(collection.getOne("hello")).resolves.toMatchObject({
+    await expect(collection.getEntry("hello")).resolves.toMatchObject({
       words: 3,
       sourceFile: "hello.md",
     });
@@ -141,8 +141,8 @@ describe("getAllSlugs", () => {
     });
 
     expect(await collection.getAllSlugs()).toEqual(["invalid", "malformed"]);
-    await expect(collection.getOne("malformed")).rejects.toThrow();
-    await expect(collection.getOne("invalid")).rejects.toThrow();
+    await expect(collection.getEntry("malformed")).rejects.toThrow();
+    await expect(collection.getEntry("invalid")).rejects.toThrow();
   });
 
   test("never reads content, validates schemas, resolves relations, or runs augment", async () => {
@@ -205,11 +205,11 @@ describe("collection filter and sort", () => {
       },
     });
     expect(created).toHaveBeenCalledTimes(1);
-    await collection.getMany({ view: "listing" });
-    await collection.getMany({ view: "listing" });
+    await collection.getEntries({ view: "listing" });
+    await collection.getEntries({ view: "listing" });
     expect(created).toHaveBeenCalledTimes(1);
     await expect(
-      collection.getMany({ view: "missing" } as never),
+      collection.getEntries({ view: "missing" } as never),
     ).rejects.toThrow(/Unknown view/);
     expect(() =>
       qino.defineCollection({
@@ -262,21 +262,20 @@ describe("collection filter and sort", () => {
         descending: view({ sort: (a, b) => b.title.length - a.title.length }),
       }),
     });
-    expect((await collection.getMany()).map((entry) => entry.title)).toEqual([
-      "Short",
-      "Long title",
-    ]);
-    const baseline = await collection.getMany({ view: "baseline" });
+    expect((await collection.getEntries()).map((entry) => entry.title)).toEqual(
+      ["Short", "Long title"],
+    );
+    const baseline = await collection.getEntries({ view: "baseline" });
     expect(baseline).toHaveLength(3);
     expect(baseline[0]).not.toHaveProperty("length");
     expect(
-      (await collection.getMany({ view: "drafts" })).map(
+      (await collection.getEntries({ view: "drafts" })).map(
         (entry) => entry.title,
       ),
     ).toEqual(["Draft"]);
-    expect((await collection.getMany({ view: "descending" }))[0]?.title).toBe(
-      "Long title",
-    );
+    expect(
+      (await collection.getEntries({ view: "descending" }))[0]?.title,
+    ).toBe("Long title");
     expect(events.filter((event) => event.startsWith("augment:"))).toHaveLength(
       3,
     );
@@ -300,11 +299,11 @@ describe("collection filter and sort", () => {
         listing: view({ filter: callback, sort: callback }),
       }),
     });
-    expect((await collection[QinoPrimitiveMarker].readOne("draft")).title).toBe(
-      "Draft",
-    );
+    expect(
+      (await collection[QinoPrimitiveMarker].readEntry("draft")).title,
+    ).toBe("Draft");
     expect(await collection.getAllSlugs()).toEqual(["draft"]);
-    expect(await collection[QinoPrimitiveMarker].readAll()).toHaveLength(1);
+    expect(await collection[QinoPrimitiveMarker].readEntries()).toHaveLength(1);
     await validateCollection(collection);
     expect(callback).not.toHaveBeenCalled();
   });
@@ -323,9 +322,9 @@ describe("collection filter and sort", () => {
     });
     expect(await collection.getAllSlugs()).toEqual(["draft", "published"]);
     expect(
-      (await collection.getMany()).map((entry) => entry._meta.slug),
+      (await collection.getEntries()).map((entry) => entry._meta.slug),
     ).toEqual(["published"]);
-    await expect(collection.getOne("draft")).rejects.toThrow(
+    await expect(collection.getEntry("draft")).rejects.toThrow(
       /excluded by view "default"/,
     );
   });
@@ -345,14 +344,14 @@ describe("collection filter and sort", () => {
         reverse: view({ sort: (a, b) => b.title.localeCompare(a.title) }),
       }),
     });
-    const original = await collection.getMany();
-    expect(await collection.getMany({ view: "tied" })).toEqual(original);
+    const original = await collection.getEntries();
+    expect(await collection.getEntries({ view: "tied" })).toEqual(original);
     expect(
-      (await collection.getMany({ view: "reverse" })).map(
+      (await collection.getEntries({ view: "reverse" })).map(
         (entry) => entry.title,
       ),
     ).toEqual(["C", "B", "A"]);
-    expect(await collection.getMany()).toEqual(original);
+    expect(await collection.getEntries()).toEqual(original);
   });
 
   test("handles empty and fully filtered collections without comparing entries", async () => {
@@ -370,13 +369,13 @@ describe("collection filter and sort", () => {
       extension: ".md",
       schema: z.object({ markdown: z.string(), title: z.string() }),
     });
-    expect(await collection.getMany()).toEqual([]);
+    expect(await collection.getEntries()).toEqual([]);
     expect(filter).not.toHaveBeenCalled();
     await writeMd("draft.md", "Draft");
-    expect(await collection.getMany()).toEqual([]);
+    expect(await collection.getEntries()).toEqual([]);
     expect(filter).toHaveBeenCalledTimes(1);
     expect(sort).not.toHaveBeenCalled();
-    await expect(collection.getOne("draft")).rejects.toThrow(
+    await expect(collection.getEntry("draft")).rejects.toThrow(
       'Entry "draft" in collection "/posts" is excluded by view "default".',
     );
   });
@@ -400,15 +399,15 @@ describe("collection filter and sort", () => {
           }),
         }),
       });
-      await expect(collection.getMany()).rejects.toBe(failure);
+      await expect(collection.getEntries()).rejects.toBe(failure);
       if (callback == "filter") {
-        await expect(collection.getOne("a")).rejects.toBe(failure);
+        await expect(collection.getEntry("a")).rejects.toBe(failure);
       }
     },
   );
 
   test.each([undefined, "highlight"] as const)(
-    "getOne applies the %s view's filter after augment without sorting",
+    "getEntry applies the %s view's filter after augment without sorting",
     async (view) => {
       await writeMd("highlighted.md", "Highlighted");
       await writeMd("ordinary.md", "Ordinary");
@@ -439,13 +438,13 @@ describe("collection filter and sort", () => {
         }),
       });
       await expect(
-        collection.getOne("highlighted", { view }),
+        collection.getEntry("highlighted", { view }),
       ).resolves.toMatchObject({ highlight: true });
-      await expect(collection.getOne("ordinary", { view })).rejects.toThrow(
+      await expect(collection.getEntry("ordinary", { view })).rejects.toThrow(
         `Entry "ordinary" in collection "/posts" is excluded by view "${view ?? "default"}".`,
       );
       await expect(
-        collection.getOne("ordinary", { view: "all" }),
+        collection.getEntry("ordinary", { view: "all" }),
       ).resolves.toMatchObject({ title: "Ordinary" });
       expect(sort).not.toHaveBeenCalled();
     },
@@ -464,9 +463,9 @@ describe("collection filter and sort", () => {
       extension: ".md",
       schema: z.object({ missing: z.string() }),
     });
-    await expect(collection.getMany()).rejects.toThrow(/Validation failed/);
+    await expect(collection.getEntries()).rejects.toThrow(/Validation failed/);
     for (const options of [{ filter: () => true }, { sort: () => 0 }]) {
-      await expect(collection.getMany(options as never)).rejects.toThrow(
+      await expect(collection.getEntries(options as never)).rejects.toThrow(
         /Getter filter and sort are not supported/,
       );
     }

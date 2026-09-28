@@ -24,8 +24,8 @@ export function makeDummyItem({
       extension: ".json" as const,
       relations: {},
       resolveRelations: false as ResolveOption,
-      readData: async () => data as never,
+      readEntry: async () => data as never,
     },
-    getData: async () => data as never,
+    getEntry: async () => data as never,
   } as AnyItem;
 }
