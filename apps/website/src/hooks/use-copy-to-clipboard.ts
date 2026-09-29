@@ -7,6 +7,7 @@ export function useCopyToClipboard(text: string, resetAfter = 1600) {
     text: string;
     status: Exclude<CopyStatus, "idle">;
   } | null>(null);
+
   const timeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const attempt = useRef(0);
   const status: CopyStatus = result?.text == text ? result.status : "idle";
