@@ -6,7 +6,7 @@ since: "releases/0.1.0.md"
 
 Reads a single file by slug, validates it, and applies the selected view.
 
-```ts
+```ts title="src/app/docs/[...slug]/page.tsx"
 const entry = await docsTree.getEntry("guides/setup");
 entry.title;
 entry.markdown;
@@ -15,7 +15,7 @@ entry._meta.slug; // "guides/setup"
 
 ## Signature
 
-```ts
+```ts title="@qino/cms"
 tree.getEntry(slug: Slug, options?: { view?: ViewName }): Promise<Entry>;
 ```
 

@@ -1,6 +1,6 @@
 import matter from "gray-matter";
 
-import { MARKDOWN_FIELD_NAME } from "../../data/globals";
+import { MARKDOWN_FIELD_NAME, RAW_FIELD_NAME } from "../../data/globals";
 import type { ObjectSchema } from "../../types/schema";
 import { assertNoReservedFrontmatterFields } from "../validate/assert-no-reserved-frontmatter-fields";
 import type { ValidateParams, validate } from "../validate/validate";
@@ -22,7 +22,11 @@ export function parseMarkdownFile<S extends ObjectSchema>({
 
   return validatorFn({
     schema,
-    data: { ...parsed.data, [MARKDOWN_FIELD_NAME]: parsed.content },
+    data: {
+      ...parsed.data,
+      [MARKDOWN_FIELD_NAME]: parsed.content,
+      [RAW_FIELD_NAME]: data,
+    },
     filePath,
   });
 }

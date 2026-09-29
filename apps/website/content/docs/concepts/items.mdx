@@ -5,8 +5,7 @@ description: A single well-known content file with its own role.
 
 An item is one file with a fixed path and its own role: a home page, an about page, site settings. It is not a one-entry collection. There is no slug and no listing, just the file.
 
-```ts
-// qino/items/home.ts
+```ts title="qino/items/home.ts"
 import { z } from "zod";
 
 import qino from "../";
@@ -37,7 +36,7 @@ export const homeItem = qino.defineItem({
 
 `getEntry(options?)` reads, validates, and applies the selected view:
 
-```ts
+```ts title="src/app/page.tsx"
 const home = await homeItem.getEntry();
 
 home.title;

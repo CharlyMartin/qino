@@ -6,7 +6,7 @@ since: "releases/0.1.0.md"
 
 `getTree`, `getFlatTree`, `getNextNode`, and `getPreviousNode` return nodes, not entries.
 
-```ts
+```ts title="@qino/cms"
 import type { TreeNode } from "@qino/cms";
 
 type TreeNode = {
@@ -32,7 +32,7 @@ A node has no schema fields and no augment output. Read the content with [getEnt
 
 ## Example
 
-```tsx
+```tsx title="src/app/docs/docs-sidebar.tsx"
 import type { TreeNode } from "@qino/cms";
 
 function Sidebar({ nodes }: { nodes: Array<TreeNode> }) {

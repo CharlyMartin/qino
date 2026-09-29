@@ -37,4 +37,20 @@ describe("augmentEntry", () => {
       "/content/posts/hello.md: augment cannot add reserved or overwrite existing fields: title.",
     );
   });
+
+  test.each(["markdown", "raw"])(
+    "rejects %s on Markdown entries but allows it on JSON entries",
+    async (key) => {
+      await expect(
+        augmentEntry(entry, () => ({ [key]: "derived" })),
+      ).rejects.toThrow(
+        `/content/posts/hello.md: augment cannot add reserved or overwrite existing fields: ${key}.`,
+      );
+
+      const json = { _meta: { filePath: "/content/posts/hello.json" } };
+      await expect(
+        augmentEntry(json, () => ({ [key]: "derived" })),
+      ).resolves.toEqual({ ...json, [key]: "derived" });
+    },
+  );
 });

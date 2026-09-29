@@ -1,6 +1,24 @@
 import { Link } from "@tanstack/react-router";
+import { cva } from "class-variance-authority";
 
 import type { DocsNode } from "../../types/docs-node";
+
+const paginationLinkVariants = cva(
+  "flex flex-col rounded-sm border p-3 transition-colors sm:p-4 hover:border-border-strong hover:bg-surface/50",
+  {
+    variants: {
+      direction: {
+        previous: "items-start",
+        next: "items-end text-right",
+      },
+    },
+  },
+);
+
+const LABELS = {
+  previous: "Previous",
+  next: "Next",
+};
 
 export function DocsPagination({
   previousNode,
@@ -12,40 +30,41 @@ export function DocsPagination({
   return (
     <nav
       aria-label="Previous and next pages"
-      className="mt-16 grid grid-cols-2 gap-4 border-t border-zinc-200 pt-8 dark:border-zinc-800"
+      className="mt-16 grid grid-cols-2 gap-3 border-t pt-8 sm:gap-4"
     >
       {previousNode ? (
-        <Link
-          to="/docs/$"
-          params={{ _splat: previousNode.slug }}
-          className="group flex flex-col items-start rounded-lg border border-zinc-200 p-4 transition-colors hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-600"
-        >
-          <span className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Previous
-          </span>
-          <span className="mt-1 text-sm font-medium group-hover:underline">
-            {previousNode.title}
-          </span>
-        </Link>
+        <PaginationLink node={previousNode} direction="previous" />
       ) : (
         <span />
       )}
       {nextNode ? (
-        <Link
-          to="/docs/$"
-          params={{ _splat: nextNode.slug }}
-          className="group flex flex-col items-end rounded-lg border border-zinc-200 p-4 text-right transition-colors hover:border-zinc-400 dark:border-zinc-800 dark:hover:border-zinc-600"
-        >
-          <span className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Next
-          </span>
-          <span className="mt-1 text-sm font-medium group-hover:underline">
-            {nextNode.title}
-          </span>
-        </Link>
+        <PaginationLink node={nextNode} direction="next" />
       ) : (
         <span />
       )}
     </nav>
+  );
+}
+
+function PaginationLink({
+  node,
+  direction,
+}: {
+  node: DocsNode;
+  direction: keyof typeof LABELS;
+}) {
+  return (
+    <Link
+      to="/docs/$"
+      params={{ _splat: node.slug }}
+      className={paginationLinkVariants({ direction })}
+    >
+      <span className="font-mono text-label uppercase text-muted-foreground">
+        {LABELS[direction]}
+      </span>
+      <span className="mt-1 text-sm font-medium text-foreground sm:text-base">
+        {node.title}
+      </span>
+    </Link>
   );
 }

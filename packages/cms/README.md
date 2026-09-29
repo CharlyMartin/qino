@@ -18,14 +18,19 @@ to retain it, or use a synchronous schema transform to change its value and
 output type. Getters, views, and resolved relations follow the schema output.
 An empty body is supplied as an empty string.
 
+The untouched source file, frontmatter included, is supplied as a `raw` string
+alongside `markdown`. Declare `raw: z.string()` to retain it; it follows the
+same schema rules as `markdown`.
+
 Undeclared fields follow the validator's behavior: ordinary Zod objects strip
 `markdown`, passthrough objects retain it, and strict objects reject it unless
 declared. Schemas remain required, including for documents without frontmatter.
 
 Top-level `_meta` remains reserved in content and schema input/output for every
-format. Markdown frontmatter cannot declare `markdown`. Augmentation cannot add
-or replace `markdown` on Markdown entries, even if the schema omits it; it may
-derive other fields. JSON `markdown` and nested names remain ordinary user fields.
+format. Markdown frontmatter cannot declare `markdown` or `raw`. Augmentation
+cannot add or replace `markdown` or `raw` on Markdown entries, even if the schema
+omits them; it may derive other fields. JSON `markdown`, JSON `raw`, and nested
+names remain ordinary user fields.
 
 To upgrade, rename an old `body` schema declaration to `markdown` and use
 `entry.markdown`. Qino does not generate a `body` alias.

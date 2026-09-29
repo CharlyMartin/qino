@@ -6,14 +6,14 @@ since: "releases/0.1.0.md"
 
 Walks the tree and flattens it depth-first, so a section comes right before its children.
 
-```ts
+```ts title="src/app/docs/[...slug]/page.tsx"
 const nodes = await docsTree.getFlatTree();
 // introduction, guides, guides/setup, guides/deploy, faq
 ```
 
 ## Signature
 
-```ts
+```ts title="@qino/cms"
 tree.getFlatTree(): Promise<Array<TreeNode>>;
 ```
 
@@ -31,7 +31,7 @@ The same walk errors as [getTree](/docs/api/tree/get-tree).
 
 ## Example
 
-```ts
+```ts title="src/app/docs/[...slug]/page.tsx"
 export async function generateStaticParams() {
   const nodes = await docsTree.getFlatTree();
   return nodes.map((node) => ({ slug: node.slug.split("/") }));

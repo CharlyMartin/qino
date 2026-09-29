@@ -5,8 +5,7 @@ description: Hierarchical, ordered content backed by nested folders and anchor f
 
 A tree is a hierarchical, ordered set of entries, such as a documentation sidebar or a nested category structure. Hierarchy and order are first-class, so a tree is not a sorted collection.
 
-```ts
-// qino/trees/docs.ts
+```ts title="qino/trees/docs.ts"
 import { z } from "zod";
 
 import qino from "../";
@@ -28,7 +27,7 @@ export const docsTree = qino.defineTree({
 
 Every node is a file. A node with children is a file plus a same-named folder:
 
-```txt
+```txt title="Folder structure"
 docs/
   _order.json
   introduction.md
@@ -44,7 +43,7 @@ docs/
 
 Each folder may hold an `_order.json` listing its children by filename:
 
-```json
+```json title="src/content/docs/_order.json"
 ["introduction.md", "guides.md"]
 ```
 
@@ -58,7 +57,7 @@ A tree exposes two kinds of data.
 
 **Entries** carry content. `getEntry(slug)` reads, validates, and applies the selected view to one file, returning the schema output plus `_meta`.
 
-```ts
+```ts title="src/app/docs/[...slug]/page.tsx"
 const nodes = await docsTree.getTree(); // sidebar
 const entry = await docsTree.getEntry("guides/setup"); // page
 ```
@@ -67,7 +66,7 @@ const entry = await docsTree.getEntry("guides/setup"); // page
 
 The tree order is also the reading order. `getFlatTree()` returns nodes depth-first, and `getNextNode(slug)` and `getPreviousNode(slug)` walk that flat list, returning `null` at either end.
 
-```ts
+```ts title="src/app/docs/[...slug]/page.tsx"
 export async function generateStaticParams() {
   const nodes = await docsTree.getFlatTree();
   return nodes.map((node) => ({ slug: node.slug.split("/") }));

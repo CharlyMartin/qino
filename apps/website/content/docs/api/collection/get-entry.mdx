@@ -6,14 +6,14 @@ since: "releases/0.1.0.md"
 
 Reads a single file by slug, validates it, and applies the selected view.
 
-```ts
+```ts title="src/app/posts/[slug]/page.tsx"
 const post = await postCollection.getEntry("hello-world");
 const detail = await postCollection.getEntry("hello-world", { view: "detail" });
 ```
 
 ## Signature
 
-```ts
+```ts title="@qino/cms"
 collection.getEntry(slug: Slug, options?: { view?: ViewName }): Promise<Entry>;
 ```
 

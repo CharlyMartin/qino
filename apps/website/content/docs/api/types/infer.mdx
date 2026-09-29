@@ -6,7 +6,7 @@ since: "releases/0.1.0.md"
 
 A type-only helper that describes a primitive's getter outputs.
 
-```ts
+```ts title="src/lib/types.ts"
 import type { Infer } from "@qino/cms";
 
 type PostTypes = Infer<typeof postCollection>;
@@ -16,7 +16,7 @@ type DetailPost = PostTypes["views"]["detail"];
 
 ## Signature
 
-```ts
+```ts title="@qino/cms"
 type Infer<Primitive extends Collection | Tree | Item> = {
   output: Entry; // default view
   views: { [Name in ViewNames]: Entry };
