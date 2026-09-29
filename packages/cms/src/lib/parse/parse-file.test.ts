@@ -33,6 +33,17 @@ describe("parseFile", () => {
     expect(result[MARKDOWN_FIELD_NAME].trim()).toBe("# Body");
   });
 
+  test("exposes the untouched .md document as raw", () => {
+    const raw = ["---", "title: Hello", "---", "", "# Body"].join("\n");
+    const result = parseFile({
+      schema: z.object({ raw: z.string() }),
+      data: raw,
+      filePath: "/fixtures/post.md",
+      validatorFn: validate,
+    });
+    expect(result).toEqual({ raw });
+  });
+
   test("routes .mdx and .markdown files through markdown parsing", () => {
     const schema = z.object({ markdown: z.string() });
     const raw = "markdown only";

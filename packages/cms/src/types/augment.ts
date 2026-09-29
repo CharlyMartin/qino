@@ -1,4 +1,4 @@
-import type { MARKDOWN_FIELD_NAME } from "../data/globals";
+import type { MARKDOWN_FIELD_NAME, RAW_FIELD_NAME } from "../data/globals";
 import type { MarkdownExtension } from "./generated-fields";
 import type { ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
@@ -13,7 +13,7 @@ type ReservedMarkdownKey<Meta> = Meta extends {
 }
   ? Extract<File, `${string}${MarkdownExtension}`> extends never
     ? never
-    : typeof MARKDOWN_FIELD_NAME
+    : typeof MARKDOWN_FIELD_NAME | typeof RAW_FIELD_NAME
   : never;
 
 type NoConflictingKeys<Entry, Meta, Output extends AugmentOutput> = Output &

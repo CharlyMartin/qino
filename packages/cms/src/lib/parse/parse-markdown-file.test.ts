@@ -2,7 +2,7 @@ import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { MARKDOWN_FIELD_NAME } from "../../data/globals";
+import { MARKDOWN_FIELD_NAME, RAW_FIELD_NAME } from "../../data/globals";
 import { validate } from "../validate/validate";
 import { parseMarkdownFile } from "./parse-markdown-file";
 
@@ -79,19 +79,56 @@ describe("parseMarkdownFile", () => {
     );
   });
 
-  test.each([
-    z.object({ title: z.string(), markdown: z.string() }),
-    z.strictObject({ title: z.string(), markdown: z.string() }),
-  ])("preserves original markdown when declared as a string", (schema) => {
-    const markdown = "\n# Hello\n\n  Some text  \n";
-    expect(
+  test("rejects a frontmatter raw field instead of overwriting it", () => {
+    expect(() =>
       parseMarkdownFile({
-        schema,
-        data: `---\ntitle: Hello\n---\n${markdown}`,
-        filePath: "/fixtures/post.md",
+        schema: z.object({ raw: z.string() }),
+        data: `---\n${RAW_FIELD_NAME}: from-frontmatter\n---\n# Body`,
+        filePath: "/fixtures/override.md",
         validatorFn: validate,
       }),
-    ).toEqual({ title: "Hello", markdown });
+    ).toThrow(
+      "/fixtures/override.md: fields reserved for Qino cannot appear in content or schema output: raw.",
+    );
+  });
+
+  test.each([
+    z.object({ title: z.string(), markdown: z.string(), raw: z.string() }),
+    z.strictObject({
+      title: z.string(),
+      markdown: z.string(),
+      raw: z.string(),
+    }),
+  ])(
+    "preserves original markdown and raw when declared as strings",
+    (schema) => {
+      const markdown = "\n# Hello\n\n  Some text  \n";
+      const raw = `---\ntitle: Hello\n---\n${markdown}`;
+      expect(
+        parseMarkdownFile({
+          schema,
+          data: raw,
+          filePath: "/fixtures/post.md",
+          validatorFn: validate,
+        }),
+      ).toEqual({ title: "Hello", markdown, raw });
+    },
+  );
+
+  test.each([
+    "---\ntitle: Hello\n---\n# Body",
+    "---\r\ntitle: Hello\r\n---\r\n# Body\r\n",
+    "\uFEFF---\ntitle: Hello\n---\n",
+    "# Body only",
+    "",
+  ])("exposes the untouched document as raw: %j", (data) => {
+    const result = parseMarkdownFile({
+      schema: z.object({ raw: z.string() }),
+      data,
+      filePath: "/fixtures/post.md",
+      validatorFn: validate,
+    });
+    expect(result).toEqual({ raw: data });
   });
 
   test("adds empty markdown when the document only has frontmatter", () => {
@@ -152,7 +189,7 @@ test.each([".md", ".mdx", ".markdown"])(
     expect(parseMarkdownFile({ ...params, schema: z.object({}) })).toEqual({});
     expect(
       parseMarkdownFile({ ...params, schema: z.object({}).passthrough() }),
-    ).toEqual({ markdown: "# Hello" });
+    ).toEqual({ markdown: "# Hello", raw: "# Hello" });
     expect(() =>
       parseMarkdownFile({ ...params, schema: z.strictObject({}) }),
     ).toThrow("Validation failed");
