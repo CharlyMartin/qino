@@ -14,7 +14,7 @@ The content folder is the directory passed as `contentFolder` to `initQino`. Eac
 | `.markdown` | YAML frontmatter + Markdown body |
 | `.json`     | A JSON object                    |
 
-For the three Markdown formats, the body is supplied to the schema as a `markdown` string. Declare `markdown: z.string()` to keep it. See [Frontmatter](/docs/guide/frontmatter) and [Schemas](/docs/concepts/schemas).
+For the three Markdown formats, the body is supplied to the schema as a `markdown` string, and the untouched file as a `raw` string. Declare `markdown: z.string()` or `raw: z.string()` to keep them. See [Frontmatter](/docs/guide/frontmatter) and [Schemas](/docs/concepts/schemas).
 
 ## Collections
 
@@ -85,7 +85,7 @@ Bare slugs are rejected. The directory and extension must match the target primi
 ## Reserved names
 
 - `_meta` is reserved at the top level of every content file and every schema.
-- `markdown` cannot appear in Markdown frontmatter; the body owns it. In JSON files, `markdown` is an ordinary field.
+- `markdown` and `raw` cannot appear in Markdown frontmatter; Qino supplies them. In JSON files, they are ordinary fields.
 
 Nested keys with those names are ordinary user fields.
 

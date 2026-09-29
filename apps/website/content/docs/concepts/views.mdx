@@ -37,7 +37,7 @@ Without `views`, getters return validated entries with raw relation references a
 | `resolveRelations` | yes        | yes  | yes  | `false`, `true`, or depth `1` to `6`. Default `false` |
 | `augment`          | yes        | yes  | yes  | Derive extra fields, may be async                     |
 | `filter`           | yes        | no   | no   | Keep entries where the predicate is true              |
-| `sort`             | yes        | no   | no   | Comparator for `getEntries`                              |
+| `sort`             | yes        | no   | no   | Comparator for `getEntries`                           |
 
 Tree and item helpers reject `filter` and `sort` in TypeScript and at runtime.
 
@@ -45,7 +45,7 @@ Tree and item helpers reject `filter` and `sort` in TypeScript and at runtime.
 
 For each getter call: read and validate, resolve relations at the view's depth, run `augment`, then for collections `filter`, then for `getEntries` `sort`. Augment receives resolved relations when the view resolves them. Filter and sort receive augmented entries.
 
-`augment` must return an object. It cannot overwrite an existing field, and cannot add `markdown` to a Markdown entry.
+`augment` must return an object. It cannot overwrite an existing field, and cannot add `markdown` or `raw` to a Markdown entry.
 
 ## Views are independent
 

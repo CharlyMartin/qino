@@ -36,7 +36,9 @@ describe("defineItem", () => {
         }),
       }),
       file: "/pages/home.md",
-      schema: z.object({ markdown: z.string(), title: z.string() }).strict(),
+      schema: z
+        .object({ markdown: z.string(), raw: z.string(), title: z.string() })
+        .strict(),
     });
 
     await expect(item.getEntry()).resolves.toMatchObject({ words: 2 });
