@@ -4,7 +4,7 @@ import { cva } from "class-variance-authority";
 import type { DocsNode } from "../../types/docs-node";
 
 const paginationLinkVariants = cva(
-  "flex flex-col rounded-sm border p-4 transition-colors hover:border-border-strong hover:bg-surface/50",
+  "flex flex-col rounded-sm border p-3 transition-colors sm:p-4 hover:border-border-strong hover:bg-surface/50",
   {
     variants: {
       direction: {
@@ -30,7 +30,7 @@ export function DocsPagination({
   return (
     <nav
       aria-label="Previous and next pages"
-      className="mt-16 grid grid-cols-2 gap-4 border-t pt-8"
+      className="mt-16 grid grid-cols-2 gap-3 border-t pt-8 sm:gap-4"
     >
       {previousNode ? (
         <PaginationLink node={previousNode} direction="previous" />
@@ -62,7 +62,9 @@ function PaginationLink({
       <span className="font-mono text-label uppercase text-muted-foreground">
         {LABELS[direction]}
       </span>
-      <span className="mt-1 font-medium text-foreground">{node.title}</span>
+      <span className="mt-1 text-sm font-medium text-foreground sm:text-base">
+        {node.title}
+      </span>
     </Link>
   );
 }
