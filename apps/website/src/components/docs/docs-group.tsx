@@ -1,4 +1,4 @@
-import { ChevronRight } from "lucide-react";
+import { CaretRightIcon } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import { useEffect, useState } from "react";
 
 import type { DocsNode } from "../../types/docs-node";
@@ -41,7 +41,10 @@ export function DocsGroup({
           aria-label={`Toggle ${node.title}`}
           className="group rounded-sm p-1 text-muted-foreground transition-colors hover:bg-surface/50 hover:text-foreground"
         >
-          <ChevronRight className="size-4 transition-transform group-data-panel-open:rotate-90" />
+          <CaretRightIcon
+            className="size-4 transition-transform group-data-panel-open:rotate-90"
+            aria-hidden="true"
+          />
         </CollapsibleTrigger>
       </div>
       <CollapsibleContent keepMounted className="ml-3 border-l pl-3">
