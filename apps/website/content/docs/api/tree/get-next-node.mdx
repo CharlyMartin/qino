@@ -6,14 +6,14 @@ since: "releases/0.1.0.md"
 
 Flattens the tree depth-first and returns the node after the given slug, or `null` at the end.
 
-```ts
+```ts title="src/app/docs/[...slug]/page.tsx"
 const next = await docsTree.getNextNode("guides/setup");
 // TreeNode for "guides/deploy", or null
 ```
 
 ## Signature
 
-```ts
+```ts title="@qino/cms"
 tree.getNextNode(slug: Slug): Promise<TreeNode | null>;
 ```
 
@@ -34,7 +34,7 @@ tree.getNextNode(slug: Slug): Promise<TreeNode | null>;
 
 ## Example
 
-```tsx
+```tsx title="src/app/docs/[...slug]/page.tsx"
 const [previous, next] = await Promise.all([
   docsTree.getPreviousNode(slug),
   docsTree.getNextNode(slug),

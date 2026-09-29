@@ -6,7 +6,7 @@ since: "releases/0.1.0.md"
 
 Initializes a Qino instance bound to a content folder and a media folder. Every collection, tree, and item is defined through the returned instance.
 
-```ts
+```ts title="qino/index.ts"
 import { initQino } from "@qino/cms";
 
 const qino = initQino({
@@ -17,7 +17,7 @@ const qino = initQino({
 
 ## Signature
 
-```ts
+```ts title="@qino/cms"
 function initQino(config: {
   readonly contentFolder: string;
   readonly mediaFolder: string;
@@ -47,7 +47,7 @@ An instance with three methods:
 
 The methods are closures, so destructuring them is fine:
 
-```ts
+```ts title="qino/index.ts"
 export const { defineCollection, defineTree, defineItem } = initQino({
   contentFolder: "src/content",
   mediaFolder: "public",

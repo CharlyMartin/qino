@@ -9,7 +9,7 @@ A relation links a field in one primitive to an entry of another. Any of the thr
 
 `relations` maps a JSON path in the schema output to a target primitive:
 
-```ts
+```ts title="qino/collections/posts.ts"
 export const postCollection = qino.defineCollection({
   directory: "/posts",
   extension: ".md",
@@ -36,7 +36,7 @@ Only paths that lead to a string in the schema output are accepted. TypeScript n
 
 For forward references and cycles, pass a function:
 
-```ts
+```ts title="qino/collections/posts.ts"
 relations: { related: () => postCollection },
 ```
 
@@ -46,7 +46,7 @@ All related primitives must come from the same `initQino` instance.
 
 Content stores the target's path relative to the content folder, with the extension:
 
-```yaml
+```yaml title="src/content/posts/hello-world.md"
 author: "authors/camille-laurent.json"
 categories:
   - "categories/content-modeling.json"
@@ -58,7 +58,7 @@ The directory and extension must match the target, and a leading `/` is optional
 
 Relations resolve only when a view asks for it:
 
-```ts
+```ts title="qino/collections/posts.ts"
 views: (view) => ({
   default: view({}), // author stays "authors/camille-laurent.json"
   detail: view({ resolveRelations: 1 }), // author becomes the author entry

@@ -6,7 +6,7 @@ since: "releases/0.1.0.md"
 
 Defines an item: one file at a fixed path. Returns a single getter.
 
-```ts
+```ts title="qino/items/home.ts"
 import { z } from "zod";
 
 import qino from "../";
@@ -28,7 +28,7 @@ export const homeItem = qino.defineItem({
 
 ## Signature
 
-```ts
+```ts title="@qino/cms"
 qino.defineItem(params: {
   file: `/${string}.md` | `/${string}.mdx` | `/${string}.markdown` | `/${string}.json`;
   schema: StandardSchemaV1<unknown, Record<string, unknown>>;

@@ -6,7 +6,7 @@ since: "releases/0.1.0.md"
 
 Defines a collection: a flat directory of files with one extension and one schema. Returns getters for listing, reading, and enumerating slugs.
 
-```ts
+```ts title="qino/collections/posts.ts"
 import { z } from "zod";
 
 import qino from "../";
@@ -31,7 +31,7 @@ export const postCollection = qino.defineCollection({
 
 ## Signature
 
-```ts
+```ts title="@qino/cms"
 qino.defineCollection(params: {
   directory: `/${string}`;
   extension: ".md" | ".mdx" | ".markdown" | ".json";

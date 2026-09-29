@@ -6,13 +6,13 @@ since: "releases/0.1.0.md"
 
 Use these to type a function that accepts a primitive, or to constrain a generic.
 
-```ts
+```ts title="@qino/cms"
 import type { Collection, Item, Tree } from "@qino/cms";
 ```
 
 ## Collection
 
-```ts
+```ts title="@qino/cms"
 type Collection<
   Schema extends StandardSchemaV1<unknown, Record<string, unknown>>,
   Ext extends ".md" | ".mdx" | ".markdown" | ".json",
@@ -28,7 +28,7 @@ type Collection<
 
 ## Tree
 
-```ts
+```ts title="@qino/cms"
 type Tree<
   Schema,
   Ext,
@@ -51,7 +51,7 @@ type Tree<
 
 ## Item
 
-```ts
+```ts title="@qino/cms"
 type Item<Schema, Ext, Rels = object, Views extends object = object> = {
   getEntry(options?: { view?: keyof Views }): Promise<Entry>;
 };
@@ -72,7 +72,7 @@ Each type also carries a hidden marker with the definition metadata and the infe
 
 ## Example
 
-```ts
+```ts title="src/lib/count-entries.ts"
 import type { Collection } from "@qino/cms";
 
 async function countEntries<C extends Collection<any, any, any, any, any>>(

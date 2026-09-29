@@ -6,7 +6,7 @@ since: "releases/0.1.0.md"
 
 Every entry returned by a content getter carries a `_meta` object. Its shape depends on the primitive.
 
-```ts
+```ts title="@qino/cms"
 import type {
   AnyEntry,
   CollectionEntryMeta,
@@ -17,7 +17,7 @@ import type {
 
 ## CollectionEntryMeta
 
-```ts
+```ts title="@qino/cms"
 type CollectionEntryMeta<
   Ext extends SupportedFileExtension = SupportedFileExtension,
 > = {
@@ -31,7 +31,7 @@ type CollectionEntryMeta<
 
 Same shape as `CollectionEntryMeta`. `slug` is the slash-joined path, such as `guides/setup`.
 
-```ts
+```ts title="@qino/cms"
 type TreeEntryMeta<
   Ext extends SupportedFileExtension = SupportedFileExtension,
 > = {
@@ -45,7 +45,7 @@ type TreeEntryMeta<
 
 No `slug`.
 
-```ts
+```ts title="@qino/cms"
 type ItemEntryMeta<
   Ext extends SupportedFileExtension = SupportedFileExtension,
 > = {
@@ -58,7 +58,7 @@ type ItemEntryMeta<
 
 The loosest entry type: any record with a `_meta`.
 
-```ts
+```ts title="@qino/cms"
 type AnyEntry = Record<string, unknown> & {
   _meta: CollectionEntryMeta | ItemEntryMeta | TreeEntryMeta;
 };

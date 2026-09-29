@@ -5,7 +5,7 @@ description: How YAML frontmatter is parsed and which values become which types.
 
 Markdown, MDX, and `.markdown` files may start with a YAML block delimited by `---` lines. Qino parses it with [js-yaml](https://github.com/nodeca/js-yaml) using the YAML 1.2 core schema, then validates the result together with the body against your schema.
 
-```md
+```md title="src/content/posts/hello-world.md"
 ---
 title: Hello
 draft: false
@@ -43,7 +43,7 @@ YAML 1.1 forms are not resolved. `yes`, `no`, `on`, `off`, `12:34:56`, `1_000`, 
 
 Dates are never converted. `2023-11-14` and `2023-11-14T12:34:56Z` arrive as strings. Validate them with `z.iso.date()` or coerce with `z.coerce.date()`. To receive a `Date` directly, tag the value:
 
-```yaml
+```yaml title="src/content/posts/hello-world.md"
 published: !!timestamp 2023-11-14
 ```
 
@@ -51,7 +51,7 @@ published: !!timestamp 2023-11-14
 
 `&name` defines a node, `*name` reuses it, and `<<` copies a mapping's keys into another. Keys written directly win over merged ones:
 
-```yaml
+```yaml title="src/content/posts/hello-world.md"
 defaults: &defaults
   draft: false
   layout: post

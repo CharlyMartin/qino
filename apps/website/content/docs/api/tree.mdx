@@ -6,7 +6,7 @@ since: "releases/0.1.0.md"
 
 Defines a tree: a nested directory where every node is a file and sections are a file plus a same-named folder. Returns getters for structure, content, and navigation.
 
-```ts
+```ts title="qino/trees/docs.ts"
 import { z } from "zod";
 
 import qino from "../";
@@ -24,7 +24,7 @@ export const docsTree = qino.defineTree({
 
 ## Signature
 
-```ts
+```ts title="@qino/cms"
 qino.defineTree(params: {
   directory: `/${string}`;
   extension: ".md" | ".mdx" | ".markdown" | ".json";
