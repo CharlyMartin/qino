@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 
 import { PageError } from "../components/page-error";
 import { PageNotFound } from "../components/page-not-found";
-import splineSansMono from "../fonts/spline-sans-mono-variable.woff2?url";
 import satoshi from "../fonts/satoshi-variable.woff2?url";
+import splineSansMono from "../fonts/spline-sans-mono-variable.woff2?url";
 import appCss from "../styles/app.css?url";
 
 export const Route = createRootRoute({

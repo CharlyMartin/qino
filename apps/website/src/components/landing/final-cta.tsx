@@ -24,9 +24,7 @@ export function FinalCta() {
         <InstallBox withBuild />
       </div>
       <div className="mt-7 flex flex-col gap-3 md:flex-row md:justify-center">
-        <ButtonLink to="/docs">
-          Read the docs
-        </ButtonLink>
+        <ButtonLink to="/docs">Read the docs</ButtonLink>
         <ButtonLink
           to="/docs/$"
           params={{ _splat: "examples/next-js" }}

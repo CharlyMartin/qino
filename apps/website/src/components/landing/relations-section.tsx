@@ -78,9 +78,9 @@ export function RelationsSection() {
           </Title>
           <div className="mt-2 max-w-xl">
             <Text>
-              When a view resolves a relation, Qino checks that the linked
-              entry exists. If it doesn't, the build fails, so broken links
-              never ship.
+              When a view resolves a relation, Qino checks that the linked entry
+              exists. If it doesn't, the build fails, so broken links never
+              ship.
             </Text>
           </div>
         </div>
