@@ -14,6 +14,7 @@ export const releaseCollection = qino.defineCollection({
       date: z.iso.date(),
       summary: z.string(),
       markdown: z.string(),
+      raw: z.string(),
     })
     .strict(),
 });

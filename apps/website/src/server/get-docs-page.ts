@@ -46,7 +46,7 @@ export const getDocsPage = createServerFn({ method: "GET" })
       title: entry.title,
       description: entry.description,
       since: entry.since,
-      markdown: entry.markdown,
+      raw: entry.raw,
       mdx,
       children: node.children.map(toDocsNode),
       previousNode: previousNode ? toDocsNode(previousNode) : null,

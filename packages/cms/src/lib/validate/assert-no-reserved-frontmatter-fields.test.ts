@@ -4,21 +4,21 @@ import { assertNoReservedFrontmatterFields } from "./assert-no-reserved-frontmat
 
 describe("assertNoReservedFrontmatterFields", () => {
   test.each([".md", ".mdx", ".markdown"])(
-    "rejects both reserved fields in %s",
+    "rejects all reserved fields in %s",
     (ext) => {
       const filePath = `/entry${ext}`;
       expect(() =>
         assertNoReservedFrontmatterFields(
-          { _meta: undefined, markdown: "override" },
+          { _meta: undefined, markdown: "override", raw: "override" },
           filePath,
         ),
       ).toThrow(
-        `${filePath}: fields reserved for Qino cannot appear in content or schema output: _meta, markdown.`,
+        `${filePath}: fields reserved for Qino cannot appear in content or schema output: _meta, markdown, raw.`,
       );
     },
   );
 
-  test.each(["_meta", "markdown"])(
+  test.each(["_meta", "markdown", "raw"])(
     "checks own %s properties, including non-enumerable ones",
     (key) => {
       expect(() =>
@@ -42,7 +42,7 @@ describe("assertNoReservedFrontmatterFields", () => {
   test("allows nested reserved names", () => {
     expect(() =>
       assertNoReservedFrontmatterFields(
-        { nested: { _meta: {}, markdown: 42 } },
+        { nested: { _meta: {}, markdown: 42, raw: 42 } },
         "/entry.md",
       ),
     ).not.toThrow();
