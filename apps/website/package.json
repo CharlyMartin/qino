@@ -14,13 +14,12 @@
     "@base-ui/react": "1.8.0",
     "@phosphor-icons/react": "2.1.10",
     "@qino/cms": "workspace:*",
-    "@tanstack/react-router": "1.170.38",
-    "@tanstack/react-start": "1.168.56",
+    "@tanstack/react-router": "1.170.39",
+    "@tanstack/react-start": "1.168.58",
     "@tanstack/start-static-server-functions": "1.167.37",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "highlight.js": "11.12.0",
-    "lucide-react": "1.47.0",
     "next-mdx-remote": "6.0.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -45,6 +44,6 @@
     "tailwindcss": "4.3.3",
     "typescript": "6.0.3",
     "vite": "8.3.1",
-    "vitest": "5.0.1"
+    "vitest": "5.0.2"
   }
 }
