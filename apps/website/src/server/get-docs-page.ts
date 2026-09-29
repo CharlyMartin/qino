@@ -9,6 +9,7 @@ import remarkGfm from "remark-gfm";
 import { z } from "zod";
 
 import { docsTree } from "../../qino/docs";
+import { rehypeCodeTitle } from "./rehype-code-title";
 import { toDocsNode } from "./to-docs-node";
 
 export const getDocsPage = createServerFn({ method: "GET" })
@@ -34,6 +35,7 @@ export const getDocsPage = createServerFn({ method: "GET" })
             rehypeSlug,
             [rehypeAutolinkHeadings, { behavior: "wrap" }],
             rehypeHighlight,
+            rehypeCodeTitle,
           ],
         },
       },
@@ -44,6 +46,7 @@ export const getDocsPage = createServerFn({ method: "GET" })
       title: entry.title,
       description: entry.description,
       since: entry.since,
+      raw: entry.raw,
       mdx,
       children: node.children.map(toDocsNode),
       previousNode: previousNode ? toDocsNode(previousNode) : null,

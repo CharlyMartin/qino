@@ -7,7 +7,7 @@ A Qino project has two folders that Qino cares about: the `qino/` folder that ho
 
 ## The qino/ folder
 
-```txt
+```txt title="Folder structure"
 qino/
   index.ts             initQino instance, default export
   collections/
@@ -27,7 +27,7 @@ The CLI looks for `qino/` in the working directory. The folder name and the `ind
 
 `qino/index.ts` must default-export the instance:
 
-```ts
+```ts title="qino/index.ts"
 import { initQino } from "@qino/cms";
 
 export default initQino({
@@ -44,8 +44,7 @@ Each definition is a named export from any `.ts`, `.tsx`, `.js`, or `.mjs` file 
 
 Grouping by primitive (`collections/`, `trees/`, `items/`) is the layout used by the reference example. It is a convention, not a requirement.
 
-```ts
-// qino/collections/posts.ts
+```ts title="qino/collections/posts.ts"
 import { z } from "zod";
 
 import qino from "../";
@@ -63,7 +62,7 @@ All definitions must come from the same instance. `qino lint` rejects primitives
 
 Your app imports the definition and calls its getters:
 
-```ts
+```ts title="src/app/posts/page.tsx"
 import { postCollection } from "../qino/collections/posts";
 
 const posts = await postCollection.getEntries();
@@ -77,7 +76,7 @@ There is nothing to import from `qino/index.ts` in app code.
 
 Add it to `.gitignore`:
 
-```txt
+```txt title=".gitignore"
 qino/_generated/
 ```
 

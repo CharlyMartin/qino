@@ -85,6 +85,10 @@ describe("augment type behaviour", () => {
           // @ts-expect-error Markdown cannot be added or replaced by augmentation.
           augment: () => ({ markdown: "replacement" }),
         }),
+        raw: view({
+          // @ts-expect-error Raw cannot be added or replaced by augmentation.
+          augment: () => ({ raw: "replacement" }),
+        }),
         meta: view({
           // @ts-expect-error Metadata is already part of the entry.
           augment: () => ({ _meta: {} }),

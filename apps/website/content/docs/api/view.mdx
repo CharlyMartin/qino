@@ -6,7 +6,7 @@ since: "releases/0.1.0.md"
 
 `view` is not imported. It is the argument the `views` factory receives, and every named view must be created with it.
 
-```ts
+```ts title="qino/collections/posts.ts"
 views: (view) => ({
   default: view({}),
   detail: view({
@@ -18,7 +18,7 @@ views: (view) => ({
 
 ## Signature
 
-```ts
+```ts title="@qino/cms"
 view(config: {
   resolveRelations?: boolean | 1 | 2 | 3 | 4 | 5 | 6;
   augment?: (entry: Entry) => Derived | Promise<Derived>;
@@ -58,7 +58,7 @@ A view definition. The factory must return an object with a `default` key and an
 
 ## Example
 
-```ts
+```ts title="qino/collections/posts.ts"
 import { getMarkdownStats } from "@qino/cms/utils";
 
 views: (view) => {

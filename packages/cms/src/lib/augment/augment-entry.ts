@@ -1,4 +1,8 @@
-import { MARKDOWN_FIELD_NAME, META_FIELD_NAME } from "../../data/globals";
+import {
+  MARKDOWN_FIELD_NAME,
+  META_FIELD_NAME,
+  RAW_FIELD_NAME,
+} from "../../data/globals";
 import type { AugmentOutput, Awaitable } from "../../types/augment";
 
 export async function augmentEntry<
@@ -47,5 +51,8 @@ export async function augmentEntry<
 }
 
 function isReservedMarkdownField(key: string, filePath: string) {
-  return key == MARKDOWN_FIELD_NAME && !filePath.endsWith(".json");
+  return (
+    (key == MARKDOWN_FIELD_NAME || key == RAW_FIELD_NAME) &&
+    !filePath.endsWith(".json")
+  );
 }

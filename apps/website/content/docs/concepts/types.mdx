@@ -9,7 +9,7 @@ Qino gives you two layers of typing: entry shapes inferred from the schema, and 
 
 Getter results are inferred from the schema output, the selected view's relation depth, the awaited augment output, and `_meta`. No annotations are needed:
 
-```ts
+```ts title="src/app/posts/[slug]/page.tsx"
 const post = await postCollection.getEntry("hello", { view: "detail" });
 post.author.name; // resolved at depth 1
 post.authorName; // from augment
@@ -18,7 +18,7 @@ post._meta.slug; // string
 
 To name those types, use `Infer`:
 
-```ts
+```ts title="src/lib/types.ts"
 import type { Infer } from "@qino/cms";
 
 type PostTypes = Infer<typeof postCollection>;
@@ -32,7 +32,7 @@ type DetailPost = PostTypes["views"]["detail"];
 
 `qino build` writes `qino/_generated/types.d.ts`, which augments `@qino/cms`:
 
-```ts
+```ts title="qino/_generated/types.d.ts"
 declare module "@qino/cms" {
   export type PostSlug = "hello-world" | "second-post" | (string & {});
 
@@ -54,4 +54,4 @@ The `resolveRelations` depth is reflected in the type. At depth `1`, `post.autho
 
 ## Augment constraints
 
-Augment output cannot overlap existing entry fields or `markdown` on Markdown entries. Overlaps are type errors, and runtime errors if the types are bypassed.
+Augment output cannot overlap existing entry fields or `markdown` and `raw` on Markdown entries. Overlaps are type errors, and runtime errors if the types are bypassed.

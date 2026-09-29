@@ -8,6 +8,7 @@ export const docsTree = qino.defineTree({
   schema: z
     .object({
       markdown: z.string(),
+      raw: z.string(),
       title: z.string(),
       description: z.string(),
       since: z.string().optional(),

@@ -6,7 +6,7 @@ since: "releases/0.1.0.md"
 
 An empty interface that `qino build` augments through `qino/_generated/types.d.ts`. Getters look up their primitive's `directory` in it to narrow slug parameters and results.
 
-```ts
+```ts title="@qino/cms"
 import type { QinoSlugRegistry } from "@qino/cms";
 
 interface QinoSlugRegistry {}
@@ -14,8 +14,7 @@ interface QinoSlugRegistry {}
 
 ## Generated augmentation
 
-```ts
-// qino/_generated/types.d.ts
+```ts title="qino/_generated/types.d.ts"
 export {};
 
 declare module "@qino/cms" {

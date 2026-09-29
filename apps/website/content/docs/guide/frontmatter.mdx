@@ -5,7 +5,7 @@ description: How YAML frontmatter is parsed and which values become which types.
 
 Markdown, MDX, and `.markdown` files may start with a YAML block delimited by `---` lines. Qino parses it with [js-yaml](https://github.com/nodeca/js-yaml) using the YAML 1.2 core schema, then validates the result together with the body against your schema.
 
-```md
+```md title="src/content/posts/hello-world.md"
 ---
 title: Hello
 draft: false
@@ -21,7 +21,7 @@ The body starts here.
 - An empty or comment-only block yields `{}`.
 - A scalar, a list, or several `---` documents at the top level is an error.
 - Duplicate keys in a mapping are an error.
-- A file without frontmatter is valid. The schema still runs, with only `markdown` supplied.
+- A file without frontmatter is valid. The schema still runs, with only `markdown` and `raw` supplied.
 
 ## Scalar resolution
 
@@ -43,7 +43,7 @@ YAML 1.1 forms are not resolved. `yes`, `no`, `on`, `off`, `12:34:56`, `1_000`, 
 
 Dates are never converted. `2023-11-14` and `2023-11-14T12:34:56Z` arrive as strings. Validate them with `z.iso.date()` or coerce with `z.coerce.date()`. To receive a `Date` directly, tag the value:
 
-```yaml
+```yaml title="src/content/posts/hello-world.md"
 published: !!timestamp 2023-11-14
 ```
 
@@ -51,7 +51,7 @@ published: !!timestamp 2023-11-14
 
 `&name` defines a node, `*name` reuses it, and `<<` copies a mapping's keys into another. Keys written directly win over merged ones:
 
-```yaml
+```yaml title="src/content/posts/hello-world.md"
 defaults: &defaults
   draft: false
   layout: post
@@ -67,4 +67,4 @@ The built-in `!!str`, `!!int`, `!!float`, `!!bool`, `!!null`, and `!!timestamp` 
 
 ## The body
 
-Everything after the closing `---` is supplied to the schema as `markdown`, a string, before validation. An empty body is an empty string. Declaring `markdown` in frontmatter is an error. See [Schemas](/docs/concepts/schemas) for how to keep, transform, or drop it.
+Everything after the closing `---` is supplied to the schema as `markdown`, a string, before validation. An empty body is an empty string. The whole file, frontmatter included, is also supplied untouched as `raw`. Declaring `markdown` or `raw` in frontmatter is an error. See [Schemas](/docs/concepts/schemas) for how to keep, transform, or drop it.

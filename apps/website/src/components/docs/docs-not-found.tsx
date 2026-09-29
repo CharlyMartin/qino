@@ -1,15 +1,16 @@
 import { Link } from "@tanstack/react-router";
 
+import { Text } from "../landing/text";
+import { Title } from "../landing/title";
+
 export function DocsNotFound() {
   return (
-    <section>
-      <h1 className="text-3xl font-semibold">Page not found</h1>
-      <p className="mt-3 text-zinc-600 dark:text-zinc-400">
-        This documentation page does not exist.
-      </p>
+    <section className="flex flex-col items-start gap-4">
+      <Title as="h1">Page not found</Title>
+      <Text size="lead">This documentation page does not exist.</Text>
       <Link
         to="/docs"
-        className="mt-6 inline-block underline underline-offset-4"
+        className="mt-2 text-foreground-3 underline underline-offset-4 transition-colors hover:text-foreground"
       >
         Back to documentation
       </Link>
