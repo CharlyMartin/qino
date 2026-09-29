@@ -29,7 +29,7 @@ describe.each([".md", ".mdx", ".markdown", ".json"] as const)(
         const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
         for (const field of extension == ".json" || source == "transform"
           ? ["_meta"]
-          : ["_meta", "markdown"]) {
+          : ["_meta", "markdown", "raw"]) {
           const data = {
             title: "Hello",
             ...(source == "content" ? { [field]: "conflict" } : {}),
@@ -76,11 +76,9 @@ describe.each([".md", ".mdx", ".markdown", ".json"] as const)(
   },
 );
 
-test("resolved Markdown targets retain their markdown", async () => {
-  await fs.writeFile(
-    path.join(tmp, "entries/hello.md"),
-    "---\ntitle: Hello\n---\n# Hello",
-  );
+test("resolved Markdown targets retain their markdown and raw", async () => {
+  const raw = "---\ntitle: Hello\n---\n# Hello";
+  await fs.writeFile(path.join(tmp, "entries/hello.md"), raw);
   await fs.writeFile(
     path.join(tmp, "links.json"),
     JSON.stringify({
@@ -90,7 +88,11 @@ test("resolved Markdown targets retain their markdown", async () => {
     }),
   );
   const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
-  const schema = z.strictObject({ title: z.string(), markdown: z.string() });
+  const schema = z.strictObject({
+    title: z.string(),
+    markdown: z.string(),
+    raw: z.string(),
+  });
   const posts = qino.defineCollection({
     directory: "/entries",
     extension: ".md",
@@ -112,6 +114,7 @@ test("resolved Markdown targets retain their markdown", async () => {
   const entry = await links.getEntry();
   for (const target of [entry.post, entry.home, entry.doc]) {
     expect(target.markdown).toBe("# Hello");
+    expect(target.raw).toBe(raw);
     expect(target).not.toHaveProperty("body");
     expect(target._meta.filePath).toBe(path.join(tmp, "entries/hello.md"));
   }
@@ -157,7 +160,7 @@ test.each([".md", ".mdx", ".markdown", ".json"] as const)(
   },
 );
 
-test.each(["_meta", "markdown"])(
+test.each(["_meta", "markdown", "raw"])(
   "augmentation cannot overwrite generated %s",
   async (field) => {
     await fs.writeFile(
@@ -181,17 +184,23 @@ test.each(["_meta", "markdown"])(
   },
 );
 
-test("JSON markdown and nested reserved names remain user fields", async () => {
+test("JSON markdown, raw and nested reserved names remain user fields", async () => {
   const data = {
     markdown: 42,
-    nested: { _meta: "custom", markdown: "custom" },
+    raw: true,
+    nested: { _meta: "custom", markdown: "custom", raw: "custom" },
   };
   await fs.writeFile(path.join(tmp, "home.json"), JSON.stringify(data));
   const item = initQino({ contentFolder: tmp, mediaFolder: tmp }).defineItem({
     file: "/home.json",
     schema: z.object({
       markdown: z.number(),
-      nested: z.object({ _meta: z.string(), markdown: z.string() }),
+      raw: z.boolean(),
+      nested: z.object({
+        _meta: z.string(),
+        markdown: z.string(),
+        raw: z.string(),
+      }),
     }),
   });
   await expect(item.getEntry()).resolves.toMatchObject(data);

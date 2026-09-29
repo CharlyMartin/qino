@@ -1,5 +1,28 @@
 # @qino/cms
 
+## 0.4.0
+
+### Minor Changes
+
+- [#163](https://github.com/CharlyMartin/qino/pull/163) [`a295736`](https://github.com/CharlyMartin/qino/commit/a295736f3f6de3907f47df60c1ca07ad7c123a16) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Adds a `raw` field to Markdown entries holding the untouched source file, frontmatter included. Declare it in the schema to keep it:
+
+  ```ts
+  schema: z.object({
+    title: z.string(),
+    markdown: z.string(),
+    raw: z.string(),
+  });
+  ```
+
+  `raw` is now reserved on Markdown entries: it cannot appear in frontmatter or be added by `augment`. Strict schemas (`z.strictObject`) must declare it:
+
+  ```diff
+    z.strictObject({
+      markdown: z.string(),
+  +   raw: z.string(),
+    })
+  ```
+
 ## 0.3.0
 
 ### Minor Changes

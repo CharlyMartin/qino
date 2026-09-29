@@ -36,7 +36,7 @@ function DocsPage() {
     title,
     description,
     since,
-    markdown,
+    raw,
     mdx,
     children,
     previousNode,
@@ -49,7 +49,7 @@ function DocsPage() {
         {since ? <Eyebrow tone="accent">Since {since.version}</Eyebrow> : null}
         <Title as="h1">{title}</Title>
         <Text size="lead">{description}</Text>
-        <CopyMarkdownButton markdown={markdown} />
+        <CopyMarkdownButton markdown={raw} />
       </header>
       <div className="prose prose-invert max-w-none">
         <MDXRemote {...mdx} components={mdxComponents} />
