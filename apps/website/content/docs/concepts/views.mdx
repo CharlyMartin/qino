@@ -5,7 +5,7 @@ description: Named shapes of the same content, with resolution, augmentation, fi
 
 A view is a named configuration for how a getter shapes entries. Every primitive can declare views, and every getter that reads content accepts `{ view: "name" }`.
 
-```ts
+```ts title="qino/collections/posts.ts"
 export const postCollection = qino.defineCollection({
   directory: "/posts",
   extension: ".md",
@@ -51,7 +51,7 @@ For each getter call: read and validate, resolve relations at the view's depth, 
 
 A custom view inherits nothing from `default`. Reuse a base by spreading it:
 
-```ts
+```ts title="qino/collections/posts.ts"
 views: (view) => {
   const base = view({
     augment: (post) => ({ stats: getMarkdownStats(post.markdown) }),
@@ -75,7 +75,7 @@ Spreading copies settings; it does not compose callbacks. Set `filter: undefined
 
 ## Inferring the output
 
-```ts
+```ts title="src/lib/types.ts"
 import type { Infer } from "@qino/cms";
 
 type PostTypes = Infer<typeof postCollection>;

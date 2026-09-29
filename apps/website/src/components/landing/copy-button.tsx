@@ -1,9 +1,20 @@
 import { CheckIcon, CopyIcon } from "@phosphor-icons/react/ssr";
+import { cva, type VariantProps } from "class-variance-authority";
 
 import { Button } from "@/components/ui/button";
 import type { CopyStatus } from "@/hooks/use-copy-to-clipboard";
 
-type CopyButtonProps = {
+const copyIconVariants = cva("", {
+  variants: {
+    size: {
+      default: "size-5",
+      sm: "size-4",
+    },
+  },
+  defaultVariants: { size: "default" },
+});
+
+type CopyButtonProps = VariantProps<typeof copyIconVariants> & {
   status: CopyStatus;
   onCopy: () => void;
   label: string;
@@ -15,14 +26,17 @@ const announcements = {
   error: "Could not copy. Select the command and copy it manually.",
 };
 
-export function CopyButton({ status, onCopy, label }: CopyButtonProps) {
+export function CopyButton({ status, onCopy, label, size }: CopyButtonProps) {
   return (
     <>
       <Button variant="divided" size="block" onClick={onCopy}>
         {status == "copied" ? (
-          <CheckIcon className="size-5" aria-hidden="true" />
+          <CheckIcon
+            className={copyIconVariants({ size })}
+            aria-hidden="true"
+          />
         ) : (
-          <CopyIcon className="size-5" aria-hidden="true" />
+          <CopyIcon className={copyIconVariants({ size })} aria-hidden="true" />
         )}
         <span className="sr-only">{label}</span>
       </Button>

@@ -11,8 +11,7 @@ The schema must be synchronous. A validator that returns a Promise is rejected.
 
 For Markdown, MDX, and `.markdown` files, the input is the parsed frontmatter plus the raw body as `markdown`:
 
-```ts
-// input for a .md file
+```ts title="Schema input for hello-world.md"
 {
   title: "Hello",
   draft: false,
@@ -54,7 +53,7 @@ YAML never produces `Date` objects on its own. Validate date strings with `z.iso
 
 A failing entry throws with the file path and every issue:
 
-```txt
+```txt title="Terminal"
 Validation failed for /abs/path/posts/hello.md:
   title: Invalid input: expected string, received undefined
 ```

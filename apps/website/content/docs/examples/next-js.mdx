@@ -16,7 +16,7 @@ The canonical Qino example is a Next.js App Router site. It lives in the reposit
 
 ## Layout
 
-```txt
+```txt title="Folder structure"
 examples/next-js/
   qino/
     index.ts
@@ -40,7 +40,7 @@ examples/next-js/
 
 Static params from a collection:
 
-```ts
+```ts title="src/app/posts/[slug]/page.tsx"
 export async function generateStaticParams() {
   const slugs = await postCollection.getAllSlugs();
   return slugs.map((slug) => ({ slug }));
@@ -49,7 +49,7 @@ export async function generateStaticParams() {
 
 A docs page reading structure, content, and neighbors in one go:
 
-```ts
+```ts title="src/app/docs/[...slug]/page.tsx"
 const [nodes, entry, previousNode, nextNode] = await Promise.all([
   docsTree.getTree(),
   docsTree.getEntry(fullSlug),
@@ -64,8 +64,7 @@ Qino returns raw Markdown. The example renders `.md` posts with `react-markdown`
 
 ## Next.js configuration
 
-```ts
-// next.config.ts
+```ts title="next.config.ts"
 const nextConfig = {
   transpilePackages: ["@qino/cms"],
 };
@@ -75,7 +74,7 @@ export default nextConfig;
 
 ## Run it
 
-```sh
+```sh title="Terminal"
 pnpm install
 pnpm --filter next-js dev
 ```

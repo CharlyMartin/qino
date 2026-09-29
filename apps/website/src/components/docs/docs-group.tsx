@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -8,6 +7,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../ui/collapsible";
+import { DocsLink } from "./docs-link";
 import { DocsList } from "./docs-list";
 
 export function DocsGroup({
@@ -29,31 +29,22 @@ export function DocsGroup({
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
-      <div className="flex items-center gap-1">
-        <Link
-          to="/docs/$"
-          params={{ _splat: node.slug }}
-          aria-current={isActive ? "page" : undefined}
+      <div className="grid grid-cols-[1fr_auto] items-center gap-1">
+        <DocsLink
+          slug={node.slug}
+          active={isActive}
           onClick={() => setOpen(isActive ? !open : true)}
-          className={
-            isActive
-              ? "flex-1 rounded-md bg-zinc-100 px-2 py-1 font-medium text-zinc-950 dark:bg-zinc-900 dark:text-zinc-50"
-              : "flex-1 rounded-md px-2 py-1 text-zinc-600 hover:bg-zinc-50 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
-          }
         >
           {node.title}
-        </Link>
+        </DocsLink>
         <CollapsibleTrigger
           aria-label={`Toggle ${node.title}`}
-          className="group rounded-md p-1 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-50"
+          className="group rounded-sm p-1 text-muted-foreground transition-colors hover:bg-surface/50 hover:text-foreground"
         >
           <ChevronRight className="size-4 transition-transform group-data-panel-open:rotate-90" />
         </CollapsibleTrigger>
       </div>
-      <CollapsibleContent
-        keepMounted
-        className="ml-3 border-l border-zinc-200 pl-3 dark:border-zinc-800"
-      >
+      <CollapsibleContent keepMounted className="ml-3 border-l pl-3">
         <DocsList
           nodes={node.children}
           activeSlug={activeSlug}

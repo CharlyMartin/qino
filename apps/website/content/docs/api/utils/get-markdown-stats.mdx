@@ -6,7 +6,7 @@ since: "releases/0.1.0.md"
 
 Counts readable prose in a Markdown or MDX string. Exported from `@qino/cms/utils`.
 
-```ts
+```ts title="src/lib/reading-time.ts"
 import { getMarkdownStats } from "@qino/cms/utils";
 
 const stats = getMarkdownStats(post.markdown);
@@ -15,7 +15,7 @@ const readingMinutes = Math.ceil(stats.wordCount / 220);
 
 ## Signature
 
-```ts
+```ts title="@qino/cms/utils"
 function getMarkdownStats(body: string): MarkdownStats;
 ```
 
@@ -49,7 +49,7 @@ Nothing. If MDX parsing fails, such as on an HTML comment, the body is re-parsed
 
 Reading time as an augment field:
 
-```ts
+```ts title="qino/collections/posts.ts"
 views: (view) => ({
   default: view({
     augment: (post) => {

@@ -6,14 +6,14 @@ since: "releases/0.1.0.md"
 
 Walks the tree directory and returns nested `TreeNode` objects. With a slug, returns the matching subtree.
 
-```ts
+```ts title="src/app/docs/[...slug]/page.tsx"
 const nodes = await docsTree.getTree();
 const guides = await docsTree.getTree("guides");
 ```
 
 ## Signature
 
-```ts
+```ts title="@qino/cms"
 tree.getTree(): Promise<Array<TreeNode>>;
 tree.getTree(slug: Slug): Promise<TreeNode>;
 ```
@@ -49,7 +49,7 @@ Each [TreeNode](/docs/api/types/tree-node) has `slug`, `title`, `fileName`, `fil
 
 ## Example
 
-```tsx
+```tsx title="src/app/docs/docs-sidebar.tsx"
 const nodes = await docsTree.getTree();
 
 function Sidebar({ nodes }: { nodes: Array<TreeNode> }) {

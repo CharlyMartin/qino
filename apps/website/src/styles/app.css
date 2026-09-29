@@ -158,15 +158,77 @@
   }
 }
 
-/* Unlayered, like the highlight.js theme, so these win over it. */
-.prose pre {
-  @apply bg-surface/50 p-0;
+/* Unlayered, like the highlight.js theme, so these win over it and the typography plugin. */
+.prose-invert {
+  --tw-prose-invert-body: var(--muted-foreground);
+  --tw-prose-invert-lead: var(--muted-foreground);
+  --tw-prose-invert-captions: var(--muted-foreground);
+  --tw-prose-invert-quotes: var(--muted-foreground);
+  --tw-prose-invert-headings: var(--foreground);
+  --tw-prose-invert-bold: var(--foreground);
+  --tw-prose-invert-links: var(--foreground-3);
+  --tw-prose-invert-code: var(--foreground-3);
+  --tw-prose-invert-pre-code: var(--foreground-3);
+  --tw-prose-invert-hr: var(--border-strong);
+  --tw-prose-invert-quote-borders: var(--border-strong);
+  --tw-prose-invert-bullets: var(--border-strong);
+  --tw-prose-invert-counters: var(--muted-foreground);
+  --tw-prose-invert-th-borders: var(--border-strong);
+  --tw-prose-invert-td-borders: var(--border);
+}
+
+.prose :where(h2, h3, h4) {
+  @apply scroll-mt-8 font-extrabold tracking-tighter;
+}
+
+.prose :where(h2) {
+  @apply mt-16;
+}
+
+.prose :where(h3) {
+  @apply mt-10;
+}
+
+/* Restore the plugin's resets that the margins above outrank. */
+.prose > :first-child,
+.prose :where(hr, h2, h3, h4) + * {
+  margin-top: 0;
+}
+
+.prose :where(a) {
+  @apply underline-offset-4 transition-colors hover:text-foreground;
+}
+
+/* Headings wrap their text in an anchor (rehype-autolink-headings). */
+.prose :where(h1, h2, h3, h4) a {
+  color: inherit;
+  font-weight: inherit;
+  text-decoration: none;
+}
+
+.prose :where(code):not(:where(pre *)) {
+  @apply rounded-xs bg-surface px-1 py-0.5 font-normal wrap-break-word;
+}
+
+.prose :where(code):not(:where(pre *))::before,
+.prose :where(code):not(:where(pre *))::after {
+  content: none;
+}
+
+/* Wide tables scroll on their own instead of widening the page. */
+.prose table {
+  @apply block overflow-x-auto;
+}
+
+.prose pre:not(:where(.not-prose *)) {
+  @apply rounded-sm border bg-surface/50 p-0;
 }
 
 .prose pre code.hljs {
   @apply bg-transparent p-4;
 }
 
-.prose :where(h2, h3, h4) {
-  @apply scroll-mt-8;
+/* Code blocks inside a CodeFigure (see rehype-code-title), which draws the frame. */
+.prose figure > pre {
+  @apply m-0 rounded-none border-0 bg-transparent;
 }

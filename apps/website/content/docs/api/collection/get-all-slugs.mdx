@@ -6,14 +6,14 @@ since: "releases/0.1.0.md"
 
 Lists the filenames in the collection directory, strips the extension, and sorts them. Nothing is read or validated.
 
-```ts
+```ts title="src/app/posts/[slug]/page.tsx"
 const slugs = await postCollection.getAllSlugs();
 // ["hello-world", "second-post"]
 ```
 
 ## Signature
 
-```ts
+```ts title="@qino/cms"
 collection.getAllSlugs(): Promise<Array<Slug>>;
 ```
 
@@ -34,7 +34,7 @@ None.
 
 Because views are ignored, the list can contain slugs that a filtering default view excludes, and [getEntry](/docs/api/collection/get-entry) throws for those. Use `getAllSlugs` for routes when the default view has no `filter`. Otherwise derive slugs from the viewed set:
 
-```ts
+```ts title="src/app/posts/[slug]/page.tsx"
 const slugs = (await postCollection.getEntries()).map((post) => post._meta.slug);
 ```
 
@@ -44,7 +44,7 @@ Nothing beyond filesystem errors.
 
 ## Example
 
-```ts
+```ts title="src/app/posts/[slug]/page.tsx"
 export async function generateStaticParams() {
   const slugs = await postCollection.getAllSlugs();
   return slugs.map((slug) => ({ slug }));

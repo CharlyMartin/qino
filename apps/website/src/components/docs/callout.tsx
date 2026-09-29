@@ -1,22 +1,24 @@
+import { cva, type VariantProps } from "class-variance-authority";
 import type { ReactNode } from "react";
 
-type CalloutProps = {
-  type?: "note" | "warn" | "tip";
+const calloutVariants = cva(
+  "not-prose my-6 rounded-sm border px-4 py-3 text-sm leading-relaxed text-foreground-2",
+  {
+    variants: {
+      type: {
+        note: "border-border-strong bg-surface/50",
+        warn: "border-primary-muted bg-primary-muted/20",
+        tip: "border-green-900 bg-green-950/30",
+      },
+    },
+    defaultVariants: { type: "note" },
+  },
+);
+
+type CalloutProps = VariantProps<typeof calloutVariants> & {
   children: ReactNode;
 };
 
-const TYPE_STYLES = {
-  note: "border-blue-300 bg-blue-50 text-blue-950 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-100",
-  warn: "border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100",
-  tip: "border-emerald-300 bg-emerald-50 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100",
-};
-
-export function Callout({ type = "note", children }: CalloutProps) {
-  return (
-    <div
-      className={`not-prose my-4 rounded-md border px-4 py-3 text-sm ${TYPE_STYLES[type]}`}
-    >
-      {children}
-    </div>
-  );
+export function Callout({ type, children }: CalloutProps) {
+  return <div className={calloutVariants({ type })}>{children}</div>;
 }
