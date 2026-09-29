@@ -1,4 +1,3 @@
-import { ArrowRightIcon } from "@phosphor-icons/react/ssr";
 
 import { version } from "../../../../../packages/cms/package.json";
 import { ButtonLink } from "./button-link";
@@ -11,14 +10,14 @@ import { Title } from "./title";
 export function Hero() {
   return (
     <Section aria-labelledby="hero-heading" spacing="hero" align="center">
-      <div className="space-y-6 mb-20">
-        <Eyebrow tone="accent">
-          Headless flat-file CMS{" "}
-          <span className="text-muted-foreground normal-case">
-            · v{version.split(".").slice(0, 2).join(".")}
-          </span>
-        </Eyebrow>
+      <Eyebrow tone="accent">
+        Headless flat-file CMS{" "}
+        <span className="text-muted-foreground normal-case">
+          · v{version.split(".").slice(0, 2).join(".")}
+        </span>
+      </Eyebrow>
 
+      <div className="space-y-8 mt-4 mb-20">
         <div className="max-w-3xl md:mx-auto">
           <Title as="h1" size="display" id="hero-heading">
             Markdown in.
@@ -37,8 +36,7 @@ export function Hero() {
 
         <div className="flex flex-col gap-3 md:flex-row md:justify-center">
           <ButtonLink to="/docs">
-            Read the docs{" "}
-            <ArrowRightIcon className="size-4" aria-hidden="true" />
+            Read the docs
           </ButtonLink>
           <ButtonLink
             to="/docs/$"

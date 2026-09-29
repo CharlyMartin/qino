@@ -4,8 +4,9 @@ import type { ComponentProps } from "react";
 const textVariants = cva("text-pretty text-muted-foreground", {
   variants: {
     size: {
-      lead: "text-lead",
+      lead: "text-lead font-medium",
       body: "text-body",
+      small: "text-sm font-medium",
     },
   },
   defaultVariants: { size: "body" },

@@ -1,6 +1,6 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/ssr";
-import { Link } from "@tanstack/react-router";
 
+import { ButtonLink } from "./button-link";
 import { CodeBlock } from "./code-block";
 import { CodeToken as Token } from "./code-token";
 import { Eyebrow } from "./eyebrow";
@@ -23,28 +23,30 @@ export function RelationsSection() {
             <Text>
               Declare a relation and a frontmatter string becomes a typed
               foreign key. Any primitive can point at any other; the view
-              decides how many hops resolve, up to six.
+              decides how many hops resolve, up to 6.
             </Text>
           </div>
         </div>
         <div className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
           <CodeBlock
-            filename="qino/collections/posts.ts"
-            aria-label="Declare relations between collections"
+            filename="qino/posts.ts"
+            aria-label="Declare relations between content models"
           >
             <Token kind="kw">export const</Token>
             {" postCollection = qino."}
             <Token kind="fn">defineCollection</Token>
             {"({\n  directory: "}
             <Token kind="string">{'"/posts"'}</Token>
-            {", extension: "}
+            {",\n  extension: "}
             <Token kind="string">{'".md"'}</Token>
             {
-              ",\n  schema: z.object({\n    title: z.string(), author: z.string(),\n    categories: z.array(z.string()),\n  }),\n  relations: {\n    author: authorCollection,\n    "
+              ",\n  schema: z.object({\n    title: z.string(),\n    author: z.string(),\n    categories: z.array(z.string()),\n    tags: z.array(z.string()),\n  }),\n  relations: {\n    author: authorCollection,\n    "
             }
             <Token kind="string">{'"categories[*]"'}</Token>
+            {": categoryCollection,\n    "}
+            <Token kind="string">{'"tags[*]"'}</Token>
             {
-              ": categoryCollection,\n  },\n  views: (view) => ({\n    default: view({}),\n    detail: view({ resolveRelations: "
+              ": tagCollection,\n  },\n  views: (view) => ({\n    default: view({ resolveRelations: "
             }
             <Token kind="string">1</Token>
             {" }),\n  }),\n})"}
@@ -54,7 +56,7 @@ export function RelationsSection() {
           {[
             ["posts.author", "authors"],
             ["posts.categories[*]", "categories"],
-            ["docs.related", "posts"],
+            ["posts.tags[*]", "tags"],
           ].map(([field, target]) => (
             <div
               key={field}
@@ -76,19 +78,23 @@ export function RelationsSection() {
           </Title>
           <div className="mt-2 max-w-xl">
             <Text>
-              References are followed and validated whenever a resolving view
-              reads them, so a bad path never reaches production.
+              When a view resolves a relation, Qino checks that the linked
+              entry exists. If it doesn't, the build fails, so broken links
+              never ship.
             </Text>
           </div>
         </div>
-        <Link
-          to="/docs/$"
-          params={{ _splat: "concepts/relations" }}
-          className="inline-flex shrink-0 items-center gap-1 self-start border-b border-primary-muted pb-1 text-sm font-semibold text-primary hover:text-foreground lg:self-center"
-        >
-          Read about relations{" "}
-          <ArrowRightIcon className="size-4" aria-hidden="true" />
-        </Link>
+        <div className="shrink-0 self-start lg:self-center">
+          <ButtonLink
+            to="/docs/$"
+            params={{ _splat: "concepts/relations" }}
+            variant="ghost"
+            size="inline"
+          >
+            Read more about relations
+            <ArrowRightIcon className="size-4" aria-hidden="true" />
+          </ButtonLink>
+        </div>
       </div>
     </Section>
   );

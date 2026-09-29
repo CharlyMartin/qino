@@ -20,52 +20,20 @@ export function CliSection() {
         </Text>
       </div>
       <SpecTable>
-        <SpecRow
-          command
-          label="qino build"
-          title="Lint, validate, generate"
-          notes={
-            <>
-              run it in prebuild
-              <br />
-              exits non-zero on failure
-            </>
-          }
-        >
+        <SpecRow command label="qino build" title="Generate types">
           Checks every definition, validates every content file against its
           schema, and writes <InlineCode>qino/_generated/types.d.ts</InlineCode>
-          .
+          . Add it to your prebuild script in{" "}
+          <InlineCode>package.json</InlineCode> and every deploy is gated on
+          valid content.
         </SpecRow>
-        <SpecRow
-          command
-          label="qino check"
-          title="Validate content only"
-          notes={
-            <>
-              no type generation
-              <br />
-              no file reads on targets
-            </>
-          }
-        >
+        <SpecRow command label="qino check" title="Validate content only">
           Fast feedback in CI or on save. Relation fields are treated as
           ordinary strings and are not followed.
         </SpecRow>
-        <SpecRow
-          command
-          label="prebuild hook"
-          title="Wire it in once"
-          notes={
-            <>
-              gitignore _generated/
-              <br />
-              works with any framework
-            </>
-          }
-        >
-          Add <InlineCode>"prebuild": "qino build"</InlineCode> to{" "}
-          <InlineCode>package.json</InlineCode> and every deploy is gated on
-          valid content.
+        <SpecRow command label="qino lint" title="Validate definitions only">
+          Checks that content and media folders exist, that no two primitives
+          own overlapping paths, and that relations target the same instance.
         </SpecRow>
       </SpecTable>
     </Section>

@@ -1,3 +1,6 @@
+import { ArrowRightIcon } from "@phosphor-icons/react/ssr";
+
+import { ButtonLink } from "./button-link";
 import { InlineCode } from "./inline-code";
 import { Section } from "./section";
 import { SpecRow } from "./spec-row";
@@ -13,46 +16,59 @@ export function PrimitivesSection() {
       <SpecTable>
         <SpecRow
           label="Collection"
-          title="Many entries, one schema"
+          title="Unordered list of of entries"
           notes={
-            <>
-              getEntries()
-              <br />
-              getEntry(slug) · getAllSlugs()
-            </>
+            <ButtonLink
+              to="/docs/$"
+              params={{ _splat: "concepts/collections" }}
+              variant="ghost"
+              size="inline"
+            >
+              Read more about collections
+              <ArrowRightIcon className="size-4" aria-hidden="true" />
+            </ButtonLink>
           }
         >
           A flat folder of similarly shaped entries such as{" "}
-          <InlineCode>posts/*.md</InlineCode>. Views filter, sort and paginate.
+          <InlineCode>posts/*.md</InlineCode>. Great for blog posts, events,
+          team members, etc. Views filter, sort and paginate.
         </SpecRow>
         <SpecRow
           label="Tree"
           title="Hierarchy and order, first-class"
           notes={
-            <>
-              getTree() · getFlatTree()
-              <br />
-              getEntry(slug) · getNextNode()
-            </>
+            <ButtonLink
+              to="/docs/$"
+              params={{ _splat: "concepts/trees" }}
+              variant="ghost"
+              size="inline"
+            >
+              Read more about trees
+              <ArrowRightIcon className="size-4" aria-hidden="true" />
+            </ButtonLink>
           }
         >
           Nested folders with anchor files and{" "}
-          <InlineCode>_order.json</InlineCode>. Build a sidebar without
-          validating a single body.
+          <InlineCode>_order.json</InlineCode>. Great for docs, guides or a
+          knowlegde base. Build a sidebar without validating a single body.
         </SpecRow>
         <SpecRow
           label="Item"
           title="One file with its own role"
           notes={
-            <>
-              getEntry()
-              <br />
-              view({"{ resolveRelations }"})
-            </>
+            <ButtonLink
+              to="/docs/$"
+              params={{ _splat: "concepts/items" }}
+              variant="ghost"
+              size="inline"
+            >
+              Read more about items
+              <ArrowRightIcon className="size-4" aria-hidden="true" />
+            </ButtonLink>
           }
         >
-          A single well-known file such as{" "}
-          <InlineCode>pages/home.md</InlineCode> — not a one-entry collection.
+          A single file, such as <InlineCode>pages/home.md</InlineCode>, with a
+          unique schema. Great for pages or navigation.
         </SpecRow>
       </SpecTable>
     </Section>

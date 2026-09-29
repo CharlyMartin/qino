@@ -5,7 +5,7 @@ const codeBlockVariants = cva("min-w-0 overflow-x-auto font-mono text-code", {
   variants: {
     variant: {
       plain: "text-foreground-2",
-      result: "border-l-2 border-primary pl-3.5 text-foreground-3",
+      result: "text-foreground-3",
     },
     framed: {
       true: "p-4 md:p-5",

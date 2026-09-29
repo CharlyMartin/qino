@@ -8,7 +8,7 @@ type SpecRowProps = {
   label: string;
   title: string;
   children: ReactNode;
-  notes: ReactNode;
+  notes?: ReactNode;
   command?: boolean;
 };
 
@@ -37,9 +37,11 @@ export function SpecRow({
           <Text>{children}</Text>
         </div>
       </dd>
-      <dd className="min-w-0 font-mono text-xs leading-loose text-muted-foreground md:col-span-9 md:col-start-4 lg:col-span-3 lg:col-start-auto">
-        {notes}
-      </dd>
+      {notes && (
+        <dd className="min-w-0 font-mono text-xs leading-loose text-muted-foreground md:col-span-9 md:col-start-4 lg:col-span-3 lg:col-start-auto">
+          {notes}
+        </dd>
+      )}
     </div>
   );
 }

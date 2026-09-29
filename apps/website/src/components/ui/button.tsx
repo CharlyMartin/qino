@@ -7,17 +7,16 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/90",
+          "border-transparent bg-primary text-primary-foreground hover:bg-primary-hover",
         outline:
-          "border-border-strong bg-transparent text-foreground-2 hover:border-muted-foreground hover:text-foreground",
+          "border-border-strong bg-transparent text-foreground-2 hover:border-muted-foreground hover:bg-surface/75 hover:text-foreground",
         ghost: "border-transparent text-muted-foreground hover:text-foreground",
         divided:
           "border-transparent border-l-border text-muted-foreground hover:bg-surface hover:text-foreground",
       },
       size: {
-        default: "gap-2 px-5 py-3 text-sm font-bold",
-        sm: "gap-1 px-1 py-1.5 text-xs font-medium md:px-2",
-        icon: "size-6",
+        default: "gap-2 px-4 py-2.5 font-bold",
+        inline: "gap-1.5 p-0 text-sm font-medium",
         block: "aspect-square h-full rounded-none",
       },
     },

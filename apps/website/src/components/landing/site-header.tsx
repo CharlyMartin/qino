@@ -10,7 +10,7 @@ export function SiteHeader() {
           aria-label="Qino home"
           className="text-xl font-extrabold tracking-tight"
         >
-          Qino
+          qino
         </Link>
         <nav
           aria-label="Main navigation"
