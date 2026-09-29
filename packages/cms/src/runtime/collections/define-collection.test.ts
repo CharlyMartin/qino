@@ -40,7 +40,9 @@ describe("defineCollection", () => {
         }),
       }),
       directory: "/posts",
-      schema: z.object({ markdown: z.string(), title: z.string() }).strict(),
+      schema: z
+        .object({ markdown: z.string(), raw: z.string(), title: z.string() })
+        .strict(),
       extension: ".md",
     });
 

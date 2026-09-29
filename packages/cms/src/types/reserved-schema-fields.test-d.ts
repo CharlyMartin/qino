@@ -81,6 +81,7 @@ test("allows nested names, JSON markdown, and erased schemas", async () => {
   const schema = z.object({
     title: z.string(),
     markdown: z.string(),
+    raw: z.string(),
     nested: z.object({ _meta: z.string(), markdown: z.number() }),
   });
   const posts = qino.defineCollection({
@@ -100,6 +101,7 @@ test("allows nested names, JSON markdown, and erased schemas", async () => {
   >().toEqualTypeOf<string>();
   expectTypeOf((await home.getEntry()).markdown).toEqualTypeOf<string>();
   expectTypeOf((await docs.getEntry("intro")).markdown).toEqualTypeOf<string>();
+  expectTypeOf((await home.getEntry()).raw).toEqualTypeOf<string>();
   // @ts-expect-error Qino no longer generates body or provides an alias.
   expectTypeOf((await home.getEntry()).body);
   expectTypeOf(

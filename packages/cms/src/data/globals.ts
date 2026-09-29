@@ -5,6 +5,7 @@ export const QinoConfigMarker = Symbol.for("qino.config");
 export const JSON_PATH_ARRAY = "[*]";
 export const META_FIELD_NAME = "_meta";
 export const MARKDOWN_FIELD_NAME = "markdown";
+export const RAW_FIELD_NAME = "raw";
 export const SUPPORTED_CONTENT_EXTENSIONS = [
   ".md",
   ".mdx",
