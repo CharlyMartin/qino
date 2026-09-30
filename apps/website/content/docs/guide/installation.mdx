@@ -5,9 +5,37 @@ description: Add @qino/cms to a project and create a first collection.
 
 ## Requirements
 
-- Node.js 22 or newer.
+- Node.js 22 or newer, on the server. See [Runtime](#runtime).
 - TypeScript is optional. If you use it, 5.9 or newer with `strict: true`.
 - A [Standard Schema](https://standardschema.dev) validator. The examples use Zod.
+
+## Runtime
+
+Qino reads content from the file system with Node.js APIs, so getters only run in server code: build scripts, prerendering, React Server Components, route loaders, server functions, and API routes. They never run in the browser, so don't import definitions from `qino/` into client components. Edge runtimes without a file system, such as Cloudflare Workers or Vercel Edge Functions, are not supported.
+
+Prerendered pages read content at build time and need nothing at runtime. Pages rendered on request read it from the deployed server, so the content folder must exist in that server's working directory. Platforms that bundle only the files your code imports can leave it out:
+
+- **Next.js**: list the folder in `outputFileTracingIncludes` in `next.config.ts`.
+- **Nitro** (TanStack Start, Nuxt): copy the folder into the server output after compilation.
+
+```ts title="vite.config.ts"
+import { cp } from "node:fs/promises";
+import { join } from "node:path";
+
+nitro({
+  modules: [
+    (nitro) => {
+      nitro.hooks.hook("compiled", () =>
+        cp(
+          join(nitro.options.rootDir, "src/content"),
+          join(nitro.options.output.serverDir, "src/content"),
+          { recursive: true },
+        ),
+      );
+    },
+  ],
+});
+```
 
 ## Install
 

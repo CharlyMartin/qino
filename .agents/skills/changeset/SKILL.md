@@ -1,147 +1,103 @@
 ---
 name: changeset
-description: Create a changeset for the Astro monorepo. Use this skill whenever you need to add a changeset file to a PR, write a changelog entry, or document a package version bump. Also trigger when the user says "add a changeset", "write a changeset", "create a changeset", or when another skill instructs you to create a changeset.
+description: Use when a change in the Qino monorepo touches a published package (`@qino/cms`) and needs a changeset, or when asked to add, write, or create a changeset or changelog entry.
+metadata:
+  internal: true
 ---
 
 # Changeset
 
-Create changeset files for the Astro monorepo. Changesets declare which packages changed, the semver bump type, and a user-facing message that becomes the CHANGELOG entry.
+Changesets declare which published packages changed, the semver bump, and a user-facing message that becomes the `CHANGELOG.md` entry and GitHub release notes.
 
-Every PR that modifies a package requires a changeset. Only `examples/*` changes are exempt.
+## When one is needed
 
-## Creating the File
+- **Required:** any change to `packages/*` that users of the package would notice (API, behavior, types, CLI output, error messages, dependencies).
+- **Not needed:** `apps/website`, `examples/*`, docs content, CI, or repo tooling. They're private and never released. An internal refactor or test-only change to `packages/*` doesn't need one either.
 
-Run `pnpm changeset --empty` from the repo root. This creates a randomly-named `.md` file in `.changeset/` with empty front matter — no need to invent a filename or inspect the directory. Then edit the generated file to add the package bump and message.
+The only published package is `@qino/cms`. Check `packages/*/package.json` for others before assuming.
+
+## Creating the file
+
+Run `pnpm changeset --empty` from the repo root. It creates a randomly named `.md` file in `.changeset/` with empty front matter. Edit that file to add the bump and message.
 
 ## Format
 
 ```md
 ---
-'<package-name>': patch
+"@qino/cms": patch
 ---
 
-<changeset message>
+<message>
 ```
 
-- Package names must match the `name` field in the package's `package.json` exactly (e.g., `'astro'`, `'@astrojs/node'`)
-- Bump types: `patch`, `minor`, or `major`
-- A single changeset file can cover multiple packages
-- `major` and `minor` bumps to the core `astro` package are blocked by CI and require maintainer review
+- The package name must match `name` in its `package.json`. Use double quotes.
+- **Bumps while pre-1.0:** `patch` for fixes and non-breaking tweaks; `minor` for new features **and** breaking changes; never `major` unless the user explicitly asks for 1.0.
 
-## Writing the Message
+## Writing the message
 
-The changeset message is a public CHANGELOG entry. Write it for **Astro users**, not for code reviewers.
+The message is a public changelog entry. Write it for people using Qino in their project, not for code reviewers.
 
-Begin with a **present tense verb** that completes the sentence "This PR ...":
+Start with a present-tense verb that completes "This release…": Adds, Fixes, Removes, Renames, Changes, Improves, Deprecates.
 
-- Adds, Removes, Fixes, Updates, Refactors, Improves, Deprecates
-
-Describe the change **as someone building an Astro site will experience it**, not how it was implemented internally:
+Name the API a reader would recognize in backticks (`getEntry`, `defineTree`, `qino build`, `titleField`). Leave out internal helpers, file names, and tests.
 
 ```md
 // Too implementation-focused
-Logs helpful errors if content is invalid
+Refactors parseFrontmatter to use the core schema
 
-// Better -- user-facing impact
-Adds logging for content collections configuration errors.
+// Better: user-facing impact
+Fixes `yes`/`no` frontmatter values being parsed as booleans; they now stay strings, per YAML 1.2
 ```
 
-### Patch updates
+### Patch
 
-One line is usually enough. No end punctuation required unless writing multiple sentences.
+One line is usually enough.
 
 ```md
 ---
-'astro': patch
+"@qino/cms": patch
 ---
 
-Fixes a bug where the toolbar audit would incorrectly flag images as above the fold
+Fixes `qino check` reporting the wrong file path for errors in nested tree nodes
 ```
 
-```md
----
-'astro': patch
----
+### New feature (minor)
 
-Refactors internal handling of styles and scripts for content collections to improve build performance
-```
-
-Help the reader figure out if the change matters to them. Include the specific API name (with backtick formatting) when the change is tied to a recognizable option or function. When the API is not user-facing, describe the use case or end result instead:
-
-```md
-// Vague
-Improves automatic fallbacks generation
-
-// Clear -- reader can tell if it affects them
-Improves automatic `fallbacks` generation for the experimental Fonts API
-```
-
-### New features (minor)
-
-Start with "Adds", name the new API, and describe what users can now do. Include a code example when helpful:
+Name the new API and what it lets users do. Add a short code example when usage isn't obvious:
 
 ````md
 ---
-'astro': minor
+"@qino/cms": minor
 ---
 
-Adds a new, optional property `timeout` for the `client:idle` directive
+Adds a `raw` field to Markdown entries holding the untouched source file, frontmatter included. Declare it in the schema to keep it:
 
-This value allows you to specify a maximum time to wait, in milliseconds, before hydrating a UI framework component.
-
-```astro
-<Button client:idle={{ timeout: 500 }} />
+```ts
+schema: z.object({ title: z.string(), markdown: z.string(), raw: z.string() });
 ```
 ````
 
-New features are an opportunity to write a richer description that can feed into blog posts. See the [Astro changeset docs](https://contribute.docs.astro.build/docs-for-code-changes/changesets/#new-features) for guidance on longer entries.
+### Breaking change (minor while pre-1.0)
 
-### Breaking changes (major)
-
-Use verbs like "Removes", "Changes", or "Deprecates". Must include migration guidance. Use diff code samples when appropriate:
+Say so plainly ("This is a breaking change") and include migration steps, ideally as a `diff`:
 
 ````md
 ---
-'astro': major
+"@qino/cms": minor
 ---
 
-Removes support for Shiki custom language's `path` property. The language JSON file must now be imported and passed to the option instead.
+Renames collection and item getters so every primitive reads entries with `getEntry`. This is a breaking change:
 
 ```diff
-// astro.config.js
-+ import customLang from './custom.tmLanguage.json'
-
-export default defineConfig({
-  markdown: {
-    shikiConfig: {
-      langs: [
--       { path: './custom.tmLanguage.json' },
-+       customLang,
-      ],
-    },
-  },
-})
+- await posts.getMany();
+- await posts.getOne("hello-world");
++ await posts.getEntries();
++ await posts.getEntry("hello-world");
 ```
 ````
 
-Changes to default values must mention the old default, the new default, and how to restore previous behavior.
+A change to a default value must mention the old default, the new one, and how to restore the old behavior.
 
-### Longer changesets
+### Longer entries
 
-For longer descriptions, use `####` and deeper headings (never `##` or `###`) to divide sections. This keeps the CHANGELOG readable when your entry is incorporated:
-
-```md
----
-'astro': minor
----
-
-Adds a new Sessions API to store user state between requests for on-demand rendered pages.
-
-#### Configuring session storage
-
-<!-- ... -->
-
-#### Using sessions
-
-<!-- ... -->
-```
+Use `####` headings or deeper, never `##` or `###`, so the entry nests correctly inside the generated changelog.
