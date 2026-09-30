@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { AgentSection } from "@/components/landing/agent-section";
 import { CliSection } from "@/components/landing/cli-section";
 import { FileTypes } from "@/components/landing/file-types";
-import { FinalCta } from "@/components/landing/final-cta";
 import { Hero } from "@/components/landing/hero";
 import { Pipeline } from "@/components/landing/pipeline";
 import { PrimitivesSection } from "@/components/landing/primitives-section";
@@ -41,7 +41,7 @@ function HomePage() {
         <PrimitivesSection />
         <RelationsSection />
         <CliSection />
-        <FinalCta />
+        <AgentSection />
       </main>
       <SiteFooter />
     </>

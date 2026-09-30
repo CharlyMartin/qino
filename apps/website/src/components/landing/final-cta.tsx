@@ -21,7 +21,7 @@ export function FinalCta() {
         </Text>
       </div>
       <div className="mt-8 max-w-lg md:mx-auto">
-        <InstallBox withBuild />
+        <InstallBox command={["install", "build"]} />
       </div>
       <div className="mt-7 flex flex-col gap-3 md:flex-row md:justify-center">
         <ButtonLink to="/docs">Read the docs</ButtonLink>

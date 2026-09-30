@@ -41,7 +41,17 @@ nitro({
 
 <InstallBox />
 
-Zod is only an example. Any Standard Schema validator works.
+Zod is only an example. Any [Standard Schema validator](https://standardschema.dev/schema#what-schema-libraries-implement-the-spec) works.
+
+## Install with an agent
+
+To let a coding agent do the setup, install the `set-up-qino-cms` skill, then ask your agent to add Qino to the project:
+
+<InstallBox command="skill" />
+
+The agent follows the steps on this page. It installs the package, models the content you already have as collections, trees, and items, infers the schemas, wires `qino build` into your build, and keeps going until it passes. It asks before moving or rewriting any of your files.
+
+[View the skill on GitHub](https://github.com/CharlyMartin/qino/tree/main/skills/set-up-qino-cms)
 
 ## Create the instance
 

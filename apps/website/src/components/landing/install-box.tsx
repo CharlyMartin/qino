@@ -4,18 +4,26 @@ import { TabsList } from "@/components/ui/tabs-list";
 import { TabsTrigger } from "@/components/ui/tabs-trigger";
 import {
   getInstallCommands,
+  type InstallCommand,
   type PackageManager,
   packageManagers,
 } from "@/lib/get-install-commands";
 import { usePackageManager } from "@/lib/use-package-manager";
 import { CommandLine } from "./command-line";
 
+const labels = {
+  install: "Install",
+  build: "Build",
+  skill: "Skill install",
+} satisfies Record<InstallCommand, string>;
+
 type InstallBoxProps = {
-  withBuild?: boolean;
+  command?: InstallCommand | Array<InstallCommand>;
 };
 
-export function InstallBox({ withBuild = false }: InstallBoxProps) {
+export function InstallBox({ command = "install" }: InstallBoxProps) {
   const [packageManager, setPackageManager] = usePackageManager();
+  const lines = Array.isArray(command) ? command : [command];
 
   return (
     <div className="rounded-sm border text-left">
@@ -25,11 +33,7 @@ export function InstallBox({ withBuild = false }: InstallBoxProps) {
       >
         <div className="border-b">
           <TabsList
-            aria-label={
-              withBuild
-                ? "Install and build package manager"
-                : "Install package manager"
-            }
+            aria-label={`${lines.map((line) => labels[line]).join(" and ")} package manager`}
             activateOnFocus
           >
             {packageManagers.map((manager) => (
@@ -40,19 +44,19 @@ export function InstallBox({ withBuild = false }: InstallBoxProps) {
           </TabsList>
         </div>
         {packageManagers.map((manager) => {
-          const { install, build } = getInstallCommands(manager);
+          const commands = getInstallCommands(manager);
           return (
             <TabsContent key={manager} value={manager}>
-              <CommandLine command={install} copyLabel="Copy install command" />
-              {withBuild && (
-                <div className="border-t">
+              <div className="divide-y">
+                {lines.map((line) => (
                   <CommandLine
-                    tone="build"
-                    command={build}
-                    copyLabel="Copy build command"
+                    key={line}
+                    tone={line == "build" ? "build" : "install"}
+                    command={commands[line]}
+                    copyLabel={`Copy ${labels[line].toLowerCase()} command`}
                   />
-                </div>
-              )}
+                ))}
+              </div>
             </TabsContent>
           );
         })}
