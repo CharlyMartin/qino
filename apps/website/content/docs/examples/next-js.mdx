@@ -64,6 +64,8 @@ Qino returns raw Markdown. The example renders `.md` posts with `react-markdown`
 
 ## Next.js configuration
 
+The example imports `@qino/cms` from the workspace, which exposes raw TypeScript, so Next.js must transpile it. Apps installing from npm get compiled JavaScript and don't need this.
+
 ```ts title="next.config.ts"
 const nextConfig = {
   transpilePackages: ["@qino/cms"],
