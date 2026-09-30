@@ -178,7 +178,7 @@
 }
 
 .prose :where(h2, h3, h4) {
-  @apply scroll-mt-8 font-extrabold tracking-tighter;
+  @apply scroll-mt-24 font-extrabold tracking-tighter;
 }
 
 .prose :where(h2) {

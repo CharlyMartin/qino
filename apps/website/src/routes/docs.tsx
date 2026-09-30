@@ -20,23 +20,25 @@ function DocsLayout() {
     <>
       <a
         href="#docs-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:z-10 focus:bg-background focus:p-4"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-background focus:p-4"
       >
         Skip to content
       </a>
-      <SiteHeader />
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-8 md:flex-row md:gap-12 md:px-7 md:py-16 lg:px-12">
+      <div className="sticky top-0 z-30 bg-background">
+        <SiteHeader />
+      </div>
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-4 py-8 md:flex-row md:gap-12 md:px-7 md:py-0 lg:px-12">
         <div className="md:hidden">
           <DocsMobileNav nodes={nodes} activeSlug={activeSlug} />
         </div>
-        <aside className="hidden md:sticky md:top-8 md:block md:w-60 md:shrink-0 md:self-start">
-          <ScrollArea.Root>
+        <aside className="hidden md:sticky md:top-16 md:block md:h-[calc(100dvh-4rem)] md:w-60 md:shrink-0 md:self-start md:border-r md:border-sidebar-border">
+          <ScrollArea.Root className="h-full">
             <ScrollArea.Viewport
               data-scroll-restoration-id="docs-sidebar"
               aria-label="Documentation sidebar"
-              className="rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50 md:max-h-[calc(100dvh-4rem)] md:overscroll-contain"
+              className="h-full rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50 md:overscroll-contain"
             >
-              <ScrollArea.Content className="md:pr-4">
+              <ScrollArea.Content className="md:py-16 md:pr-4">
                 <DocsSidebar nodes={nodes} activeSlug={activeSlug} />
               </ScrollArea.Content>
             </ScrollArea.Viewport>
@@ -45,11 +47,13 @@ function DocsLayout() {
             </ScrollArea.Scrollbar>
           </ScrollArea.Root>
         </aside>
-        <main id="docs-content" className="min-w-0 flex-1">
+        <main id="docs-content" className="min-w-0 flex-1 md:py-16">
           <Outlet />
         </main>
       </div>
-      <SiteFooter />
+      <div className="border-t">
+        <SiteFooter />
+      </div>
     </>
   );
 }
