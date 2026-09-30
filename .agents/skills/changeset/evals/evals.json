@@ -3,43 +3,42 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Draft the exact contents of one changeset from this isolated context. Do not inspect the repository, run commands, or create files. Return only raw changeset Markdown without a code fence or explanation.\n\nContext:\n- The exact package name is `@astrojs/node`.\n- This is a backward-compatible bug fix.\n- The Node adapter currently produces invalid server URLs for IPv6 hosts such as `::1`; the fix brackets IPv6 addresses so generated URLs and startup output are valid.\n- Internally, the patch adds a `formatAddress()` helper and updates `server-address.test.js`.\n- The focused test command passed.",
-      "expected_output": "A patch changeset for `@astrojs/node` with a short user-facing message beginning with a present-tense verb and omitting implementation and test-process details.",
+      "prompt": "Draft the exact contents of one changeset from this isolated context. Do not inspect the repository, run commands, or create files. Return only raw changeset Markdown without a code fence or explanation.\n\nContext:\n- The exact package name is `@qino/cms`.\n- This is a backward-compatible bug fix.\n- `getPreviousNode` returned `null` for the first child of a nested tree folder instead of returning the folder's anchor node.\n- Internally, the patch fixes an off-by-one in `flatten-tree.ts` and adds a case to `get-previous-node.test.ts`.\n- The focused test command passed.",
+      "expected_output": "A patch changeset for `@qino/cms` with a short user-facing message beginning with a present-tense verb and omitting implementation and test-process details.",
       "files": [],
       "assertions": [
         "The output begins and ends its YAML front matter with `---`.",
-        "The front matter contains exactly one package entry: `'@astrojs/node': patch`.",
+        "The front matter contains exactly one package entry: `\"@qino/cms\": patch`.",
         "The body contains one concise changelog paragraph whose first word is `Fixes`.",
-        "The message identifies IPv6 hosts and valid generated server URLs or startup URLs as the user-visible impact.",
-        "The message does not mention `formatAddress()`, `server-address.test.js`, a test command, or passing tests.",
+        "The message names `getPreviousNode` and describes the first child of a nested folder returning the anchor node or no longer returning `null`.",
+        "The message does not mention `flatten-tree.ts`, `get-previous-node.test.ts`, an off-by-one, a test command, or passing tests.",
         "The output contains no prose before the opening front matter and no code fence."
       ]
     },
     {
       "id": 2,
-      "prompt": "Draft the exact changeset contents for this feature. Work only from the inline context; do not inspect files, run commands, or create anything. Return raw changeset Markdown with no surrounding explanation.\n\nContext:\n- The exact package name is `@astrojs/cloudflare`.\n- This is a backward-compatible public feature.\n- A new optional adapter property, `imageService: 'cloudflare'`, lets sites generate Cloudflare Image Resizing URLs for Astro image transformations.\n- Existing projects behave as before when the property is omitted.\n- Include a minimal JavaScript configuration example containing `cloudflare({ imageService: 'cloudflare' })` because usage is not obvious from the option name.\n- The internal implementation class and test commands are irrelevant to users.",
-      "expected_output": "A minor changeset beginning with an Adds statement, naming the option and user capability, followed by a minimal JavaScript example.",
+      "prompt": "Draft the exact changeset contents for this change. Work only from the inline context; do not inspect files, run commands, or create anything. Return raw changeset Markdown with no surrounding explanation.\n\nContext:\n- The exact package name is `@qino/cms`, currently at version 0.4.0.\n- `defineTree` option `orderFileName` is renamed to `orderFile`. The old name is removed, not deprecated.\n- Projects passing `orderFileName` must rename it. Projects that don't pass it are unaffected.\n- Internal renames across the tree walker and tests are irrelevant to users.",
+      "expected_output": "A minor changeset (breaking change while pre-1.0) that states it is breaking and shows a diff migration from `orderFileName` to `orderFile`.",
       "files": [],
       "assertions": [
-        "The front matter contains exactly `'@astrojs/cloudflare': minor` and no other package entry.",
-        "The first prose sentence begins with `Adds`.",
-        "The prose formats `imageService` as inline code and explains that it generates Cloudflare Image Resizing URLs.",
-        "The body states or demonstrates that the option is configured with the value `cloudflare`.",
-        "The changeset contains a fenced `js` example with `cloudflare({ imageService: 'cloudflare' })`.",
-        "The message does not discuss internal classes, tests, commands, or passing checks.",
+        "The front matter contains exactly `\"@qino/cms\": minor` and no other package entry.",
+        "The front matter does not use `major`.",
+        "The first prose sentence begins with `Renames`.",
+        "The message states that this is a breaking change.",
+        "The changeset contains a fenced `diff` block replacing `orderFileName` with `orderFile`.",
+        "The message does not discuss the tree walker internals, tests, or commands.",
         "The message contains no level-two or level-three Markdown headings; any heading used is level four or deeper."
       ]
     },
     {
       "id": 3,
-      "prompt": "Before creating anything, assess this changeset request and respond with the decision and a brief reason. Do not inspect the repository, run commands, or edit files.\n\nThe only changed paths are `examples/view-transitions/src/pages/index.astro` and `examples/view-transitions/README.md`. No package source or package metadata changed. I want an `'astro': minor` changeset so the new example appears in core release notes, but no maintainer has reviewed the bump.",
-      "expected_output": "A refusal to create the changeset because examples-only changes are exempt and cannot justify a core package bump, with an additional warning that core minor bumps require maintainer review and are blocked by CI.",
+      "prompt": "Before creating anything, assess this changeset request and respond with the decision and a brief reason. Do not inspect the repository, run commands, or edit files.\n\nThe only changed paths are `apps/website/content/docs/guide/cli.mdx` and `examples/next-js/src/app/page.tsx`. No file under `packages/` changed. I want a `\"@qino/cms\": patch` changeset so the docs update shows up in the release notes.",
+      "expected_output": "A refusal to create the changeset because website and example changes are private and never released, so they cannot justify a `@qino/cms` bump.",
       "files": [],
       "assertions": [
-        "The response states that an examples-only change does not require a changeset.",
-        "The response states that the example does not justify bumping the `astro` package.",
-        "The response notes that minor bumps to core `astro` require maintainer review and are blocked by CI.",
-        "The response does not emit YAML front matter or a candidate `'astro': minor` changeset.",
+        "The response states that website and example changes do not need a changeset.",
+        "The response states that the change does not justify bumping `@qino/cms` because no package code changed.",
+        "The response does not emit YAML front matter or a candidate `\"@qino/cms\": patch` changeset.",
         "The response does not claim that a changeset was created.",
         "No `.changeset` file or other file is created."
       ]

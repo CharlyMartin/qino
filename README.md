@@ -16,12 +16,10 @@ Qino turns a folder of Markdown, MDX, and JSON files into typed, validated conte
 
 ## Documentation
 
-<!-- TODO: replace with docs + website URLs once live -->
+- Docs: [qino.works/docs](https://www.qino.works/docs)
+- Website: [qino.works](https://www.qino.works)
 
-- Docs: _coming soon_
-- Website: _coming soon_
-
-Until then, [`examples/next-js`](./examples/next-js) is the canonical reference, and [`packages/cms/README.md`](./packages/cms/README.md) covers the API in more depth.
+See also [`examples/next-js`](./examples/next-js), the reference app, and [`packages/cms/README.md`](./packages/cms/README.md) for the API in more depth.
 
 ## Installation
 
@@ -34,6 +32,16 @@ pnpm add @qino/cms zod
 ```
 
 Zod is optional; any [Standard Schema](https://standardschema.dev) validator works.
+
+### AI agents
+
+Install the setup skill to let your coding agent add Qino to an existing project and model its content:
+
+```sh
+npx skills add CharlyMartin/qino --skill set-up-qino-cms
+```
+
+Run `npx skills update set-up-qino-cms` to refresh it.
 
 ## Quick start
 
