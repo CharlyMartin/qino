@@ -1,5 +1,11 @@
 # @qino/cms
 
+## 0.4.1
+
+### Patch Changes
+
+- [#170](https://github.com/CharlyMartin/qino/pull/170) [`f3df948`](https://github.com/CharlyMartin/qino/commit/f3df948a685d9db694e6efef78b83424060dcf0b) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Fixes `qino lint`, `qino check`, and `qino build` failing to resolve tsconfig path aliases in the instance, definitions, and their imports, including paths inherited through `extends`.
+
 ## 0.4.0
 
 ### Minor Changes
