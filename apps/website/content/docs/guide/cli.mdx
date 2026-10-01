@@ -24,6 +24,10 @@ Every command runs from the working directory and expects:
 
 Definition files are loaded with [jiti](https://github.com/unjs/jiti), so TypeScript needs no separate compile step. See [Project structure](/docs/guide/project-structure).
 
+`compilerOptions.paths` from the nearest `tsconfig.json` (walking up from the working directory) are honored when loading the instance, definitions, and their imports. Paths inherited through `extends` are supported. Projects without a `tsconfig.json` or without `paths` need no changes.
+
+Non-code imports that need bundler loaders, such as CSS, images, or Markdown, are not supported by the CLI. Keep schemas and their imports free of these dependencies.
+
 ## qino lint
 
 Reads no content. Checks, in order:

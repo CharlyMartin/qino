@@ -1,5 +1,5 @@
 import fg from "fast-glob";
-import { createJiti } from "jiti";
+import type { Jiti } from "jiti";
 
 import { SUPPORTED_CODE_EXTENSIONS } from "../../data/globals";
 import { isCollection } from "../../lib/guards/is-collection";
@@ -10,13 +10,11 @@ import type { AnyCollection } from "../../types/collection";
 import type { AnyItem } from "../../types/item";
 import type { AnyTree } from "../../types/tree";
 
-export async function loadQinoPrimitives(rootDirPath: string) {
+export async function loadQinoPrimitives(rootDirPath: string, jiti: Jiti) {
   const files = await fg(
     SUPPORTED_CODE_EXTENSIONS.map((ext) => `**/*${ext}`),
     { cwd: rootDirPath, absolute: true },
   );
-
-  const jiti = createJiti(import.meta.url);
 
   const collections: AnyCollection[] = [];
   const items: AnyItem[] = [];

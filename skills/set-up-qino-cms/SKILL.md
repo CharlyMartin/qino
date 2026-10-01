@@ -11,9 +11,11 @@ Qino is a flat-file CMS: content lives as `.md`, `.mdx`, `.markdown`, or `.json`
 
 **Done means:** `qino build` exits 0 and, in TypeScript projects, `tsc --noEmit` passes. Don't stop before both.
 
-Written for `@qino/cms` 0.4. If the installed version is newer and an API here doesn't match, the live docs win.
+Written for `@qino/cms` 0.4.1. If the installed version is newer and an API here doesn't match, the live docs win.
 
 Match the target project's code style (quotes, semicolons, import paths, validator).
+
+From 0.4.1, the CLI supports `compilerOptions.paths` aliases from the nearest `tsconfig.json` walking up from the working directory, including paths inherited through `extends`. Use the project's aliases in the instance, definitions, and shared schemas. Keep their import chain free of CSS, images, and Markdown imports that need bundler loaders.
 
 ## 1. Detect the setup
 
