@@ -1,11 +1,9 @@
-import { createJiti } from "jiti";
+import type { Jiti } from "jiti";
 
 import { ENTRY_FILE_NAME, ROOT_FOLDER_NAME } from "../../data/globals";
 import { isQinoConfig } from "../../lib/guards/is-qino-config";
 
-export async function loadQinoConfig(entryFilePath: string) {
-  const jiti = createJiti(import.meta.url);
-
+export async function loadQinoConfig(entryFilePath: string, jiti: Jiti) {
   const importedValue =
     await jiti.import<Record<string, unknown>>(entryFilePath);
 
