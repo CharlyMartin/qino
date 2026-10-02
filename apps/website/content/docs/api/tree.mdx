@@ -17,7 +17,6 @@ export const docsTree = qino.defineTree({
   titleField: "title",
   schema: z.object({
     title: z.string(),
-    markdown: z.string(),
   }),
 });
 ```
@@ -42,7 +41,7 @@ qino.defineTree(params: {
 | --------------- | -------------------------------------------- | -------- | --------------- | ------------------------------------------------------------------------------------- |
 | `directory`     | `` `/${string}` ``                           | yes      |                 | Directory under `contentFolder`. Walked recursively. Owned exclusively by this tree   |
 | `extension`     | `".md" \| ".mdx" \| ".markdown" \| ".json"`  | yes      |                 | Only files with this extension are nodes                                              |
-| `schema`        | Standard Schema object validator             | yes      |                 | Synchronous. May not declare `_meta`                                                  |
+| `schema`        | Standard Schema object validator             | yes      |                 | Synchronous. May not declare `_meta`, nor `markdown`/`raw` for Markdown               |
 | `titleField`    | key of schema output                         | yes      |                 | Field whose string value titles each node. Non-string keys are a type error           |
 | `orderFileName` | `string`                                     | no       | `"_order.json"` | Per-folder ordering file                                                              |
 | `relations`     | `Record<path, primitive \| () => primitive>` | no       | `{}`            | Same grammar as collections                                                           |

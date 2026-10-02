@@ -19,7 +19,6 @@ export const postCollection = qino.defineCollection({
     title: z.string(),
     author: z.string(),
     draft: z.boolean(),
-    markdown: z.string(),
   }),
   relations: { author: authorCollection },
   views: (view) => ({
@@ -43,13 +42,13 @@ qino.defineCollection(params: {
 
 ## Parameters
 
-| Name        | Type                                         | Required | Default | Description                                                                                    |
-| ----------- | -------------------------------------------- | -------- | ------- | ---------------------------------------------------------------------------------------------- |
-| `directory` | `` `/${string}` ``                           | yes      |         | Directory under `contentFolder`. Must start with `/`. Flat: nested files are ignored           |
-| `extension` | `".md" \| ".mdx" \| ".markdown" \| ".json"`  | yes      |         | Only files with this extension are entries                                                     |
-| `schema`    | Standard Schema object validator             | yes      |         | Synchronous. Receives frontmatter plus `markdown`, or the JSON object. May not declare `_meta` |
-| `relations` | `Record<path, primitive \| () => primitive>` | no       | `{}`    | JSON paths into the schema output mapped to target primitives. `[*]` marks an array hop        |
-| `views`     | `(view) => { default: View; [name]: View }`  | no       |         | Factory run once at definition. Must return a `default` view made with the helper              |
+| Name        | Type                                         | Required | Default | Description                                                                                                       |
+| ----------- | -------------------------------------------- | -------- | ------- | ----------------------------------------------------------------------------------------------------------------- |
+| `directory` | `` `/${string}` ``                           | yes      |         | Directory under `contentFolder`. Must start with `/`. Flat: nested files are ignored                              |
+| `extension` | `".md" \| ".mdx" \| ".markdown" \| ".json"`  | yes      |         | Only files with this extension are entries                                                                        |
+| `schema`    | Standard Schema object validator             | yes      |         | Synchronous. Receives frontmatter, or the JSON object. May not declare `_meta`, nor `markdown`/`raw` for Markdown |
+| `relations` | `Record<path, primitive \| () => primitive>` | no       | `{}`    | JSON paths into the schema output mapped to target primitives. `[*]` marks an array hop                           |
+| `views`     | `(view) => { default: View; [name]: View }`  | no       |         | Factory run once at definition. Must return a `default` view made with the helper                                 |
 
 `resolveRelations`, `augment`, `filter`, and `sort` are rejected at the root. Put them inside a view. See [view](/docs/api/view).
 

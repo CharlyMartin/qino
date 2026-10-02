@@ -17,7 +17,6 @@ export const homeItem = qino.defineItem({
   schema: z.object({
     title: z.string(),
     "featured-posts": z.array(z.string()),
-    markdown: z.string(),
   }),
   relations: { "featured-posts[*]": postCollection },
   views: (view) => ({
@@ -42,7 +41,7 @@ qino.defineItem(params: {
 | Name        | Type                                         | Required | Default | Description                                                                   |
 | ----------- | -------------------------------------------- | -------- | ------- | ----------------------------------------------------------------------------- |
 | `file`      | `` `/${string}<ext>` ``                      | yes      |         | Path under `contentFolder`, with extension. The extension is inferred from it |
-| `schema`    | Standard Schema object validator             | yes      |         | Synchronous. May not declare `_meta`                                          |
+| `schema`    | Standard Schema object validator             | yes      |         | Synchronous. May not declare `_meta`, nor `markdown`/`raw` for Markdown       |
 | `relations` | `Record<path, primitive \| () => primitive>` | no       | `{}`    | Same grammar as collections                                                   |
 | `views`     | `(view) => { default: View; [name]: View }`  | no       |         | Helper offers `resolveRelations` and `augment` only                           |
 

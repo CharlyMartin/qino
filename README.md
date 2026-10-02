@@ -69,7 +69,6 @@ export const postCollection = qino.defineCollection({
   extension: ".md",
   schema: z.object({
     title: z.string(),
-    markdown: z.string(),
   }),
 });
 
@@ -77,7 +76,7 @@ const posts = await postCollection.getEntries();
 const post = await postCollection.getEntry("hello-world");
 ```
 
-Each entry in `src/content/posts/*.md` is validated against the schema. The Markdown body is passed as `markdown`, and Qino adds `_meta` (slug, path) to every entry.
+The frontmatter of each entry in `src/content/posts/*.md` is validated against the schema. Qino then adds the body as `markdown`, the source as `raw`, and `_meta` (slug, path) to every entry.
 
 Run `qino build` before your app builds to validate content and generate types:
 
