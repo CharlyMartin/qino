@@ -1,5 +1,6 @@
 import { ArrowUpRightIcon } from "@phosphor-icons/react/ssr";
 
+import { externalLinks } from "@/lib/external-links";
 import { ExternalButtonLink } from "./external-button-link";
 import { InlineCode } from "./inline-code";
 import { InstallBox } from "./install-box";
@@ -25,11 +26,8 @@ export function AgentSection() {
         <InstallBox command={["install", "skill"]} />
       </div>
       <div className="mt-7 flex flex-col gap-3 md:flex-row md:justify-center">
-        <ExternalButtonLink
-          href="https://github.com/CharlyMartin/qino/tree/main/skills/set-up-qino-cms"
-          variant="outline"
-        >
-          View the skill on GitHub
+        <ExternalButtonLink href={externalLinks.skill} variant="outline">
+          View on skills.sh
           <ArrowUpRightIcon className="size-4" aria-hidden="true" />
         </ExternalButtonLink>
       </div>
