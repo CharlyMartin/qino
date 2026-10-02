@@ -17,7 +17,6 @@ export const homeItem = qino.defineItem({
     title: z.string(),
     tagline: z.string(),
     "featured-posts": z.array(z.string()),
-    markdown: z.string(),
   }),
   relations: {
     "featured-posts[*]": postCollection,

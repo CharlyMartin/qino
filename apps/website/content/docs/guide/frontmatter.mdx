@@ -21,7 +21,7 @@ The body starts here.
 - An empty or comment-only block yields `{}`.
 - A scalar, a list, or several `---` documents at the top level is an error.
 - Duplicate keys in a mapping are an error.
-- A file without frontmatter is valid. The schema still runs, with only `markdown` and `raw` supplied.
+- A file without frontmatter is valid. The schema still runs, against `{}`.
 
 ## Scalar resolution
 
@@ -67,4 +67,4 @@ The built-in `!!str`, `!!int`, `!!float`, `!!bool`, `!!null`, and `!!timestamp` 
 
 ## The body
 
-Everything after the closing `---` is supplied to the schema as `markdown`, a string, before validation. An empty body is an empty string. The whole file, frontmatter included, is also supplied untouched as `raw`. Declaring `markdown` or `raw` in frontmatter is an error. See [Schemas](/docs/concepts/schemas) for how to keep, transform, or drop it.
+Everything after the closing `---` is added to the entry as `markdown`, a string, after validation. An empty body is an empty string. The whole file, frontmatter included, is also added untouched as `raw`. Neither reaches the schema, and declaring `markdown` or `raw` in frontmatter is an error. See [Schemas](/docs/concepts/schemas).

@@ -33,14 +33,15 @@ Thrown when a `define*` call runs, usually at import.
 
 ## Parsing and validation
 
-| Message                                                                                                 | Cause                                                         | Fix                                           |
-| ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- | --------------------------------------------- |
-| `YAML frontmatter must contain a single document.`                                                      | Several `---` documents at the top of a file                  | Keep one frontmatter block                    |
-| `YAML frontmatter must be a mapping of field names to values.`                                          | Frontmatter is a scalar or a list                             | Use `key: value` pairs                        |
-| `Validation failed for <filePath>:` followed by `  <path>: <message>` lines                             | Schema rejected the entry                                     | Fix the content or the schema                 |
-| `Schema for <filePath> returned a Promise. Qino requires synchronous Standard Schema validators.`       | Async validator                                               | Use a synchronous schema                      |
-| `<filePath>: fields reserved for Qino cannot appear in content or schema output: _meta.`                | `_meta` in content, or introduced by a transform              | Rename the field                              |
-| `<filePath>: fields reserved for Qino cannot appear in content or schema output: _meta, markdown, raw.` | `_meta`, `markdown` or `raw` declared in Markdown frontmatter | Remove it; Qino supplies `markdown` and `raw` |
+| Message                                                                                                     | Cause                                                                 | Fix                                           |
+| ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------- |
+| `YAML frontmatter must contain a single document.`                                                          | Several `---` documents at the top of a file                          | Keep one frontmatter block                    |
+| `YAML frontmatter must be a mapping of field names to values.`                                              | Frontmatter is a scalar or a list                                     | Use `key: value` pairs                        |
+| `Validation failed for <filePath>:` followed by `  <path>: <message>` lines                                 | Schema rejected the entry                                             | Fix the content or the schema                 |
+| `Fields added by Qino after validation cannot be declared in the schema: <fields>.` (after the issue lines) | A Markdown schema requires `markdown` or `raw`                        | Remove them from the schema                   |
+| `Schema for <filePath> returned a Promise. Qino requires synchronous Standard Schema validators.`           | Async validator                                                       | Use a synchronous schema                      |
+| `<filePath>: fields reserved for Qino cannot appear in content or schema output: _meta.`                    | `_meta` in content, or introduced by a transform                      | Rename the field                              |
+| `<filePath>: fields reserved for Qino cannot appear in content or schema output: _meta, markdown, raw.`     | `_meta`, `markdown` or `raw` in Markdown frontmatter or schema output | Remove it; Qino supplies `markdown` and `raw` |
 
 A `.json` file that is not valid JSON throws the raw `SyntaxError` from `JSON.parse`. A missing file throws the raw Node `ENOENT` error.
 

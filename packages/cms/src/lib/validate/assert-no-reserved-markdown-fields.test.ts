@@ -1,14 +1,14 @@
 import { describe, expect, test } from "vitest";
 
-import { assertNoReservedFrontmatterFields } from "./assert-no-reserved-frontmatter-fields";
+import { assertNoReservedMarkdownFields } from "./assert-no-reserved-markdown-fields";
 
-describe("assertNoReservedFrontmatterFields", () => {
+describe("assertNoReservedMarkdownFields", () => {
   test.each([".md", ".mdx", ".markdown"])(
     "rejects all reserved fields in %s",
     (ext) => {
       const filePath = `/entry${ext}`;
       expect(() =>
-        assertNoReservedFrontmatterFields(
+        assertNoReservedMarkdownFields(
           { _meta: undefined, markdown: "override", raw: "override" },
           filePath,
         ),
@@ -22,16 +22,16 @@ describe("assertNoReservedFrontmatterFields", () => {
     "checks own %s properties, including non-enumerable ones",
     (key) => {
       expect(() =>
-        assertNoReservedFrontmatterFields({ [key]: undefined }, "/entry.md"),
+        assertNoReservedMarkdownFields({ [key]: undefined }, "/entry.md"),
       ).toThrow(key);
       expect(() =>
-        assertNoReservedFrontmatterFields(
+        assertNoReservedMarkdownFields(
           Object.defineProperty({}, key, { value: undefined }),
           "/entry.md",
         ),
       ).toThrow(key);
       expect(() =>
-        assertNoReservedFrontmatterFields(
+        assertNoReservedMarkdownFields(
           Object.create({ [key]: "inherited" }),
           "/entry.md",
         ),
@@ -41,7 +41,7 @@ describe("assertNoReservedFrontmatterFields", () => {
 
   test("allows nested reserved names", () => {
     expect(() =>
-      assertNoReservedFrontmatterFields(
+      assertNoReservedMarkdownFields(
         { nested: { _meta: {}, markdown: 42, raw: 42 } },
         "/entry.md",
       ),
@@ -52,7 +52,7 @@ describe("assertNoReservedFrontmatterFields", () => {
     "ignores non-object input %s",
     (data) => {
       expect(() =>
-        assertNoReservedFrontmatterFields(data, "/entry.md"),
+        assertNoReservedMarkdownFields(data, "/entry.md"),
       ).not.toThrow();
     },
   );

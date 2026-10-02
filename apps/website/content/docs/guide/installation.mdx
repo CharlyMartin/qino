@@ -9,8 +9,6 @@ description: Add @qino/cms to a project and create a first collection.
 - TypeScript is optional. If you use it, 5.9 or newer with `strict: true`.
 - A [Standard Schema](https://standardschema.dev) validator. The examples use Zod.
 
-
-
 ## Install
 
 <InstallBox />
@@ -54,12 +52,11 @@ export const postCollection = qino.defineCollection({
   extension: ".md",
   schema: z.object({
     title: z.string(),
-    markdown: z.string(),
   }),
 });
 ```
 
-Every file in `src/content/posts/*.md` is validated against the schema. The Markdown body arrives as `markdown`, and Qino adds `_meta` with the slug and file path.
+The frontmatter of every file in `src/content/posts/*.md` is validated against the schema. Qino then adds the body as `markdown`, the source as `raw`, and `_meta` with the slug and file path.
 
 ## Read content
 

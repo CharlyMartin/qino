@@ -5,8 +5,6 @@ import { postCollection } from "../collections/posts";
 
 const HomeSchema = z
   .object({
-    markdown: z.string(),
-    raw: z.string(),
     title: z.string(),
     tagline: z.string(),
     "featured-posts": z.array(z.string()),

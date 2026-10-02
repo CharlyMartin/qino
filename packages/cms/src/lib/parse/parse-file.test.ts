@@ -18,10 +18,7 @@ describe("parseFile", () => {
   });
 
   test("routes .md files through markdown parsing", () => {
-    const schema = z.object({
-      title: z.string(),
-      markdown: z.string(),
-    });
+    const schema = z.object({ title: z.string() });
     const raw = ["---", "title: Hello", "---", "", "# Body"].join("\n");
     const result = parseFile({
       schema,
@@ -29,23 +26,25 @@ describe("parseFile", () => {
       filePath: "/fixtures/post.md",
       validatorFn: validate,
     });
-    expect(result.title).toBe("Hello");
-    expect(result[MARKDOWN_FIELD_NAME].trim()).toBe("# Body");
+    expect(result).toMatchObject({
+      title: "Hello",
+      [MARKDOWN_FIELD_NAME]: "\n# Body",
+    });
   });
 
   test("exposes the untouched .md document as raw", () => {
     const raw = ["---", "title: Hello", "---", "", "# Body"].join("\n");
     const result = parseFile({
-      schema: z.object({ raw: z.string() }),
+      schema: z.object({ title: z.string() }),
       data: raw,
       filePath: "/fixtures/post.md",
       validatorFn: validate,
     });
-    expect(result).toEqual({ raw });
+    expect(result).toEqual({ title: "Hello", markdown: "\n# Body", raw });
   });
 
   test("routes .mdx and .markdown files through markdown parsing", () => {
-    const schema = z.object({ markdown: z.string() });
+    const schema = z.object({});
     const raw = "markdown only";
 
     expect(

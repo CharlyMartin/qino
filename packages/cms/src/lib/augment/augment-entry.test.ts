@@ -41,8 +41,9 @@ describe("augmentEntry", () => {
   test.each(["markdown", "raw"])(
     "rejects %s on Markdown entries but allows it on JSON entries",
     async (key) => {
+      const markdown = { ...entry, markdown: "# Hello", raw: "# Hello" };
       await expect(
-        augmentEntry(entry, () => ({ [key]: "derived" })),
+        augmentEntry(markdown, () => ({ [key]: "derived" })),
       ).rejects.toThrow(
         `/content/posts/hello.md: augment cannot add reserved or overwrite existing fields: ${key}.`,
       );

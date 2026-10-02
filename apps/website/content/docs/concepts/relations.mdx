@@ -17,7 +17,6 @@ export const postCollection = qino.defineCollection({
     title: z.string(),
     author: z.string(),
     categories: z.array(z.string()),
-    markdown: z.string(),
   }),
   relations: {
     author: authorCollection,

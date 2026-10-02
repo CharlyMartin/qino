@@ -12,28 +12,22 @@ path ownership.
 
 ## Reserved entry fields
 
-Qino supplies the raw Markdown or MDX body, excluding frontmatter, as a
-`markdown` string before schema validation. Declare `markdown: z.string()`
-to retain it, or use a synchronous schema transform to change its value and
-output type. Getters, views, and resolved relations follow the schema output.
-An empty body is supplied as an empty string.
-
-The untouched source file, frontmatter included, is supplied as a `raw` string
-alongside `markdown`. Declare `raw: z.string()` to retain it; it follows the
-same schema rules as `markdown`.
-
-Undeclared fields follow the validator's behavior: ordinary Zod objects strip
-`markdown`, passthrough objects retain it, and strict objects reject it unless
-declared. Schemas remain required, including for documents without frontmatter.
+Schemas validate frontmatter only (or the whole object for JSON). After
+validation, Qino adds two strings to every Markdown or MDX entry, like `_meta`:
+`markdown`, the body excluding frontmatter (empty string when empty), and `raw`,
+the untouched source file. Don't declare them; strict objects work as-is.
+Documents without frontmatter validate `{}`, so `z.object({})` is enough.
+Schemas remain required.
 
 Top-level `_meta` remains reserved in content and schema input/output for every
-format. Markdown frontmatter cannot declare `markdown` or `raw`. Augmentation
-cannot add or replace `markdown` or `raw` on Markdown entries, even if the schema
-omits them; it may derive other fields. JSON `markdown`, JSON `raw`, and nested
-names remain ordinary user fields.
+format. In Markdown files, `markdown` and `raw` are reserved too: declaring them
+in a schema is a type error, and frontmatter or a transform introducing them
+fails at runtime. Augmentation cannot add or replace them; derive other fields
+from them instead. JSON `markdown`, JSON `raw`, and nested names remain ordinary
+user fields.
 
-To upgrade, rename an old `body` schema declaration to `markdown` and use
-`entry.markdown`. Qino does not generate a `body` alias.
+To upgrade, remove `markdown` and `raw` from Markdown schemas, and move any
+schema transform of `markdown` into a view `augment`.
 
 ## Frontmatter
 
@@ -106,7 +100,6 @@ const posts = qino.defineCollection({
   schema: z.object({
     title: z.string(),
     author: z.string(),
-    markdown: z.string(),
   }),
   relations: { author: () => authors },
   views: (view) => ({
@@ -215,7 +208,6 @@ const posts = qino.defineCollection({
   extension: ".md",
   schema: z.object({
     title: z.string(),
-    markdown: z.string(),
     highlight: z.boolean(),
   }),
   views: (view) => {
@@ -273,7 +265,6 @@ const posts = qino.defineCollection({
   extension: ".md",
   schema: z.object({
     title: z.string(),
-    markdown: z.string(),
     draft: z.boolean(),
   }),
   views: (view) => ({

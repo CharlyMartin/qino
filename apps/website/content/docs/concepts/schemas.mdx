@@ -9,36 +9,39 @@ The schema must be synchronous. A validator that returns a Promise is rejected.
 
 ## What the schema receives
 
-For Markdown, MDX, and `.markdown` files, the input is the parsed frontmatter plus the raw body as `markdown` and the untouched file as `raw`:
+For Markdown, MDX, and `.markdown` files, the input is the parsed frontmatter only:
 
 ```ts title="Schema input for hello-world.md"
 {
   title: "Hello",
   draft: false,
-  markdown: "The body, without frontmatter.",
-  raw: "---\ntitle: Hello\ndraft: false\n---\nThe body, without frontmatter.",
 }
 ```
 
 For `.json` files, the input is the parsed object as-is.
 
-## The markdown field
+A file without frontmatter validates `{}`, so an empty schema like `z.object({})` is enough. Schemas are required even then.
 
-The body is supplied as `markdown` before validation. What happens next follows your validator:
+## markdown and raw
 
-- Declare `markdown: z.string()` to keep it.
-- Use a synchronous transform to change its value or type. Getters, views, and resolved relations follow the schema output.
-- Leave it undeclared and an ordinary Zod object strips it. A passthrough object keeps it. A strict object rejects it.
+After validation, Qino adds two strings to every Markdown entry, like it adds `_meta`:
 
-An empty body is an empty string. Frontmatter cannot declare `markdown`; the body owns it. Augment callbacks cannot add or replace `markdown` on Markdown entries either. In JSON files, `markdown` is an ordinary field.
+- `markdown`: the body, without frontmatter. An empty body is an empty string.
+- `raw`: the whole source file, frontmatter included, byte for byte.
 
-## The raw field
+```ts title="Entry for hello-world.md"
+{
+  title: "Hello",
+  draft: false,
+  markdown: "The body, without frontmatter.",
+  raw: "---\ntitle: Hello\ndraft: false\n---\nThe body, without frontmatter.",
+  _meta: { slug: "hello-world", fileName: "hello-world.md", filePath: "/abs/path/posts/hello-world.md" },
+}
+```
 
-The whole source file, frontmatter included, is supplied as `raw` before validation, byte for byte. It follows the same rules as `markdown`: declare `raw: z.string()` to keep it, transform it, or leave it undeclared to drop it. A strict object rejects it unless declared.
+Don't declare them in the schema; they never reach it, so strict objects work as-is. They are added before views run, so `augment`, `filter`, and `sort` can read them. To derive something from the body, use [`augment`](/docs/concepts/views).
 
-Frontmatter cannot declare `raw`, and augment callbacks cannot add or replace it on Markdown entries. In JSON files, `raw` is an ordinary field.
-
-Schemas are required even for files with no frontmatter.
+In Markdown files, `markdown` and `raw` are reserved at the top level of frontmatter, schema input, and schema output. Declaring them in a schema is a type error, and frontmatter or a transform that introduces them fails at runtime. Augment callbacks cannot add or replace them either. In JSON files, both are ordinary fields.
 
 ## Reserved: \_meta
 

@@ -40,9 +40,7 @@ describe("defineCollection", () => {
         }),
       }),
       directory: "/posts",
-      schema: z
-        .object({ markdown: z.string(), raw: z.string(), title: z.string() })
-        .strict(),
+      schema: z.object({ title: z.string() }).strict(),
       extension: ".md",
     });
 
@@ -69,10 +67,7 @@ function makeCollection() {
   });
   return defineCollection({
     directory: "/posts",
-    schema: z.object({
-      markdown: z.string(),
-      title: z.string(),
-    }),
+    schema: z.object({ title: z.string() }),
     extension: ".md",
   });
 }
@@ -121,7 +116,7 @@ describe("getAllSlugs", () => {
       const collection = qino.defineCollection({
         directory: "/posts",
         extension,
-        schema: z.object({ markdown: z.string(), title: z.string() }),
+        schema: z.object({ title: z.string() }),
       });
 
       expect(await collection.getAllSlugs()).toEqual([
@@ -139,7 +134,7 @@ describe("getAllSlugs", () => {
     const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".json",
-      schema: z.object({ markdown: z.string(), title: z.string() }),
+      schema: z.object({ title: z.string() }),
     });
 
     expect(await collection.getAllSlugs()).toEqual(["invalid", "malformed"]);
@@ -170,7 +165,7 @@ describe("getAllSlugs", () => {
       directory: "/posts",
       extension: ".json",
       schema: z
-        .object({ markdown: z.string(), title: z.string(), author: z.string() })
+        .object({ title: z.string(), author: z.string() })
         .superRefine(validate),
       relations: { author: relation },
       views: (view) => ({
@@ -200,7 +195,7 @@ describe("collection filter and sort", () => {
     const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
-      schema: z.object({ markdown: z.string(), title: z.string() }),
+      schema: z.object({ title: z.string() }),
       views: (view) => {
         created();
         return { default: view({}), listing: view({ filter: () => true }) };
@@ -217,7 +212,7 @@ describe("collection filter and sort", () => {
       qino.defineCollection({
         directory: "/posts",
         extension: ".md",
-        schema: z.object({ markdown: z.string(), title: z.string() }),
+        schema: z.object({ title: z.string() }),
         views: (() => ({ default: {} })) as never,
       }),
     ).toThrow(/View "default" must be created/);
@@ -232,7 +227,7 @@ describe("collection filter and sort", () => {
     const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
-      schema: z.object({ markdown: z.string(), title: z.string() }),
+      schema: z.object({ title: z.string() }),
       views: (view) => ({
         default: view({
           augment: async (entry) => {
@@ -292,7 +287,7 @@ describe("collection filter and sort", () => {
     const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
-      schema: z.object({ markdown: z.string(), title: z.string() }),
+      schema: z.object({ title: z.string() }),
       views: (view) => ({
         default: view({
           filter: callback,
@@ -317,7 +312,7 @@ describe("collection filter and sort", () => {
     const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
-      schema: z.object({ markdown: z.string(), title: z.string() }),
+      schema: z.object({ title: z.string() }),
       views: (view) => ({
         default: view({ filter: (entry) => entry.title != "Draft" }),
       }),
@@ -339,7 +334,7 @@ describe("collection filter and sort", () => {
     const collection = qino.defineCollection({
       directory: "/posts",
       extension: ".md",
-      schema: z.object({ markdown: z.string(), title: z.string() }),
+      schema: z.object({ title: z.string() }),
       views: (view) => ({
         default: view({}),
         tied: view({ sort: () => 0 }),
@@ -369,7 +364,7 @@ describe("collection filter and sort", () => {
       }),
       directory: "/posts",
       extension: ".md",
-      schema: z.object({ markdown: z.string(), title: z.string() }),
+      schema: z.object({ title: z.string() }),
     });
     expect(await collection.getEntries()).toEqual([]);
     expect(filter).not.toHaveBeenCalled();
@@ -392,7 +387,7 @@ describe("collection filter and sort", () => {
       const collection = qino.defineCollection({
         directory: "/posts",
         extension: ".md",
-        schema: z.object({ markdown: z.string(), title: z.string() }),
+        schema: z.object({ title: z.string() }),
         views: (view) => ({
           default: view({
             [callback]: () => {
@@ -420,7 +415,7 @@ describe("collection filter and sort", () => {
       const collection = qino.defineCollection({
         directory: "/posts",
         extension: ".md",
-        schema: z.object({ markdown: z.string(), title: z.string() }),
+        schema: z.object({ title: z.string() }),
         views: (defineView) => ({
           default: defineView({
             augment: async (entry) => ({

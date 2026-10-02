@@ -52,7 +52,7 @@ import qino from "../";
 export const postCollection = qino.defineCollection({
   directory: "/posts",
   extension: ".md",
-  schema: z.object({ title: z.string(), markdown: z.string() }),
+  schema: z.object({ title: z.string() }),
 });
 ```
 

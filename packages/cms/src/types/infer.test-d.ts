@@ -26,7 +26,6 @@ const authors = qino.defineCollection({
   }),
 });
 const schema = z.object({
-  markdown: z.string(),
   title: z.string(),
   count: z.string().transform(Number),
   author: z.string(),

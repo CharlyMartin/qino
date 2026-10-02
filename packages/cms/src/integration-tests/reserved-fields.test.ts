@@ -27,7 +27,7 @@ describe.each([".md", ".mdx", ".markdown", ".json"] as const)(
       "rejects reserved fields from %s in getters and CLI validation",
       async (source) => {
         const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
-        for (const field of extension == ".json" || source == "transform"
+        for (const field of extension == ".json"
           ? ["_meta"]
           : ["_meta", "markdown", "raw"]) {
           const data = {
@@ -88,11 +88,7 @@ test("resolved Markdown targets retain their markdown and raw", async () => {
     }),
   );
   const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
-  const schema = z.strictObject({
-    title: z.string(),
-    markdown: z.string(),
-    raw: z.string(),
-  });
+  const schema = z.strictObject({ title: z.string() });
   const posts = qino.defineCollection({
     directory: "/entries",
     extension: ".md",
@@ -129,11 +125,7 @@ test.each([".md", ".mdx", ".markdown", ".json"] as const)(
         : "---\ntitle: Hello\nbody: 42\n---\n# Hello";
     const file = `/entries/hello${extension}` as const;
     await fs.writeFile(path.join(tmp, file), raw);
-    const schema = z.object({
-      title: z.string(),
-      body: z.number(),
-      ...(extension == ".json" ? {} : { markdown: z.string() }),
-    });
+    const schema = z.object({ title: z.string(), body: z.number() });
     const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const posts = qino.defineCollection({
       directory: "/entries",
@@ -207,17 +199,11 @@ test("JSON markdown, raw and nested reserved names remain user fields", async ()
 });
 
 test.each([".md", ".mdx", ".markdown"] as const)(
-  "getters and CLI accept transformed markdown in %s",
+  "getters and CLI accept an empty schema for %s without frontmatter",
   async (extension) => {
-    await fs.writeFile(
-      path.join(tmp, `entries/hello${extension}`),
-      "---\ntitle: Hello\n---\n# Hello",
-    );
+    await fs.writeFile(path.join(tmp, `entries/hello${extension}`), "# Hello");
     const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
-    const schema = z.object({
-      title: z.string(),
-      markdown: z.string().transform((text) => text.length),
-    });
+    const schema = z.strictObject({});
     const item = qino.defineItem({
       file: `/entries/hello${extension}`,
       schema,
@@ -227,24 +213,19 @@ test.each([".md", ".mdx", ".markdown"] as const)(
       extension,
       schema,
     });
-    const tree = qino.defineTree({
-      directory: "/entries",
-      extension,
-      titleField: "title",
-      schema,
-    });
     for (const entry of await Promise.all([
       item.getEntry(),
       collection.getEntry("hello"),
-      tree.getEntry("hello"),
     ])) {
-      expect(entry.markdown).toBe(7);
-      expect(entry._meta.filePath).toBe(
-        path.join(tmp, `entries/hello${extension}`),
-      );
+      expect(entry).toEqual({
+        markdown: "# Hello",
+        raw: "# Hello",
+        _meta: expect.objectContaining({
+          filePath: path.join(tmp, `entries/hello${extension}`),
+        }),
+      });
     }
     await validateItem(item);
     await validateCollection(collection);
-    await validateTree(tree);
   },
 );

@@ -14,7 +14,11 @@ import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
 import { buildViews } from "../../lib/views/build-views";
 import { selectView } from "../../lib/views/select-view";
-import type { Collection, CollectionEntryMeta } from "../../types/collection";
+import type {
+  Collection,
+  CollectionEntryMeta,
+  ResolvedCollectionView,
+} from "../../types/collection";
 import type {
   CollectionViewDefinition,
   CollectionViewFactory,
@@ -47,7 +51,7 @@ export type DefineCollectionParams<
   Views extends object = object,
 > = {
   directory: Dir;
-  schema: Schema & NoInfer<NoReservedSchemaFields<Schema>>;
+  schema: Schema & NoInfer<NoReservedSchemaFields<Schema, Ext>>;
   extension: Ext;
   relations?: Rels;
   views?: ViewsConfig<
@@ -114,7 +118,7 @@ export function defineCollection<
         validatorFn: validate,
       }),
       [META_FIELD_NAME]: meta,
-    };
+    } as ResolvedCollectionView<S, Ext, Rels, false>;
   }
 
   async function readEntries() {

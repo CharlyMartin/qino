@@ -18,6 +18,7 @@ import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
 import type {
+  ResolvedTreeEntry,
   StringKeys,
   Tree,
   TreeEntryMeta,
@@ -52,7 +53,7 @@ export type DefineTreeParams<
   Views extends object = object,
 > = {
   directory: Dir;
-  schema: Schema & NoInfer<NoReservedSchemaFields<Schema>>;
+  schema: Schema & NoInfer<NoReservedSchemaFields<Schema, Ext>>;
   extension: Ext;
   titleField: Title;
   orderFileName?: string;
@@ -136,7 +137,7 @@ export function defineTree<
         filePath: meta.filePath,
         validatorFn: validate,
       }),
-    };
+    } as ResolvedTreeEntry<S, Ext, Rels, false>;
   }
 
   async function getEntry<

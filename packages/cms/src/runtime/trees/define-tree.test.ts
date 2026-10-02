@@ -24,9 +24,7 @@ afterEach(async () => {
   await fs.rm(tmp, { recursive: true, force: true });
 });
 
-const Schema = z
-  .object({ markdown: z.string(), raw: z.string(), title: z.string() })
-  .strict();
+const Schema = z.object({ title: z.string() }).strict();
 
 async function writeMd(
   dir: string,
