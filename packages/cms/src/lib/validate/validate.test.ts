@@ -76,6 +76,35 @@ describe("validate", () => {
     ).toThrow(/foo\.bar: bad/);
   });
 
+  test("hints when the schema requires fields Qino adds after validation", () => {
+    const run = (data: unknown) =>
+      validate({
+        schema: z.object({
+          title: z.string(),
+          markdown: z.string(),
+          raw: z.string(),
+          nested: z.object({ markdown: z.string() }),
+        }),
+        data,
+        filePath: "/fixtures/post.md",
+        generatedFields: ["markdown", "raw"],
+      });
+
+    expect(() => run({ title: "Hello", nested: {} })).toThrow(
+      "Fields added by Qino after validation cannot be declared in the schema: markdown, raw.",
+    );
+    expect(() =>
+      run({ markdown: "", raw: "", nested: { markdown: "" } }),
+    ).toThrow(/^(?![\s\S]*added by Qino)/);
+    expect(() =>
+      validate({
+        schema: z.object({ markdown: z.string() }),
+        data: {},
+        filePath: "/fixtures/post.json",
+      }),
+    ).toThrow(/^(?![\s\S]*added by Qino)/);
+  });
+
   test("formats empty/missing paths as (root)", () => {
     const noPath = makeFailingSchema([{ message: "nope" }]);
     expect(() =>

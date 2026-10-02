@@ -80,7 +80,6 @@ export const postCollection = qino.defineCollection({
   schema: z.object({
     title: z.string(),
     date: z.string().optional(),
-    markdown: z.string(),
   }),
 });
 ```
@@ -131,10 +130,9 @@ If they decline, skip the folder and flag it.
 ### Inferring schemas
 
 - **Read every file**, not a sample. A field missing from some files becomes `.optional()`. One that's sometimes `null` becomes `.nullable()`.
-- **Markdown bodies:** declare `markdown: z.string()`. Only declare `raw: z.string()` if the app needs the untouched source.
-- **Use a plain `z.object`.** Strict objects reject the undeclared `markdown` and `raw` that Qino supplies.
+- **Markdown bodies:** model frontmatter only. Qino adds `markdown` (body) and `raw` (source) to every Markdown entry after validation. Never declare them; it's a type error. Files without frontmatter get `z.object({})`.
 - **YAML is 1.2 core:** unquoted dates arrive as strings (use `z.string()` or `z.iso.date()`, never `z.date()`), and `yes`/`no` are strings. See `/guide/frontmatter`.
-- **Reserved keys:** a top-level `_meta`, or `markdown`/`raw` in frontmatter, is an error. Tell the user; don't rename them.
+- **Reserved keys:** a top-level `_meta`, or `markdown`/`raw` in Markdown frontmatter, is an error. Tell the user; don't rename them.
 
 ### Shared entities and relations
 
@@ -168,7 +166,7 @@ Look up each error message at https://www.qino.works/docs/api/errors. The ones s
 
 - `Tree: folder "<path>" is missing its sibling file…`: add the anchor file, or convert the `index.md` layout.
 - `Validation failed for <filePath>:`: make the field optional or fix its type. Don't edit content to fit the schema.
-- `…fields reserved for Qino cannot appear…`: `_meta`, `markdown`, or `raw` in frontmatter. Flag it to the user.
+- `…fields reserved for Qino cannot appear…`: `_meta`, `markdown`, or `raw` in frontmatter or schema output. Flag frontmatter conflicts to the user; drop them from schemas.
 - `Relation "<key>"…expected value under "<dir>/"…`: the value is a bare slug. Keep it as `z.string()`, or convert it to a path.
 
 Report back:

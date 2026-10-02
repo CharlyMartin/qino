@@ -18,6 +18,7 @@ import type {
   Item,
   ItemEntryMeta,
   ItemFile,
+  ResolvedItemView,
 } from "../../types/item";
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
@@ -41,7 +42,8 @@ export type DefineItemParams<
   Views extends object = object,
 > = {
   file: F;
-  schema: Schema & NoInfer<NoReservedSchemaFields<Schema>>;
+  schema: Schema &
+    NoInfer<NoReservedSchemaFields<Schema, ExtractItemExtension<F>>>;
   relations?: Rels;
   views?: ViewsConfig<
     Views,
@@ -98,7 +100,7 @@ export function defineItem<
         filePath: absoluteFilePath,
         validatorFn: validate,
       }),
-    };
+    } as ResolvedItemView<S, Ext, Rels, false>;
   }
 
   async function getEntry<

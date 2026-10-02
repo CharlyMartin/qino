@@ -7,7 +7,6 @@ const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
 
 const schema = z
   .object({
-    markdown: z.string(),
     title: z.string(),
   })
   .strict();

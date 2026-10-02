@@ -6,12 +6,15 @@ export type ValidateParams<S extends StandardSchemaV1> = {
   schema: S;
   data: unknown;
   filePath: string;
+  // Fields Qino adds after validation, which the schema never receives.
+  generatedFields?: ReadonlyArray<string>;
 };
 
 export function validate<S extends StandardSchemaV1>({
   schema,
   data,
   filePath,
+  generatedFields = [],
 }: ValidateParams<S>) {
   assertNoReservedSchemaFields(data, filePath);
   const result = schema["~standard"].validate(data);
@@ -23,6 +26,7 @@ export function validate<S extends StandardSchemaV1>({
   }
 
   if (result.issues) {
+    const declaredGeneratedFields = new Set<string>();
     const lines = result.issues.map((issue) => {
       const segments = issue.path?.map((segment) => {
         if (typeof segment == "object" && segment !== null) {
@@ -30,10 +34,22 @@ export function validate<S extends StandardSchemaV1>({
         }
         return String(segment);
       });
+
+      const [field] = segments ?? [];
+      if (field && generatedFields.includes(field)) {
+        declaredGeneratedFields.add(field);
+      }
+
       const path =
         segments && segments.length > 0 ? segments.join(".") : "(root)";
       return `  ${path}: ${issue.message}`;
     });
+
+    if (declaredGeneratedFields.size > 0) {
+      lines.push(
+        `Fields added by Qino after validation cannot be declared in the schema: ${[...declaredGeneratedFields].join(", ")}.`,
+      );
+    }
     throw new Error(`Validation failed for ${filePath}:\n${lines.join("\n")}`);
   }
 

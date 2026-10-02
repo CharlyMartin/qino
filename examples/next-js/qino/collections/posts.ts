@@ -8,8 +8,6 @@ import { categoryCollection } from "./categories";
 
 const PostSchema = z
   .object({
-    markdown: z.string(),
-    raw: z.string(),
     title: z.string(),
     "created-on": z.string(),
     "updated-on": z.string(),

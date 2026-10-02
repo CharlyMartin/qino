@@ -1,8 +1,4 @@
-import {
-  MARKDOWN_FIELD_NAME,
-  META_FIELD_NAME,
-  RAW_FIELD_NAME,
-} from "../../data/globals";
+import { META_FIELD_NAME } from "../../data/globals";
 import type { AugmentOutput, Awaitable } from "../../types/augment";
 
 export async function augmentEntry<
@@ -35,10 +31,8 @@ export async function augmentEntry<
     );
   }
 
-  const conflictingKeys = Object.keys(output).filter(
-    (key) =>
-      Object.hasOwn(entry, key) ||
-      isReservedMarkdownField(key, entry[META_FIELD_NAME].filePath),
+  const conflictingKeys = Object.keys(output).filter((key) =>
+    Object.hasOwn(entry, key),
   );
 
   if (conflictingKeys.length > 0) {
@@ -48,11 +42,4 @@ export async function augmentEntry<
   }
 
   return { ...entry, ...output };
-}
-
-function isReservedMarkdownField(key: string, filePath: string) {
-  return (
-    (key == MARKDOWN_FIELD_NAME || key == RAW_FIELD_NAME) &&
-    !filePath.endsWith(".json")
-  );
 }

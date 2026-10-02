@@ -4,7 +4,7 @@ import {
   RAW_FIELD_NAME,
 } from "../../data/globals";
 
-export function assertNoReservedFrontmatterFields(
+export function assertNoReservedMarkdownFields(
   data: unknown,
   filePath: string,
 ) {

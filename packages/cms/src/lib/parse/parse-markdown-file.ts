@@ -2,7 +2,7 @@ import matter from "gray-matter";
 
 import { MARKDOWN_FIELD_NAME, RAW_FIELD_NAME } from "../../data/globals";
 import type { ObjectSchema } from "../../types/schema";
-import { assertNoReservedFrontmatterFields } from "../validate/assert-no-reserved-frontmatter-fields";
+import { assertNoReservedMarkdownFields } from "../validate/assert-no-reserved-markdown-fields";
 import type { ValidateParams, validate } from "../validate/validate";
 import { parseYaml } from "./parse-yaml";
 
@@ -18,15 +18,19 @@ export function parseMarkdownFile<S extends ObjectSchema>({
   validatorFn,
 }: ParseMarkdownFileParams<S>) {
   const parsed = matter(data, { engines: { yaml: parseYaml } });
-  assertNoReservedFrontmatterFields(parsed.data, filePath);
+  assertNoReservedMarkdownFields(parsed.data, filePath);
 
-  return validatorFn({
+  const validated = validatorFn({
     schema,
-    data: {
-      ...parsed.data,
-      [MARKDOWN_FIELD_NAME]: parsed.content,
-      [RAW_FIELD_NAME]: data,
-    },
+    data: parsed.data,
     filePath,
+    generatedFields: [MARKDOWN_FIELD_NAME, RAW_FIELD_NAME],
   });
+  assertNoReservedMarkdownFields(validated, filePath);
+
+  return {
+    ...validated,
+    [MARKDOWN_FIELD_NAME]: parsed.content,
+    [RAW_FIELD_NAME]: data,
+  };
 }

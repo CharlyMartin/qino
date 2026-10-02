@@ -112,7 +112,7 @@ test.each([
       "src/schemas/post.ts": `
       import { z } from "zod";
       import { title } from "${aliases ? "@/fields/title" : "../fields/title"}";
-      export const postSchema = z.object({ title, markdown: z.string() });
+      export const postSchema = z.object({ title });
     `,
       "src/fields/title.ts": `
       import { z } from "zod";
