@@ -1,5 +1,45 @@
 # @qino/cms
 
+## 0.5.0
+
+### Minor Changes
+
+- [#175](https://github.com/CharlyMartin/qino/pull/175) [`5e345f6`](https://github.com/CharlyMartin/qino/commit/5e345f62a4ed0cb4dd95c6c70b52872bc89e2973) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Changes paths in `defineCollection`, `defineTree`, `defineItem`, and relation values to one convention: relative to `contentFolder`, with no leading `/`. A leading `/` is now a type error in definitions and a runtime error with a suggested fix. This is a breaking change:
+
+  ```diff
+  - defineCollection({ directory: "/posts", ... });
+  - defineItem({ file: "/pages/home.md", ... });
+  + defineCollection({ directory: "posts", ... });
+  + defineItem({ file: "pages/home.md", ... });
+  ```
+
+  ```diff
+  - author: "/authors/jane.json"
+  + author: "authors/jane.json"
+  ```
+
+  A primitive at the content root uses `directory: ""` instead of `"/"`. Rerun `qino build` to regenerate `qino/_generated/types.d.ts`. `QinoSlugRegistry` keys are now `"posts"` instead of `"/posts"`.
+
+  Relation values can also be root paths that go through `contentFolder`, like `src/content/authors/jane.json` or `apps/site/src/content/authors/jane.json`. Repos edited with Git-based CMSs such as Decap CMS, which store paths from the repository root, keep working.
+
+- [#173](https://github.com/CharlyMartin/qino/pull/173) [`ef99311`](https://github.com/CharlyMartin/qino/commit/ef99311a4a301425a42d29887afac8c66ddeac0c) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Changes `markdown` and `raw` on Markdown entries to be added after validation, like `_meta`. Schemas now validate frontmatter only, so they no longer need to declare either field, and strict objects work as-is. A file without frontmatter can use `z.object({})`. Both fields are still there in getters, views, and resolved relations.
+
+  This is a breaking change. In `.md`, `.mdx`, and `.markdown` entries, `markdown` and `raw` are now reserved schema keys. Declaring them is a type error, and an old schema that still requires them fails validation with a hint naming them. Remove them from Markdown schemas, and move any schema transform of `markdown` into a view `augment`:
+
+  ```diff
+    qino.defineCollection({
+      directory: "/posts",
+      extension: ".md",
+      schema: z.object({
+        title: z.string(),
+  -     markdown: z.string(),
+  -     raw: z.string(),
+      }),
+    });
+  ```
+
+  JSON entries are unchanged: there, `markdown` and `raw` are still ordinary fields.
+
 ## 0.4.1
 
 ### Patch Changes
