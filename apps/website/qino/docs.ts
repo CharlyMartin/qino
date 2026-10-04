@@ -4,7 +4,7 @@ import qino from "./index";
 import { releaseCollection } from "./releases";
 
 export const docsTree = qino.defineTree({
-  directory: "/docs",
+  directory: "docs",
   schema: z
     .object({
       title: z.string(),

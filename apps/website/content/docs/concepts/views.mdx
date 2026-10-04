@@ -7,7 +7,7 @@ A view is a named configuration for how a getter shapes entries. Every primitive
 
 ```ts title="qino/collections/posts.ts"
 export const postCollection = qino.defineCollection({
-  directory: "/posts",
+  directory: "posts",
   extension: ".md",
   schema: PostSchema,
   relations: { author: authorCollection },

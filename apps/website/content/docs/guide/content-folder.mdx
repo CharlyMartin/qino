@@ -5,6 +5,17 @@ description: Allowed file types and how collections, trees, and items are laid o
 
 The content folder is the directory passed as `contentFolder` to `initQino`. Each primitive owns a path inside it.
 
+## Content paths
+
+Every path Qino reads, in primitive definitions and in content, is a **content path**: relative to the content folder, with no leading `/`.
+
+```ts title="qino/collections/posts.ts"
+qino.defineCollection({ directory: "posts", ... }); // src/content/posts/
+qino.defineItem({ file: "pages/home.md", ... });     // src/content/pages/home.md
+```
+
+Content paths are relative to the content folder, not to the file they appear in. `authors/jane.json` written in `posts/hello.md` points to `src/content/authors/jane.json`. A leading `/` is an error with a fix-it hint.
+
 ## Allowed file types
 
 | Extension   | Parsed as                        |
@@ -65,7 +76,7 @@ An item is a single file at a fixed path. The extension is taken from the path, 
 
 ```txt title="Folder structure"
 src/content/pages/
-  home.md               defineItem({ file: "/pages/home.md" })
+  home.md               defineItem({ file: "pages/home.md" })
 ```
 
 A missing file is an error at read time.
@@ -80,7 +91,17 @@ categories:
   - "categories/content-modeling.json"
 ```
 
-Bare slugs are rejected. The directory and extension must match the target primitive, and a leading `/` is optional. For item targets, the value must equal the item's `file`. See [Relations](/docs/concepts/relations).
+Bare slugs are rejected. The directory and extension must match the target primitive. For item targets, the value must equal the item's `file`. See [Relations](/docs/concepts/relations).
+
+A relation value can also be a **root path**: a path from the project or repository root that goes through the content folder. Qino strips everything up to the content folder:
+
+```yaml title="src/content/posts/hello-world.md"
+author: "src/content/authors/camille-laurent.json" # from the project root
+categories:
+  - "apps/site/src/content/categories/content-modeling.json" # from the monorepo root
+```
+
+These resolve like `authors/camille-laurent.json` and `categories/content-modeling.json`. This keeps content written by Git-based CMSs such as Decap CMS, which store paths from the repository root, working with Qino.
 
 ## Reserved names
 

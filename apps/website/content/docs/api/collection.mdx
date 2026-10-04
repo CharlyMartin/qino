@@ -13,7 +13,7 @@ import qino from "../";
 import { authorCollection } from "./authors";
 
 export const postCollection = qino.defineCollection({
-  directory: "/posts",
+  directory: "posts",
   extension: ".md",
   schema: z.object({
     title: z.string(),

@@ -11,7 +11,7 @@ A relation links a field in one primitive to an entry of another. Any of the thr
 
 ```ts title="qino/collections/posts.ts"
 export const postCollection = qino.defineCollection({
-  directory: "/posts",
+  directory: "posts",
   extension: ".md",
   schema: z.object({
     title: z.string(),
@@ -51,7 +51,7 @@ categories:
   - "categories/content-modeling.json"
 ```
 
-The directory and extension must match the target, and a leading `/` is optional. Item targets must equal the item's `file`. Bare slugs are rejected with a message that names the expected prefix.
+The directory and extension must match the target. Item targets must equal the item's `file`. Bare slugs and leading slashes are rejected with a message that names the expected value. Root paths that go through the content folder, such as `src/content/authors/camille-laurent.json`, are accepted too. See [Content paths](/docs/guide/content-folder#content-paths).
 
 ## Resolving
 

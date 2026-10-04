@@ -37,7 +37,7 @@ declare module "@qino/cms" {
   export type PostSlug = "hello-world" | "second-post" | (string & {});
 
   interface QinoSlugRegistry {
-    "/posts": PostSlug;
+    "posts": PostSlug;
   }
 }
 ```
@@ -46,7 +46,7 @@ declare module "@qino/cms" {
 
 The union ends in `(string & {})`, so any string is still accepted. The types are assistive, not strict. Before the first `qino build`, or for a directory with no entries, the slug type is plain `string`.
 
-Type names are the directory PascalCased with only the last segment singularized: `/posts` becomes `PostSlug`, `/docs/v1` becomes `DocsV1Slug`. Collisions get a numeric suffix. Items have no slugs and are skipped.
+Type names are the directory PascalCased with only the last segment singularized: `posts` becomes `PostSlug`, `docs/v1` becomes `DocsV1Slug`. Collisions get a numeric suffix. Items have no slugs and are skipped.
 
 ## Relation depth in types
 
