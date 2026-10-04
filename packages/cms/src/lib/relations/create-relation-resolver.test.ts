@@ -16,7 +16,7 @@ describe("createRelationResolver", () => {
   describe("depth gate", () => {
     test("returns the entry unchanged when depth is 0", async () => {
       const target = makeDummyCollection({
-        directory: "/authors",
+        directory: "authors",
         extension: ".json",
       });
       const entry = makeDummyEntry({
@@ -38,7 +38,7 @@ describe("createRelationResolver", () => {
 
     test("returns the entry unchanged when depth is negative", async () => {
       const target = makeDummyCollection({
-        directory: "/authors",
+        directory: "authors",
         extension: ".json",
       });
       const entry = makeDummyEntry({
@@ -66,7 +66,7 @@ describe("createRelationResolver", () => {
         fields: { name: "Alice" },
       });
       const target = makeDummyCollection({
-        directory: "/authors",
+        directory: "authors",
         extension: ".json",
         store: new Map([["alice", alice]]),
       });
@@ -86,7 +86,7 @@ describe("createRelationResolver", () => {
 
     test("resolves an item reference via getEntry", async () => {
       const target = makeDummyItem({
-        file: "/config/site.json",
+        file: "config/site.json",
         data: { siteName: "Qino" },
       });
       const resolver = createRelationResolver(createResolveCache());
@@ -110,7 +110,7 @@ describe("createRelationResolver", () => {
         fields: { name: "Alice" },
       });
       const target = makeDummyCollection({
-        directory: "/authors",
+        directory: "authors",
         extension: ".json",
         store: new Map([["alice", alice]]),
       });
@@ -154,7 +154,7 @@ describe("createRelationResolver", () => {
         fields: { name: "Alice" },
       });
       const target = makeDummyCollection({
-        directory: "/authors",
+        directory: "authors",
         extension: ".json",
         store: new Map([["alice", alice]]),
       });
@@ -188,7 +188,7 @@ describe("createRelationResolver", () => {
         fields: { label: "B" },
       });
       const target = makeDummyCollection({
-        directory: "/tags",
+        directory: "tags",
         extension: ".json",
         store: new Map([
           ["a", a],
@@ -223,7 +223,7 @@ describe("createRelationResolver", () => {
         ],
       ]);
       const target = makeDummyCollection({
-        directory: "/authors",
+        directory: "authors",
         extension: ".json",
         store: authors,
       });
@@ -265,12 +265,12 @@ describe("createRelationResolver", () => {
         fields: { kind: "editor" },
       });
       const authors = makeDummyCollection({
-        directory: "/authors",
+        directory: "authors",
         extension: ".json",
         store: new Map([["alice", alice]]),
       });
       const editors = makeDummyCollection({
-        directory: "/editors",
+        directory: "editors",
         extension: ".json",
         store: new Map([["alice", aliceEditor]]),
       });
@@ -305,7 +305,7 @@ describe("createRelationResolver", () => {
   describe("error propagation", () => {
     test("propagates a missing-target error from fetchTargetEntry with relation context", async () => {
       const target = makeDummyCollection({
-        directory: "/authors",
+        directory: "authors",
         extension: ".json",
       });
       const resolver = createRelationResolver(createResolveCache());
@@ -327,7 +327,7 @@ describe("createRelationResolver", () => {
     test("throws when a relation target was created by a different Qino instance", async () => {
       const otherInstanceId = Symbol("qino.other");
       const target = makeDummyCollection({
-        directory: "/authors",
+        directory: "authors",
         extension: ".json",
         instanceId: otherInstanceId,
       });
@@ -354,7 +354,7 @@ describe("createRelationResolver", () => {
         fields: { url: "https://example.com/portrait.png" },
       });
       const media = makeDummyCollection({
-        directory: "/media",
+        directory: "media",
         extension: ".json",
         store: new Map([["portrait", portrait]]),
       });
@@ -364,7 +364,7 @@ describe("createRelationResolver", () => {
         fields: { name: "Alice", avatar: "media/portrait.json" },
       });
       const authors = makeDummyCollection({
-        directory: "/authors",
+        directory: "authors",
         extension: ".json",
         store: new Map([["alice", alice]]),
         relations: { avatar: media },
@@ -393,7 +393,7 @@ describe("createRelationResolver", () => {
         fields: { url: "https://example.com/portrait.png" },
       });
       const media = makeDummyCollection({
-        directory: "/media",
+        directory: "media",
         extension: ".json",
         store: new Map([["portrait", portrait]]),
       });
@@ -403,7 +403,7 @@ describe("createRelationResolver", () => {
         fields: { name: "Alice", avatar: "media/portrait.json" },
       });
       const authors = makeDummyCollection({
-        directory: "/authors",
+        directory: "authors",
         extension: ".json",
         store: new Map([["alice", alice]]),
         relations: { avatar: media },
@@ -441,13 +441,13 @@ describe("tree references", () => {
     });
     const treeRelations: Record<string, RelationTarget> = {};
     const docs = makeDummyTree({
-      directory: "/docs",
+      directory: "docs",
       extension: ".md",
       store: new Map([["guides/setup", treeEntry]]),
       relations: treeRelations,
     });
     const posts = makeDummyCollection({
-      directory: "/posts",
+      directory: "posts",
       extension: ".json",
       store: new Map([["hello", post]]),
       relations: { doc: () => docs },
@@ -458,7 +458,7 @@ describe("tree references", () => {
       slug: "source",
       extension: ".json",
       fields: {
-        links: ["docs/guides/setup.md", "/docs/guides/setup.md"],
+        links: ["docs/guides/setup.md", "src/content/docs/guides/setup.md"],
         section: { doc: "docs/guides/setup.md" },
       },
     });
@@ -484,7 +484,7 @@ describe("tree references", () => {
 
   test("rejects tree targets from a different instance", async () => {
     const docs = makeDummyTree({
-      directory: "/docs",
+      directory: "docs",
       extension: ".md",
       instanceId: Symbol("other"),
     });

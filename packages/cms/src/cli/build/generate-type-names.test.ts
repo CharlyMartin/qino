@@ -5,14 +5,14 @@ import { generateTypeNames } from "./generate-type-names";
 describe("generateTypeNames", () => {
   test("maps each non-empty item to an entry", () => {
     const entries = generateTypeNames([
-      { directory: "/posts", slugs: ["hello-world"] },
-      { directory: "/docs/v1", slugs: ["intro", "setup"] },
+      { directory: "posts", slugs: ["hello-world"] },
+      { directory: "docs/v1", slugs: ["intro", "setup"] },
     ]);
 
     expect(entries).toEqual([
-      { directory: "/posts", typeName: "PostSlug", slugs: ["hello-world"] },
+      { directory: "posts", typeName: "PostSlug", slugs: ["hello-world"] },
       {
-        directory: "/docs/v1",
+        directory: "docs/v1",
         typeName: "DocsV1Slug",
         slugs: ["intro", "setup"],
       },
@@ -21,19 +21,19 @@ describe("generateTypeNames", () => {
 
   test("omits items with no slugs", () => {
     const entries = generateTypeNames([
-      { directory: "/posts", slugs: ["hello-world"] },
-      { directory: "/empty", slugs: [] },
+      { directory: "posts", slugs: ["hello-world"] },
+      { directory: "empty", slugs: [] },
     ]);
 
     expect(entries).toEqual([
-      { directory: "/posts", typeName: "PostSlug", slugs: ["hello-world"] },
+      { directory: "posts", typeName: "PostSlug", slugs: ["hello-world"] },
     ]);
   });
 
   test("disambiguates colliding type names across items", () => {
     const entries = generateTypeNames([
-      { directory: "/post", slugs: ["a"] },
-      { directory: "/posts", slugs: ["b"] },
+      { directory: "post", slugs: ["a"] },
+      { directory: "posts", slugs: ["b"] },
     ]);
 
     expect(entries.map((entry) => entry.typeName)).toEqual([
@@ -43,6 +43,6 @@ describe("generateTypeNames", () => {
   });
 
   test("returns an empty array when every item is empty", () => {
-    expect(generateTypeNames([{ directory: "/empty", slugs: [] }])).toEqual([]);
+    expect(generateTypeNames([{ directory: "empty", slugs: [] }])).toEqual([]);
   });
 });

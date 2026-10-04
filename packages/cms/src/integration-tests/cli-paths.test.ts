@@ -106,7 +106,7 @@ test.each([
       import qino from "../index";
       import { postSchema } from "${aliases ? "@/schemas/post" : "../../src/schemas/post"}";
       export const posts = qino.defineCollection({
-        directory: "/posts", extension: ".md", schema: postSchema,
+        directory: "posts", extension: ".md", schema: postSchema,
       });
     `,
       "src/schemas/post.ts": `
@@ -141,7 +141,7 @@ test.each([
       "utf8",
     );
     expect(types).toContain('export type PostSlug = "hello" | (string & {});');
-    expect(types).toContain('"/posts": PostSlug;');
+    expect(types).toContain('"posts": PostSlug;');
   },
   20_000,
 );

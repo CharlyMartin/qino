@@ -13,8 +13,8 @@ import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
 import type { SlugFor } from "./slug-registry";
 import type {
+  ContentPath,
   EmptyObject,
-  GenericPath,
   GetterOptions,
   Slug,
   SupportedFileExtension,
@@ -50,8 +50,9 @@ export type TreeMeta<
 > = {
   readonly is: (typeof QinoPrimitives)["tree"];
   readonly instanceId: symbol;
+  readonly contentFolder: string;
   readonly schema: Schema;
-  readonly directory: GenericPath;
+  readonly directory: ContentPath;
   readonly extension: Ext;
   readonly titleField: Title;
   readonly orderFileName: string;
@@ -67,7 +68,7 @@ export type Tree<
   Ext extends SupportedFileExtension,
   Title extends StringKeys<Schema>,
   Rels extends Relations<Schema> = object,
-  Dir extends GenericPath = GenericPath,
+  Dir extends ContentPath = ContentPath,
   Views extends object = object,
 > = PrimitiveInference<Schema, TreeEntryMeta<Ext>, Rels, Views> & {
   readonly [QinoPrimitiveMarker]: TreeMeta<Schema, Ext, Title, Rels>;
@@ -106,8 +107,9 @@ export type ResolvedTreeEntry<
 export type AnyTreeMeta = {
   readonly is: (typeof QinoPrimitives)["tree"];
   readonly instanceId: symbol;
+  readonly contentFolder: string;
   readonly schema: ObjectSchema;
-  readonly directory: GenericPath;
+  readonly directory: ContentPath;
   readonly extension: SupportedFileExtension;
   readonly titleField: string;
   readonly orderFileName: string;

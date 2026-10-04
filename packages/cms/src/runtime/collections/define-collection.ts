@@ -8,6 +8,7 @@ import {
 } from "../../data/globals";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
 import { parseFile } from "../../lib/parse/parse-file";
+import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { removeExtension } from "../../lib/paths/remove-extension";
 import { validate } from "../../lib/validate/validate";
 import { applyView } from "../../lib/views/apply-view";
@@ -28,7 +29,8 @@ import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields"
 import type { ObjectSchema } from "../../types/schema";
 import type { SlugFor } from "../../types/slug-registry";
 import type {
-  GenericPath,
+  ContentPath,
+  NoLeadingSlash,
   Slug,
   SupportedFileExtension,
 } from "../../types/utils";
@@ -47,10 +49,10 @@ export type DefineCollectionParams<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema> = object,
-  Dir extends GenericPath = GenericPath,
+  Dir extends ContentPath = ContentPath,
   Views extends object = object,
 > = {
-  directory: Dir;
+  directory: Dir & NoInfer<NoLeadingSlash<Dir>>;
   schema: Schema & NoInfer<NoReservedSchemaFields<Schema, Ext>>;
   extension: Ext;
   relations?: Rels;
@@ -65,10 +67,11 @@ export function defineCollection<
   S extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<S> = object,
-  Dir extends GenericPath = GenericPath,
+  Dir extends ContentPath = ContentPath,
   const Views extends object = object,
 >(ctx: QinoContext, params: DefineCollectionParams<S, Ext, Rels, Dir, Views>) {
   const { directory, schema, extension, relations } = params;
+  assertContentPath(directory, "directory");
   const collectionRelations = (relations ?? {}) as Rels;
   assertNoRootViewSettings(params);
   const views = buildViews(params.views, "collection");
@@ -79,6 +82,7 @@ export function defineCollection<
     [QinoPrimitiveMarker]: {
       is: QinoPrimitives.collection,
       instanceId: ctx.instanceId,
+      contentFolder: ctx.contentFolder,
       schema,
       directory,
       extension,

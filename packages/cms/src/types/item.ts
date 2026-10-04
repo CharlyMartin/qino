@@ -12,8 +12,8 @@ import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
 import type {
+  ContentPath,
   EmptyObject,
-  GenericPath,
   GetterOptions,
   SupportedFileExtension,
 } from "./utils";
@@ -33,8 +33,9 @@ export type ItemMeta<
 > = {
   readonly is: (typeof QinoPrimitives)["item"];
   readonly instanceId: symbol;
+  readonly contentFolder: string;
   readonly schema: Schema;
-  readonly file: GenericPath;
+  readonly file: ContentPath;
   readonly extension: Ext;
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
@@ -73,7 +74,7 @@ export type Item<
 };
 
 export type ItemFile = {
-  [Ext in SupportedFileExtension]: `${GenericPath}${Ext}`;
+  [Ext in SupportedFileExtension]: `${ContentPath}${Ext}`;
 }[SupportedFileExtension];
 
 export type ExtractItemExtension<F extends string> = F extends `${string}.json`

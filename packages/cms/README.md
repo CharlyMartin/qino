@@ -89,13 +89,13 @@ Collections, trees, and items can expose different shapes of the same content:
 const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
 
 const authors = qino.defineCollection({
-  directory: "/authors",
+  directory: "authors",
   extension: ".json",
   schema: z.object({ name: z.string() }),
 });
 
 const posts = qino.defineCollection({
-  directory: "/posts",
+  directory: "posts",
   extension: ".md",
   schema: z.object({
     title: z.string(),
@@ -204,7 +204,7 @@ import { z } from "zod";
 
 const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
 const posts = qino.defineCollection({
-  directory: "/posts",
+  directory: "posts",
   extension: ".md",
   schema: z.object({
     title: z.string(),
@@ -261,7 +261,7 @@ augmentation for both `getEntries()` and `getEntry()`. Sorting follows filtering
 
 ```ts
 const posts = qino.defineCollection({
-  directory: "/posts",
+  directory: "posts",
   extension: ".md",
   schema: z.object({
     title: z.string(),
@@ -317,7 +317,7 @@ Declare a target directly or with a lazy function for forward references:
 
 ```ts
 const docs = qino.defineTree({
-  directory: "/docs",
+  directory: "docs",
   extension: ".md",
   titleField: "title",
   schema: z.object({ title: z.string() }),
@@ -329,7 +329,7 @@ const home = qino.defineItem({
       resolveRelations: 1,
     }),
   }),
-  file: "/home.json",
+  file: "home.json",
   schema: z.object({
     featuredDoc: z.string(),
     relatedDocs: z.array(z.string()),
@@ -341,8 +341,9 @@ const home = qino.defineItem({
 In `home.json`, store references such as `"featuredDoc": "docs/guides/setup.md"`.
 A tree target resolves to that file's content and `_meta` (including the nested
 slug `guides/setup`), without children or navigation data. The directory and
-extension must match the target; a leading `/` is optional. Item references
-must match the item's configured file.
+extension must match the target, with no leading `/`. Item references must
+match the item's configured file. Root paths through the content folder, such as
+`src/content/docs/guides/setup.md` (e.g. written by Decap CMS), also resolve.
 
 Relations resolve only when enabled on the source's default or named view.
 Numeric depths allow 1–6 relation hops; `true` means 6. Embedded targets bypass

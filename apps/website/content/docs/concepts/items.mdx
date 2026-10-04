@@ -12,7 +12,7 @@ import qino from "../";
 import { postCollection } from "../collections/posts";
 
 export const homeItem = qino.defineItem({
-  file: "/pages/home.md",
+  file: "pages/home.md",
   schema: z.object({
     title: z.string(),
     tagline: z.string(),
@@ -51,4 +51,4 @@ Items support `resolveRelations` and `augment` in views, but not `filter` or `so
 
 ## As a relation target
 
-Other primitives can point at an item. The stored value must equal the item's `file`, such as `"pages/home.md"`, with the leading slash optional. See [Relations](/docs/concepts/relations).
+Other primitives can point at an item. The stored value must equal the item's `file`, such as `"pages/home.md"`. See [Relations](/docs/concepts/relations).

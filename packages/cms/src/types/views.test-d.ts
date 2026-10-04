@@ -10,7 +10,7 @@ const senior = qino.defineItem({
       augment: () => ({ privateDerived: true }),
     }),
   }),
-  file: "/senior.json",
+  file: "senior.json",
   schema: z.object({ name: z.string() }),
 });
 const authors = qino.defineCollection({
@@ -19,7 +19,7 @@ const authors = qino.defineCollection({
       augment: () => ({ privateDerived: true }),
     }),
   }),
-  directory: "/authors",
+  directory: "authors",
   extension: ".json",
   schema: z.object({ name: z.string(), lead: z.string() }),
   relations: { lead: () => senior },
@@ -27,7 +27,7 @@ const authors = qino.defineCollection({
 const schema = z.object({ title: z.string(), author: z.string() });
 
 const posts = qino.defineCollection({
-  directory: "/posts",
+  directory: "posts",
   extension: ".json",
   schema,
   relations: { author: () => authors },
@@ -54,7 +54,7 @@ const posts = qino.defineCollection({
 });
 
 const tree = qino.defineTree({
-  directory: "/docs",
+  directory: "docs",
   extension: ".md",
   titleField: "title",
   schema,
@@ -74,7 +74,7 @@ const tree = qino.defineTree({
   }),
 });
 const home = qino.defineItem({
-  file: "/home.json",
+  file: "home.json",
   schema,
   relations: { author: authors },
   views: (view) => ({
@@ -94,7 +94,7 @@ const home = qino.defineItem({
 describe("views inference", () => {
   test("offers only primitive-specific helper options", () => {
     qino.defineTree({
-      directory: "/docs",
+      directory: "docs",
       extension: ".md",
       titleField: "title",
       schema,
@@ -108,7 +108,7 @@ describe("views inference", () => {
       },
     });
     qino.defineItem({
-      file: "/home.json",
+      file: "home.json",
       schema,
       views: (view) => {
         expectTypeOf<keyof Parameters<typeof view>[0]>().toEqualTypeOf<
@@ -120,7 +120,7 @@ describe("views inference", () => {
       },
     });
     qino.defineCollection({
-      directory: "/posts",
+      directory: "posts",
       extension: ".md",
       schema,
       views: (view) => {
@@ -134,14 +134,14 @@ describe("views inference", () => {
 
   test("requires helper factories and marked definitions for every primitive", () => {
     qino.defineCollection({
-      directory: "/posts",
+      directory: "posts",
       extension: ".md",
       schema,
       // @ts-expect-error Legacy object views are no longer supported.
       views: { detail: {} },
     });
     qino.defineTree({
-      directory: "/docs",
+      directory: "docs",
       extension: ".md",
       titleField: "title",
       schema,
@@ -149,20 +149,20 @@ describe("views inference", () => {
       views: { detail: {} },
     });
     qino.defineItem({
-      file: "/home.json",
+      file: "home.json",
       schema,
       // @ts-expect-error Legacy object views are no longer supported.
       views: { detail: {} },
     });
     qino.defineCollection({
-      directory: "/posts",
+      directory: "posts",
       extension: ".md",
       schema,
       // @ts-expect-error Each definition must come from the helper.
       views: () => ({ detail: { resolveRelations: false } }),
     });
     qino.defineTree({
-      directory: "/docs",
+      directory: "docs",
       extension: ".md",
       titleField: "title",
       schema,
@@ -170,13 +170,13 @@ describe("views inference", () => {
       views: () => ({ detail: { resolveRelations: false } }),
     });
     qino.defineItem({
-      file: "/home.json",
+      file: "home.json",
       schema,
       // @ts-expect-error Each definition must come from the helper.
       views: () => ({ detail: { resolveRelations: false } }),
     });
     qino.defineItem({
-      file: "/home.json",
+      file: "home.json",
       schema,
       // @ts-expect-error Factories must be synchronous.
       views: async (view) => ({ default: view({}), detail: view({}) }),
@@ -190,7 +190,7 @@ describe("views inference", () => {
           augment: (entry) => ({ authorSlug: entry.author.toUpperCase() }),
         }),
       }),
-      directory: "/raw-posts",
+      directory: "raw-posts",
       extension: ".json",
       schema,
       relations: { author: authors },
@@ -201,7 +201,7 @@ describe("views inference", () => {
           augment: (entry) => ({ authorSlug: entry.author.toUpperCase() }),
         }),
       }),
-      directory: "/raw-docs",
+      directory: "raw-docs",
       extension: ".json",
       titleField: "title",
       schema,
@@ -213,7 +213,7 @@ describe("views inference", () => {
           augment: (entry) => ({ authorSlug: entry.author.toUpperCase() }),
         }),
       }),
-      file: "/raw-home.json",
+      file: "raw-home.json",
       schema,
       relations: { author: authors },
     });
@@ -336,14 +336,14 @@ describe("views inference", () => {
 
   test("rejects missing defaults and conflicting output fields", () => {
     qino.defineCollection({
-      directory: "/reserved",
+      directory: "reserved",
       extension: ".json",
       schema,
       // @ts-expect-error A default view is required when views are supplied.
       views: (view) => ({ other: view({}) }),
     });
     qino.defineCollection({
-      directory: "/conflict",
+      directory: "conflict",
       extension: ".json",
       schema,
       views: (view) => ({

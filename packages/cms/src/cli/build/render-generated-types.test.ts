@@ -12,7 +12,7 @@ describe("renderGeneratedTypes", () => {
   test("renders an alias and registry entry per primitive (assistive union)", () => {
     const output = renderGeneratedTypes([
       {
-        directory: "/posts",
+        directory: "posts",
         typeName: "PostSlug",
         slugs: ["hello-world", "second-post"],
       },
@@ -28,7 +28,7 @@ describe("renderGeneratedTypes", () => {
         '  export type PostSlug = "hello-world" | "second-post" | (string & {});',
         "",
         "  interface QinoSlugRegistry {",
-        '    "/posts": PostSlug;',
+        '    "posts": PostSlug;',
         "  }",
         "}",
         "",

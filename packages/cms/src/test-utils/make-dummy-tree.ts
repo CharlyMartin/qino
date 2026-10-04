@@ -4,13 +4,13 @@ import type { ResolveOption } from "../types/resolve";
 import type { AnyTree } from "../types/tree";
 import type {
   AnyEntry,
-  GenericPath,
+  ContentPath,
   SupportedFileExtension,
 } from "../types/utils";
-import { DUMMY_INSTANCE_ID } from "./dummy-config";
+import { DUMMY_CONTENT_FOLDER, DUMMY_INSTANCE_ID } from "./dummy-config";
 
 type MakeDummyTreeOptions = {
-  directory: GenericPath;
+  directory: ContentPath;
   extension: SupportedFileExtension;
   instanceId?: symbol;
   store?: Map<string, AnyEntry>;
@@ -28,6 +28,7 @@ export function makeDummyTree({
     [QinoPrimitiveMarker]: {
       is: QinoPrimitives.tree,
       instanceId,
+      contentFolder: DUMMY_CONTENT_FOLDER,
       schema: {} as never,
       directory,
       extension,

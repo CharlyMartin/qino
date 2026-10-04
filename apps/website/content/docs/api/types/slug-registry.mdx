@@ -26,8 +26,8 @@ declare module "@qino/cms" {
     | (string & {});
 
   interface QinoSlugRegistry {
-    "/docs": DocSlug;
-    "/posts": PostSlug;
+    "docs": DocSlug;
+    "posts": PostSlug;
   }
 }
 ```
@@ -45,7 +45,7 @@ The union ends in `(string & {})`, so it autocompletes without rejecting unknown
 
 ## Naming
 
-The directory is PascalCased and only its last segment is singularized: `/posts` gives `PostSlug`, `/docs/v1` gives `DocsV1Slug`. Collisions get a numeric suffix. Directories with no entries are omitted, and items never appear.
+The directory is PascalCased and only its last segment is singularized: `posts` gives `PostSlug`, `docs/v1` gives `DocsV1Slug`. Collisions get a numeric suffix. Directories with no entries are omitted, and items never appear.
 
 ## Manual augmentation
 

@@ -6,14 +6,14 @@ import { initQino } from "../runtime/qino/init-qino";
 const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
 const schema = z.object({ title: z.string(), author: z.string() });
 const authors = qino.defineCollection({
-  directory: "/authors",
+  directory: "authors",
   extension: ".json",
   schema: z.object({ name: z.string() }),
 });
 
 test("infers post-augment inputs independently for default and named views", async () => {
   const posts = qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".json",
     schema,
     relations: { author: authors },
@@ -83,21 +83,21 @@ test("infers post-augment inputs independently for default and named views", asy
 
 test("rejects missing default views and conflicting helper augmentation", () => {
   qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".json",
     schema,
     // @ts-expect-error Factories must declare a default view.
     views: (view) => ({ other: view({}) }),
   });
   qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".json",
     schema,
     // @ts-expect-error A factory must return valid view definitions even without the helper.
     views: () => ({ invalid: { filter: async () => true } }),
   });
   qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".json",
     schema,
     views: (view) => ({
@@ -112,7 +112,7 @@ test("rejects missing default views and conflicting helper augmentation", () => 
 
 test("requires synchronous boolean predicates and numeric comparators", () => {
   qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".json",
     schema,
     views: (view) => ({
@@ -140,7 +140,7 @@ test("does not expose callbacks on trees or items", () => {
         filter: () => true,
       }),
     }),
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
     schema,
@@ -152,11 +152,11 @@ test("does not expose callbacks on trees or items", () => {
         sort: () => 0,
       }),
     }),
-    file: "/home.json",
+    file: "home.json",
     schema,
   });
   qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
     schema,
@@ -169,7 +169,7 @@ test("does not expose callbacks on trees or items", () => {
     }),
   });
   qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     schema,
     views: (view) => ({
       default: view({}),

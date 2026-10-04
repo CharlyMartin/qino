@@ -3,7 +3,7 @@ import { z } from "zod";
 import qino from "./index";
 
 export const releaseCollection = qino.defineCollection({
-  directory: "/releases",
+  directory: "releases",
   extension: ".md",
   schema: z
     .object({

@@ -11,7 +11,7 @@ import { z } from "zod";
 import qino from "../";
 
 export const postCollection = qino.defineCollection({
-  directory: "/posts",
+  directory: "posts",
   extension: ".md",
   schema: z.object({
     title: z.string(),

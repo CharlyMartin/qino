@@ -35,7 +35,7 @@ describe("defineItem", () => {
           }),
         }),
       }),
-      file: "/pages/home.md",
+      file: "pages/home.md",
       schema: z.object({ title: z.string() }).strict(),
     });
 

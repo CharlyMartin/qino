@@ -75,7 +75,7 @@ import { z } from "zod";
 import qino from "../";
 
 export const postCollection = qino.defineCollection({
-  directory: "/posts",
+  directory: "posts",
   extension: ".md",
   schema: z.object({
     title: z.string(),
@@ -187,7 +187,7 @@ Report back:
 
 | Mistake                                         | Fix                                                         |
 | ----------------------------------------------- | ----------------------------------------------------------- |
-| `directory: "posts"`                            | Start with a slash: `"/posts"`                              |
+| `directory: "/posts"`                           | No leading slash: `"posts"` (relative to `contentFolder`)   |
 | Overwrote an existing `prebuild`                | Chain it                                                    |
 | `import qino from "../"` fails under `NodeNext` | Use the project's convention, e.g. `"../index.js"`          |
 | Collection pointed at a nested folder           | Nested files are ignored; use a tree or several collections |

@@ -12,7 +12,7 @@ const HomeSchema = z
   .strict();
 
 export const homeItem = qino.defineItem({
-  file: "/pages/home.md",
+  file: "pages/home.md",
   schema: HomeSchema,
   relations: {
     "featured-posts[*]": postCollection,

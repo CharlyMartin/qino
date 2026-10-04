@@ -13,7 +13,7 @@ import qino from "../";
 import { postCollection } from "../collections/posts";
 
 export const homeItem = qino.defineItem({
-  file: "/pages/home.md",
+  file: "pages/home.md",
   schema: z.object({
     title: z.string(),
     "featured-posts": z.array(z.string()),

@@ -1,9 +1,9 @@
-import type { GenericPath } from "../../types/utils";
+import type { ContentPath } from "../../types/utils";
 import { getCollisionFreeTypeName } from "./get-collision-free-type-name";
 import type { GeneratedSlugEntry } from "./render-generated-types";
 
 type Collected = {
-  directory: GenericPath;
+  directory: ContentPath;
   slugs: string[];
 };
 

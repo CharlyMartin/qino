@@ -39,7 +39,7 @@ describe("defineCollection", () => {
           }),
         }),
       }),
-      directory: "/posts",
+      directory: "posts",
       schema: z.object({ title: z.string() }).strict(),
       extension: ".md",
     });
@@ -66,7 +66,7 @@ function makeCollection() {
     mediaFolder: tmp,
   });
   return defineCollection({
-    directory: "/posts",
+    directory: "posts",
     schema: z.object({ title: z.string() }),
     extension: ".md",
   });
@@ -114,7 +114,7 @@ describe("getAllSlugs", () => {
       await writeMd(`backup${extension}.bak`, "Backup");
       const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
       const collection = qino.defineCollection({
-        directory: "/posts",
+        directory: "posts",
         extension,
         schema: z.object({ title: z.string() }),
       });
@@ -132,7 +132,7 @@ describe("getAllSlugs", () => {
     await fs.writeFile(nodePath.join(tmp, "posts/invalid.json"), "{}");
     const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const collection = qino.defineCollection({
-      directory: "/posts",
+      directory: "posts",
       extension: ".json",
       schema: z.object({ title: z.string() }),
     });
@@ -146,11 +146,11 @@ describe("getAllSlugs", () => {
     await fs.mkdir(nodePath.join(tmp, "posts"));
     await fs.writeFile(
       nodePath.join(tmp, "posts/hello.json"),
-      JSON.stringify({ title: "Hello", author: "/authors/alice.json" }),
+      JSON.stringify({ title: "Hello", author: "authors/alice.json" }),
     );
     const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const authors = qino.defineCollection({
-      directory: "/authors",
+      directory: "authors",
       extension: ".json",
       schema: z.object({ name: z.string() }),
     });
@@ -162,7 +162,7 @@ describe("getAllSlugs", () => {
       throw new Error("Augment must not run");
     });
     const collection = qino.defineCollection({
-      directory: "/posts",
+      directory: "posts",
       extension: ".json",
       schema: z
         .object({ title: z.string(), author: z.string() })
@@ -193,7 +193,7 @@ describe("collection filter and sort", () => {
     const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const created = vi.fn();
     const collection = qino.defineCollection({
-      directory: "/posts",
+      directory: "posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
       views: (view) => {
@@ -210,7 +210,7 @@ describe("collection filter and sort", () => {
     ).rejects.toThrow(/Unknown view/);
     expect(() =>
       qino.defineCollection({
-        directory: "/posts",
+        directory: "posts",
         extension: ".md",
         schema: z.object({ title: z.string() }),
         views: (() => ({ default: {} })) as never,
@@ -225,7 +225,7 @@ describe("collection filter and sort", () => {
     const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const events: string[] = [];
     const collection = qino.defineCollection({
-      directory: "/posts",
+      directory: "posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
       views: (view) => ({
@@ -285,7 +285,7 @@ describe("collection filter and sort", () => {
     });
     const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const collection = qino.defineCollection({
-      directory: "/posts",
+      directory: "posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
       views: (view) => ({
@@ -310,7 +310,7 @@ describe("collection filter and sort", () => {
     await writeMd("published.md", "Published");
     const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const collection = qino.defineCollection({
-      directory: "/posts",
+      directory: "posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
       views: (view) => ({
@@ -332,7 +332,7 @@ describe("collection filter and sort", () => {
     await writeMd("c.md", "C");
     const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const collection = qino.defineCollection({
-      directory: "/posts",
+      directory: "posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
       views: (view) => ({
@@ -362,7 +362,7 @@ describe("collection filter and sort", () => {
           sort,
         }),
       }),
-      directory: "/posts",
+      directory: "posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
     });
@@ -373,7 +373,7 @@ describe("collection filter and sort", () => {
     expect(filter).toHaveBeenCalledTimes(1);
     expect(sort).not.toHaveBeenCalled();
     await expect(collection.getEntry("draft")).rejects.toThrow(
-      'Entry "draft" in collection "/posts" is excluded by view "default".',
+      'Entry "draft" in collection "posts" is excluded by view "default".',
     );
   });
 
@@ -385,7 +385,7 @@ describe("collection filter and sort", () => {
       const failure = new Error(`${callback} failed`);
       const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
       const collection = qino.defineCollection({
-        directory: "/posts",
+        directory: "posts",
         extension: ".md",
         schema: z.object({ title: z.string() }),
         views: (view) => ({
@@ -413,7 +413,7 @@ describe("collection filter and sort", () => {
         throw new Error("Single entries must not sort");
       });
       const collection = qino.defineCollection({
-        directory: "/posts",
+        directory: "posts",
         extension: ".md",
         schema: z.object({ title: z.string() }),
         views: (defineView) => ({
@@ -438,7 +438,7 @@ describe("collection filter and sort", () => {
         collection.getEntry("highlighted", { view }),
       ).resolves.toMatchObject({ highlight: true });
       await expect(collection.getEntry("ordinary", { view })).rejects.toThrow(
-        `Entry "ordinary" in collection "/posts" is excluded by view "${view ?? "default"}".`,
+        `Entry "ordinary" in collection "posts" is excluded by view "${view ?? "default"}".`,
       );
       await expect(
         collection.getEntry("ordinary", { view: "all" }),
@@ -456,7 +456,7 @@ describe("collection filter and sort", () => {
           filter: () => false,
         }),
       }),
-      directory: "/posts",
+      directory: "posts",
       extension: ".md",
       schema: z.object({ missing: z.string() }),
     });

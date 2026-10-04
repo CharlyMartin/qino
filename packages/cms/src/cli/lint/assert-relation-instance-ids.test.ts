@@ -8,10 +8,10 @@ import { assertRelationInstanceIds } from "./assert-relation-instance-ids";
 
 describe("assertRelationInstanceIds", () => {
   test("does not throw when relation targets share the instance id", () => {
-    const author = makeDummyItem({ file: "/author.json" });
+    const author = makeDummyItem({ file: "author.json" });
     const primitives = [
       makeDummyCollection({
-        directory: "/posts",
+        directory: "posts",
         extension: ".md",
         relations: { author },
       }),
@@ -24,7 +24,7 @@ describe("assertRelationInstanceIds", () => {
 
   test("does not throw when a primitive has no relations", () => {
     const primitives = [
-      makeDummyCollection({ directory: "/posts", extension: ".md" }),
+      makeDummyCollection({ directory: "posts", extension: ".md" }),
     ];
 
     expect(() =>
@@ -34,12 +34,12 @@ describe("assertRelationInstanceIds", () => {
 
   test("throws when a relation target has a different instance id", () => {
     const author = makeDummyItem({
-      file: "/author.json",
+      file: "author.json",
       instanceId: Symbol.for("qino.tests.other"),
     });
     const primitives = [
       makeDummyCollection({
-        directory: "/posts",
+        directory: "posts",
         extension: ".md",
         relations: { author },
       }),
@@ -52,12 +52,12 @@ describe("assertRelationInstanceIds", () => {
 
   test("resolves lazy relation targets", () => {
     const author = makeDummyItem({
-      file: "/author.json",
+      file: "author.json",
       instanceId: Symbol.for("qino.tests.other"),
     });
     const primitives = [
       makeDummyCollection({
-        directory: "/posts",
+        directory: "posts",
         extension: ".md",
         relations: { author: () => author },
       }),
@@ -74,12 +74,12 @@ test.each([false, true])(
   (lazy) => {
     for (const instanceId of [DUMMY_INSTANCE_ID, Symbol("other")]) {
       const tree = makeDummyTree({
-        directory: "/docs",
+        directory: "docs",
         extension: ".md",
         instanceId,
       });
       const source = makeDummyTree({
-        directory: "/source",
+        directory: "source",
         extension: ".md",
         relations: { doc: lazy ? () => tree : tree },
       });

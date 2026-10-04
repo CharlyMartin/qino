@@ -14,18 +14,18 @@ describe("isQinoConfig", () => {
   test("returns false for a collection", () => {
     expect(
       isQinoConfig(
-        makeDummyCollection({ directory: "/posts", extension: ".md" }),
+        makeDummyCollection({ directory: "posts", extension: ".md" }),
       ),
     ).toBe(false);
   });
 
   test("returns false for an item", () => {
-    expect(isQinoConfig(makeDummyItem({ file: "/config.json" }))).toBe(false);
+    expect(isQinoConfig(makeDummyItem({ file: "config.json" }))).toBe(false);
   });
 
   test("returns false for a tree", () => {
     expect(
-      isQinoConfig(makeDummyTree({ directory: "/docs", extension: ".md" })),
+      isQinoConfig(makeDummyTree({ directory: "docs", extension: ".md" })),
     ).toBe(false);
   });
 

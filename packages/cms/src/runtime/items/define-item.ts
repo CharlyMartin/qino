@@ -7,6 +7,7 @@ import {
   QinoPrimitives,
 } from "../../data/globals";
 import { parseFile } from "../../lib/parse/parse-file";
+import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { extractExtension } from "../../lib/paths/extract-extension";
 import { validate } from "../../lib/validate/validate";
 import { applyView } from "../../lib/views/apply-view";
@@ -23,6 +24,7 @@ import type {
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
+import type { NoLeadingSlash } from "../../types/utils";
 import type {
   ConfiguredViews,
   RootViewSettings,
@@ -41,7 +43,7 @@ export type DefineItemParams<
   Rels extends Relations<Schema> = object,
   Views extends object = object,
 > = {
-  file: F;
+  file: F & NoInfer<NoLeadingSlash<F>>;
   schema: Schema &
     NoInfer<NoReservedSchemaFields<Schema, ExtractItemExtension<F>>>;
   relations?: Rels;
@@ -58,6 +60,7 @@ export function defineItem<
   const Views extends object = object,
 >(ctx: QinoContext, params: DefineItemParams<S, F, Rels, Views>) {
   const { file, schema, relations } = params;
+  assertContentPath(file, "file");
 
   type Ext = ExtractItemExtension<F>;
   const extension = extractExtension(file) as Ext;
@@ -75,6 +78,7 @@ export function defineItem<
     [QinoPrimitiveMarker]: {
       is: QinoPrimitives.item,
       instanceId: ctx.instanceId,
+      contentFolder: ctx.contentFolder,
       schema,
       file,
       extension,

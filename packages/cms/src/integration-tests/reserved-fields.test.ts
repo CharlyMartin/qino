@@ -40,7 +40,7 @@ describe.each([".md", ".mdx", ".markdown", ".json"] as const)(
               : `---\n${Object.entries(data)
                   .map(([key, value]) => `${key}: ${value}`)
                   .join("\n")}\n---\n# Hello`;
-          const file = `/entries/hello${extension}` as const;
+          const file = `entries/hello${extension}` as const;
           const filePath = path.join(tmp, file);
           await fs.writeFile(filePath, raw);
           // Erase the schema type to exercise the JavaScript/runtime fallback.
@@ -51,13 +51,13 @@ describe.each([".md", ".mdx", ".markdown", ".json"] as const)(
                   .object({ title: z.string() })
                   .transform((entry) => ({ ...entry, [field]: "conflict" }));
           const collection = qino.defineCollection({
-            directory: "/entries",
+            directory: "entries",
             extension,
             schema,
           });
           const item = qino.defineItem({ file, schema });
           const tree = qino.defineTree({
-            directory: "/entries",
+            directory: "entries",
             extension,
             titleField: "title",
             schema,
@@ -82,27 +82,27 @@ test("resolved Markdown targets retain their markdown and raw", async () => {
   await fs.writeFile(
     path.join(tmp, "links.json"),
     JSON.stringify({
-      post: "/entries/hello.md",
-      home: "/entries/hello.md",
-      doc: "/entries/hello.md",
+      post: "entries/hello.md",
+      home: "entries/hello.md",
+      doc: "entries/hello.md",
     }),
   );
   const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const schema = z.strictObject({ title: z.string() });
   const posts = qino.defineCollection({
-    directory: "/entries",
+    directory: "entries",
     extension: ".md",
     schema,
   });
-  const home = qino.defineItem({ file: "/entries/hello.md", schema });
+  const home = qino.defineItem({ file: "entries/hello.md", schema });
   const docs = qino.defineTree({
-    directory: "/entries",
+    directory: "entries",
     extension: ".md",
     titleField: "title",
     schema,
   });
   const links = qino.defineItem({
-    file: "/links.json",
+    file: "links.json",
     schema: z.object({ post: z.string(), home: z.string(), doc: z.string() }),
     relations: { post: posts, home, doc: docs },
     views: (view) => ({ default: view({ resolveRelations: true }) }),
@@ -123,18 +123,18 @@ test.each([".md", ".mdx", ".markdown", ".json"] as const)(
       extension == ".json"
         ? JSON.stringify({ title: "Hello", body: 42 })
         : "---\ntitle: Hello\nbody: 42\n---\n# Hello";
-    const file = `/entries/hello${extension}` as const;
+    const file = `entries/hello${extension}` as const;
     await fs.writeFile(path.join(tmp, file), raw);
     const schema = z.object({ title: z.string(), body: z.number() });
     const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const posts = qino.defineCollection({
-      directory: "/entries",
+      directory: "entries",
       extension,
       schema,
     });
     const home = qino.defineItem({ file, schema });
     const docs = qino.defineTree({
-      directory: "/entries",
+      directory: "entries",
       extension,
       titleField: "title",
       schema,
@@ -161,7 +161,7 @@ test.each(["_meta", "markdown", "raw"])(
     );
     const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const item = qino.defineItem({
-      file: "/home.md",
+      file: "home.md",
       schema: z.object({ title: z.string() }),
       views: (view) => ({
         default: view({
@@ -184,7 +184,7 @@ test("JSON markdown, raw and nested reserved names remain user fields", async ()
   };
   await fs.writeFile(path.join(tmp, "home.json"), JSON.stringify(data));
   const item = initQino({ contentFolder: tmp, mediaFolder: tmp }).defineItem({
-    file: "/home.json",
+    file: "home.json",
     schema: z.object({
       markdown: z.number(),
       raw: z.boolean(),
@@ -205,11 +205,11 @@ test.each([".md", ".mdx", ".markdown"] as const)(
     const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const schema = z.strictObject({});
     const item = qino.defineItem({
-      file: `/entries/hello${extension}`,
+      file: `entries/hello${extension}`,
       schema,
     });
     const collection = qino.defineCollection({
-      directory: "/entries",
+      directory: "entries",
       extension,
       schema,
     });

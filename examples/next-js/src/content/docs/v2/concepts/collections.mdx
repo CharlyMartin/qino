@@ -10,7 +10,7 @@ Root view settings are not supported. Import `initQino` from `@qino/cms` and `z`
 
 ```ts
 const posts = qino.defineCollection({
-  directory: "/posts",
+  directory: "posts",
   extension: ".md",
   schema: z.object({ title: z.string(), draft: z.boolean() }),
   views: (view) => ({

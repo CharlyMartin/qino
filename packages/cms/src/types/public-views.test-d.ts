@@ -50,20 +50,20 @@ function itemPreview(view: ItemView) {
 
 test("public factory types support reusable views with inferred getter results", async () => {
   const posts = qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".md",
     schema,
     views: (view) => ({ default: view({}), reading: withReadingTime(view) }),
   });
   const tree = qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".md",
     titleField: "title",
     schema,
     views: (view) => ({ default: view({}), preview: treePreview(view) }),
   });
   const home = qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     schema,
     views: (view) => ({ default: view({}), preview: itemPreview(view) }),
   });

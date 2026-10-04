@@ -52,7 +52,7 @@ describe("defineTree", () => {
           }),
         }),
       }),
-      directory: "/docs",
+      directory: "docs",
       schema: Schema,
       extension: ".md",
       titleField: "title",
@@ -66,7 +66,7 @@ describe("defineTree", () => {
 
   test("stores metadata under the QinoPrimitiveMarker symbol with defaults applied", () => {
     const tree = defineTree({
-      directory: "/docs",
+      directory: "docs",
       schema: Schema,
       extension: ".md",
       titleField: "title",
@@ -74,7 +74,7 @@ describe("defineTree", () => {
 
     const meta = tree[QinoPrimitiveMarker];
     expect(meta.is).toBe(QinoPrimitives.tree);
-    expect(meta.directory).toBe("/docs");
+    expect(meta.directory).toBe("docs");
     expect(meta.extension).toBe(".md");
     expect(meta.titleField).toBe("title");
     expect(meta.orderFileName).toBe("_order.json");
@@ -84,7 +84,7 @@ describe("defineTree", () => {
 
   test("honours a custom orderFileName", () => {
     const tree = defineTree({
-      directory: "/docs",
+      directory: "docs",
       schema: Schema,
       extension: ".md",
       titleField: "title",
@@ -103,7 +103,7 @@ describe("defineTree", () => {
     await writeMd(guidesDir, "queries", "Queries");
 
     const tree = defineTree({
-      directory: "/docs",
+      directory: "docs",
       schema: Schema,
       extension: ".md",
       titleField: "title",
@@ -127,7 +127,7 @@ describe("defineTree", () => {
     await writeMd(guidesDir, "queries", "Queries");
 
     const tree = defineTree({
-      directory: "/docs",
+      directory: "docs",
       schema: Schema,
       extension: ".md",
       titleField: "title",
@@ -144,14 +144,14 @@ describe("defineTree", () => {
     await writeMd(docs, "introduction", "Introduction");
 
     const tree = defineTree({
-      directory: "/docs",
+      directory: "docs",
       schema: Schema,
       extension: ".md",
       titleField: "title",
     });
 
     await expect(tree.getTree("nope")).rejects.toThrow(
-      /Tree entry "nope" not found in tree "\/docs"/,
+      /Tree entry "nope" not found in tree "docs"/,
     );
   });
 
@@ -161,7 +161,7 @@ describe("defineTree", () => {
     await writeMd(docs, "introduction", "Introduction", "Welcome");
 
     const tree = defineTree({
-      directory: "/docs",
+      directory: "docs",
       schema: Schema,
       extension: ".md",
       titleField: "title",
@@ -186,7 +186,7 @@ describe("defineTree", () => {
     await writeMd(queriesDir, "basics", "Basics", "Body");
 
     const tree = defineTree({
-      directory: "/docs",
+      directory: "docs",
       schema: Schema,
       extension: ".md",
       titleField: "title",
@@ -206,7 +206,7 @@ describe("defineTree", () => {
     await fs.mkdir(docs);
 
     const tree = defineTree({
-      directory: "/docs",
+      directory: "docs",
       schema: Schema,
       extension: ".md",
       titleField: "title",
@@ -221,7 +221,7 @@ describe("defineTree", () => {
     await writeMd(docs, "intro", "Intro");
 
     const tree = defineTree({
-      directory: "/docs",
+      directory: "docs",
       schema: Schema,
       extension: ".md",
       titleField: "title",
@@ -255,7 +255,7 @@ describe("defineTree", () => {
     );
 
     const tree = defineTree({
-      directory: "/docs",
+      directory: "docs",
       schema: Schema,
       extension: ".md",
       titleField: "title",
@@ -292,7 +292,7 @@ describe("defineTree", () => {
       );
 
       return defineTree({
-        directory: "/docs",
+        directory: "docs",
         schema: Schema,
         extension: ".md",
         titleField: "title",
@@ -343,7 +343,7 @@ describe("defineTree", () => {
     test("throws when slug does not exist", async () => {
       const tree = await setupNested();
       await expect(tree.getNextNode("nope")).rejects.toThrow(
-        /Tree entry "nope" not found in tree "\/docs"/,
+        /Tree entry "nope" not found in tree "docs"/,
       );
     });
   });
@@ -364,7 +364,7 @@ test("relations load nested Markdown tree entries without navigation or target a
         },
       }),
     }),
-    directory: "/docs",
+    directory: "docs",
     extension: ".md",
     titleField: "title",
     schema: Schema,
@@ -380,7 +380,7 @@ test("relations load nested Markdown tree entries without navigation or target a
         resolveRelations: true,
       }),
     }),
-    file: "/home.json",
+    file: "home.json",
     schema: z.object({ doc: z.string() }),
     relations: { doc: docs },
   });

@@ -11,9 +11,7 @@ describe("assertQino", () => {
 
   test("throws for a primitive", () => {
     expect(() =>
-      assertQino(
-        makeDummyCollection({ directory: "/posts", extension: ".md" }),
-      ),
+      assertQino(makeDummyCollection({ directory: "posts", extension: ".md" })),
     ).toThrow();
   });
 

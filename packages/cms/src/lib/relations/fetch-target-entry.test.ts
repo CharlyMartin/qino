@@ -18,7 +18,7 @@ describe("fetchTargetEntry", () => {
         fields: { name: "Alice" },
       });
       const target = makeDummyCollection({
-        directory: "/authors",
+        directory: "authors",
         extension: ".json",
         store: new Map([["alice", entry]]),
       });
@@ -32,18 +32,18 @@ describe("fetchTargetEntry", () => {
 
     test("wraps a source read error with the collection directory and slug", async () => {
       const target = makeDummyCollection({
-        directory: "/authors",
+        directory: "authors",
         extension: ".json",
       });
 
       await expect(fetchTargetEntry(target, "ghost", ctx)).rejects.toThrow(
-        /author.*\/authors\/ghost.*post\.json.*ENOENT/,
+        /author.*authors\/ghost.*post\.json.*ENOENT/,
       );
     });
 
     test("preserves the original Error as cause", async () => {
       const target = makeDummyCollection({
-        directory: "/authors",
+        directory: "authors",
         extension: ".json",
       });
       const original = new Error("disk failure");
@@ -61,7 +61,7 @@ describe("fetchTargetEntry", () => {
 
     test("stringifies non-Error rejections and leaves cause undefined", async () => {
       const target = makeDummyCollection({
-        directory: "/authors",
+        directory: "authors",
         extension: ".json",
       });
       vi.spyOn(target[QinoPrimitiveMarker], "readEntry").mockRejectedValueOnce(
@@ -81,7 +81,7 @@ describe("fetchTargetEntry", () => {
     test("delegates to the source reader and returns the data", async () => {
       const data = { siteName: "Qino" };
       const target = makeDummyItem({
-        file: "/config/site.json",
+        file: "config/site.json",
         data,
       });
       const spy = vi.spyOn(target[QinoPrimitiveMarker], "readEntry");
@@ -93,18 +93,18 @@ describe("fetchTargetEntry", () => {
     });
 
     test("wraps a source read error with the item file path", async () => {
-      const target = makeDummyItem({ file: "/config/site.json" });
+      const target = makeDummyItem({ file: "config/site.json" });
       vi.spyOn(target[QinoPrimitiveMarker], "readEntry").mockRejectedValueOnce(
         new Error("parse error"),
       );
 
       await expect(fetchTargetEntry(target, "ignored", ctx)).rejects.toThrow(
-        /author.*\/config\/site\.json.*post\.json.*parse error/,
+        /author.*config\/site\.json.*post\.json.*parse error/,
       );
     });
 
     test("uses targetMeta.file (not directory) in the wrapped message", async () => {
-      const target = makeDummyItem({ file: "/config/site.json" });
+      const target = makeDummyItem({ file: "config/site.json" });
       vi.spyOn(target[QinoPrimitiveMarker], "readEntry").mockRejectedValueOnce(
         new Error("nope"),
       );
@@ -114,7 +114,7 @@ describe("fetchTargetEntry", () => {
       );
 
       expect(target[QinoPrimitiveMarker].is).toBe("item");
-      expect((err as Error).message).toContain("/config/site.json");
+      expect((err as Error).message).toContain("config/site.json");
       expect((err as Error).message).not.toContain("/ignored");
     });
   });
@@ -128,7 +128,7 @@ describe("tree target", () => {
       fields: { title: "Setup" },
     });
     const target = makeDummyTree({
-      directory: "/docs",
+      directory: "docs",
       extension: ".md",
       store: new Map([["guides/setup", entry]]),
     });
@@ -140,9 +140,9 @@ describe("tree target", () => {
   });
 
   test("wraps missing tree entries with the source, field, and target path", async () => {
-    const target = makeDummyTree({ directory: "/docs", extension: ".md" });
+    const target = makeDummyTree({ directory: "docs", extension: ".md" });
     await expect(
       fetchTargetEntry(target, "guides/missing", ctx),
-    ).rejects.toThrow(/author.*\/docs\/guides\/missing.*post\.json.*ENOENT/);
+    ).rejects.toThrow(/author.*docs\/guides\/missing.*post\.json.*ENOENT/);
   });
 });

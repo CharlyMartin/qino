@@ -14,7 +14,7 @@ describe("getNeighborNode", () => {
       getNeighborNode({
         tree,
         slug: "introduction",
-        directory: "/docs",
+        directory: "docs",
         offset: 1,
       })?.slug,
     ).toBe("installation");
@@ -30,7 +30,7 @@ describe("getNeighborNode", () => {
       getNeighborNode({
         tree,
         slug: "reference",
-        directory: "/docs",
+        directory: "docs",
         offset: -1,
       })?.slug,
     ).toBe("installation");
@@ -62,7 +62,7 @@ describe("getNeighborNode", () => {
       getNeighborNode({
         tree,
         slug: "guides",
-        directory: "/docs",
+        directory: "docs",
         offset: 1,
       })?.slug,
     ).toBe("guides/queries");
@@ -94,7 +94,7 @@ describe("getNeighborNode", () => {
       getNeighborNode({
         tree,
         slug: "guides/mutations/optimistic",
-        directory: "/docs",
+        directory: "docs",
         offset: 1,
       })?.slug,
     ).toBe("reference");
@@ -109,7 +109,7 @@ describe("getNeighborNode", () => {
       getNeighborNode({
         tree,
         slug: "introduction",
-        directory: "/docs",
+        directory: "docs",
         offset: -1,
       }),
     ).toBeNull();
@@ -139,7 +139,7 @@ describe("getNeighborNode", () => {
       getNeighborNode({
         tree,
         slug: "guides/mutations/optimistic",
-        directory: "/docs",
+        directory: "docs",
         offset: 1,
       }),
     ).toBeNull();
@@ -151,7 +151,7 @@ describe("getNeighborNode", () => {
       getNeighborNode({
         tree,
         slug: "introduction",
-        directory: "/docs",
+        directory: "docs",
         offset: 1,
       }),
     ).toBeNull();
@@ -159,7 +159,7 @@ describe("getNeighborNode", () => {
       getNeighborNode({
         tree,
         slug: "introduction",
-        directory: "/docs",
+        directory: "docs",
         offset: -1,
       }),
     ).toBeNull();
@@ -168,8 +168,8 @@ describe("getNeighborNode", () => {
   test("throws when slug does not exist", () => {
     const tree = [makeDummyNode({ slug: "introduction", extension: ".md" })];
     expect(() =>
-      getNeighborNode({ tree, slug: "nope", directory: "/docs", offset: 1 }),
-    ).toThrow(/Tree entry "nope" not found in tree "\/docs"/);
+      getNeighborNode({ tree, slug: "nope", directory: "docs", offset: 1 }),
+    ).toThrow(/Tree entry "nope" not found in tree "docs"/);
   });
 
   test("throws when the tree is empty", () => {
@@ -177,9 +177,9 @@ describe("getNeighborNode", () => {
       getNeighborNode({
         tree: [],
         slug: "anything",
-        directory: "/docs",
+        directory: "docs",
         offset: 1,
       }),
-    ).toThrow(/Tree entry "anything" not found in tree "\/docs"/);
+    ).toThrow(/Tree entry "anything" not found in tree "docs"/);
   });
 });
