@@ -10,7 +10,7 @@ const CategorySchema = z
   .strict();
 
 export const categoryCollection = qino.defineCollection({
-  directory: "/categories",
+  directory: "categories",
   schema: CategorySchema,
   extension: ".json",
 });
