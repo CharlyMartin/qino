@@ -68,10 +68,10 @@ Useful for helpers that accept an entry from any primitive without caring about 
 
 ## Fields
 
-| Field      | Description                          |
-| ---------- | ------------------------------------ |
-| `slug`     | Filename or path minus the extension |
-| `fileName` | Basename with extension              |
-| `filePath` | Absolute path on disk                |
+| Field      | Description                                                                                                     |
+| ---------- | --------------------------------------------------------------------------------------------------------------- |
+| `slug`     | Filename or path minus the extension                                                                            |
+| `fileName` | Basename with extension                                                                                         |
+| `filePath` | Path on disk, joined from `contentFolder`; relative to the working directory unless `contentFolder` is absolute |
 
 `Ext` narrows `fileName` and `filePath` to end with the primitive's extension. Its default is the union of all four supported extensions.
