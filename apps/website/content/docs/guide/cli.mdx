@@ -22,11 +22,11 @@ Every command runs from the working directory and expects:
 2. `qino/index.ts` that default-exports an `initQino` instance.
 3. Definitions exported from any `.ts`, `.tsx`, `.js`, or `.mjs` file under `qino/`.
 
-Definition files are loaded with [jiti](https://github.com/unjs/jiti), so TypeScript needs no separate compile step. See [Project structure](/docs/guide/project-structure).
+The CLI loads `qino/index.ts`, definitions, and their imports with [jiti](https://github.com/unjs/jiti). TypeScript requires no separate compilation step. See [Project structure](/docs/guide/project-structure).
 
-`compilerOptions.paths` from the nearest `tsconfig.json` (walking up from the working directory) are honored when loading the instance, definitions, and their imports. Paths inherited through `extends` are supported. Projects without a `tsconfig.json` or without `paths` need no changes.
+You can reuse your project's import aliases, such as `@/schemas/post`. The CLI reads `compilerOptions.paths` from the nearest `tsconfig.json`, searching upward from the working directory, including paths inherited through `extends`. No Qino-specific configuration is needed.
 
-Non-code imports that need bundler loaders, such as CSS, images, or Markdown, are not supported by the CLI. Keep schemas and their imports free of these dependencies.
+The CLI runs outside your app's bundler. Definitions and shared schemas must not import CSS, images, or Markdown through bundler loaders, including indirectly through other modules.
 
 ## qino lint
 

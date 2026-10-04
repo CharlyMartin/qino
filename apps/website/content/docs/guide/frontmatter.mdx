@@ -3,7 +3,7 @@ title: Frontmatter
 description: How YAML frontmatter is parsed and which values become which types.
 ---
 
-Markdown, MDX, and `.markdown` files may start with a YAML block delimited by `---` lines. Qino parses it with [js-yaml](https://github.com/nodeca/js-yaml) using the YAML 1.2 core schema, then validates the result together with the body against your schema.
+Markdown, MDX, and `.markdown` files may start with a YAML block delimited by `---` lines. Qino parses it with [js-yaml](https://github.com/nodeca/js-yaml) using the YAML 1.2 core schema, then validates the result against your schema. The body is added afterwards as `markdown`, and the source as `raw`.
 
 ```md title="src/content/posts/hello-world.md"
 ---
