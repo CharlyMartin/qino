@@ -20,23 +20,23 @@ beforeEach(async () => {
   await Promise.all([
     fs.writeFile(
       path.join(tmp, "posts/hello.json"),
-      JSON.stringify({ title: "Hello", author: "/authors/alice.json" }),
+      JSON.stringify({ title: "Hello", author: "authors/alice.json" }),
     ),
     fs.writeFile(
       path.join(tmp, "posts/second.json"),
-      JSON.stringify({ title: "Second", author: "/authors/alice.json" }),
+      JSON.stringify({ title: "Second", author: "authors/alice.json" }),
     ),
     fs.writeFile(
       path.join(tmp, "docs/hello.json"),
-      JSON.stringify({ title: "Hello", author: "/authors/alice.json" }),
+      JSON.stringify({ title: "Hello", author: "authors/alice.json" }),
     ),
     fs.writeFile(
       path.join(tmp, "home.json"),
-      JSON.stringify({ title: "Hello", author: "/authors/alice.json" }),
+      JSON.stringify({ title: "Hello", author: "authors/alice.json" }),
     ),
     fs.writeFile(
       path.join(tmp, "authors/alice.json"),
-      JSON.stringify({ name: "Alice", lead: "/senior.json" }),
+      JSON.stringify({ name: "Alice", lead: "senior.json" }),
     ),
     fs.writeFile(
       path.join(tmp, "senior.json"),
@@ -58,7 +58,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
           throw new Error("Target augment must not execute");
         });
         const senior = qino.defineItem({
-          file: "/senior.json",
+          file: "senior.json",
           schema: z.object({ name: z.string() }),
           views: (view) => ({
             default: view({
@@ -83,7 +83,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
                   default: view({ ...authorConfigView }),
                   broken: view({ augment: targetAugment }),
                 }),
-                directory: "/authors",
+                directory: "authors",
                 extension: ".json",
                 titleField: "name",
               })
@@ -94,7 +94,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
                     default: view({ ...authorConfigView }),
                     broken: view({ augment: targetAugment }),
                   }),
-                  file: "/authors/alice.json",
+                  file: "authors/alice.json",
                 })
               : qino.defineCollection({
                   ...authorConfig,
@@ -102,7 +102,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
                     default: view({ ...authorConfigView }),
                     broken: view({ augment: targetAugment }),
                   }),
-                  directory: "/authors",
+                  directory: "authors",
                   extension: ".json",
                 });
         const defaultAugment = vi.fn((entry: { author: string }) => ({
@@ -137,7 +137,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
             }),
             baseline: view({}),
           }),
-          directory: "/posts",
+          directory: "posts",
           extension: ".json",
         });
         const tree = qino.defineTree({
@@ -152,7 +152,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
             }),
             baseline: view({}),
           }),
-          directory: "/docs",
+          directory: "docs",
           extension: ".json",
           titleField: "title",
         });
@@ -168,7 +168,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
             }),
             baseline: view({}),
           }),
-          file: "/home.json",
+          file: "home.json",
         });
         const readers = {
           "collection one": async (
@@ -187,18 +187,18 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
         const read = readers[kind as keyof typeof readers];
         const defaultEntries = await read();
         expect(defaultEntries[0]).toMatchObject({
-          author: "/authors/alice.json",
-          defaultSlug: "/authors/alice.json",
+          author: "authors/alice.json",
+          defaultSlug: "authors/alice.json",
         });
         const raw = await read({ view: "raw" });
         expect(raw[0]).toMatchObject({
-          author: "/authors/alice.json",
-          slugLength: 19,
+          author: "authors/alice.json",
+          slugLength: 18,
         });
         expect(raw[0]).not.toHaveProperty("defaultSlug");
         const shallow = await read({ view: "shallow" });
         expect(shallow[0]).toMatchObject({
-          author: { name: "Alice", lead: "/senior.json" },
+          author: { name: "Alice", lead: "senior.json" },
         });
         const detail = await read({ view: "detail" });
         expect(detail[0]).toMatchObject({
@@ -208,7 +208,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
         expect(detail[0]).not.toHaveProperty("defaultSlug");
         expect(detailAugment).toHaveBeenCalledTimes(detail.length);
         const baseline = await read({ view: "baseline" });
-        expect(baseline[0]).toMatchObject({ author: "/authors/alice.json" });
+        expect(baseline[0]).toMatchObject({ author: "authors/alice.json" });
         expect(baseline[0]).not.toHaveProperty("label");
         expect(baseline[0]).not.toHaveProperty("defaultSlug");
         expect(defaultAugment).toHaveBeenCalledTimes(defaultEntries.length);
@@ -239,7 +239,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
 test("default getters preserve references and run augment without loading targets", async () => {
   const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const authors = qino.defineCollection({
-    directory: "/authors",
+    directory: "authors",
     extension: ".json",
     schema: z.object({ name: z.string() }),
   });
@@ -254,20 +254,20 @@ test("default getters preserve references and run augment without loading target
   const collection = qino.defineCollection({
     views: (view) => ({ default: view({ ...configView }) }),
     ...config,
-    directory: "/posts",
+    directory: "posts",
     extension: ".json",
   });
   const tree = qino.defineTree({
     views: (view) => ({ default: view({ ...configView }) }),
     ...config,
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
   });
   const item = qino.defineItem({
     views: (view) => ({ default: view({ ...configView }) }),
     ...config,
-    file: "/home.json",
+    file: "home.json",
   });
   for (const entry of [
     await collection.getEntry("hello"),
@@ -276,8 +276,8 @@ test("default getters preserve references and run augment without loading target
     await item.getEntry(),
   ]) {
     expect(entry).toMatchObject({
-      author: "/authors/alice.json",
-      reference: "/authors/alice.json",
+      author: "authors/alice.json",
+      reference: "authors/alice.json",
     });
   }
 });
@@ -295,12 +295,12 @@ test("collection listing callbacks receive resolved augmented entries and bypass
         sort: targetSort,
       }),
     }),
-    directory: "/authors",
+    directory: "authors",
     extension: ".json",
     schema: z.object({ name: z.string() }),
   });
   const collection = qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".json",
     schema: z.object({ title: z.string(), author: z.string() }),
     relations: { author: authors },
@@ -333,7 +333,7 @@ test("collection listing callbacks receive resolved augmented entries and bypass
   await expect(
     collection.getEntry("second", { view: "listing" }),
   ).rejects.toThrow(
-    'Entry "second" in collection "/posts" is excluded by view "listing".',
+    'Entry "second" in collection "posts" is excluded by view "listing".',
   );
   expect(targetFilter).not.toHaveBeenCalled();
   expect(targetSort).not.toHaveBeenCalled();
@@ -343,7 +343,7 @@ test("collection listing callbacks receive resolved augmented entries and bypass
 test("explicit resolution on the default runs before augmenting on every primitive", async () => {
   const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const authors = qino.defineCollection({
-    directory: "/authors",
+    directory: "authors",
     extension: ".json",
     schema: z.object({ name: z.string() }),
   });
@@ -360,20 +360,20 @@ test("explicit resolution on the default runs before augmenting on every primiti
   const collection = qino.defineCollection({
     ...config,
     views: (view) => ({ default: view({ ...configView }), raw: view({}) }),
-    directory: "/posts",
+    directory: "posts",
     extension: ".json",
   });
   const tree = qino.defineTree({
     ...config,
     views: (view) => ({ default: view({ ...configView }), raw: view({}) }),
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
   });
   const item = qino.defineItem({
     ...config,
     views: (view) => ({ default: view({ ...configView }), raw: view({}) }),
-    file: "/home.json",
+    file: "home.json",
   });
   for (const entry of [
     await collection.getEntry("hello"),
@@ -389,7 +389,7 @@ test("explicit resolution on the default runs before augmenting on every primiti
     await tree.getEntry("hello", { view: "raw" }),
     await item.getEntry({ view: "raw" }),
   ]) {
-    expect(entry.author).toBe("/authors/alice.json");
+    expect(entry.author).toBe("authors/alice.json");
     expect(entry).not.toHaveProperty("name");
   }
 });
@@ -397,7 +397,7 @@ test("explicit resolution on the default runs before augmenting on every primiti
 test("CLI validation and slug generation skip views and relation resolution", async () => {
   const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const authors = qino.defineCollection({
-    directory: "/authors",
+    directory: "authors",
     extension: ".json",
     schema: z.object({ name: z.string() }),
   });
@@ -418,7 +418,7 @@ test("CLI validation and slug generation skip views and relation resolution", as
       default: view({ ...configView }),
       broken: view({ augment }),
     }),
-    directory: "/posts",
+    directory: "posts",
     extension: ".json",
   });
   const tree = qino.defineTree({
@@ -427,7 +427,7 @@ test("CLI validation and slug generation skip views and relation resolution", as
       default: view({ ...configView }),
       broken: view({ augment }),
     }),
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
   });
@@ -437,7 +437,7 @@ test("CLI validation and slug generation skip views and relation resolution", as
       default: view({ ...configView }),
       broken: view({ augment }),
     }),
-    file: "/home.json",
+    file: "home.json",
   });
   await validateCollection(collection);
   await validateTree(tree);
@@ -464,7 +464,7 @@ test("CLI validation and slug generation skip views and relation resolution", as
 test("view errors retain the source path and reject conflicting output at runtime", async () => {
   const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const collection = qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".json",
     schema: z.object({ title: z.string() }),
     views: (view) => ({
@@ -491,7 +491,7 @@ test("view errors retain the source path and reject conflicting output at runtim
   ).rejects.toThrow(/hello.json: augment must return an object/);
   expect(() =>
     qino.defineItem({
-      file: "/reserved.json",
+      file: "reserved.json",
       schema: z.object({}),
       views: (view) => ({ detail: view({}) }) as never,
     }),
@@ -509,19 +509,19 @@ test.each(["collection", "tree", "item"] as const)(
       if (kind == "collection")
         return qino.defineCollection({
           ...config,
-          directory: "/posts",
+          directory: "posts",
           extension: ".json",
           ...options,
         });
       if (kind == "tree")
         return qino.defineTree({
           ...config,
-          directory: "/docs",
+          directory: "docs",
           extension: ".json",
           titleField: "title",
           ...options,
         });
-      return qino.defineItem({ ...config, file: "/home.json", ...options });
+      return qino.defineItem({ ...config, file: "home.json", ...options });
     };
     const baseline = create({});
     const read = (options?: never) => {
@@ -531,7 +531,7 @@ test.each(["collection", "tree", "item"] as const)(
     };
     expect(await read()).toMatchObject({
       title: "Hello",
-      author: "/authors/alice.json",
+      author: "authors/alice.json",
     });
     await expect(read({ view: "default" } as never)).rejects.toThrow(
       /Unknown view/,
@@ -558,7 +558,7 @@ test.each(["collection", "tree", "item"] as const)(
 test("spread reuse preserves default augmentation and sort while adding a custom filter", async () => {
   const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const posts = qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".json",
     schema: z.object({ title: z.string() }),
     views: (view) => {

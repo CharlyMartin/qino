@@ -1,11 +1,12 @@
 import { QinoPrimitives } from "../../data/globals";
-import type { GenericPath } from "../../types/utils";
+import type { ContentPath } from "../../types/utils";
+import { toDirectoryPrefix } from "./to-directory-prefix";
 
 type PrimitiveKind = (typeof QinoPrimitives)[keyof typeof QinoPrimitives];
 
 export type PrimitivePath = {
   kind: PrimitiveKind;
-  path: GenericPath;
+  path: ContentPath;
 };
 
 // Returns a human-readable message when the two primitives own conflicting
@@ -33,19 +34,19 @@ export function describePathConflict(a: PrimitivePath, b: PrimitivePath) {
   const collectionDir = pickPath(a, b, QinoPrimitives.collection);
   const itemFile = pickPath(a, b, QinoPrimitives.item);
 
-  if (treeDir && collectionDir) {
+  if (treeDir != undefined && collectionDir != undefined) {
     return pathsOverlap(treeDir, collectionDir)
       ? `Tree directory "${treeDir}" overlaps with collection directory "${collectionDir}". Trees and collections must own distinct directories.`
       : null;
   }
 
-  if (itemFile && treeDir) {
+  if (itemFile != undefined && treeDir != undefined) {
     return isFileInsideDir(itemFile, treeDir)
       ? `Item file "${itemFile}" sits inside tree directory "${treeDir}". A tree owns its directory exclusively.`
       : null;
   }
 
-  if (itemFile && collectionDir) {
+  if (itemFile != undefined && collectionDir != undefined) {
     return isFileInsideDir(itemFile, collectionDir)
       ? `Item file "${itemFile}" sits inside collection directory "${collectionDir}". A collection owns its directory exclusively.`
       : null;
@@ -65,13 +66,11 @@ function samePath(a: string, b: string) {
 }
 
 function pathsOverlap(a: string, b: string) {
-  if (a == b) return true;
-  const aSlash = a.endsWith("/") ? a : `${a}/`;
-  const bSlash = b.endsWith("/") ? b : `${b}/`;
-  return a.startsWith(bSlash) || b.startsWith(aSlash);
+  const aPrefix = toDirectoryPrefix(a);
+  const bPrefix = toDirectoryPrefix(b);
+  return aPrefix.startsWith(bPrefix) || bPrefix.startsWith(aPrefix);
 }
 
 function isFileInsideDir(file: string, dir: string) {
-  const dirSlash = dir.endsWith("/") ? dir : `${dir}/`;
-  return file.startsWith(dirSlash);
+  return file.startsWith(toDirectoryPrefix(dir));
 }

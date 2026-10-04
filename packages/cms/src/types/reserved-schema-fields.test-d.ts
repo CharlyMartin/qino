@@ -17,43 +17,43 @@ const rawSchema = z.object({ title: z.string(), raw: z.string() });
 
 test("rejects optional reserved declarations on all three primitives", () => {
   qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".json",
     // @ts-expect-error _meta is reserved in JSON as well as Markdown.
     schema: metaSchema,
   });
   qino.defineItem({
-    file: "/home.md",
+    file: "home.md",
     // @ts-expect-error _meta is reserved.
     schema: metaSchema,
   });
   qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".mdx",
     titleField: "title",
     // @ts-expect-error _meta is reserved.
     schema: metaSchema,
   });
   qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".md",
     // @ts-expect-error markdown is reserved in Markdown entries.
     schema: markdownSchema,
   });
   qino.defineItem({
-    file: "/home.mdx",
+    file: "home.mdx",
     // @ts-expect-error markdown is reserved in Markdown entries.
     schema: markdownSchema,
   });
   qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".markdown",
     titleField: "title",
     // @ts-expect-error markdown is reserved in Markdown entries.
     schema: markdownSchema,
   });
   qino.defineItem({
-    file: "/home.md",
+    file: "home.md",
     // @ts-expect-error raw is reserved in Markdown entries.
     schema: rawSchema,
   });
@@ -61,34 +61,34 @@ test("rejects optional reserved declarations on all three primitives", () => {
 
 test("checks schema inputs, transformed outputs, and union branches", () => {
   qino.defineItem({
-    file: "/home.md",
+    file: "home.md",
     // @ts-expect-error Schema inputs cannot declare markdown.
     schema: markdownSchema.transform(({ title }) => ({ title })),
   });
   qino.defineItem({
-    file: "/home.md",
+    file: "home.md",
     // @ts-expect-error Transforms cannot introduce markdown.
     schema: z.object({}).transform(() => ({ markdown: "replacement" })),
   });
   qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     // @ts-expect-error Transforms cannot introduce _meta.
     schema: z.object({}).transform(() => ({ _meta: {} })),
   });
   qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".md",
     // @ts-expect-error A reserved key on any union branch is illegal.
     schema: z.union([z.object({ title: z.string() }), metaSchema]),
   });
   qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".md",
     // @ts-expect-error A reserved key on any union branch is illegal.
     schema: z.union([z.object({ title: z.string() }), rawSchema]),
   });
   qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     // @ts-expect-error Explicit keys remain forbidden on catchall schemas.
     schema: metaSchema.catchall(z.unknown()),
   });
@@ -97,11 +97,11 @@ test("checks schema inputs, transformed outputs, and union branches", () => {
 test("adds markdown and raw to Markdown entries, even with empty schemas", async () => {
   const schema = z.object({});
   const posts = qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".md",
     schema,
   });
-  const home = qino.defineItem({ file: "/home.mdx", schema });
+  const home = qino.defineItem({ file: "home.mdx", schema });
   expectTypeOf<
     Infer<typeof posts>["output"]["markdown"]
   >().toEqualTypeOf<string>();
@@ -115,7 +115,7 @@ test("adds markdown and raw to Markdown entries, even with empty schemas", async
 
 test("empty schemas can derive fields from markdown and raw", async () => {
   const item = qino.defineItem({
-    file: "/home.md",
+    file: "home.md",
     schema: z.object({}),
     views: (view) => ({
       default: view({
@@ -125,7 +125,7 @@ test("empty schemas can derive fields from markdown and raw", async () => {
   });
   expectTypeOf((await item.getEntry()).words).toEqualTypeOf<number>();
   const posts = qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".md",
     schema: z.object({}),
     views: (view) => ({
@@ -150,7 +150,7 @@ test("allows nested names, JSON markdown, and erased schemas", async () => {
     }),
   });
   const posts = qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".md",
     schema,
   });
@@ -164,13 +164,13 @@ test("allows nested names, JSON markdown, and erased schemas", async () => {
   expectTypeOf((await posts.getEntry("hello")).body);
 
   const json = qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     schema: z.object({ markdown: z.number(), raw: z.boolean() }),
   });
   expectTypeOf((await json.getEntry()).markdown).toEqualTypeOf<number>();
   expectTypeOf((await json.getEntry()).raw).toEqualTypeOf<boolean>();
   const plain = qino.defineItem({
-    file: "/plain.json",
+    file: "plain.json",
     schema: z.object({ title: z.string() }),
   });
   // @ts-expect-error JSON has no automatic markdown.
@@ -179,9 +179,9 @@ test("allows nested names, JSON markdown, and erased schemas", async () => {
   expectTypeOf((await plain.getEntry()).raw);
 
   const erased: ObjectSchema = schema;
-  qino.defineItem({ file: "/erased.md", schema: erased });
+  qino.defineItem({ file: "erased.md", schema: erased });
   qino.defineItem({
-    file: "/record.md",
+    file: "record.md",
     schema: z.record(z.string(), z.unknown()),
   });
 });
@@ -189,18 +189,18 @@ test("allows nested names, JSON markdown, and erased schemas", async () => {
 test("body is available for user-defined fields in every format", async () => {
   const schema = z.object({ title: z.string(), body: z.number() });
   const posts = qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".md",
     schema,
   });
-  const home = qino.defineItem({ file: "/home.mdx", schema });
+  const home = qino.defineItem({ file: "home.mdx", schema });
   const docs = qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".markdown",
     titleField: "title",
     schema,
   });
-  const json = qino.defineItem({ file: "/home.json", schema });
+  const json = qino.defineItem({ file: "home.json", schema });
   expectTypeOf((await posts.getEntry("hello")).body).toEqualTypeOf<number>();
   expectTypeOf((await home.getEntry()).body).toEqualTypeOf<number>();
   expectTypeOf((await docs.getEntry("intro")).body).toEqualTypeOf<number>();
@@ -210,19 +210,19 @@ test("body is available for user-defined fields in every format", async () => {
 test("resolved Markdown targets expose markdown in getters and view callbacks", async () => {
   const schema = z.object({ title: z.string() });
   const posts = qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".md",
     schema,
   });
-  const home = qino.defineItem({ file: "/home.mdx", schema });
+  const home = qino.defineItem({ file: "home.mdx", schema });
   const docs = qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".markdown",
     titleField: "title",
     schema,
   });
   const links = qino.defineItem({
-    file: "/links.json",
+    file: "links.json",
     schema: z.object({ post: z.string(), home: z.string(), doc: z.string() }),
     relations: { post: posts, home, doc: docs },
     views: (view) => ({
@@ -246,7 +246,7 @@ test("resolved Markdown targets expose markdown in getters and view callbacks", 
 
 test("augmentation cannot replace markdown or raw on Markdown entries", () => {
   qino.defineItem({
-    file: "/plain.md",
+    file: "plain.md",
     schema: z.object({ title: z.string() }),
     views: (view) => ({
       default: view({}),
@@ -261,7 +261,7 @@ test("augmentation cannot replace markdown or raw on Markdown entries", () => {
     }),
   });
   qino.defineItem({
-    file: "/plain.json",
+    file: "plain.json",
     schema: z.object({ title: z.string() }),
     views: (view) => ({
       default: view({

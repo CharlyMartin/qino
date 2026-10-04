@@ -5,8 +5,8 @@ import { z } from "zod";
 // Simulates what `qino build` generates into `qino/_generated/types.d.ts`.
 declare module "@qino/cms" {
   interface QinoSlugRegistry {
-    "/typed-posts": "hello-world" | "second-post";
-    "/typed-guides": "intro" | "advanced";
+    "typed-posts": "hello-world" | "second-post";
+    "typed-guides": "intro" | "advanced";
   }
 }
 
@@ -18,19 +18,19 @@ const { defineCollection, defineTree } = initQino({
 const Schema = z.object({ title: z.string() }).strict();
 
 const typedPosts = defineCollection({
-  directory: "/typed-posts",
+  directory: "typed-posts",
   schema: Schema,
   extension: ".md",
 });
 
 const untypedPosts = defineCollection({
-  directory: "/untyped-posts",
+  directory: "untyped-posts",
   schema: Schema,
   extension: ".md",
 });
 
 const typedGuides = defineTree({
-  directory: "/typed-guides",
+  directory: "typed-guides",
   schema: Schema,
   extension: ".md",
   titleField: "title",

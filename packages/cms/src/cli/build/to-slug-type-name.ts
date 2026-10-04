@@ -3,7 +3,7 @@ import pluralize from "pluralize";
 
 /**
  * Derives a readable type alias from a primitive's full directory path, e.g.
- * `/posts` -> `PostSlug`, `/docs/v1` -> `DocsV1Slug`. Every path segment is
+ * `posts` -> `PostSlug`, `docs/v1` -> `DocsV1Slug`. Every path segment is
  * PascalCased; only the **leaf** is singularized (so a parent like `docs`
  * stays plural). Using the full path keeps names unique across primitives.
  */

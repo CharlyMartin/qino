@@ -10,18 +10,18 @@ describe("isQinoPrimitive", () => {
   test("returns true for a collection", () => {
     expect(
       isQinoPrimitive(
-        makeDummyCollection({ directory: "/posts", extension: ".md" }),
+        makeDummyCollection({ directory: "posts", extension: ".md" }),
       ),
     ).toBe(true);
   });
 
   test("returns true for an item", () => {
-    expect(isQinoPrimitive(makeDummyItem({ file: "/config.json" }))).toBe(true);
+    expect(isQinoPrimitive(makeDummyItem({ file: "config.json" }))).toBe(true);
   });
 
   test("returns true for a tree", () => {
     expect(
-      isQinoPrimitive(makeDummyTree({ directory: "/docs", extension: ".md" })),
+      isQinoPrimitive(makeDummyTree({ directory: "docs", extension: ".md" })),
     ).toBe(true);
   });
 

@@ -20,7 +20,7 @@ const collection = qino.defineCollection({
       }),
     }),
   }),
-  directory: "/posts",
+  directory: "posts",
   schema,
   extension: ".md",
 });
@@ -31,7 +31,7 @@ const item = qino.defineItem({
       augment: ({ markdown }) => ({ stats: { wordCount: markdown.length } }),
     }),
   }),
-  file: "/pages/home.md",
+  file: "pages/home.md",
   schema,
 });
 
@@ -41,7 +41,7 @@ const tree = qino.defineTree({
       augment: ({ markdown }) => ({ stats: { wordCount: markdown.length } }),
     }),
   }),
-  directory: "/docs",
+  directory: "docs",
   schema,
   extension: ".md",
   titleField: "title",
@@ -68,7 +68,7 @@ describe("augment type behaviour", () => {
           augment: () => ({ title: "Replacement" }),
         }),
       }),
-      directory: "/invalid",
+      directory: "invalid",
       schema,
       extension: ".md",
     });
@@ -76,7 +76,7 @@ describe("augment type behaviour", () => {
 
   test("does not allow augmentations to overwrite generated fields", () => {
     qino.defineItem({
-      file: "/home.md",
+      file: "home.md",
       schema,
       views: (view) => ({
         default: view({}),

@@ -7,18 +7,18 @@ import { isItem } from "./is-item";
 
 describe("isItem", () => {
   test("returns true for an item", () => {
-    expect(isItem(makeDummyItem({ file: "/config.json" }))).toBe(true);
+    expect(isItem(makeDummyItem({ file: "config.json" }))).toBe(true);
   });
 
   test("returns false for a tree", () => {
-    expect(
-      isItem(makeDummyTree({ directory: "/docs", extension: ".md" })),
-    ).toBe(false);
+    expect(isItem(makeDummyTree({ directory: "docs", extension: ".md" }))).toBe(
+      false,
+    );
   });
 
   test("returns false for a collection", () => {
     expect(
-      isItem(makeDummyCollection({ directory: "/posts", extension: ".md" })),
+      isItem(makeDummyCollection({ directory: "posts", extension: ".md" })),
     ).toBe(false);
   });
 });

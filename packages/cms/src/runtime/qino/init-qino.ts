@@ -4,7 +4,7 @@ import type { ExtractItemExtension, Item, ItemFile } from "../../types/item";
 import type { Relations } from "../../types/relations";
 import type { ObjectSchema } from "../../types/schema";
 import type { StringKeys, Tree } from "../../types/tree";
-import type { GenericPath, SupportedFileExtension } from "../../types/utils";
+import type { ContentPath, SupportedFileExtension } from "../../types/utils";
 import type { ConfiguredViews } from "../../types/views";
 import {
   type DefineCollectionParams,
@@ -34,7 +34,7 @@ export function initQino(config: QinoConfig) {
       S extends ObjectSchema,
       Ext extends SupportedFileExtension,
       Rels extends Relations<S> = object,
-      Dir extends GenericPath = GenericPath,
+      Dir extends ContentPath = ContentPath,
       const Views extends object = object,
     >(
       params: DefineCollectionParams<S, Ext, Rels, Dir, Views>,
@@ -56,7 +56,7 @@ export function initQino(config: QinoConfig) {
       Ext extends SupportedFileExtension,
       Title extends StringKeys<S>,
       Rels extends Relations<S> = object,
-      Dir extends GenericPath = GenericPath,
+      Dir extends ContentPath = ContentPath,
       const Views extends object = object,
     >(
       params: DefineTreeParams<S, Ext, Title, Rels, Dir, Views>,

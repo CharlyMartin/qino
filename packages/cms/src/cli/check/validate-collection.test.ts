@@ -17,7 +17,7 @@ describe("validateCollection", () => {
       ["hello", makeDummyEntry({ slug: "hello", extension: ".md" })],
     ]);
     const collection = makeDummyCollection({
-      directory: "/posts",
+      directory: "posts",
       extension: ".md",
       store,
     });
@@ -29,18 +29,18 @@ describe("validateCollection", () => {
   test("warns when the collection is empty", async () => {
     const warn = vi.spyOn(consola, "warn").mockImplementation(() => {});
     const collection = makeDummyCollection({
-      directory: "/posts",
+      directory: "posts",
       extension: ".md",
     });
 
     await validateCollection(collection);
 
-    expect(warn).toHaveBeenCalledWith(`Collection "/posts" is empty.`);
+    expect(warn).toHaveBeenCalledWith(`Collection "posts" is empty.`);
   });
 
   test("wraps source reading errors with the collection directory", async () => {
     const collection = makeDummyCollection({
-      directory: "/posts",
+      directory: "posts",
       extension: ".md",
     });
     vi.spyOn(collection[QinoPrimitiveMarker], "readEntries").mockRejectedValue(
@@ -48,7 +48,7 @@ describe("validateCollection", () => {
     );
 
     await expect(validateCollection(collection)).rejects.toThrow(
-      `Collection "/posts" failed validation: bad frontmatter`,
+      `Collection "posts" failed validation: bad frontmatter`,
     );
   });
 });

@@ -14,7 +14,7 @@ const baseCtx = () => ({
 describe("resolveRelationLeaf", () => {
   test("rejects a numeric leaf with the typeof in the message", async () => {
     const targetMeta = makeDummyCollection({
-      directory: "/authors",
+      directory: "authors",
       extension: ".json",
     })[QinoPrimitiveMarker];
     await expect(
@@ -24,7 +24,7 @@ describe("resolveRelationLeaf", () => {
 
   test("rejects a null leaf (typeof null is 'object')", async () => {
     const targetMeta = makeDummyCollection({
-      directory: "/authors",
+      directory: "authors",
       extension: ".json",
     })[QinoPrimitiveMarker];
     await expect(
@@ -34,7 +34,7 @@ describe("resolveRelationLeaf", () => {
 
   test("rejects an empty-string leaf with a dedicated message", async () => {
     const targetMeta = makeDummyCollection({
-      directory: "/authors",
+      directory: "authors",
       extension: ".json",
     })[QinoPrimitiveMarker];
     await expect(
@@ -44,7 +44,7 @@ describe("resolveRelationLeaf", () => {
 
   test("parses a collection reference and delegates target resolution", async () => {
     const targetMeta = makeDummyCollection({
-      directory: "/authors",
+      directory: "authors",
       extension: ".json",
     })[QinoPrimitiveMarker];
     const result = await resolveRelationLeaf("authors/alice.json", {
@@ -56,7 +56,7 @@ describe("resolveRelationLeaf", () => {
 
   test("parses an item reference and delegates target resolution", async () => {
     const targetMeta = makeDummyItem({
-      file: "/config/site.json",
+      file: "config/site.json",
       data: { siteName: "Qino" },
     })[QinoPrimitiveMarker];
     const result = await resolveRelationLeaf("config/site.json", {
@@ -66,21 +66,24 @@ describe("resolveRelationLeaf", () => {
     expect(result).toMatchObject({ slug: "config/site.json" });
   });
 
-  test("tolerates a leading slash on the reference value", async () => {
+  test("resolves a root path through the content folder", async () => {
     const targetMeta = makeDummyCollection({
-      directory: "/authors",
+      directory: "authors",
       extension: ".json",
     })[QinoPrimitiveMarker];
-    const result = await resolveRelationLeaf("/authors/alice.json", {
-      ...baseCtx(),
-      targetMeta,
-    });
+    const result = await resolveRelationLeaf(
+      "apps/web/src/content/authors/alice.json",
+      {
+        ...baseCtx(),
+        targetMeta,
+      },
+    );
     expect(result).toMatchObject({ slug: "alice" });
   });
 
   test("propagates a prefix mismatch error from parseRelationValue", async () => {
     const targetMeta = makeDummyCollection({
-      directory: "/authors",
+      directory: "authors",
       extension: ".json",
     })[QinoPrimitiveMarker];
     await expect(

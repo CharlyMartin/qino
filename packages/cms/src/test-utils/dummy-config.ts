@@ -6,3 +6,6 @@ export const DUMMY_CONFIG: QinoConfig = {
   contentFolder: "src/content",
   mediaFolder: "public",
 };
+
+// Absolute so root-path tests don't depend on the working directory.
+export const DUMMY_CONTENT_FOLDER = "/repo/apps/web/src/content";

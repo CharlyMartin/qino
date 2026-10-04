@@ -30,13 +30,13 @@ const PostSchema = z
   .strict();
 
 const authorCollection = defineCollection({
-  directory: "/authors",
+  directory: "authors",
   schema: AuthorSchema,
   extension: ".json",
 });
 
 const categoryCollection = defineCollection({
-  directory: "/categories",
+  directory: "categories",
   schema: CategorySchema,
   extension: ".json",
 });
@@ -49,7 +49,7 @@ const postCollection = defineCollection({
     deep: view({ resolveRelations: 2 }),
     full: view({ resolveRelations: true }),
   }),
-  directory: "/posts",
+  directory: "posts",
   schema: PostSchema,
   extension: ".md",
   relations: {
@@ -103,7 +103,7 @@ describe("non-relation subtrees are left untouched", () => {
   ) => x.start.getTime() - y.start.getTime();
 
   const articles = defineCollection({
-    directory: "/articles",
+    directory: "articles",
     schema: ArticleSchema,
     extension: ".md",
     relations: {
@@ -242,7 +242,7 @@ describe("collection-level default", () => {
       deep: view({ resolveRelations: 2 }),
       full: view({ resolveRelations: true }),
     }),
-    directory: "/posts-raw",
+    directory: "posts-raw",
     schema: PostSchema,
     extension: ".md",
     relations: {
@@ -279,12 +279,12 @@ describe("transitive depth (chained collections)", () => {
     .strict();
 
   const seniorCollection = defineCollection({
-    directory: "/seniors",
+    directory: "seniors",
     schema: SeniorSchema,
     extension: ".json",
   });
   const editorCollection = defineCollection({
-    directory: "/editors",
+    directory: "editors",
     schema: EditorSchema,
     extension: ".json",
     relations: { lead: seniorCollection },
@@ -297,7 +297,7 @@ describe("transitive depth (chained collections)", () => {
       deep: view({ resolveRelations: 2 }),
       full: view({ resolveRelations: true }),
     }),
-    directory: "/chained-posts",
+    directory: "chained-posts",
     schema: ChainedPostSchema,
     extension: ".md",
     relations: { editor: editorCollection },
@@ -345,7 +345,7 @@ describe("items", () => {
       deep: view({ resolveRelations: 2 }),
       full: view({ resolveRelations: true }),
     }),
-    file: "/pages/home.md",
+    file: "pages/home.md",
     schema: HomeSchema,
     relations: {
       "featured-posts[*]": postCollection,
@@ -380,7 +380,7 @@ describe("items", () => {
 describe("collection → item relation", () => {
   const ConfigSchema = z.object({ siteName: z.string() }).strict();
   const configItem = defineItem({
-    file: "/config/site.json",
+    file: "config/site.json",
     schema: ConfigSchema,
   });
 
@@ -396,7 +396,7 @@ describe("collection → item relation", () => {
       deep: view({ resolveRelations: 2 }),
       full: view({ resolveRelations: true }),
     }),
-    directory: "/foos",
+    directory: "foos",
     schema: FooSchema,
     extension: ".json",
     relations: { siteConfig: configItem },
@@ -422,11 +422,11 @@ describe("collection → item relation", () => {
 
 describe("all primitive relation pairs", () => {
   const item = defineItem({
-    file: "/site.json",
+    file: "site.json",
     schema: z.object({ siteName: z.string() }),
   });
   const tree = defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".md",
     titleField: "title",
     schema: z.object({ title: z.string(), site: z.string() }),
@@ -464,7 +464,7 @@ describe("all primitive relation pairs", () => {
       shallow: view({ resolveRelations: 1 as const }),
       deep: view({ resolveRelations: 2 as const }),
     }),
-    directory: "/related-posts",
+    directory: "related-posts",
     extension: ".json",
   });
   const docs = defineTree({
@@ -475,7 +475,7 @@ describe("all primitive relation pairs", () => {
       shallow: view({ resolveRelations: 1 as const }),
       deep: view({ resolveRelations: 2 as const }),
     }),
-    directory: "/related-docs",
+    directory: "related-docs",
     extension: ".json",
     titleField: "title",
   });
@@ -487,7 +487,7 @@ describe("all primitive relation pairs", () => {
       shallow: view({ resolveRelations: 1 as const }),
       deep: view({ resolveRelations: 2 as const }),
     }),
-    file: "/related-home.json",
+    file: "related-home.json",
   });
 
   test("every source infers collection, item, and tree entries", async () => {

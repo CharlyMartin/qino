@@ -4,14 +4,14 @@ import type { RelationTarget } from "../types/relations";
 import type { ResolveOption } from "../types/resolve";
 import type {
   AnyEntry,
-  GenericPath,
+  ContentPath,
   Slug,
   SupportedFileExtension,
 } from "../types/utils";
-import { DUMMY_INSTANCE_ID } from "./dummy-config";
+import { DUMMY_CONTENT_FOLDER, DUMMY_INSTANCE_ID } from "./dummy-config";
 
 type MakeDummyCollectionOptions = {
-  directory: GenericPath;
+  directory: ContentPath;
   extension: SupportedFileExtension;
   store?: Map<string, AnyEntry>;
   relations?: Record<string, RelationTarget | undefined>;
@@ -29,6 +29,7 @@ export function makeDummyCollection({
     [QinoPrimitiveMarker]: {
       is: QinoPrimitives.collection,
       instanceId,
+      contentFolder: DUMMY_CONTENT_FOLDER,
       schema: {} as never,
       directory,
       extension,

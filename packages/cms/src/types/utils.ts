@@ -16,7 +16,13 @@ export type SupportedFileExtension =
 
 export type JsonPathArray = typeof JSON_PATH_ARRAY;
 
-export type GenericPath = `/${string}`;
+/** A path relative to `contentFolder`, without a leading "/": `"posts"`. */
+export type ContentPath = string;
+
+/** Flags a content path with a leading "/" at the call site. */
+export type NoLeadingSlash<P extends string> = P extends `/${infer Rest}`
+  ? { readonly "Content paths must not start with a slash, use": Rest }
+  : unknown;
 
 export type EmptyObject = Record<never, never>;
 

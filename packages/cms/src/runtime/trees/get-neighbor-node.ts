@@ -1,11 +1,11 @@
 import type { TreeNode } from "../../types/tree";
-import type { GenericPath, Slug } from "../../types/utils";
+import type { ContentPath, Slug } from "../../types/utils";
 import { flattenTree } from "./flatten-tree";
 
 type GetNeighborNodeParams = {
   tree: Array<TreeNode>;
   slug: Slug;
-  directory: GenericPath;
+  directory: ContentPath;
   offset: 1 | -1;
 };
 

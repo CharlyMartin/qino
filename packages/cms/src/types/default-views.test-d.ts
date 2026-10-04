@@ -10,7 +10,7 @@ const schema = z.object({
 
 test("spreads locally inferred views and selects the declared default", async () => {
   const posts = qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".md",
     schema,
     views: (view) => {
@@ -60,17 +60,17 @@ test("spreads locally inferred views and selects the declared default", async ()
 
 test("checks spread callbacks against changed relation shapes", () => {
   const senior = qino.defineItem({
-    file: "/senior.json",
+    file: "senior.json",
     schema: z.object({ name: z.string() }),
   });
   const authors = qino.defineCollection({
-    directory: "/authors",
+    directory: "authors",
     extension: ".json",
     schema: z.object({ name: z.string(), lead: z.string() }),
     relations: { lead: senior },
   });
   qino.defineCollection({
-    directory: "/posts",
+    directory: "posts",
     extension: ".md",
     schema: schema.extend({ author: z.string() }),
     relations: { author: authors },
@@ -104,7 +104,7 @@ test("checks spread callbacks against changed relation shapes", () => {
 
 test("Collection requires default only when views exist", async () => {
   const plain = qino.defineCollection({
-    directory: "/plain",
+    directory: "plain",
     extension: ".json",
     schema,
   });
@@ -112,28 +112,28 @@ test("Collection requires default only when views exist", async () => {
   // @ts-expect-error Without views, default is not a selectable name.
   plain.getEntry("hello", { view: "default" });
   qino.defineCollection({
-    directory: "/plain",
+    directory: "plain",
     extension: ".json",
     schema,
     // @ts-expect-error Empty factories have no default.
     views: () => ({}),
   });
   qino.defineCollection({
-    directory: "/plain",
+    directory: "plain",
     extension: ".json",
     schema,
     // @ts-expect-error Custom views require a default sibling.
     views: (view) => ({ detail: view({}) }),
   });
   qino.defineCollection({
-    directory: "/plain",
+    directory: "plain",
     extension: ".json",
     schema,
     // @ts-expect-error Default must use the helper.
     views: () => ({ default: {} }),
   });
   const configured = qino.defineCollection({
-    directory: "/plain",
+    directory: "plain",
     extension: ".json",
     schema,
     views: (view) => ({
@@ -152,14 +152,14 @@ test("Collection requires default only when views exist", async () => {
 
 test("Collection rejects root resolveRelations with and without views", () => {
   qino.defineCollection({
-    directory: "/plain",
+    directory: "plain",
     extension: ".json",
     schema,
     // @ts-expect-error View settings are forbidden at the root.
     resolveRelations: true,
   });
   qino.defineCollection({
-    directory: "/plain",
+    directory: "plain",
     extension: ".json",
     schema,
     views: (view) => ({ default: view({}) }),
@@ -170,14 +170,14 @@ test("Collection rejects root resolveRelations with and without views", () => {
 
 test("Collection rejects root augment with and without views", () => {
   qino.defineCollection({
-    directory: "/plain",
+    directory: "plain",
     extension: ".json",
     schema,
     // @ts-expect-error View settings are forbidden at the root.
     augment: () => ({ derived: true }),
   });
   qino.defineCollection({
-    directory: "/plain",
+    directory: "plain",
     extension: ".json",
     schema,
     views: (view) => ({ default: view({}) }),
@@ -188,14 +188,14 @@ test("Collection rejects root augment with and without views", () => {
 
 test("Collection rejects root filter with and without views", () => {
   qino.defineCollection({
-    directory: "/plain",
+    directory: "plain",
     extension: ".json",
     schema,
     // @ts-expect-error View settings are forbidden at the root.
     filter: () => true,
   });
   qino.defineCollection({
-    directory: "/plain",
+    directory: "plain",
     extension: ".json",
     schema,
     views: (view) => ({ default: view({}) }),
@@ -206,14 +206,14 @@ test("Collection rejects root filter with and without views", () => {
 
 test("Collection rejects root sort with and without views", () => {
   qino.defineCollection({
-    directory: "/plain",
+    directory: "plain",
     extension: ".json",
     schema,
     // @ts-expect-error View settings are forbidden at the root.
     sort: () => 0,
   });
   qino.defineCollection({
-    directory: "/plain",
+    directory: "plain",
     extension: ".json",
     schema,
     views: (view) => ({ default: view({}) }),
@@ -224,7 +224,7 @@ test("Collection rejects root sort with and without views", () => {
 
 test("Tree requires default only when views exist", async () => {
   const plain = qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
     schema,
@@ -233,7 +233,7 @@ test("Tree requires default only when views exist", async () => {
   // @ts-expect-error Without views, default is not a selectable name.
   plain.getEntry("hello", { view: "default" });
   qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
     schema,
@@ -241,7 +241,7 @@ test("Tree requires default only when views exist", async () => {
     views: () => ({}),
   });
   qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
     schema,
@@ -249,7 +249,7 @@ test("Tree requires default only when views exist", async () => {
     views: (view) => ({ detail: view({}) }),
   });
   qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
     schema,
@@ -257,7 +257,7 @@ test("Tree requires default only when views exist", async () => {
     views: () => ({ default: {} }),
   });
   const configured = qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
     schema,
@@ -278,7 +278,7 @@ test("Tree requires default only when views exist", async () => {
 
 test("Tree rejects root resolveRelations with and without views", () => {
   qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
     schema,
@@ -286,7 +286,7 @@ test("Tree rejects root resolveRelations with and without views", () => {
     resolveRelations: true,
   });
   qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
     schema,
@@ -298,7 +298,7 @@ test("Tree rejects root resolveRelations with and without views", () => {
 
 test("Tree rejects root augment with and without views", () => {
   qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
     schema,
@@ -306,7 +306,7 @@ test("Tree rejects root augment with and without views", () => {
     augment: () => ({ derived: true }),
   });
   qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
     schema,
@@ -318,7 +318,7 @@ test("Tree rejects root augment with and without views", () => {
 
 test("Tree rejects root filter with and without views", () => {
   qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
     schema,
@@ -326,7 +326,7 @@ test("Tree rejects root filter with and without views", () => {
     filter: () => true,
   });
   qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
     schema,
@@ -338,7 +338,7 @@ test("Tree rejects root filter with and without views", () => {
 
 test("Tree rejects root sort with and without views", () => {
   qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
     schema,
@@ -346,7 +346,7 @@ test("Tree rejects root sort with and without views", () => {
     sort: () => 0,
   });
   qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".json",
     titleField: "title",
     schema,
@@ -357,30 +357,30 @@ test("Tree rejects root sort with and without views", () => {
 });
 
 test("Item requires default only when views exist", async () => {
-  const plain = qino.defineItem({ file: "/home.json", schema });
+  const plain = qino.defineItem({ file: "home.json", schema });
   expectTypeOf<keyof Infer<typeof plain>["views"]>().toEqualTypeOf<never>();
   // @ts-expect-error Without views, default is not a selectable name.
   plain.getEntry({ view: "default" });
   qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     schema,
     // @ts-expect-error Empty factories have no default.
     views: () => ({}),
   });
   qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     schema,
     // @ts-expect-error Custom views require a default sibling.
     views: (view) => ({ detail: view({}) }),
   });
   qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     schema,
     // @ts-expect-error Default must use the helper.
     views: () => ({ default: {} }),
   });
   const configured = qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     schema,
     views: (view) => ({
       default: view({ augment: (entry) => ({ label: entry.title }) }),
@@ -399,13 +399,13 @@ test("Item requires default only when views exist", async () => {
 
 test("Item rejects root resolveRelations with and without views", () => {
   qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     schema,
     // @ts-expect-error View settings are forbidden at the root.
     resolveRelations: true,
   });
   qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     schema,
     views: (view) => ({ default: view({}) }),
     // @ts-expect-error Declaring views does not permit root settings.
@@ -415,13 +415,13 @@ test("Item rejects root resolveRelations with and without views", () => {
 
 test("Item rejects root augment with and without views", () => {
   qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     schema,
     // @ts-expect-error View settings are forbidden at the root.
     augment: () => ({ derived: true }),
   });
   qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     schema,
     views: (view) => ({ default: view({}) }),
     // @ts-expect-error Declaring views does not permit root settings.
@@ -431,13 +431,13 @@ test("Item rejects root augment with and without views", () => {
 
 test("Item rejects root filter with and without views", () => {
   qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     schema,
     // @ts-expect-error View settings are forbidden at the root.
     filter: () => true,
   });
   qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     schema,
     views: (view) => ({ default: view({}) }),
     // @ts-expect-error Declaring views does not permit root settings.
@@ -447,13 +447,13 @@ test("Item rejects root filter with and without views", () => {
 
 test("Item rejects root sort with and without views", () => {
   qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     schema,
     // @ts-expect-error View settings are forbidden at the root.
     sort: () => 0,
   });
   qino.defineItem({
-    file: "/home.json",
+    file: "home.json",
     schema,
     views: (view) => ({ default: view({}) }),
     // @ts-expect-error Declaring views does not permit root settings.

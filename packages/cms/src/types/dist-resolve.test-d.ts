@@ -19,12 +19,12 @@ const { defineCollection } = initQino({
   mediaFolder: "public",
 });
 const authors = defineCollection({
-  directory: "/authors",
+  directory: "authors",
   extension: ".json",
   schema: z.object({ name: z.string() }),
 });
 const articles = defineCollection({
-  directory: "/articles",
+  directory: "articles",
   extension: ".md",
   schema: z.object({
     dates: z

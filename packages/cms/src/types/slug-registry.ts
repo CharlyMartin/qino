@@ -1,14 +1,14 @@
-import type { GenericPath, Slug } from "./utils";
+import type { ContentPath, Slug } from "./utils";
 
 /**
- * Maps a primitive's directory (e.g. `"/posts"`) to the union of its known
+ * Maps a primitive's directory (e.g. `"posts"`) to the union of its known
  * slugs. Empty by default; `qino build` augments it via the generated
  * `qino/_generated/types.d.ts`:
  *
  * ```ts
  * declare module "@qino/cms" {
  *   interface QinoSlugRegistry {
- *     "/posts": "a" | "b" | (string & {});
+ *     "posts": "a" | "b" | (string & {});
  *   }
  * }
  * ```
@@ -21,5 +21,5 @@ export interface QinoSlugRegistry {}
  * (`string`) when the registry has no entry for `Dir`, so getters accept any
  * string until `qino build` generates the augmentation.
  */
-export type SlugFor<Dir extends GenericPath> =
+export type SlugFor<Dir extends ContentPath> =
   Dir extends keyof QinoSlugRegistry ? QinoSlugRegistry[Dir] : Slug;

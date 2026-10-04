@@ -8,8 +8,8 @@ import { assertInstanceIdsMatch } from "./assert-instance-ids-match";
 describe("assertInstanceIdsMatch", () => {
   test("does not throw when all instance ids match", () => {
     const primitives = [
-      makeDummyCollection({ directory: "/posts", extension: ".md" }),
-      makeDummyItem({ file: "/settings.json" }),
+      makeDummyCollection({ directory: "posts", extension: ".md" }),
+      makeDummyItem({ file: "settings.json" }),
     ];
 
     expect(() =>
@@ -23,9 +23,9 @@ describe("assertInstanceIdsMatch", () => {
 
   test("throws when a primitive has a different instance id", () => {
     const primitives = [
-      makeDummyCollection({ directory: "/posts", extension: ".md" }),
+      makeDummyCollection({ directory: "posts", extension: ".md" }),
       makeDummyItem({
-        file: "/settings.json",
+        file: "settings.json",
         instanceId: Symbol.for("qino.tests.other"),
       }),
     ];

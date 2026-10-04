@@ -9,6 +9,7 @@ import {
 } from "../../data/globals";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
 import { parseFile } from "../../lib/parse/parse-file";
+import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { validate } from "../../lib/validate/validate";
 import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
@@ -25,7 +26,8 @@ import type {
   TreeNode,
 } from "../../types/tree";
 import type {
-  GenericPath,
+  ContentPath,
+  NoLeadingSlash,
   Slug,
   SupportedFileExtension,
 } from "../../types/utils";
@@ -49,10 +51,10 @@ export type DefineTreeParams<
   Ext extends SupportedFileExtension,
   Title extends StringKeys<Schema>,
   Rels extends Relations<Schema> = object,
-  Dir extends GenericPath = GenericPath,
+  Dir extends ContentPath = ContentPath,
   Views extends object = object,
 > = {
-  directory: Dir;
+  directory: Dir & NoInfer<NoLeadingSlash<Dir>>;
   schema: Schema & NoInfer<NoReservedSchemaFields<Schema, Ext>>;
   extension: Ext;
   titleField: Title;
@@ -66,11 +68,12 @@ export function defineTree<
   Ext extends SupportedFileExtension,
   Title extends StringKeys<S>,
   Rels extends Relations<S> = object,
-  Dir extends GenericPath = GenericPath,
+  Dir extends ContentPath = ContentPath,
   const Views extends object = object,
 >(ctx: QinoContext, params: DefineTreeParams<S, Ext, Title, Rels, Dir, Views>) {
   const { directory, schema, extension, titleField, orderFileName, relations } =
     params;
+  assertContentPath(directory, "directory");
 
   const treeRelations = (relations ?? {}) as Rels;
   assertNoRootViewSettings(params);
@@ -83,6 +86,7 @@ export function defineTree<
     [QinoPrimitiveMarker]: {
       is: QinoPrimitives.tree,
       instanceId: ctx.instanceId,
+      contentFolder: ctx.contentFolder,
       schema,
       directory,
       extension,

@@ -13,8 +13,8 @@ import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
 import type { SlugFor } from "./slug-registry";
 import type {
+  ContentPath,
   EmptyObject,
-  GenericPath,
   GetterOptions,
   Slug,
   SupportedFileExtension,
@@ -33,7 +33,7 @@ export type Collection<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema> = object,
-  Dir extends GenericPath = GenericPath,
+  Dir extends ContentPath = ContentPath,
   Views extends object = object,
 > = PrimitiveInference<Schema, CollectionEntryMeta<Ext>, Rels, Views> & {
   readonly [QinoPrimitiveMarker]: CollectionMeta<Schema, Ext, Rels>;
@@ -84,8 +84,9 @@ export type CollectionMeta<
 > = {
   readonly is: (typeof QinoPrimitives)["collection"];
   readonly instanceId: symbol;
+  readonly contentFolder: string;
   readonly schema: Schema;
-  readonly directory: GenericPath;
+  readonly directory: ContentPath;
   readonly extension: Ext;
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;

@@ -10,11 +10,11 @@ import { z } from "zod";
 
 const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
 const site = qino.defineItem({
-  file: "/site.json",
+  file: "site.json",
   schema: z.object({ name: z.string() }),
 });
 const authors = qino.defineCollection({
-  directory: "/authors",
+  directory: "authors",
   extension: ".json",
   schema: z.object({ name: z.string(), site: z.string() }),
   relations: { site },
@@ -33,7 +33,7 @@ const schema = z.object({
   views: z.number(),
 });
 const posts = qino.defineCollection({
-  directory: "/posts",
+  directory: "posts",
   extension: ".md",
   schema,
   relations: { author: () => authors },
@@ -110,7 +110,7 @@ test("views preserve independent augmentation and relation depths", async () => 
 
 test("item inference matches getters and item metadata", async () => {
   const home = qino.defineItem({
-    file: "/home.mdx",
+    file: "home.mdx",
     schema,
     relations: { author: authors },
     views: (view) => ({
@@ -148,7 +148,7 @@ test("item inference matches getters and item metadata", async () => {
 
 test("tree inference describes content entries and their views", async () => {
   const docs = qino.defineTree({
-    directory: "/docs",
+    directory: "docs",
     extension: ".markdown",
     titleField: "title",
     schema,
@@ -190,18 +190,18 @@ test("tree inference describes content entries and their views", async () => {
 
 test("omitted views have no keys", () => {
   const collection = qino.defineCollection({
-    directory: "/plain",
+    directory: "plain",
     extension: ".json",
     schema,
   });
   const tree = qino.defineTree({
-    directory: "/plain-docs",
+    directory: "plain-docs",
     extension: ".md",
     titleField: "title",
     schema,
   });
   const empty = qino.defineItem({
-    file: "/empty.json",
+    file: "empty.json",
     schema,
   });
   expectTypeOf<

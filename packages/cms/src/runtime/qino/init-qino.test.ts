@@ -23,16 +23,16 @@ describe("initQino", () => {
       mediaFolder: "public",
     });
     const collection = defineCollection({
-      directory: "/posts",
+      directory: "posts",
       schema: Schema,
       extension: ".md",
     });
     const item = defineItem({
-      file: "/pages/home.md",
+      file: "pages/home.md",
       schema: Schema,
     });
     const tree = defineTree({
-      directory: "/docs",
+      directory: "docs",
       schema: Schema,
       extension: ".md",
       titleField: "title",
@@ -50,16 +50,16 @@ describe("initQino", () => {
       mediaFolder: "public",
     });
     const collection = defineCollection({
-      directory: "/posts",
+      directory: "posts",
       schema: Schema,
       extension: ".md",
     });
     const item = defineItem({
-      file: "/pages/home.md",
+      file: "pages/home.md",
       schema: Schema,
     });
     const tree = defineTree({
-      directory: "/docs",
+      directory: "docs",
       schema: Schema,
       extension: ".md",
       titleField: "title",
@@ -77,12 +77,12 @@ describe("initQino", () => {
     const a = initQino({ contentFolder: "a", mediaFolder: "p" });
     const b = initQino({ contentFolder: "b", mediaFolder: "p" });
     const ca = a.defineCollection({
-      directory: "/posts",
+      directory: "posts",
       schema: Schema,
       extension: ".md",
     });
     const cb = b.defineCollection({
-      directory: "/posts",
+      directory: "posts",
       schema: Schema,
       extension: ".md",
     });
@@ -97,7 +97,7 @@ describe("initQino", () => {
       mediaFolder: "public",
     });
     const collection = defineCollection({
-      directory: "/posts",
+      directory: "posts",
       schema: Schema,
       extension: ".md",
     });
@@ -115,7 +115,7 @@ describe("initQino definition reloads", () => {
           resolveRelations: true,
         }),
       }),
-      directory: "/posts",
+      directory: "posts",
       extension: ".md",
       schema: Schema,
     });
@@ -125,7 +125,7 @@ describe("initQino definition reloads", () => {
           resolveRelations: false,
         }),
       }),
-      directory: "/posts",
+      directory: "posts",
       extension: ".md",
       schema: UpdatedSchema,
     });
@@ -149,7 +149,7 @@ describe("initQino definition reloads", () => {
           resolveRelations: true,
         }),
       }),
-      file: "/settings.json",
+      file: "settings.json",
       schema: Schema,
     });
     const reloaded = qino.defineItem({
@@ -158,7 +158,7 @@ describe("initQino definition reloads", () => {
           resolveRelations: false,
         }),
       }),
-      file: "/settings.json",
+      file: "settings.json",
       schema: UpdatedSchema,
     });
     const before = original[QinoPrimitiveMarker];
@@ -181,7 +181,7 @@ describe("initQino definition reloads", () => {
           resolveRelations: true,
         }),
       }),
-      directory: "/docs",
+      directory: "docs",
       extension: ".md",
       titleField: "title",
       schema: Schema,
@@ -192,7 +192,7 @@ describe("initQino definition reloads", () => {
           resolveRelations: false,
         }),
       }),
-      directory: "/docs",
+      directory: "docs",
       extension: ".md",
       titleField: "title",
       schema: UpdatedSchema,
@@ -211,23 +211,23 @@ describe("initQino definition reloads", () => {
   test("allows a directory change and reuse of the previous directory", () => {
     const qino = initQino({ contentFolder: "c", mediaFolder: "p" });
     qino.defineCollection({
-      directory: "/posts",
+      directory: "posts",
       schema: Schema,
       extension: ".md",
     });
     const moved = qino.defineCollection({
-      directory: "/articles",
+      directory: "articles",
       schema: Schema,
       extension: ".md",
     });
     const replacement = qino.defineTree({
-      directory: "/posts",
+      directory: "posts",
       schema: Schema,
       extension: ".md",
       titleField: "title",
     });
 
-    expect(moved[QinoPrimitiveMarker].directory).toBe("/articles");
-    expect(replacement[QinoPrimitiveMarker].directory).toBe("/posts");
+    expect(moved[QinoPrimitiveMarker].directory).toBe("articles");
+    expect(replacement[QinoPrimitiveMarker].directory).toBe("posts");
   });
 });

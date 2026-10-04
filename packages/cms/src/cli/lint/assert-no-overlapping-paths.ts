@@ -3,12 +3,12 @@ import {
   describePathConflict,
   type PrimitivePath,
 } from "../../lib/paths/describe-path-conflict";
-import type { GenericPath } from "../../types/utils";
+import type { ContentPath } from "../../types/utils";
 
 type AssertNoOverlappingPathsParams = {
-  collectionDirs: Array<GenericPath>;
-  itemFiles: Array<GenericPath>;
-  treeDirs: Array<GenericPath>;
+  collectionDirs: Array<ContentPath>;
+  itemFiles: Array<ContentPath>;
+  treeDirs: Array<ContentPath>;
 };
 
 export function assertNoOverlappingPaths({
