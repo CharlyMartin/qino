@@ -68,3 +68,7 @@ The built-in `!!str`, `!!int`, `!!float`, `!!bool`, `!!null`, and `!!timestamp` 
 ## The body
 
 Everything after the closing `---` is added to the entry as `markdown`, a string, after validation. An empty body is an empty string. The whole file, frontmatter included, is also added untouched as `raw`. Neither reaches the schema, and declaring `markdown` or `raw` in frontmatter is an error. See [Schemas](/docs/concepts/schemas).
+
+## Camel case keys
+
+Keys are returned as written. To rename them, for instance from `published_at` to `publishedAt`, use a schema transform. See [Entry pipeline](/docs/concepts/pipeline#example-camel-case-keys).

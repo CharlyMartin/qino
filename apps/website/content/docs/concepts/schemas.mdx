@@ -22,6 +22,8 @@ For `.json` files, the input is the parsed object as-is.
 
 A file without frontmatter validates `{}`, so an empty schema like `z.object({})` is enough. Schemas are required even then.
 
+To reshape data, such as splitting a string or renaming keys, use your validator's transform. See [Transforming data](/docs/concepts/pipeline#transforming-data).
+
 ## markdown and raw
 
 After validation, Qino adds two strings to every Markdown entry, like it adds `_meta`:

@@ -39,14 +39,11 @@ export default async function Home() {
                 </div>
                 <div className="flex flex-1 flex-col gap-3 p-5">
                   <time className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                    {new Date(post["created-on"]).toLocaleDateString(
-                      undefined,
-                      {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      },
-                    )}
+                    {new Date(post.createdOn).toLocaleDateString(undefined, {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </time>
                   <h3 className="text-lg font-semibold leading-tight text-zinc-950 group-hover:underline dark:text-zinc-50">
                     {post.title}

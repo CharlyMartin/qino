@@ -62,17 +62,12 @@ const [nodes, entry, previousNode, nextNode] = await Promise.all([
 
 Qino returns raw Markdown. The example renders `.md` posts with `react-markdown` and `.mdx` docs with `next-mdx-remote`, both with `remark-gfm`, `rehype-slug`, `rehype-autolink-headings`, and `rehype-highlight`.
 
-## Next.js configuration
+<Callout type="note">
+The example on Github lives in a monorepo and imports `@qino/cms` from the workspace, which exposes raw TypeScript, so Next.js must transpile it. Apps installing `@qino/cms` from `npm` get compiled JavaScript and don't need to add it to `transpilePackages` in `nextConfig`.
 
-The example imports `@qino/cms` from the workspace, which exposes raw TypeScript, so Next.js must transpile it. Apps installing from npm get compiled JavaScript and don't need this.
 
-```ts title="next.config.ts"
-const nextConfig = {
-  transpilePackages: ["@qino/cms"],
-};
 
-export default nextConfig;
-```
+</Callout>
 
 ## Run it
 

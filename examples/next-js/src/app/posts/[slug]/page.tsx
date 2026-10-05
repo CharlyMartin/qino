@@ -43,7 +43,7 @@ export default async function PostPage({ params }: PostPageProps) {
       <header className="mb-8 flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
           <time>
-            {new Date(post["created-on"]).toLocaleDateString(undefined, {
+            {new Date(post.createdOn).toLocaleDateString(undefined, {
               year: "numeric",
               month: "short",
               day: "numeric",

@@ -1,0 +1,103 @@
+---
+title: Entry pipeline
+description: The order in which Qino reads, validates, and shapes an entry, and where to transform data.
+---
+
+Every getter builds its entries through the same steps, in the same order. Each step only sees what the previous ones produced.
+
+## Steps
+
+1. **Parse.** Qino reads the file. For Markdown, MDX, and `.markdown`, it parses the frontmatter with js-yaml. For `.json`, it parses the whole file. See [Frontmatter](/docs/guide/frontmatter).
+2. **Validate.** The schema validates the parsed data. Schema transforms run here. Reserved fields are rejected in both the input and the output. See [Schemas](/docs/concepts/schemas).
+3. **Add Qino fields.** Qino adds `markdown` and `raw` to Markdown entries, and `_meta` to every entry.
+4. **Resolve relations.** Relation references are replaced by their target entries, up to the view's `resolveRelations` depth. See [Relations](/docs/concepts/relations).
+5. **Augment.** The view's `augment` adds derived fields.
+6. **Filter.** For collections, the view's `filter` drops entries. `getEntry` throws when its entry is dropped.
+7. **Sort.** For `getEntries`, the view's `sort` orders the result.
+
+Steps 4 to 7 come from the selected view. See [Views](/docs/concepts/views).
+
+| Step                | Receives                                                     |
+| ------------------- | ------------------------------------------------------------ |
+| Schema              | The parsed data, with keys and values as written in the file |
+| `relations` paths   | The schema output                                            |
+| `titleField`        | The schema output                                            |
+| `augment`           | The schema output, Qino fields, and resolved relations       |
+| `filter` and `sort` | The augmented entry                                          |
+
+Some reads never run views:
+
+- `getTree`, `getFlatTree`, `getNextNode`, and `getPreviousNode` stop after validation. They read `titleField` from the schema output.
+- `qino check` validates every file and stops there.
+- Resolved relation targets go through steps 1 to 3, then resolve their own relations to the remaining depth. Their own views never run.
+
+## Transforming data
+
+Qino has no transform option. Reshape data in the schema instead: most [Standard Schema](https://standardschema.dev) validators accept a transform callback, and Qino runs it during validation, in step 2. The example below turns a comma-separated `tags` string into an array.
+
+```ts title="Zod"
+schema: z
+  .object({ title: z.string(), tags: z.string() })
+  .transform((post) => ({
+    ...post,
+    tags: post.tags.split(",").map((tag) => tag.trim()),
+  })),
+```
+
+```ts title="Valibot"
+schema: v.pipe(
+  v.object({ title: v.string(), tags: v.string() }),
+  v.transform((post) => ({
+    ...post,
+    tags: post.tags.split(",").map((tag) => tag.trim()),
+  })),
+),
+```
+
+```ts title="ArkType"
+schema: type({ title: "string", tags: "string" }).pipe((post) => ({
+  ...post,
+  tags: post.tags.split(",").map((tag) => tag.trim()),
+})),
+```
+
+The schema validates the data as written, so validation errors name the fields in the file. Everything after it sees the transformed output, including `relations` paths, `titleField`, views, and the types from [`Infer`](/docs/api/types/infer).
+
+A transform must:
+
+- be synchronous. A validator that returns a Promise is rejected.
+- return an object.
+- not add `_meta`, nor `markdown` or `raw` in Markdown entries. Qino adds those in step 3.
+
+## Transform or augment?
+
+Both derive data. They run at different steps:
+
+|            | Schema transform                    | View `augment`                                 |
+| ---------- | ----------------------------------- | ---------------------------------------------- |
+| Runs       | Step 2, once per file               | Step 5, per view                               |
+| Sees       | The file's data                     | Schema output, Qino fields, resolved relations |
+| Can        | Rename, remove, and reshape fields  | Add fields only                                |
+| Async      | No                                  | Yes                                            |
+| Applies to | Every view, relations, `qino check` | The view that declares it                      |
+
+Use a transform to change the shape of your content. Use `augment` for values that need the body, a related entry, or async work, such as reading time or an author's name.
+
+## Example: camel case keys
+
+Qino returns keys as written in the source. To read `published_at` as `publishedAt`, rename the keys in a transform, for instance with [camelcase-keys](https://github.com/sindresorhus/camelcase-keys):
+
+```ts title="qino/collections/posts.ts"
+import camelcaseKeys from "camelcase-keys";
+
+export const postCollection = qino.defineCollection({
+  directory: "posts",
+  extension: ".md",
+  schema: z
+    .object({ published_at: z.string(), main_author: z.string() })
+    .transform((post) => camelcaseKeys(post)),
+  relations: { mainAuthor: authorCollection },
+});
+```
+
+Relation paths use the camelCased keys, since they point into the schema output. `_meta`, `markdown`, and `raw` are added after the transform and keep their names.
