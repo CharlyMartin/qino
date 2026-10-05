@@ -68,3 +68,22 @@ The built-in `!!str`, `!!int`, `!!float`, `!!bool`, `!!null`, and `!!timestamp` 
 ## The body
 
 Everything after the closing `---` is added to the entry as `markdown`, a string, after validation. An empty body is an empty string. The whole file, frontmatter included, is also added untouched as `raw`. Neither reaches the schema, and declaring `markdown` or `raw` in frontmatter is an error. See [Schemas](/docs/concepts/schemas).
+
+## Camel case keys
+
+Qino returns keys as written in the source. To read `published_at` as `publishedAt`, rename the keys in a schema transform, for instance with [camelcase-keys](https://github.com/sindresorhus/camelcase-keys):
+
+```ts title="qino/collections/posts.ts"
+import camelcaseKeys from "camelcase-keys";
+
+export const postCollection = qino.defineCollection({
+  directory: "posts",
+  extension: ".md",
+  schema: z
+    .object({ published_at: z.string(), author: z.string() })
+    .transform((post) => camelcaseKeys(post)),
+  relations: { author: authorCollection },
+});
+```
+
+The schema validates the source keys, and validation errors name them. Everything after it sees the camelCased output: `relations` paths, `titleField`, views, and the entry types. `_meta`, `markdown`, and `raw` are added afterwards and stay as they are.

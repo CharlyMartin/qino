@@ -7,7 +7,7 @@ export default async function PostsIndex() {
   const posts = await postCollection.getEntries();
 
   const sorted = [...posts].sort((a, b) =>
-    b["created-on"].localeCompare(a["created-on"]),
+    b.createdOn.localeCompare(a.createdOn),
   );
 
   return (
@@ -34,14 +34,11 @@ export default async function PostsIndex() {
               <div className="flex flex-col gap-3 p-5">
                 <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                   <time>
-                    {new Date(post["created-on"]).toLocaleDateString(
-                      undefined,
-                      {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      },
-                    )}
+                    {new Date(post.createdOn).toLocaleDateString(undefined, {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </time>
                 </div>
                 <h2 className="text-xl font-semibold leading-tight text-zinc-950 group-hover:underline dark:text-zinc-50">

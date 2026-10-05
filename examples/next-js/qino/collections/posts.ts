@@ -1,5 +1,6 @@
 import type { Infer } from "@qino/cms";
 import { getMarkdownStats } from "@qino/cms/utils";
+import camelcaseKeys from "camelcase-keys";
 import { z } from "zod";
 
 import qino from "../";
@@ -15,7 +16,8 @@ const PostSchema = z
     image: z.string(),
     author: z.string(),
   })
-  .strict();
+  .strict()
+  .transform((post) => camelcaseKeys(post));
 
 export const postCollection = qino.defineCollection({
   directory: "posts",
