@@ -12,7 +12,7 @@ export function Hero() {
       <Eyebrow tone="accent">
         Headless flat-file CMS{" "}
         <span className="text-muted-foreground normal-case">
-          · v{version.split(".").slice(0, 2).join(".")}
+          · v{version.split(".").slice(0, 3).join(".")}
         </span>
       </Eyebrow>
 
