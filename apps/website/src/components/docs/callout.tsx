@@ -2,11 +2,11 @@ import { cva, type VariantProps } from "class-variance-authority";
 import type { ReactNode } from "react";
 
 const calloutVariants = cva(
-  "not-prose my-6 rounded-sm border px-4 py-3 text-sm leading-relaxed text-foreground-2",
+  "my-6 rounded-sm border px-5 py-4 text-foreground-2 [&>:first-child]:mt-0 [&>:last-child]:mb-0",
   {
     variants: {
       type: {
-        note: "border-border-strong bg-surface/50",
+        note: "border-sky-800 bg-sky-950/40",
         warn: "border-primary-muted bg-primary-muted/20",
         tip: "border-green-900 bg-green-950/30",
       },
