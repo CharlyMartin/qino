@@ -1,5 +1,11 @@
 # @qino/cms
 
+## 0.5.1
+
+### Patch Changes
+
+- [#178](https://github.com/CharlyMartin/qino/pull/178) [`01f4e5a`](https://github.com/CharlyMartin/qino/commit/01f4e5ab068ebbe043a9a5ef7a9d7e85f2aac8a0) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Shortens the package README and points `homepage` to the documentation at [www.qino.works](https://www.qino.works)
+
 ## 0.5.0
 
 ### Minor Changes
