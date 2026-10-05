@@ -43,7 +43,7 @@ Tree and item helpers reject `filter` and `sort` in TypeScript and at runtime.
 
 ## Pipeline
 
-For each getter call: read and validate, resolve relations at the view's depth, run `augment`, then for collections `filter`, then for `getEntries` `sort`. Augment receives resolved relations when the view resolves them. Filter and sort receive augmented entries.
+For each getter call: read and validate, resolve relations at the view's depth, run `augment`, then for collections `filter`, then for `getEntries` `sort`. Augment receives resolved relations when the view resolves them. Filter and sort receive augmented entries. See [Entry pipeline](/docs/concepts/pipeline) for every step, from parsing to sorting.
 
 `augment` must return an object. It cannot overwrite an existing field, and cannot add `markdown` or `raw` to a Markdown entry.
 
