@@ -19,7 +19,7 @@ Qino turns a folder of Markdown, MDX, and JSON files into typed, validated conte
 - Docs: [qino.works/docs](https://www.qino.works/docs)
 - Website: [qino.works](https://www.qino.works)
 
-See also [`examples/next-js`](./examples/next-js), the reference app, and [`packages/cms/README.md`](./packages/cms/README.md) for the API in more depth.
+See also [`examples/next-js`](./examples/next-js), the reference app.
 
 ## Installation
 
