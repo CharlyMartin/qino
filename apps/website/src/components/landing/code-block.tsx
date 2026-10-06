@@ -1,39 +1,39 @@
-import { cva, type VariantProps } from "class-variance-authority";
+import { cva } from "class-variance-authority";
 import type { ComponentProps } from "react";
 
-const codeBlockVariants = cva("min-w-0 overflow-x-auto font-mono text-code", {
-  variants: {
-    variant: {
-      plain: "text-foreground-2",
-      result: "text-foreground-3",
+const codeBlockVariants = cva(
+  "min-w-0 overflow-x-auto font-mono text-code text-foreground-2",
+  {
+    variants: {
+      framed: {
+        true: "p-4 md:p-5",
+        false: "",
+      },
     },
-    framed: {
-      true: "p-4 md:p-5",
-      false: "",
-    },
+    defaultVariants: { framed: false },
   },
-  defaultVariants: { variant: "plain", framed: false },
-});
+);
 
-type CodeBlockProps = Omit<ComponentProps<"pre">, "className"> &
-  Pick<VariantProps<typeof codeBlockVariants>, "variant"> & {
-    filename?: string;
-  };
+export type Snippet = { label: string; html: string };
 
-export function CodeBlock({
-  children,
-  filename,
-  variant,
-  ...props
-}: CodeBlockProps) {
+type CodeBlockProps = Omit<ComponentProps<"pre">, "className" | "children"> & {
+  // From `getSnippets`: code highlighted with the docs' highlight.js theme.
+  snippet: Snippet;
+  filename?: string;
+};
+
+export function CodeBlock({ snippet, filename, ...props }: CodeBlockProps) {
   const code = (
+    // biome-ignore lint/a11y/useAriaPropsSupportedByRole: Names the focusable scroll area for screen readers.
     <pre
       // biome-ignore lint/a11y/noNoninteractiveTabindex: Horizontally scrolling code must be reachable with a keyboard.
       tabIndex={0}
-      className={codeBlockVariants({ variant, framed: Boolean(filename) })}
+      className={codeBlockVariants({ framed: Boolean(filename) })}
+      aria-label={snippet.label}
       {...props}
     >
-      <code>{children}</code>
+      {/* biome-ignore lint/security/noDangerouslySetInnerHtml: Escaped by highlight.js from our own content files. */}
+      <code dangerouslySetInnerHTML={{ __html: snippet.html }} />
     </pre>
   );
   return filename ? (

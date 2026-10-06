@@ -9,8 +9,10 @@ import { PrimitivesSection } from "@/components/landing/primitives-section";
 import { RelationsSection } from "@/components/landing/relations-section";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { SiteHeader } from "@/components/landing/site-header";
+import { getSnippets } from "@/server/get-snippets";
 
 export const Route = createFileRoute("/")({
+  loader: () => getSnippets(),
   head: () => ({
     meta: [
       { title: "Qino — Markdown in. TypeScript out." },
@@ -25,6 +27,9 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
+  const { pipelineDefine, pipelineQuery, relationsPosts } =
+    Route.useLoaderData();
+
   return (
     <>
       <a
@@ -36,10 +41,10 @@ function HomePage() {
       <SiteHeader />
       <main id="main-content">
         <Hero />
-        <Pipeline />
+        <Pipeline define={pipelineDefine} query={pipelineQuery} />
         <FileTypes />
         <PrimitivesSection />
-        <RelationsSection />
+        <RelationsSection snippet={relationsPosts} />
         <CliSection />
         <AgentSection />
       </main>
