@@ -27,7 +27,7 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const { pipelineDefine, pipelineQuery, relationsPosts } =
+  const { pipelineFiles, pipelineDefine, pipelineQuery, relationsPosts } =
     Route.useLoaderData();
 
   return (
@@ -41,7 +41,11 @@ function HomePage() {
       <SiteHeader />
       <main id="main-content">
         <Hero />
-        <Pipeline define={pipelineDefine} query={pipelineQuery} />
+        <Pipeline
+          files={pipelineFiles}
+          define={pipelineDefine}
+          query={pipelineQuery}
+        />
         <FileTypes />
         <PrimitivesSection />
         <RelationsSection snippet={relationsPosts} />

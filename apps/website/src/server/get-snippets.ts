@@ -7,11 +7,17 @@ import { highlightSnippet } from "./highlight-snippet";
 export const getSnippets = createServerFn({ method: "GET" })
   .middleware([staticFunctionMiddleware])
   .handler(async () => {
-    const [pipelineDefine, pipelineQuery, relationsPosts] = await Promise.all(
-      ["pipeline-define", "pipeline-query", "relations-posts"].map(getSnippet),
-    );
+    const [pipelineFiles, pipelineDefine, pipelineQuery, relationsPosts] =
+      await Promise.all(
+        [
+          "pipeline-files",
+          "pipeline-define",
+          "pipeline-query",
+          "relations-posts",
+        ].map(getSnippet),
+      );
 
-    return { pipelineDefine, pipelineQuery, relationsPosts };
+    return { pipelineFiles, pipelineDefine, pipelineQuery, relationsPosts };
   });
 
 async function getSnippet(slug: string) {
