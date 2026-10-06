@@ -32,8 +32,10 @@ export const Route = createFileRoute("/docs/$")({
 });
 
 function DocsPage() {
-  const { title, description, since, raw, mdx, previousNode, nextNode } =
+  const { slug, title, description, since, raw, mdx, previousNode, nextNode } =
     Route.useLoaderData();
+  // Top-level pages are section landings with only a link grid to copy.
+  const isSectionLanding = !slug.includes("/");
 
   return (
     <article>
@@ -41,7 +43,7 @@ function DocsPage() {
         {since ? <Eyebrow tone="accent">Since {since.version}</Eyebrow> : null}
         <Title as="h1">{title}</Title>
         <Text size="lead">{description}</Text>
-        <CopyMarkdownButton markdown={raw} />
+        {isSectionLanding ? null : <CopyMarkdownButton markdown={raw} />}
       </header>
       <div className="prose prose-invert max-w-none">
         <MDXRemote {...mdx} components={mdxComponents} />
