@@ -1,4 +1,4 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { MDXRemote } from "next-mdx-remote";
 
 import { CopyMarkdownButton } from "../components/docs/copy-markdown-button";
@@ -32,16 +32,8 @@ export const Route = createFileRoute("/docs/$")({
 });
 
 function DocsPage() {
-  const {
-    title,
-    description,
-    since,
-    raw,
-    mdx,
-    children,
-    previousNode,
-    nextNode,
-  } = Route.useLoaderData();
+  const { title, description, since, raw, mdx, previousNode, nextNode } =
+    Route.useLoaderData();
 
   return (
     <article>
@@ -54,26 +46,6 @@ function DocsPage() {
       <div className="prose prose-invert max-w-none">
         <MDXRemote {...mdx} components={mdxComponents} />
       </div>
-      {children.length > 0 ? (
-        <section className="mt-16" aria-labelledby="in-this-section">
-          <Title as="h2" size="row" id="in-this-section">
-            In this section
-          </Title>
-          <ul className="mt-4 space-y-2">
-            {children.map((child) => (
-              <li key={child.slug}>
-                <Link
-                  to="/docs/$"
-                  params={{ _splat: child.slug }}
-                  className="text-foreground-3 underline underline-offset-4 transition-colors hover:text-foreground"
-                >
-                  {child.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
       <DocsPagination previousNode={previousNode} nextNode={nextNode} />
     </article>
   );
