@@ -1,15 +1,10 @@
 import { notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { staticFunctionMiddleware } from "@tanstack/start-static-server-functions";
-import { serialize } from "next-mdx-remote/serialize";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypeHighlight from "rehype-highlight";
-import rehypeSlug from "rehype-slug";
-import remarkGfm from "remark-gfm";
 import { z } from "zod";
 
 import { docsTree } from "../../qino/docs";
-import { rehypeCodeTitle } from "./rehype-code-title";
+import { serializeMdx } from "./serialize-mdx";
 import { toDocsNode } from "./to-docs-node";
 
 export const getDocsPage = createServerFn({ method: "GET" })
@@ -32,20 +27,7 @@ export const getDocsPage = createServerFn({ method: "GET" })
       ),
     ]);
 
-    const mdx = await serialize<Record<string, never>, Record<string, never>>(
-      entry.markdown,
-      {
-        mdxOptions: {
-          remarkPlugins: [remarkGfm],
-          rehypePlugins: [
-            rehypeSlug,
-            [rehypeAutolinkHeadings, { behavior: "wrap" }],
-            rehypeHighlight,
-            rehypeCodeTitle,
-          ],
-        },
-      },
-    );
+    const mdx = await serializeMdx(entry.markdown);
 
     return {
       slug,
