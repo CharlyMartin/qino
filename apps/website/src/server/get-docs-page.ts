@@ -20,10 +20,16 @@ export const getDocsPage = createServerFn({ method: "GET" })
     const node = flat.find((candidate) => candidate.slug == slug);
     if (!node) throw notFound();
 
-    const [entry, previousNode, nextNode] = await Promise.all([
+    const [entry, previousNode, nextNode, links] = await Promise.all([
       docsTree.getEntry(node.slug),
       docsTree.getPreviousNode(node.slug),
       docsTree.getNextNode(node.slug),
+      Promise.all(
+        node.children.map(async (child) => {
+          const { title, description } = await docsTree.getEntry(child.slug);
+          return { slug: child.slug, title, description };
+        }),
+      ),
     ]);
 
     const mdx = await serialize<Record<string, never>, Record<string, never>>(
@@ -48,7 +54,7 @@ export const getDocsPage = createServerFn({ method: "GET" })
       since: entry.since,
       raw: entry.raw,
       mdx,
-      children: node.children.map(toDocsNode),
+      links,
       previousNode: previousNode ? toDocsNode(previousNode) : null,
       nextNode: nextNode ? toDocsNode(nextNode) : null,
     };
