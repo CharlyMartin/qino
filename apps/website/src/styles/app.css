@@ -50,7 +50,6 @@
   --primary-muted: var(--color-amber-800);
   --ring: var(--primary);
   --primary-foreground: var(--color-stone-900);
-  --code-string: var(--color-green-300);
   --radius: var(--radius-xs);
   --card: var(--surface);
   --card-foreground: var(--foreground);
@@ -87,7 +86,6 @@
   --color-primary-muted: var(--primary-muted);
   --color-primary-foreground: var(--primary-foreground);
   --color-ring: var(--ring);
-  --color-code-string: var(--code-string);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
