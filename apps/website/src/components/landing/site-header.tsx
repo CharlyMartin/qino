@@ -21,12 +21,8 @@ export function SiteHeader() {
           <Link to="/docs" className="hover:text-foreground">
             Docs
           </Link>
-          <Link
-            to="/docs/$"
-            params={{ _splat: "examples" }}
-            className="hidden hover:text-foreground md:inline"
-          >
-            Examples
+          <Link to="/blog" className="hover:text-foreground">
+            Blog
           </Link>
           <a
             href={externalLinks.github}
