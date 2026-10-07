@@ -1,14 +1,17 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/ssr";
 
 import { ButtonLink } from "./button-link";
-import { CodeBlock } from "./code-block";
-import { CodeToken as Token } from "./code-token";
+import { CodeBlock, type Snippet } from "./code-block";
 import { Eyebrow } from "./eyebrow";
 import { Section } from "./section";
 import { Text } from "./text";
 import { Title } from "./title";
 
-export function RelationsSection() {
+type RelationsSectionProps = {
+  snippet: Snippet;
+};
+
+export function RelationsSection({ snippet }: RelationsSectionProps) {
   return (
     <Section aria-labelledby="relations-heading">
       <div className="grid gap-6 lg:grid-cols-2 lg:items-center lg:gap-x-12 lg:gap-y-0">
@@ -28,29 +31,7 @@ export function RelationsSection() {
           </div>
         </div>
         <div className="min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
-          <CodeBlock
-            filename="qino/posts.ts"
-            aria-label="Declare relations between content models"
-          >
-            <Token kind="kw">export const</Token>
-            {" postCollection = qino."}
-            <Token kind="fn">defineCollection</Token>
-            {"({\n  directory: "}
-            <Token kind="string">{'"/posts"'}</Token>
-            {",\n  extension: "}
-            <Token kind="string">{'".md"'}</Token>
-            {
-              ",\n  schema: z.object({\n    title: z.string(),\n    author: z.string(),\n    categories: z.array(z.string()),\n    tags: z.array(z.string()),\n  }),\n  relations: {\n    author: authorCollection,\n    "
-            }
-            <Token kind="string">{'"categories[*]"'}</Token>
-            {": categoryCollection,\n    "}
-            <Token kind="string">{'"tags[*]"'}</Token>
-            {
-              ": tagCollection,\n  },\n  views: (view) => ({\n    default: view({ resolveRelations: "
-            }
-            <Token kind="string">1</Token>
-            {" }),\n  }),\n})"}
-          </CodeBlock>
+          <CodeBlock filename="qino/posts.ts" snippet={snippet} />
         </div>
         <dl className="divide-y border-t font-mono text-xs text-foreground-3 lg:col-start-1 lg:mt-7">
           {[
