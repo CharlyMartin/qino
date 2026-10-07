@@ -175,6 +175,10 @@
   --tw-prose-invert-td-borders: var(--border);
 }
 
+.prose {
+  @apply font-medium;
+}
+
 .prose :where(h2, h3, h4) {
   @apply scroll-mt-24 font-extrabold tracking-tighter;
 }
