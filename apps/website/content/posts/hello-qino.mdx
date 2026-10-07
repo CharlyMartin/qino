@@ -1,0 +1,84 @@
+---
+title: hello-world.md
+description: Announcing qino, the flat-file CMS that turns Markdown into typed TypeScript.
+published-on: "2026-10-07"
+---
+
+qino is live 🚀
+
+If your website's content lives in Markdown files, you probably know the routine. It starts with a few `fs.readFileSync` calls and ends with a small, fragile content layer that nobody wants to touch.
+
+## The problem
+
+Markdown is a great way to write content. Reading it back is the annoying part:
+
+- `fs` imports scattered across the codebase
+- paths built by hand
+- stripping extensions to get slugs
+- stitching related files together manually (a post and its author, say)
+- no guarantee the frontmatter matches what your code expects
+
+Each piece is small, but together they add up to glue code that breaks quietly.
+
+## What qino does
+
+qino is a headless CMS library that sits on top of your content folder. Your repo stays the source of truth: no database, no hosted backend. Content moves with your code through branches, PRs and tags.
+
+You describe your content once:
+
+```ts
+const postCollection = qino.defineCollection({
+  directory: "/posts",
+  extension: ".md",
+  schema: z.object({
+    title: z.string(),
+    author: z.string(),
+    categories: z.array(z.string()),
+  }),
+  relations: {
+    author: authorCollection,
+    "categories[*]": categoryCollection,
+  },
+  views: (view) => ({
+    default: view({ resolveRelations: 1 }),
+  }),
+});
+```
+
+Then you query it like an API:
+
+```ts
+await postCollection.getEntries();
+
+// [
+//   {
+//     title: "Hello world",
+//     author: { name: "Camille Laurent" },
+//     _meta: { slug: "hello-world" },
+//   },
+//   ...
+// ]
+```
+
+## Highlights
+
+- **Query, don't read.** Collections give you entries, not file paths.
+- **Relations.** Link files together like you would in a SQL database. A post's `author` resolves to the full author entry.
+- **Type-safe.** Schemas (Zod or any Standard Schema validator) give you fully inferred types, from the file on disk to your component.
+- **Views.** Expose named shapes of the same content, e.g. a `withReadingTime` view that augments posts.
+- **CLI.** Lint definitions, validate content and generate types as part of your build.
+- **Framework-agnostic.** Works anywhere Node.js 22+ runs.
+
+## In practice
+
+I installed qino on my personal website and I'm super happy with the result. No more `fs` imports, building paths manually, extension path replacement or stitching files together by hand. The content layer shrank to a few collection definitions.
+
+## Try it
+
+<InstallBox />
+
+- [Docs](/docs)
+- [npm](https://www.npmjs.com/package/@qino/cms)
+- [Skill](https://www.skills.sh/charlymartin/qino/set-up-qino-cms)
+
+If this sounds useful, give it a try and let me know if it helped!
