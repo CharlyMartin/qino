@@ -20,7 +20,7 @@
     "@biomejs/biome": "2.5.14",
     "@changesets/changelog-github": "1.0.1",
     "@changesets/cli": "3.0.3",
-    "prettier": "3.9.8",
+    "prettier": "3.9.9",
     "turbo": "2.11.6",
     "typescript": "6.0.3"
   },
