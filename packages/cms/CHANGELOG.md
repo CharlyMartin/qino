@@ -1,5 +1,28 @@
 # @qino/cms
 
+## 0.6.0
+
+### Minor Changes
+
+- [#197](https://github.com/CharlyMartin/qino/pull/197) [`2a58658`](https://github.com/CharlyMartin/qino/commit/2a58658fd5ab64e38725415b18c9568e1c15e315) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Replaces `mediaFolder` with a `media` option on `initQino` and adds a media check to `qino check` and `qino build`. This is a breaking change:
+
+  ```diff
+    initQino({
+      contentFolder: "content",
+  -   mediaFolder: "public",
+  +   media: { folder: "public" },
+    });
+  ```
+
+  Every root-relative URL with a file extension in content must now exist in `media.folder`. The check scans Markdown images and links, `src`/`poster` attributes, and frontmatter or JSON values. Missing files are listed with their `file:line`. Exclude files served by routes, or turn the check off:
+
+  ```ts
+  media: {
+    folder: "public",
+    checkReferences: { exclude: ["/og/**", "/feed.xml"] }, // or `false`
+  },
+  ```
+
 ## 0.5.1
 
 ### Patch Changes
