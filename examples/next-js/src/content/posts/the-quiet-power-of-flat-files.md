@@ -2,7 +2,7 @@
 title: "The Quiet Power of Flat Files"
 created-on: "2024-11-05T09:23:00Z"
 updated-on: "2024-11-12T14:10:00Z"
-image: "https://picsum.photos/seed/the-quiet-power-of-flat-files/1200/630"
+image: "/images/snowy-croplands.webp"
 author: "authors/diego-moreno.json"
 categories:
   - "categories/philosophy.json"

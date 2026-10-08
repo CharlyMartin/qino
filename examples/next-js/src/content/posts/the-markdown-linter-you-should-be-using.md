@@ -2,7 +2,7 @@
 title: "The Markdown Linter You Should Be Using"
 created-on: "2026-02-08T09:00:00Z"
 updated-on: "2026-02-14T13:30:00Z"
-image: "https://picsum.photos/seed/the-markdown-linter-you-should-be-using/1200/630"
+image: "/images/mountain-rocks.webp"
 author: "authors/felix-berger.json"
 categories:
   - "categories/tooling.json"

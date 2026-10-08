@@ -2,7 +2,7 @@
 title: "Why Folder Structure Is API"
 created-on: "2025-09-17T10:00:00Z"
 updated-on: "2025-09-17T10:00:00Z"
-image: "https://picsum.photos/seed/why-folder-structure-is-api/1200/630"
+image: "/images/rolling-hills.webp"
 author: "authors/camille-laurent.json"
 categories:
   - "categories/architecture.json"

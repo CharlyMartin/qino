@@ -2,7 +2,7 @@
 title: "The Anatomy of a Good Slug"
 created-on: "2025-06-02T11:00:00Z"
 updated-on: "2025-06-02T11:00:00Z"
-image: "https://picsum.photos/seed/the-anatomy-of-a-good-slug/1200/630"
+image: "/images/tranquil-mountains.webp"
 author: "authors/camille-laurent.json"
 categories:
   - "categories/content-modeling.json"

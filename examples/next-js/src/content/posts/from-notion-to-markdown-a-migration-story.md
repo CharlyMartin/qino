@@ -2,7 +2,7 @@
 title: "From Notion to Markdown: A Migration Story"
 created-on: "2025-08-04T09:00:00Z"
 updated-on: "2025-08-12T14:00:00Z"
-image: "https://picsum.photos/seed/from-notion-to-markdown-a-migration-story/1200/630"
+image: "/images/snowy-croplands.webp"
 author: "authors/priya-krishnan.json"
 categories:
   - "categories/migration.json"

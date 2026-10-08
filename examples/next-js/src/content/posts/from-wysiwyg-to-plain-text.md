@@ -2,7 +2,7 @@
 title: "From WYSIWYG to Plain Text"
 created-on: "2024-11-29T08:45:00Z"
 updated-on: "2024-12-04T16:20:00Z"
-image: "https://picsum.photos/seed/from-wysiwyg-to-plain-text/1200/630"
+image: "/images/tranquil-mountains.webp"
 author: "authors/priya-krishnan.json"
 categories:
   - "categories/editorial.json"

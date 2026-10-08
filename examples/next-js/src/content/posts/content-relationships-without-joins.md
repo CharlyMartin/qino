@@ -2,7 +2,7 @@
 title: "Content Relationships Without Joins"
 created-on: "2025-09-05T09:30:00Z"
 updated-on: "2025-09-10T13:00:00Z"
-image: "https://picsum.photos/seed/content-relationships-without-joins/1200/630"
+image: "/images/grass-field-clouds.webp"
 author: "authors/camille-laurent.json"
 categories:
   - "categories/content-modeling.json"

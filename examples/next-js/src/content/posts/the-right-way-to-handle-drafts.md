@@ -2,7 +2,7 @@
 title: "The Right Way to Handle Drafts"
 created-on: "2025-08-26T11:00:00Z"
 updated-on: "2025-09-01T15:00:00Z"
-image: "https://picsum.photos/seed/the-right-way-to-handle-drafts/1200/630"
+image: "/images/tranquil-mountains.webp"
 author: "authors/mei-tanaka.json"
 categories:
   - "categories/editorial.json"

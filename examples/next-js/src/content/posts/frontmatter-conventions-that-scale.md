@@ -2,7 +2,7 @@
 title: "Frontmatter Conventions That Scale"
 created-on: "2025-01-03T09:00:00Z"
 updated-on: "2025-01-08T11:45:00Z"
-image: "https://picsum.photos/seed/frontmatter-conventions-that-scale/1200/630"
+image: "/images/andalusian-countryside.webp"
 author: "authors/hanna-voss.json"
 categories:
   - "categories/content-modeling.json"

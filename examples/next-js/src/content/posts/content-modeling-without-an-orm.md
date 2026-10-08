@@ -2,7 +2,7 @@
 title: "Content Modeling Without an ORM"
 created-on: "2025-02-25T10:30:00Z"
 updated-on: "2025-03-01T14:00:00Z"
-image: "https://picsum.photos/seed/content-modeling-without-an-orm/1200/630"
+image: "/images/golden-hillside.webp"
 author: "authors/tomas-silva.json"
 categories:
   - "categories/content-modeling.json"

@@ -2,7 +2,7 @@
 title: "Editorial UX for Developer Tools"
 created-on: "2025-08-15T10:30:00Z"
 updated-on: "2025-08-15T10:30:00Z"
-image: "https://picsum.photos/seed/editorial-ux-for-developer-tools/1200/630"
+image: "/images/mountain-rocks.webp"
 author: "authors/mei-tanaka.json"
 categories:
   - "categories/editorial.json"

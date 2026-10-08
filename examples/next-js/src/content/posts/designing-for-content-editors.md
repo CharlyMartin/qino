@@ -2,7 +2,7 @@
 title: "Designing for Content Editors"
 created-on: "2025-04-19T09:00:00Z"
 updated-on: "2025-04-22T13:30:00Z"
-image: "https://picsum.photos/seed/designing-for-content-editors/1200/630"
+image: "/images/mountain-river.webp"
 author: "authors/amara-okonkwo.json"
 categories:
   - "categories/editorial.json"

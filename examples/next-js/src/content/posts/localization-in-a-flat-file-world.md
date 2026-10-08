@@ -2,7 +2,7 @@
 title: "Localization in a Flat-File World"
 created-on: "2025-05-21T09:00:00Z"
 updated-on: "2025-05-30T11:30:00Z"
-image: "https://picsum.photos/seed/localization-in-a-flat-file-world/1200/630"
+image: "/images/mountain-rocks.webp"
 author: "authors/camille-laurent.json"
 categories:
   - "categories/content-modeling.json"

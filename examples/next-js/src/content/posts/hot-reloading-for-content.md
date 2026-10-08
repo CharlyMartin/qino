@@ -2,7 +2,7 @@
 title: "Hot Reloading for Content"
 created-on: "2025-06-23T10:00:00Z"
 updated-on: "2025-06-28T16:00:00Z"
-image: "https://picsum.photos/seed/hot-reloading-for-content/1200/630"
+image: "/images/golden-hillside.webp"
 author: "authors/jane-doe.json"
 categories:
   - "categories/tooling.json"

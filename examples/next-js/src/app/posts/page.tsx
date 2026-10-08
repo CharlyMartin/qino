@@ -22,7 +22,7 @@ export default async function PostsIndex() {
               href={`/posts/${post._meta.slug}`}
               className="group block overflow-hidden rounded-xl border border-zinc-200 bg-white transition-colors hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
             >
-              <div className="relative aspect-1200/630 w-full bg-zinc-100 dark:bg-zinc-900">
+              <div className="relative aspect-video w-full bg-zinc-100 dark:bg-zinc-900">
                 <Image
                   src={post.image}
                   alt=""

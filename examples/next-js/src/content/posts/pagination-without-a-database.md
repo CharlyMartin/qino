@@ -2,7 +2,7 @@
 title: "Pagination Without a Database"
 created-on: "2025-10-17T10:00:00Z"
 updated-on: "2025-10-22T13:00:00Z"
-image: "https://picsum.photos/seed/pagination-without-a-database/1200/630"
+image: "/images/andalusian-countryside.webp"
 author: "authors/yuki-sato.json"
 categories:
   - "categories/architecture.json"
