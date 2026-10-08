@@ -2,7 +2,7 @@
 title: "Caching Strategies for Markdown"
 created-on: "2025-07-04T12:00:00Z"
 updated-on: "2025-07-04T12:00:00Z"
-image: "https://picsum.photos/seed/caching-strategies-for-markdown/1200/630"
+image: "/images/fields-at-sunset.webp"
 author: "authors/jane-doe.json"
 categories:
   - "categories/performance.json"

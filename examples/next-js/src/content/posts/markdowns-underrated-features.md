@@ -2,7 +2,7 @@
 title: "Markdown's Underrated Features"
 created-on: "2025-01-26T10:00:00Z"
 updated-on: "2025-01-26T10:00:00Z"
-image: "https://picsum.photos/seed/markdowns-underrated-features/1200/630"
+image: "/images/rolling-hills.webp"
 author: "authors/felix-berger.json"
 categories:
   - "categories/markdown.json"

@@ -2,7 +2,7 @@
 title: "The Case for Content in Git"
 created-on: "2024-12-22T17:30:00Z"
 updated-on: "2024-12-22T17:30:00Z"
-image: "https://picsum.photos/seed/the-case-for-content-in-git/1200/630"
+image: "/images/fields-at-sunset.webp"
 author: "authors/diego-moreno.json"
 categories:
   - "categories/philosophy.json"

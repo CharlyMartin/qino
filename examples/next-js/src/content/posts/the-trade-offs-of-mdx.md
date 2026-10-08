@@ -2,7 +2,7 @@
 title: "The Trade-offs of MDX"
 created-on: "2025-07-14T09:00:00Z"
 updated-on: "2025-07-22T13:30:00Z"
-image: "https://picsum.photos/seed/the-trade-offs-of-mdx/1200/630"
+image: "/images/farm-landscape.webp"
 author: "authors/felix-berger.json"
 categories:
   - "categories/markdown.json"

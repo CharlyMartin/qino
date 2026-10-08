@@ -2,7 +2,7 @@
 title: "The Case Against Page Builders"
 created-on: "2025-12-09T10:00:00Z"
 updated-on: "2025-12-15T14:00:00Z"
-image: "https://picsum.photos/seed/the-case-against-page-builders/1200/630"
+image: "/images/farm-landscape.webp"
 author: "authors/amara-okonkwo.json"
 categories:
   - "categories/philosophy.json"

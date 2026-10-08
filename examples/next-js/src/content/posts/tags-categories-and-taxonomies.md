@@ -2,7 +2,7 @@
 title: "Tags, Categories, and Taxonomies"
 created-on: "2025-11-08T09:00:00Z"
 updated-on: "2025-11-12T14:00:00Z"
-image: "https://picsum.photos/seed/tags-categories-and-taxonomies/1200/630"
+image: "/images/snowy-croplands.webp"
 author: "authors/hanna-voss.json"
 categories:
   - "categories/content-modeling.json"

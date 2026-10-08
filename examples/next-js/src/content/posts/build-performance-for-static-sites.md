@@ -2,7 +2,7 @@
 title: "Build Performance for Static Sites"
 created-on: "2026-01-19T11:00:00Z"
 updated-on: "2026-01-26T15:30:00Z"
-image: "https://picsum.photos/seed/build-performance-for-static-sites/1200/630"
+image: "/images/andalusian-countryside.webp"
 author: "authors/jane-doe.json"
 categories:
   - "categories/performance.json"

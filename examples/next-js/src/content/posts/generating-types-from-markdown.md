@@ -2,7 +2,7 @@
 title: "Generating Types from Markdown"
 created-on: "2025-09-26T09:00:00Z"
 updated-on: "2025-10-02T11:30:00Z"
-image: "https://picsum.photos/seed/generating-types-from-markdown/1200/630"
+image: "/images/fields-at-sunset.webp"
 author: "authors/lars-eriksson.json"
 categories:
   - "categories/type-safety.json"

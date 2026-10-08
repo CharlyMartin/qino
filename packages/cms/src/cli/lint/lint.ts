@@ -26,9 +26,9 @@ export async function lint({
     `content folder found at "${path.join(process.cwd(), context.contentFolder)}"`,
   );
 
-  await assertDirectory(context.mediaFolder);
+  await assertDirectory(context.media.folder);
   consola.success(
-    `media folder found at "${path.join(process.cwd(), context.mediaFolder)}"`,
+    `media folder found at "${path.join(process.cwd(), context.media.folder)}"`,
   );
 
   const allPrimitives = [...collections, ...trees, ...items];

@@ -2,7 +2,7 @@
 title: "The Hidden Cost of Rich Text Editors"
 created-on: "2025-04-08T08:30:00Z"
 updated-on: "2025-04-14T11:00:00Z"
-image: "https://picsum.photos/seed/the-hidden-cost-of-rich-text-editors/1200/630"
+image: "/images/grass-field-clouds.webp"
 author: "authors/amara-okonkwo.json"
 categories:
   - "categories/editorial.json"

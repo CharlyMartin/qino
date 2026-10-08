@@ -2,7 +2,7 @@
 title: "Type Safety for Content"
 created-on: "2025-07-25T11:00:00Z"
 updated-on: "2025-07-30T15:30:00Z"
-image: "https://picsum.photos/seed/type-safety-for-content/1200/630"
+image: "/images/fields-at-sunset.webp"
 author: "authors/lars-eriksson.json"
 categories:
   - "categories/type-safety.json"

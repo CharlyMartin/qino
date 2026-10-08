@@ -2,7 +2,7 @@
 title: "The Smallest Useful CMS"
 created-on: "2026-01-08T10:00:00Z"
 updated-on: "2026-01-12T14:00:00Z"
-image: "https://picsum.photos/seed/the-smallest-useful-cms/1200/630"
+image: "/images/andalusian-countryside.webp"
 author: "authors/tomas-silva.json"
 categories:
   - "categories/architecture.json"

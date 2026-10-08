@@ -2,7 +2,7 @@
 title: "Why Authors Should Own Their Files"
 created-on: "2025-12-19T11:00:00Z"
 updated-on: "2025-12-19T11:00:00Z"
-image: "https://picsum.photos/seed/why-authors-should-own-their-files/1200/630"
+image: "/images/mountain-river.webp"
 author: "authors/hanna-voss.json"
 categories:
   - "categories/philosophy.json"

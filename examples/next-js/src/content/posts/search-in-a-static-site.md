@@ -2,7 +2,7 @@
 title: "Search in a Static Site"
 created-on: "2025-10-28T11:00:00Z"
 updated-on: "2025-11-04T15:30:00Z"
-image: "https://picsum.photos/seed/search-in-a-static-site/1200/630"
+image: "/images/mountain-river.webp"
 author: "authors/raj-patel.json"
 categories:
   - "categories/architecture.json"

@@ -2,7 +2,7 @@
 title: "Building a CMS Without a Database"
 created-on: "2024-12-10T13:15:00Z"
 updated-on: "2024-12-15T10:00:00Z"
-image: "https://picsum.photos/seed/building-a-cms-without-a-database/1200/630"
+image: "/images/farm-landscape.webp"
 author: "authors/tomas-silva.json"
 categories:
   - "categories/architecture.json"

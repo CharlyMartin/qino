@@ -2,7 +2,7 @@
 title: "RSS Feeds Are Still Worth It"
 created-on: "2025-11-19T10:00:00Z"
 updated-on: "2025-11-19T10:00:00Z"
-image: "https://picsum.photos/seed/rss-feeds-are-still-worth-it/1200/630"
+image: "/images/golden-hillside.webp"
 author: "authors/raj-patel.json"
 categories:
   - "categories/seo.json"

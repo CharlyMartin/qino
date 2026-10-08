@@ -2,7 +2,7 @@
 title: "The Lock File Pattern for Content"
 created-on: "2025-02-14T12:00:00Z"
 updated-on: "2025-02-14T12:00:00Z"
-image: "https://picsum.photos/seed/the-lock-file-pattern-for-content/1200/630"
+image: "/images/mountain-river.webp"
 author: "authors/tomas-silva.json"
 categories:
   - "categories/architecture.json"

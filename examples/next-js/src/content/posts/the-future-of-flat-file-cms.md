@@ -2,7 +2,7 @@
 title: "The Future of Flat-File CMS"
 created-on: "2026-04-18T10:00:00Z"
 updated-on: "2026-04-25T14:30:00Z"
-image: "https://picsum.photos/seed/the-future-of-flat-file-cms/1200/630"
+image: "/images/golden-hillside.webp"
 author: "authors/diego-moreno.json"
 categories:
   - "categories/philosophy.json"

@@ -2,7 +2,7 @@
 title: "Editorial Workflows in Plain Text"
 created-on: "2025-02-04T08:00:00Z"
 updated-on: "2025-02-19T15:45:00Z"
-image: "https://picsum.photos/seed/editorial-workflows-in-plain-text/1200/630"
+image: "/images/rolling-hills.webp"
 author: "authors/mei-tanaka.json"
 categories:
   - "categories/editorial.json"

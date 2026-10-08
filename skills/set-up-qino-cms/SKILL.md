@@ -32,7 +32,7 @@ Before writing anything, find:
 - **Requirements.** Node 22+. If TypeScript is used, 5.9+ with `strict: true`. If these aren't met, stop and tell the user.
 - **Validator.** Any [Standard Schema](https://standardschema.dev) library works. If the project already has one (zod, valibot, arktype), use it. Otherwise also install `zod`.
 - **Framework.** Look for `next.config.*` or similar.
-- **Existing content.** Look for folders of `.md`/`.mdx`/`.markdown`/`.json` content, and a static folder (`public/`) for `mediaFolder`.
+- **Existing content.** Look for folders of `.md`/`.mdx`/`.markdown`/`.json` content, and a static folder (`public/`) for `media.folder`.
 
 The CLI supports `compilerOptions.paths` aliases from the nearest `tsconfig.json` walking up from the working directory, including paths inherited through `extends`. Use the project's aliases in the instance, definitions, and shared schemas. Keep their import chain free of CSS, images, and Markdown imports that need bundler loaders.
 
@@ -59,7 +59,7 @@ import { initQino } from "@qino/cms";
 
 export default initQino({
   contentFolder: "src/content", // the existing content root
-  mediaFolder: "public",
+  media: { folder: "public" },
 });
 ```
 

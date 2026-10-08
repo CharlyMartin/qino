@@ -2,7 +2,7 @@
 title: "Schemas for Markdown Frontmatter"
 created-on: "2025-03-29T10:00:00Z"
 updated-on: "2025-03-29T10:00:00Z"
-image: "https://picsum.photos/seed/schemas-for-markdown-frontmatter/1200/630"
+image: "/images/grass-field-clouds.webp"
 author: "authors/lars-eriksson.json"
 categories:
   - "categories/type-safety.json"

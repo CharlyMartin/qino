@@ -3,7 +3,10 @@ import { z } from "zod";
 
 import { initQino } from "../runtime/qino/init-qino";
 
-const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
+const qino = initQino({
+  contentFolder: "content",
+  media: { folder: "public" },
+});
 const senior = qino.defineItem({
   views: (view) => ({
     default: view({

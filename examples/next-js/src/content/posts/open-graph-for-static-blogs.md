@@ -2,7 +2,7 @@
 title: "Open Graph for Static Blogs"
 created-on: "2026-04-05T11:00:00Z"
 updated-on: "2026-04-05T11:00:00Z"
-image: "https://picsum.photos/seed/open-graph-for-static-blogs/1200/630"
+image: "/images/tranquil-mountains.webp"
 author: "authors/raj-patel.json"
 categories:
   - "categories/seo.json"

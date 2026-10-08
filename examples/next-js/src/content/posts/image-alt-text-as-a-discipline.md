@@ -2,7 +2,7 @@
 title: "Image Alt Text as a Discipline"
 created-on: "2026-03-02T11:00:00Z"
 updated-on: "2026-03-02T11:00:00Z"
-image: "https://picsum.photos/seed/image-alt-text-as-a-discipline/1200/630"
+image: "/images/grass-field-clouds.webp"
 author: "authors/amara-okonkwo.json"
 categories:
   - "categories/editorial.json"

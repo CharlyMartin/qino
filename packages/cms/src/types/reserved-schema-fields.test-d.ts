@@ -4,7 +4,10 @@ import { z } from "zod";
 
 import type { ObjectSchema } from "./schema";
 
-const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
+const qino = initQino({
+  contentFolder: "content",
+  media: { folder: "public" },
+});
 const metaSchema = z.object({
   title: z.string(),
   _meta: z.string().optional(),

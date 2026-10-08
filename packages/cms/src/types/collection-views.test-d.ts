@@ -3,7 +3,10 @@ import { z } from "zod";
 
 import { initQino } from "../runtime/qino/init-qino";
 
-const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
+const qino = initQino({
+  contentFolder: "content",
+  media: { folder: "public" },
+});
 const schema = z.object({ title: z.string(), author: z.string() });
 const authors = qino.defineCollection({
   directory: "authors",

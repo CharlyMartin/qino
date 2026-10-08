@@ -2,7 +2,7 @@
 title: "Preview Modes Without Servers"
 created-on: "2026-03-23T10:00:00Z"
 updated-on: "2026-03-28T15:00:00Z"
-image: "https://picsum.photos/seed/preview-modes-without-servers/1200/630"
+image: "/images/farm-landscape.webp"
 author: "authors/mei-tanaka.json"
 categories:
   - "categories/tooling.json"

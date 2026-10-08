@@ -2,7 +2,7 @@
 title: "When Static Sites Beat Dynamic Ones"
 created-on: "2025-01-15T14:20:00Z"
 updated-on: "2025-01-21T09:30:00Z"
-image: "https://picsum.photos/seed/when-static-sites-beat-dynamic-ones/1200/630"
+image: "/images/grass-field-clouds.webp"
 author: "authors/yuki-sato.json"
 categories:
   - "categories/architecture.json"
