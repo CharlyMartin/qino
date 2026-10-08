@@ -12,7 +12,7 @@ declare module "@qino/cms" {
 
 const { defineCollection, defineTree } = initQino({
   contentFolder: "src/content",
-  mediaFolder: "public",
+  media: { folder: "public" },
 });
 
 const Schema = z.object({ title: z.string() }).strict();

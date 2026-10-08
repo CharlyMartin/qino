@@ -32,7 +32,7 @@ import { initQino } from "@qino/cms";
 
 export default initQino({
   contentFolder: "src/content",
-  mediaFolder: "public",
+  media: { folder: "public" },
 });
 ```
 
@@ -82,6 +82,6 @@ qino/_generated/
 
 ## Path rules
 
-- `contentFolder` and `mediaFolder` are relative to the working directory and must be directories.
+- `contentFolder` and `media.folder` are relative to the working directory and must be directories.
 - `directory` on collections and trees, and `file` on items, are [content paths](/docs/guide/content-folder#content-paths): relative to `contentFolder`, with no leading `/`.
 - Two primitives cannot own overlapping paths. A tree and a collection cannot share or nest directories, and an item file cannot sit inside either.

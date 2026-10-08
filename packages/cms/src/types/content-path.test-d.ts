@@ -2,7 +2,10 @@ import { initQino } from "@qino/cms";
 import { expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
-const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
+const qino = initQino({
+  contentFolder: "content",
+  media: { folder: "public" },
+});
 const schema = z.object({ title: z.string() });
 
 test("accepts content paths without a leading slash", () => {

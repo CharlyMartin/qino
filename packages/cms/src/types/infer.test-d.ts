@@ -8,7 +8,10 @@ import {
 import { expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
-const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
+const qino = initQino({
+  contentFolder: "content",
+  media: { folder: "public" },
+});
 const site = qino.defineItem({
   file: "site.json",
   schema: z.object({ name: z.string() }),

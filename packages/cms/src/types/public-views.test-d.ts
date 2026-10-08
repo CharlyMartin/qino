@@ -3,7 +3,10 @@ import { expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
 const schema = z.object({ title: z.string() });
-const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
+const qino = initQino({
+  contentFolder: "content",
+  media: { folder: "public" },
+});
 
 // Derive helpers from the public API so source and dist checks use the same symbols.
 type CollectionView = Parameters<
