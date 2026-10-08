@@ -44,7 +44,7 @@ async function main() {
       consola.error(
         command
           ? `Unknown command: ${command}`
-          : `Usage: qino <command>\n\nCommands:\n  ${LINT}     Validate config, paths, and relations (no content read)\n  ${CHECK}    Validate every content file against its schema\n  ${BUILD}    Run lint + check, then generate types`,
+          : `Usage: qino <command>\n\nCommands:\n  ${LINT}     Validate config, paths, and relations (no content read)\n  ${CHECK}    Validate content against schemas and check local media exists\n  ${BUILD}    Run lint + check, then generate types`,
       );
       process.exit(1);
   }
