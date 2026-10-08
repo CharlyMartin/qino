@@ -2,7 +2,7 @@
 "@qino/cms": minor
 ---
 
-Replaces `mediaFolder` with a `media` option on `initQino` and adds an opt-in media check to `qino check` and `qino build`. This is a breaking change:
+Replaces `mediaFolder` with a `media` option on `initQino` and adds a media check to `qino check` and `qino build`. This is a breaking change:
 
 ```diff
   initQino({
@@ -12,12 +12,11 @@ Replaces `mediaFolder` with a `media` option on `initQino` and adds an opt-in me
   });
 ```
 
-Set `media.extensions` to verify that every root-relative URL with one of those extensions exists in `media.folder`. The check scans Markdown images and links, `src`/`poster` attributes, and frontmatter or JSON values. Missing files are listed with their `file:line`. Skip generated or proxied paths with `media.ignore` globs:
+Every root-relative URL with a file extension in content must now exist in `media.folder`. The check scans Markdown images and links, `src`/`poster` attributes, and frontmatter or JSON values. Missing files are listed with their `file:line`. Exclude files served by routes, or turn the check off:
 
 ```ts
 media: {
   folder: "public",
-  extensions: ["png", "webp", "mp4"],
-  ignore: ["/api/**"],
+  checkReferences: { exclude: ["/og/**", "/feed.xml"] }, // or `false`
 },
 ```

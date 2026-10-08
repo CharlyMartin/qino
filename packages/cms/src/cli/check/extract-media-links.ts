@@ -23,20 +23,16 @@ export function extractMediaLinks(raw: string, extension: string) {
   }));
 
   if (!isJson) {
+    // Blank lines stand in for frontmatter so every position the parser
+    // reports, including those inside MDX error messages, is a file line.
+    const body = "\n".repeat(bodyLineOffset) + parsed.content;
+
     try {
-      for (const { url, line } of scanMarkdownBody(parsed.content, {
-        mdx: extension == ".mdx",
-      })) {
-        candidates.push({ url, line: line + bodyLineOffset });
-      }
+      candidates.push(...scanMarkdownBody(body, { mdx: extension == ".mdx" }));
     } catch (cause) {
-      // MDX parse errors carry a body-relative `line`; report the file line.
       const message = cause instanceof Error ? cause.message : String(cause);
       const line = (cause as { line?: number } | null)?.line;
-      throw new Error(
-        line ? `line ${line + bodyLineOffset}: ${message}` : message,
-        { cause },
-      );
+      throw new Error(line ? `line ${line}: ${message}` : message, { cause });
     }
   }
 

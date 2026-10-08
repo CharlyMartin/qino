@@ -33,7 +33,7 @@ describe("findMissingMedia", () => {
     expect(
       await findMissingMedia({
         contentFolder,
-        media: { folder, extensions: ["png"] },
+        media: { folder },
       }),
     ).toEqual([]);
   });
@@ -46,7 +46,7 @@ describe("findMissingMedia", () => {
 
     const missing = await findMissingMedia({
       contentFolder,
-      media: { folder, extensions: ["png", "svg"] },
+      media: { folder },
     });
 
     expect(missing).toEqual([
@@ -55,12 +55,12 @@ describe("findMissingMedia", () => {
     ]);
   });
 
-  test("skips urls outside extensions or matching ignore", async () => {
+  test("skips extensionless and excluded urls", async () => {
     await fs.writeFile(
       nodePath.join(contentFolder, "posts/hello.md"),
       [
         "---",
-        "canonical: /blog/hello.html",
+        "canonical: /blog/hello",
         "---",
         "[RSS](/rss.xml)",
         "![](/api/og)",
@@ -71,7 +71,10 @@ describe("findMissingMedia", () => {
     expect(
       await findMissingMedia({
         contentFolder,
-        media: { folder, extensions: ["png"], ignore: ["/api/**"] },
+        media: {
+          folder,
+          checkReferences: { exclude: ["/api/**", "/rss.xml"] },
+        },
       }),
     ).toEqual([]);
   });
@@ -83,7 +86,7 @@ describe("findMissingMedia", () => {
     await expect(
       findMissingMedia({
         contentFolder,
-        media: { folder, extensions: ["png"] },
+        media: { folder },
       }),
     ).rejects.toThrow(`Could not scan "${mdx}" for media`);
   });
@@ -95,7 +98,7 @@ describe("findMissingMedia", () => {
     await expect(
       findMissingMedia({
         contentFolder,
-        media: { folder, extensions: ["png"] },
+        media: { folder },
       }),
     ).rejects.toThrow(`Could not scan "${json}" for media`);
   });

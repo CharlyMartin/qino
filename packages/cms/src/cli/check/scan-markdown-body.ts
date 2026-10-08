@@ -1,6 +1,8 @@
 import type { Nodes } from "mdast";
 import { fromMarkdown } from "mdast-util-from-markdown";
+import { gfmFromMarkdown } from "mdast-util-gfm";
 import { mdxFromMarkdown } from "mdast-util-mdx";
+import { gfm } from "micromark-extension-gfm";
 import { mdxjs } from "micromark-extension-mdxjs";
 
 import { extractHtmlAttributeUrls } from "./extract-html-attribute-urls";
@@ -13,12 +15,13 @@ export function scanMarkdownBody(
   content: string,
   { mdx }: ScanMarkdownBodyOptions,
 ) {
-  const tree = mdx
-    ? fromMarkdown(content, {
-        extensions: [mdxjs()],
-        mdastExtensions: [mdxFromMarkdown()],
-      })
-    : fromMarkdown(content);
+  // GFM matches how most sites render; without it a table is one paragraph.
+  const tree = fromMarkdown(content, {
+    extensions: mdx ? [gfm(), mdxjs()] : [gfm()],
+    mdastExtensions: mdx
+      ? [gfmFromMarkdown(), mdxFromMarkdown()]
+      : [gfmFromMarkdown()],
+  });
 
   const links: Array<{ url: string; line: number }> = [];
 

@@ -16,10 +16,16 @@ import { type DefineTreeParams, defineTree } from "../trees/define-tree";
 export type QinoMediaConfig = {
   /** Folder serving media at the site root, e.g. `"public"`. */
   readonly folder: string;
-  /** Extensions checked by `qino check`. Omit to skip the media check. */
-  readonly extensions?: ReadonlyArray<string>;
-  /** Globs matched against URL paths to skip, e.g. `"/api/**"`. */
-  readonly ignore?: ReadonlyArray<string>;
+  /**
+   * Makes `qino check` verify that every file referenced in content exists
+   * in `folder`. Defaults to `true`; `false` skips the check.
+   */
+  readonly checkReferences?:
+    | boolean
+    | {
+        /** URL globs served by routes instead of `folder`, e.g. `"/og/**"`. */
+        readonly exclude?: ReadonlyArray<string>;
+      };
 };
 
 export type QinoConfig = {

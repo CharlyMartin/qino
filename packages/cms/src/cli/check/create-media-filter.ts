@@ -2,24 +2,13 @@ import nodePath from "node:path";
 
 import picomatch from "picomatch";
 
-import type { QinoMediaConfig } from "../../runtime/qino/init-qino";
-
-type CreateMediaFilterParams = Pick<QinoMediaConfig, "extensions" | "ignore">;
-
-export function createMediaFilter({
-  extensions = [],
-  ignore = [],
-}: CreateMediaFilterParams) {
-  const allowed = new Set(
-    extensions.map((ext) => ext.replace(/^\./u, "").toLowerCase()),
-  );
-
-  const isIgnored = ignore.length
-    ? picomatch([...ignore], { dot: true })
+export function createMediaFilter(exclude: ReadonlyArray<string> = []) {
+  const isExcluded = exclude.length
+    ? picomatch([...exclude], { dot: true })
     : () => false;
 
+  // URLs without an extension, like `/blog/post`, are page links.
   return function isCheckedMedia(url: string) {
-    const extension = nodePath.posix.extname(url).slice(1).toLowerCase();
-    return allowed.has(extension) && !isIgnored(url);
+    return nodePath.posix.extname(url) != "" && !isExcluded(url);
   };
 }

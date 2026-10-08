@@ -2,8 +2,5 @@ import { initQino } from "@qino/cms";
 
 export default initQino({
   contentFolder: "src/content",
-  media: {
-    folder: "public",
-    extensions: ["webp"],
-  },
+  media: { folder: "public" },
 });

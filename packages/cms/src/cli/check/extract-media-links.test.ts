@@ -53,6 +53,12 @@ describe("extractMediaLinks", () => {
     ).toThrow(/^line 5: /u);
   });
 
+  test("reports file positions inside MDX error messages", () => {
+    expect(() =>
+      extractMediaLinks("---\ntitle: Hi\n---\n\nText <message>\nmore", ".mdx"),
+    ).toThrow(/^line 5: .*\(5:6-5:15\)/u);
+  });
+
   test("ignores external and relative urls", () => {
     const raw = [
       "---",

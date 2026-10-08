@@ -10,7 +10,10 @@ import { createMediaFilter } from "./create-media-filter";
 import { extractMediaLinks } from "./extract-media-links";
 
 export async function findMissingMedia({ contentFolder, media }: QinoConfig) {
-  const isCheckedMedia = createMediaFilter(media);
+  const { checkReferences } = media;
+  const isCheckedMedia = createMediaFilter(
+    typeof checkReferences == "object" ? checkReferences.exclude : [],
+  );
   const contentExtensions = SUPPORTED_CONTENT_EXTENSIONS.map((ext) =>
     ext.slice(1),
   );

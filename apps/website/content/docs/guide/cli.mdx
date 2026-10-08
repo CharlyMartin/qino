@@ -54,31 +54,32 @@ Views, relation resolution, filter, sort, and augment do not run. An empty colle
 
 ### Media
 
-Opt-in. Set `media.extensions` on [`initQino`](/docs/api/init-qino) to turn it on; without it, `check` logs that the media check was skipped.
+On by default. After schema validation, `check` verifies that every file referenced in content exists in `media.folder`. Configure it with `media.checkReferences` on [`initQino`](/docs/api/init-qino):
 
 ```ts title="qino/index.ts"
 export default initQino({
   contentFolder: "content",
   media: {
     folder: "public",
-    extensions: ["png", "jpg", "webp", "mp4"],
-    ignore: ["/api/**"],
+    checkReferences: { exclude: ["/og/**", "/feed.xml"] },
   },
 });
 ```
 
-After schema validation, `check` scans every `.md`, `.mdx`, `.markdown`, and `.json` file in `contentFolder` and collects root-relative URLs from:
+Set `checkReferences: false` to skip the check.
+
+`check` scans every `.md`, `.mdx`, `.markdown`, and `.json` file in `contentFolder` and collects root-relative URLs from:
 
 - Markdown images and links: `![Alt](/images/a.png)`, `[Download](/files/b.pdf)`.
 - Reference definitions: `[logo]: /images/logo.svg`.
 - `src` and `poster` attributes in HTML and MDX: `<video src="/videos/c.mp4" />`, `<Image src={"/images/d.png"} />`. Dynamic values like `src={cover}` are skipped.
 - Frontmatter and JSON string values: `cover: /images/e.png`.
 
-The body is parsed as Markdown, or as MDX for `.mdx` files, so code blocks, indented code, and inline code are never scanned. An `.mdx` file that fails to parse fails the check with its path and line.
+The body is parsed as Markdown with GFM (tables, autolinks), plus MDX for `.mdx` files, so code blocks, indented code, and inline code are never scanned. An `.mdx` file that fails to parse fails the check with its path and line.
 
-A URL is checked when its extension is listed in `media.extensions` and it matches no `media.ignore` glob. It maps to a path inside `media.folder`: with `folder: "public"`, `/images/a.png` must exist at `public/images/a.png`.
+A URL is a file reference when its last segment has an extension, like `/images/a.png` or `/files/b.pdf`, and it matches no `exclude` glob. It maps to a path inside `media.folder`: with `folder: "public"`, `/images/a.png` must exist at `public/images/a.png`.
 
-Query strings and hashes are stripped, percent-encoded characters like `%20` and `%23` are decoded, and so are HTML character references like `&amp;` in attributes. External URLs, protocol-relative `//` URLs, and relative paths like `./a.png` are ignored. Page links such as `/blog/post.html` are skipped as long as `html` is not in `extensions`. Use `ignore` for media served by routes, such as generated Open Graph images.
+Query strings and hashes are stripped, percent-encoded characters like `%20` and `%23` are decoded, and so are HTML character references like `&amp;` in attributes. External URLs, protocol-relative `//` URLs, and relative paths like `./a.png` are ignored. Page links without an extension, like `/blog/post`, are skipped. Qino never lists the media folder; files it doesn't reference are left alone. Use `exclude` for files served by routes, such as generated Open Graph images, feeds, or sitemaps.
 
 Every missing file is reported at once:
 

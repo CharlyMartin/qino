@@ -15,8 +15,8 @@ export async function check({ collections, items, trees, context }: Loaded) {
 
   consola.success("All content passes schema validation.");
 
-  if (!context.media.extensions?.length) {
-    consola.info("Media check skipped: no `media.extensions` configured.");
+  if (context.media.checkReferences == false) {
+    consola.info("Media check skipped: `media.checkReferences` is false.");
     return;
   }
 

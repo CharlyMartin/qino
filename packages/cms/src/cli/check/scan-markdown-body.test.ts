@@ -42,6 +42,18 @@ describe("scanMarkdownBody", () => {
     ]);
   });
 
+  test("parses GFM tables cell by cell", () => {
+    const content = [
+      "| Message | Preview |",
+      "| --- | --- |",
+      "| `Use \\`a\\`.` | ![](/a.png) |",
+      "| `Error: <message>` | ![](/b.png) |",
+    ].join("\n");
+
+    expect(md(content)).toEqual(["/a.png", "/b.png"]);
+    expect(mdx(content)).toEqual(["/a.png", "/b.png"]);
+  });
+
   test("ignores every kind of code", () => {
     const content = [
       "```md",

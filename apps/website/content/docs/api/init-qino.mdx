@@ -13,8 +13,7 @@ const qino = initQino({
   contentFolder: "src/content",
   media: {
     folder: "public",
-    extensions: ["png", "jpg", "webp", "mp4"],
-    ignore: ["/api/**"],
+    checkReferences: { exclude: ["/og/**"] },
   },
 });
 ```
@@ -26,8 +25,8 @@ function initQino(config: {
   readonly contentFolder: string;
   readonly media: {
     readonly folder: string;
-    readonly extensions?: ReadonlyArray<string>;
-    readonly ignore?: ReadonlyArray<string>;
+    readonly checkReferences?:
+      boolean | { readonly exclude?: ReadonlyArray<string> };
   };
 }): {
   defineCollection: typeof defineCollection;
@@ -38,12 +37,12 @@ function initQino(config: {
 
 ## Parameters
 
-| Name               | Type                    | Required | Default | Description                                                                                                       |
-| ------------------ | ----------------------- | -------- | ------- | ----------------------------------------------------------------------------------------------------------------- |
-| `contentFolder`    | `string`                | yes      |         | Directory, relative to the working directory, that every `directory` and `file` path is joined onto               |
-| `media.folder`     | `string`                | yes      |         | Directory, relative to the working directory, serving media at the site root, such as `public`                    |
-| `media.extensions` | `ReadonlyArray<string>` | no       | `[]`    | Extensions `qino check` verifies, with or without the dot, case-insensitive. Empty skips the [media check](/docs/guide/cli#media) |
-| `media.ignore`     | `ReadonlyArray<string>` | no       | `[]`    | Globs matched against URL paths that the media check skips, such as `/api/**`                                     |
+| Name                            | Type                      | Required | Default | Description                                                                                              |
+| ------------------------------- | ------------------------- | -------- | ------- | -------------------------------------------------------------------------------------------------------- |
+| `contentFolder`                 | `string`                  | yes      |         | Directory, relative to the working directory, that every `directory` and `file` path is joined onto      |
+| `media.folder`                  | `string`                  | yes      |         | Directory, relative to the working directory, serving media at the site root, such as `public`           |
+| `media.checkReferences`         | `boolean \| { exclude? }` | no       | `true`  | Whether `qino check` verifies that files referenced in content exist. See [Media](/docs/guide/cli#media) |
+| `media.checkReferences.exclude` | `ReadonlyArray<string>`   | no       | `[]`    | URL globs served by routes instead of `media.folder`, such as `/og/**`                                   |
 
 The config type is not exported; pass an object literal.
 
