@@ -9,10 +9,15 @@ import type { QinoConfig } from "../../runtime/qino/init-qino";
 import { createMediaFilter } from "./create-media-filter";
 import { extractMediaLinks } from "./extract-media-links";
 
-export async function findMissingMedia({ contentFolder, media }: QinoConfig) {
-  const { checkReferences } = media;
+export async function findMissingMedia({
+  contentFolder,
+  mediaFolder,
+  checkLocalAssetReferences,
+}: QinoConfig) {
   const isCheckedMedia = createMediaFilter(
-    typeof checkReferences == "object" ? checkReferences.exclude : [],
+    typeof checkLocalAssetReferences == "object"
+      ? checkLocalAssetReferences.exclude
+      : [],
   );
   const contentExtensions = SUPPORTED_CONTENT_EXTENSIONS.map((ext) =>
     ext.slice(1),
@@ -26,7 +31,7 @@ export async function findMissingMedia({ contentFolder, media }: QinoConfig) {
   const existence = new Map<string, Promise<boolean>>();
 
   function exists(url: string) {
-    const filePath = nodePath.join(media.folder, url);
+    const filePath = nodePath.join(mediaFolder, url);
 
     if (!existence.has(filePath)) {
       existence.set(filePath, isFile(filePath));

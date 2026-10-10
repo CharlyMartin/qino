@@ -15,8 +15,8 @@ export async function check({ collections, items, trees, context }: Loaded) {
 
   consola.success("All content passes schema validation.");
 
-  if (context.media.checkReferences == false) {
-    consola.info("Media check skipped: `media.checkReferences` is false.");
+  if (context.checkLocalAssetReferences == false) {
+    consola.info("Media check skipped: `checkLocalAssetReferences` is false.");
     return;
   }
 

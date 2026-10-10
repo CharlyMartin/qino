@@ -13,24 +13,20 @@ import {
 import { type DefineItemParams, defineItem } from "../items/define-item";
 import { type DefineTreeParams, defineTree } from "../trees/define-tree";
 
-export type QinoMediaConfig = {
-  /** Folder serving media at the site root, e.g. `"public"`. */
-  readonly folder: string;
-  /**
-   * Makes `qino check` verify that every file referenced in content exists
-   * in `folder`. Defaults to `true`; `false` skips the check.
-   */
-  readonly checkReferences?:
-    | boolean
-    | {
-        /** URL globs served by routes instead of `folder`, e.g. `"/og/**"`. */
-        readonly exclude?: ReadonlyArray<string>;
-      };
-};
-
 export type QinoConfig = {
   readonly contentFolder: string;
-  readonly media: QinoMediaConfig;
+  /** Folder serving media at the site root, e.g. `"public"`. */
+  readonly mediaFolder: string;
+  /**
+   * Makes `qino check` verify that every local file referenced in content
+   * exists in `mediaFolder`. Defaults to `true`; `false` skips the check.
+   */
+  readonly checkLocalAssetReferences?:
+    | boolean
+    | {
+        /** URL globs served by routes instead of `mediaFolder`, e.g. `"/og/**"`. */
+        readonly exclude?: ReadonlyArray<string>;
+      };
 };
 
 export type QinoContext = {

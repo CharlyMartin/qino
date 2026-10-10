@@ -4,7 +4,7 @@ import { z } from "zod";
 
 const qino = initQino({
   contentFolder: "content",
-  media: { folder: "public" },
+  mediaFolder: "public",
 });
 const schema = z.object({
   title: z.string(),
