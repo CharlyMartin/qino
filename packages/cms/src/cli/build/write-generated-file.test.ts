@@ -4,7 +4,7 @@ import nodePath from "node:path";
 
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
-import { writeGeneratedTypes } from "./write-generated-types";
+import { writeGeneratedFile } from "./write-generated-file";
 
 let tmp: string;
 let filePath: string;
@@ -18,24 +18,24 @@ afterEach(async () => {
   await fs.rm(tmp, { recursive: true, force: true });
 });
 
-describe("writeGeneratedTypes", () => {
+describe("writeGeneratedFile", () => {
   test("creates the parent directory and writes when absent", async () => {
-    const wrote = await writeGeneratedTypes(filePath, "content");
+    const wrote = await writeGeneratedFile(filePath, "content");
 
     expect(wrote).toBe(true);
     expect(await fs.readFile(filePath, "utf-8")).toBe("content");
   });
 
   test("does not rewrite when content is unchanged (idempotent)", async () => {
-    await writeGeneratedTypes(filePath, "content");
+    await writeGeneratedFile(filePath, "content");
 
-    expect(await writeGeneratedTypes(filePath, "content")).toBe(false);
+    expect(await writeGeneratedFile(filePath, "content")).toBe(false);
   });
 
   test("rewrites when the content changed", async () => {
-    await writeGeneratedTypes(filePath, "a");
+    await writeGeneratedFile(filePath, "a");
 
-    expect(await writeGeneratedTypes(filePath, "b")).toBe(true);
+    expect(await writeGeneratedFile(filePath, "b")).toBe(true);
     expect(await fs.readFile(filePath, "utf-8")).toBe("b");
   });
 });
