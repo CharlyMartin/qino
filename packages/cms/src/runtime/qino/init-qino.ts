@@ -27,6 +27,13 @@ export type QinoConfig = {
         /** URL globs served by routes instead of `mediaFolder`, e.g. `"/og/**"`. */
         readonly exclude?: ReadonlyArray<string>;
       };
+  /**
+   * Makes `qino build` write `qino/_generated/config.json`, describing the
+   * config, primitives, schemas (as JSON Schema), and relations. Meant to be
+   * committed and read by the Qino cloud UI; `qino check` fails when it's
+   * stale. Defaults to `false`.
+   */
+  readonly buildConfigFile?: boolean;
 };
 
 export type QinoContext = {

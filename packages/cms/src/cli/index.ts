@@ -34,8 +34,8 @@ async function main() {
       consola.start(`qino ${BUILD} starts`);
       const loaded = await load();
       await lint(loaded);
-      await check(loaded);
-      await build({ collections: loaded.collections, trees: loaded.trees });
+      await check(loaded, { skipConfigFile: true });
+      await build(loaded);
       consola.success(`qino ${BUILD} done!`);
       consola.log("");
       return;
@@ -44,7 +44,7 @@ async function main() {
       consola.error(
         command
           ? `Unknown command: ${command}`
-          : `Usage: qino <command>\n\nCommands:\n  ${LINT}     Validate config, paths, and relations (no content read)\n  ${CHECK}    Validate content against schemas and check local media exists\n  ${BUILD}    Run lint + check, then generate types`,
+          : `Usage: qino <command>\n\nCommands:\n  ${LINT}     Validate config, paths, and relations (no content read)\n  ${CHECK}    Validate content against schemas and check local media exists\n  ${BUILD}    Run lint + check, then generate types (and config.json if enabled)`,
       );
       process.exit(1);
   }

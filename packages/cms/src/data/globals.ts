@@ -17,6 +17,8 @@ export const ROOT_FOLDER_NAME = "qino";
 export const ENTRY_FILE_NAME = "index.ts";
 export const GENERATED_DIR_NAME = "_generated";
 export const GENERATED_TYPES_FILE_NAME = "types.d.ts";
+export const GENERATED_CONFIG_FILE_NAME = "config.json";
+export const CONFIG_FILE_VERSION = 1;
 
 export const DEFAULT_ORDER_FILE_NAME = "_order.json";
 export const MAX_RESOLVE_DEPTH = 6;
