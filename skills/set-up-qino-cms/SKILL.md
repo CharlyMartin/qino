@@ -32,7 +32,7 @@ Before writing anything, find:
 - **Requirements.** Node 22+. If TypeScript is used, 5.9+ with `strict: true`. If these aren't met, stop and tell the user.
 - **Validator.** Any [Standard Schema](https://standardschema.dev) library works. If the project already has one (zod, valibot, arktype), use it. Otherwise also install `zod`.
 - **Framework.** Look for `next.config.*` or similar.
-- **Existing content.** Look for folders of `.md`/`.mdx`/`.markdown`/`.json` content, and a static folder (`public/`) for `media.folder`.
+- **Existing content.** Look for folders of `.md`/`.mdx`/`.markdown`/`.json` content, and a static folder (`public/`) for `mediaFolder`.
 
 The CLI supports `compilerOptions.paths` aliases from the nearest `tsconfig.json` walking up from the working directory, including paths inherited through `extends`. Use the project's aliases in the instance, definitions, and shared schemas. Keep their import chain free of CSS, images, and Markdown imports that need bundler loaders.
 
@@ -59,7 +59,7 @@ import { initQino } from "@qino/cms";
 
 export default initQino({
   contentFolder: "src/content", // the existing content root
-  media: { folder: "public" },
+  mediaFolder: "public",
 });
 ```
 
@@ -172,7 +172,7 @@ If the app already reads content with its own code and you replace it with Qino 
 
 - **`package.json`.** Add `"prebuild": "qino build"`. If a `prebuild` already exists, chain onto it; never replace it. Order matters: put `qino build` after existing steps that generate files the schemas or content depend on, and before the rest. Run the build once and confirm `qino build` output appears: Yarn 2+ doesn't run `pre*` scripts, so if it didn't run, chain it into `build` instead (`qino build && <existing build>`).
 - **Generated types.** `qino/_generated/` is gitignored, so on a fresh clone `tsc` and the editor fail until `qino build` runs. Also run it before dev (`predev` or equivalent). In monorepos with task caching, add `qino/_generated/**` to the build task's cache outputs.
-- **`.gitignore`.** Add `qino/_generated/`.
+- **`.gitignore`.** Add `qino/_generated/`. If `initQino` sets `buildConfigFile: true`, use `qino/_generated/*` plus `!qino/_generated/config.json` instead: that file is meant to be committed. Also exclude `qino/_generated/` from Prettier/Biome, or `qino check` reports `config.json` as out of date.
 - **`tsconfig.json`.** `include` must cover `qino/`. If it's narrowed (e.g. `["src"]`), add `"qino"`.
 - **Frameworks.** See the framework examples at https://www.qino.works/docs/examples. If yours isn't listed, don't invent config.
 - **Runtime.** Qino reads the file system. Call getters only in server code, never in client components or edge runtimes. If pages render on request, the deployed server needs the content folder; check the deploy's file tracing includes it. See `/guide/installation#runtime`.
@@ -198,11 +198,11 @@ Report back:
 
 ## Quick reference
 
-| CLI          | Does                                                           |
-| ------------ | -------------------------------------------------------------- |
-| `qino lint`  | Config, paths, overlaps, relations. Reads no content           |
-| `qino check` | Validates every content file against its schema                |
-| `qino build` | `lint`, then `check`, then writes `qino/_generated/types.d.ts` |
+| CLI          | Does                                                                                                       |
+| ------------ | ---------------------------------------------------------------------------------------------------------- |
+| `qino lint`  | Config, paths, overlaps, relations. Reads no content                                                       |
+| `qino check` | Validates every content file against its schema                                                            |
+| `qino build` | `lint`, then `check`, then writes `qino/_generated/types.d.ts` (plus `config.json` with `buildConfigFile`) |
 
 ## Common mistakes
 

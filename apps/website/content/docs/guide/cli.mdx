@@ -11,7 +11,7 @@ Usage: qino <command>
 Commands:
   lint     Validate config, paths, and relations (no content read)
   check    Validate content against schemas and check local media exists
-  build    Run lint + check, then generate types
+  build    Run lint + check, then generate types (and config.json if enabled)
 ```
 
 ## Discovery
@@ -33,7 +33,7 @@ The CLI runs outside your app's bundler. Definitions and shared schemas must not
 Reads no content. Checks, in order:
 
 - The entry file exists and default-exports an instance.
-- `contentFolder` and `media.folder` exist and are directories.
+- `contentFolder` and `mediaFolder` exist and are directories.
 - At least one collection, tree, or item is defined.
 - No two primitives own overlapping paths.
 - Every primitive and every relation target was created by the same instance.
@@ -52,21 +52,21 @@ Reads and validates every content file against its schema:
 
 Views, relation resolution, filter, sort, and augment do not run. An empty collection or tree logs a warning but does not fail. Validation errors are reported with the primitive and file path.
 
+With `buildConfigFile` on, `check` also verifies that `qino/_generated/config.json` is up to date. See [Config file](#config-file).
+
 ### Media
 
-On by default. After schema validation, `check` verifies that every file referenced in content exists in `media.folder`. Configure it with `media.checkReferences` on [`initQino`](/docs/api/init-qino):
+On by default. After schema validation, `check` verifies that every file referenced in content exists in `mediaFolder`. Configure it with `checkLocalAssetReferences` on [`initQino`](/docs/api/init-qino):
 
 ```ts title="qino/index.ts"
 export default initQino({
   contentFolder: "content",
-  media: {
-    folder: "public",
-    checkReferences: { exclude: ["/og/**", "/feed.xml"] },
-  },
+  mediaFolder: "public",
+  checkLocalAssetReferences: { exclude: ["/og/**", "/feed.xml"] },
 });
 ```
 
-Set `checkReferences: false` to skip the check.
+Set `checkLocalAssetReferences: false` to skip the check.
 
 `check` scans every `.md`, `.mdx`, `.markdown`, and `.json` file in `contentFolder` and collects root-relative URLs from:
 
@@ -77,7 +77,7 @@ Set `checkReferences: false` to skip the check.
 
 The body is parsed as Markdown with GFM (tables, autolinks), plus MDX for `.mdx` files, so code blocks, indented code, and inline code are never scanned. An `.mdx` file that fails to parse fails the check with its path and line.
 
-A URL is a file reference when its last segment has an extension, like `/images/a.png` or `/files/b.pdf`, and it matches no `exclude` glob. It maps to a path inside `media.folder`: with `folder: "public"`, `/images/a.png` must exist at `public/images/a.png`.
+A URL is a file reference when its last segment has an extension, like `/images/a.png` or `/files/b.pdf`, and it matches no `exclude` glob. It maps to a path inside `mediaFolder`: with `mediaFolder: "public"`, `/images/a.png` must exist at `public/images/a.png`.
 
 Query strings and hashes are stripped, percent-encoded characters like `%20` and `%23` are decoded, and so are HTML character references like `&amp;` in attributes. External URLs, protocol-relative `//` URLs, and relative paths like `./a.png` are ignored. Page links without an extension, like `/blog/post`, are skipped. Qino never lists the media folder; files it doesn't reference are left alone. Use `exclude` for files served by routes, such as generated Open Graph images, feeds, or sitemaps.
 
@@ -114,6 +114,65 @@ declare module "@qino/cms" {
 ```
 
 The write is idempotent: the file is only rewritten when its content changes. Items have no slugs and are skipped. A directory with no entries is omitted so its slug type stays `string`. See [Types](/docs/concepts/types).
+
+### Config file
+
+Opt in with `buildConfigFile: true` on [`initQino`](/docs/api/init-qino), and `build` also writes `qino/_generated/config.json`: a description of your project that tools can read without running your code. It lists the config, every primitive keyed by its `directory` (collections, trees) or `file` (items), its body format, its schema as [JSON Schema](https://json-schema.org/draft/2020-12), and its relations:
+
+```json title="qino/_generated/config.json"
+{
+  "version": 1,
+  "qinoVersion": "0.7.0",
+  "config": {
+    "contentFolder": "src/content",
+    "mediaFolder": "public"
+  },
+  "collections": {
+    "posts": {
+      "directory": "posts",
+      "extension": ".md",
+      "body": { "format": "markdown" },
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "author": { "type": "string" }
+        },
+        "required": ["title", "author"]
+      },
+      "relations": [
+        {
+          "path": "author",
+          "target": { "kind": "collection", "id": "authors" },
+          "cardinality": "one"
+        }
+      ]
+    }
+  },
+  "items": {},
+  "trees": {}
+}
+```
+
+`body` is `{ "format": "markdown" }` for `.md` and `.markdown` entries, `{ "format": "mdx" }` for `.mdx`, and `null` for `.json`. Trees also list `titleField` and `orderFileName`. Views, augment, filter, and sort are functions and are left out.
+
+The JSON Schema describes the input side of each schema, the shape of the files on disk, before any transform. It comes from the [Standard JSON Schema](https://standardschema.dev/json-schema) interface, which Zod 4.2+ implements. `build` fails when a schema can't be converted, for example when its validator doesn't implement the interface or a field like `z.date()` has no JSON representation.
+
+Relation paths and `titleField` must name fields of that input and pass through the schema unchanged. `build` fails when one of them isn't a field of the input, for example because a transform renames it. `build` and `check` also compare every entry's values on disk with its validated values, and fail when a transform maps another field onto a relation field or the title field, or changes its value, since the file couldn't point to the field on disk.
+
+The comparison runs against existing content, so it can't prove what arbitrary transform code does. A remap passes when a primitive has no entries yet, when the values happen to be equal, or when the transform only remaps under some condition, like `author: post.useRef ? post.authorRef : post.author`. Keep relation fields and `titleField` unchanged by transforms. Every relation target must also be exported from a file under `qino/`, so it's described in the file too.
+
+Commit the file. It's sorted and pretty-printed, so it diffs cleanly, and like `types.d.ts` it's only rewritten when its content changes. Keep the rest of `_generated/` ignored:
+
+```txt title=".gitignore"
+qino/_generated/*
+!qino/_generated/config.json
+```
+
+Exclude `qino/_generated/` from formatters like Prettier or Biome: reformatting `config.json` makes it differ from what `build` writes.
+
+`qino check` fails when the committed file is missing or differs from what `build` would write, so CI catches a schema change that wasn't rebuilt. Upgrading `@qino/cms` changes `qinoVersion`, so run `build` after upgrading. `build` itself skips this check, since it rewrites the file.
 
 ## Exit codes
 

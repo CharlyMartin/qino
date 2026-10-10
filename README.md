@@ -53,7 +53,7 @@ import { initQino } from "@qino/cms";
 
 export default initQino({
   contentFolder: "src/content",
-  media: { folder: "public" },
+  mediaFolder: "public",
 });
 ```
 
@@ -91,11 +91,11 @@ Run `qino build` before your app builds to validate content and generate types:
 
 ## CLI
 
-| Command      | Description                                             |
-| ------------ | ------------------------------------------------------- |
-| `qino lint`  | Validate config, paths, and relations (no content read) |
-| `qino check` | Validate every content file against its schema          |
-| `qino build` | Run lint + check, then generate types                   |
+| Command      | Description                                                        |
+| ------------ | ------------------------------------------------------------------ |
+| `qino lint`  | Validate config, paths, and relations (no content read)            |
+| `qino check` | Validate every content file against its schema                     |
+| `qino build` | Run lint + check, then generate types (and config.json if enabled) |
 
 ## Packages
 

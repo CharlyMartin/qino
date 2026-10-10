@@ -11,10 +11,9 @@ import { initQino } from "@qino/cms";
 
 const qino = initQino({
   contentFolder: "src/content",
-  media: {
-    folder: "public",
-    checkReferences: { exclude: ["/og/**"] },
-  },
+  mediaFolder: "public",
+  checkLocalAssetReferences: { exclude: ["/og/**"] },
+  buildConfigFile: true,
 });
 ```
 
@@ -23,11 +22,10 @@ const qino = initQino({
 ```ts title="@qino/cms"
 function initQino(config: {
   readonly contentFolder: string;
-  readonly media: {
-    readonly folder: string;
-    readonly checkReferences?:
-      boolean | { readonly exclude?: ReadonlyArray<string> };
-  };
+  readonly mediaFolder: string;
+  readonly checkLocalAssetReferences?:
+    boolean | { readonly exclude?: ReadonlyArray<string> };
+  readonly buildConfigFile?: boolean;
 }): {
   defineCollection: typeof defineCollection;
   defineTree: typeof defineTree;
@@ -37,12 +35,13 @@ function initQino(config: {
 
 ## Parameters
 
-| Name                            | Type                      | Required | Default | Description                                                                                              |
-| ------------------------------- | ------------------------- | -------- | ------- | -------------------------------------------------------------------------------------------------------- |
-| `contentFolder`                 | `string`                  | yes      |         | Directory, relative to the working directory, that every `directory` and `file` path is joined onto      |
-| `media.folder`                  | `string`                  | yes      |         | Directory, relative to the working directory, serving media at the site root, such as `public`           |
-| `media.checkReferences`         | `boolean \| { exclude? }` | no       | `true`  | Whether `qino check` verifies that files referenced in content exist. See [Media](/docs/guide/cli#media) |
-| `media.checkReferences.exclude` | `ReadonlyArray<string>`   | no       | `[]`    | URL globs served by routes instead of `media.folder`, such as `/og/**`                                   |
+| Name                                | Type                      | Required | Default | Description                                                                                                                            |
+| ----------------------------------- | ------------------------- | -------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `contentFolder`                     | `string`                  | yes      |         | Directory, relative to the working directory, that every `directory` and `file` path is joined onto                                    |
+| `mediaFolder`                       | `string`                  | yes      |         | Directory, relative to the working directory, serving media at the site root, such as `public`                                         |
+| `checkLocalAssetReferences`         | `boolean \| { exclude? }` | no       | `true`  | Whether `qino check` verifies that files referenced in content exist. See [Media](/docs/guide/cli#media)                               |
+| `checkLocalAssetReferences.exclude` | `ReadonlyArray<string>`   | no       | `[]`    | URL globs served by routes instead of `mediaFolder`, such as `/og/**`                                                                  |
+| `buildConfigFile`                   | `boolean`                 | no       | `false` | Whether `qino build` writes `qino/_generated/config.json` and `qino check` verifies it. See [Config file](/docs/guide/cli#config-file) |
 
 The config type is not exported; pass an object literal.
 
@@ -59,7 +58,7 @@ The methods are closures, so destructuring them is fine:
 ```ts title="qino/index.ts"
 export const { defineCollection, defineTree, defineItem } = initQino({
   contentFolder: "src/content",
-  media: { folder: "public" },
+  mediaFolder: "public",
 });
 ```
 
