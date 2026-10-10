@@ -6,7 +6,7 @@ import type { TreeEntryMeta } from "./tree";
 
 const { defineCollection, defineItem, defineTree } = initQino({
   contentFolder: "src/content",
-  media: { folder: "public" },
+  mediaFolder: "public",
 });
 
 const AuthorSchema = z

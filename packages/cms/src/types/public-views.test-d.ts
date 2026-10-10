@@ -5,7 +5,7 @@ import { z } from "zod";
 const schema = z.object({ title: z.string() });
 const qino = initQino({
   contentFolder: "content",
-  media: { folder: "public" },
+  mediaFolder: "public",
 });
 
 // Derive helpers from the public API so source and dist checks use the same symbols.

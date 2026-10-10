@@ -19,6 +19,7 @@ qino/
     home.ts
   _generated/
     types.d.ts         written by `qino build`, gitignored
+    config.json        written by `qino build` with `buildConfigFile`, committed
 ```
 
 The CLI looks for `qino/` in the working directory. The folder name and the `index.ts` entry file are conventions, not options.
@@ -32,7 +33,7 @@ import { initQino } from "@qino/cms";
 
 export default initQino({
   contentFolder: "src/content",
-  media: { folder: "public" },
+  mediaFolder: "public",
 });
 ```
 
@@ -80,8 +81,15 @@ Add it to `.gitignore`:
 qino/_generated/
 ```
 
+With [`buildConfigFile`](/docs/guide/cli#config-file) on, `qino build` also writes `qino/_generated/config.json`, which is meant to be committed. Ignore the folder's contents instead and keep that file:
+
+```txt title=".gitignore"
+qino/_generated/*
+!qino/_generated/config.json
+```
+
 ## Path rules
 
-- `contentFolder` and `media.folder` are relative to the working directory and must be directories.
+- `contentFolder` and `mediaFolder` are relative to the working directory and must be directories.
 - `directory` on collections and trees, and `file` on items, are [content paths](/docs/guide/content-folder#content-paths): relative to `contentFolder`, with no leading `/`.
 - Two primitives cannot own overlapping paths. A tree and a collection cannot share or nest directories, and an item file cannot sit inside either.

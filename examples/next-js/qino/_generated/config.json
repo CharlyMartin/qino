@@ -1,0 +1,216 @@
+{
+  "version": 1,
+  "qinoVersion": "0.6.0",
+  "config": {
+    "contentFolder": "src/content",
+    "mediaFolder": "public"
+  },
+  "collections": {
+    "authors": {
+      "directory": "authors",
+      "extension": ".json",
+      "body": null,
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName",
+          "title",
+          "company"
+        ],
+        "additionalProperties": false
+      },
+      "relations": []
+    },
+    "categories": {
+      "directory": "categories",
+      "extension": ".json",
+      "body": null,
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "description"
+        ],
+        "additionalProperties": false
+      },
+      "relations": []
+    },
+    "posts": {
+      "directory": "posts",
+      "extension": ".md",
+      "body": {
+        "format": "markdown"
+      },
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "created-on": {
+            "type": "string"
+          },
+          "updated-on": {
+            "type": "string"
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "image": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "created-on",
+          "updated-on",
+          "categories",
+          "image",
+          "author"
+        ],
+        "additionalProperties": false
+      },
+      "relations": [
+        {
+          "path": "author",
+          "target": {
+            "kind": "collection",
+            "id": "authors"
+          },
+          "cardinality": "one"
+        },
+        {
+          "path": "categories[*]",
+          "target": {
+            "kind": "collection",
+            "id": "categories"
+          },
+          "cardinality": "many"
+        }
+      ]
+    }
+  },
+  "items": {
+    "pages/home.md": {
+      "file": "pages/home.md",
+      "extension": ".md",
+      "body": {
+        "format": "markdown"
+      },
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "tagline": {
+            "type": "string"
+          },
+          "featured-posts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "tagline",
+          "featured-posts"
+        ],
+        "additionalProperties": false
+      },
+      "relations": [
+        {
+          "path": "featured-posts[*]",
+          "target": {
+            "kind": "collection",
+            "id": "posts"
+          },
+          "cardinality": "many"
+        }
+      ]
+    }
+  },
+  "trees": {
+    "docs/v1": {
+      "directory": "docs/v1",
+      "extension": ".mdx",
+      "titleField": "title",
+      "orderFileName": "_order.json",
+      "body": {
+        "format": "mdx"
+      },
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "additionalProperties": false
+      },
+      "relations": []
+    },
+    "docs/v2": {
+      "directory": "docs/v2",
+      "extension": ".mdx",
+      "titleField": "title",
+      "orderFileName": "_order.json",
+      "body": {
+        "format": "mdx"
+      },
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "additionalProperties": false
+      },
+      "relations": []
+    }
+  }
+}

@@ -30,7 +30,7 @@ describe("assertMediaExists", () => {
     await expect(
       assertMediaExists({
         contentFolder,
-        media: { folder },
+        mediaFolder: folder,
       }),
     ).resolves.toBeUndefined();
   });
@@ -43,7 +43,7 @@ describe("assertMediaExists", () => {
     await expect(
       assertMediaExists({
         contentFolder,
-        media: { folder },
+        mediaFolder: folder,
       }),
     ).rejects.toThrow(
       `2 missing media files in "${folder}":\n  - ${relative}:1 → /b.png\n  - ${relative}:2 → /c.mp4`,

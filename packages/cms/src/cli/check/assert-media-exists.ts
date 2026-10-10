@@ -15,7 +15,7 @@ export async function assertMediaExists(params: QinoConfig) {
     );
 
     throw new Error(
-      `${missing.length} missing ${pluralize("media file", missing.length)} in "${params.media.folder}":\n${lines.join("\n")}`,
+      `${missing.length} missing ${pluralize("media file", missing.length)} in "${params.mediaFolder}":\n${lines.join("\n")}`,
     );
   }
 }
