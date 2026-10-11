@@ -16,14 +16,17 @@ import { readValidatedEntries } from "./read-validated-entries";
  * comparing each entry's on-disk values with its validated ones.
  */
 export async function assertInputValuesMatch(primitive: AnyPrimitive) {
-  const marker = primitive[QinoPrimitiveMarker];
   const fields = getMappedFields(primitive);
 
   if (fields.length == 0) return;
 
   for (const entry of await readValidatedEntries(primitive)) {
     const { filePath } = entry[META_FIELD_NAME];
-    const raw = await readRawEntry(marker.schema, filePath);
+
+    const raw = await readRawEntry(
+      primitive[QinoPrimitiveMarker].schema,
+      filePath,
+    );
 
     for (const { label, segments } of fields) {
       const onDisk = collectPathValues(raw, segments);
