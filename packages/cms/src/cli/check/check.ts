@@ -9,13 +9,13 @@ import { validateItem } from "./validate-item";
 import { validateTree } from "./validate-tree";
 
 type CheckOptions = {
-  /** Skips the `config.json` freshness check, for `qino build` which rewrites it. */
-  skipConfigFile?: boolean;
+  /** Whether to check `config.json` is up to date. `qino build` turns it off, since it rewrites the file. */
+  checkConfigFileFreshness?: boolean;
 };
 
 export async function check(
   { collections, items, trees, context }: Loaded,
-  { skipConfigFile = false }: CheckOptions = {},
+  { checkConfigFileFreshness = true }: CheckOptions = {},
 ) {
   await Promise.all([
     ...collections.map(validateCollection),
@@ -31,7 +31,7 @@ export async function check(
       await assertInputValuesMatch(primitive);
     }
 
-    if (!skipConfigFile) {
+    if (checkConfigFileFreshness) {
       await assertConfigFileFresh({ context, collections, items, trees });
       consola.success("qino/_generated/config.json is up to date.");
     }
@@ -39,10 +39,8 @@ export async function check(
 
   if (context.checkLocalAssetReferences == false) {
     consola.info("Media check skipped: `checkLocalAssetReferences` is false.");
-    return;
+  } else {
+    await assertMediaExists(context);
+    consola.success("All local media files exist.");
   }
-
-  await assertMediaExists(context);
-
-  consola.success("All local media files exist.");
 }

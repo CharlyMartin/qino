@@ -34,7 +34,7 @@ async function main() {
       consola.start(`qino ${BUILD} starts`);
       const loaded = await load();
       await lint(loaded);
-      await check(loaded, { skipConfigFile: true });
+      await check(loaded, { checkConfigFileFreshness: false });
       await build(loaded);
       consola.success(`qino ${BUILD} done!`);
       consola.log("");
