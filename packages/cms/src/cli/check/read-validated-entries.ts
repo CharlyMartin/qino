@@ -4,14 +4,16 @@ import { isItem } from "../../lib/guards/is-item";
 import type { AnyPrimitive } from "../../types/utils";
 import { collectTreeSlugs } from "../build/collect-tree-slugs";
 
+type Entry = Record<string, unknown> & {
+  [META_FIELD_NAME]: { filePath: string };
+};
+
 /**
  * Reads every entry of a primitive through its schema, without views or
  * relation resolution. Each entry carries its `_meta.filePath`.
  */
 export async function readValidatedEntries(primitive: AnyPrimitive) {
-  const entries: Array<
-    Record<string, unknown> & { [META_FIELD_NAME]: { filePath: string } }
-  > = isCollection(primitive)
+  const entries: Array<Entry> = isCollection(primitive)
     ? await primitive[QinoPrimitiveMarker].readEntries()
     : isItem(primitive)
       ? [await primitive[QinoPrimitiveMarker].readEntry()]

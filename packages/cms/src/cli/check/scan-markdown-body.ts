@@ -9,6 +9,7 @@ import { extractHtmlAttributeUrls } from "./extract-html-attribute-urls";
 
 const MEDIA_ATTRIBUTES = new Set(["src", "poster"]);
 type ScanMarkdownBodyOptions = { mdx: boolean };
+type Link = { url: string; line: number };
 
 /** Collects image, link, and media attribute URLs; code is never visited. */
 export function scanMarkdownBody(
@@ -23,7 +24,7 @@ export function scanMarkdownBody(
       : [gfmFromMarkdown()],
   });
 
-  const links: Array<{ url: string; line: number }> = [];
+  const links: Array<Link> = [];
 
   function visit(node: Nodes) {
     const line = node.position?.start.line ?? 1;

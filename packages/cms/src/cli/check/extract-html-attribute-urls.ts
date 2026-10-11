@@ -2,12 +2,14 @@ import { Parser } from "htmlparser2";
 
 const MEDIA_ATTRIBUTES = new Set(["src", "poster"]);
 
+type HtmlAttributeUrl = { url: string; lineOffset: number };
+
 /**
  * Reads `src`/`poster` values from raw HTML with a spec tokenizer, so
  * comments are skipped and entities decode as browsers do in attributes.
  */
 export function extractHtmlAttributeUrls(html: string) {
-  const urls: Array<{ url: string; lineOffset: number }> = [];
+  const urls: Array<HtmlAttributeUrl> = [];
 
   const parser = new Parser(
     {

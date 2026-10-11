@@ -40,10 +40,11 @@ No test runner is configured yet — pick one when introducing the first package
 1. Stick to one function per file, and name if after it: `create-collection.ts` should export a single `createCollection` function. Important functions shoudld also have a test file with the same name: `create-collection.test.ts`.
 2. Avoid return types unless necessary. Let TypeScript infer them where possible, to keep code DRY and maintainable.
 3. Only use `===` when necessary, when types don't match and you want to avoid coercion, for instance. When types match, use `==`.
+4. Don't inline types. Declare them as named types outside the function (e.g. `type CheckOptions = { … }`) and reference them in the signature or body, for readability.
 
 <!-- BEGIN:turborepo-agent-rules -->
 
-# This is NOT the Turborepo you know
+## This is NOT the Turborepo you know
 
 Turborepo configuration, task behavior, and CLI commands can vary between installed versions and may differ from your training data. Resolve the `turbo` package from this file's directory or relevant workspace; in monorepos, it may not be visible from the repository root. For example, run `node -p "require.resolve('turbo/package.json')"` from a workspace that depends on `turbo`.
 
