@@ -13,24 +13,27 @@ import {
 import { type DefineItemParams, defineItem } from "../items/define-item";
 import { type DefineTreeParams, defineTree } from "../trees/define-tree";
 
-export type QinoMediaConfig = {
-  /** Folder serving media at the site root, e.g. `"public"`. */
-  readonly folder: string;
-  /**
-   * Makes `qino check` verify that every file referenced in content exists
-   * in `folder`. Defaults to `true`; `false` skips the check.
-   */
-  readonly checkReferences?:
-    | boolean
-    | {
-        /** URL globs served by routes instead of `folder`, e.g. `"/og/**"`. */
-        readonly exclude?: ReadonlyArray<string>;
-      };
-};
-
 export type QinoConfig = {
   readonly contentFolder: string;
-  readonly media: QinoMediaConfig;
+  /** Folder serving media at the site root, e.g. `"public"`. */
+  readonly mediaFolder: string;
+  /**
+   * Makes `qino check` verify that every local file referenced in content
+   * exists in `mediaFolder`. Defaults to `true`; `false` skips the check.
+   */
+  readonly checkLocalAssetReferences?:
+    | boolean
+    | {
+        /** URL globs served by routes instead of `mediaFolder`, e.g. `"/og/**"`. */
+        readonly exclude?: ReadonlyArray<string>;
+      };
+  /**
+   * Makes `qino build` write `qino/_generated/config.json`, describing the
+   * config, primitives, schemas (as JSON Schema), and relations. Meant to be
+   * committed and read by the Qino cloud UI; `qino check` fails when it's
+   * stale. Defaults to `false`.
+   */
+  readonly buildConfigFile?: boolean;
 };
 
 export type QinoContext = {

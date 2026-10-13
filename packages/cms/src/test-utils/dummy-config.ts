@@ -4,7 +4,7 @@ export const DUMMY_INSTANCE_ID = Symbol.for("qino.tests.instance");
 
 export const DUMMY_CONFIG: QinoConfig = {
   contentFolder: "src/content",
-  media: { folder: "public" },
+  mediaFolder: "public",
 };
 
 // Absolute so root-path tests don't depend on the working directory.

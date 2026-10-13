@@ -100,7 +100,7 @@ test.each([
       export default initQino(config);
     `,
       "src/config.ts": `
-      export const config = { contentFolder: "content", media: { folder: "public" } };
+      export const config = { contentFolder: "content", mediaFolder: "public" };
     `,
       "qino/collections/posts.ts": `
       import qino from "../index";

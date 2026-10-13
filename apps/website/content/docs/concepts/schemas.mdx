@@ -7,6 +7,8 @@ Every primitive takes a `schema`. Qino accepts any [Standard Schema](https://sta
 
 The schema must be synchronous. A validator that returns a Promise is rejected.
 
+With [`buildConfigFile`](/docs/guide/cli#config-file) on, the schema must also implement [Standard JSON Schema](https://standardschema.dev/json-schema), so it can be converted to JSON Schema. Not every Standard Schema validator does.
+
 ## What the schema receives
 
 For Markdown, MDX, and `.markdown` files, the input is the parsed frontmatter only:

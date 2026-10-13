@@ -41,4 +41,5 @@ yarn-error.log*
 next-env.d.ts
 
 # qino
-qino/_generated/
+qino/_generated/*
+!qino/_generated/config.json

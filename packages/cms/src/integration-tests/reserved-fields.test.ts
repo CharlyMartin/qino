@@ -26,7 +26,7 @@ describe.each([".md", ".mdx", ".markdown", ".json"] as const)(
     test.each(["content", "transform"])(
       "rejects reserved fields from %s in getters and CLI validation",
       async (source) => {
-        const qino = initQino({ contentFolder: tmp, media: { folder: tmp } });
+        const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
         for (const field of extension == ".json"
           ? ["_meta"]
           : ["_meta", "markdown", "raw"]) {
@@ -87,7 +87,7 @@ test("resolved Markdown targets retain their markdown and raw", async () => {
       doc: "entries/hello.md",
     }),
   );
-  const qino = initQino({ contentFolder: tmp, media: { folder: tmp } });
+  const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const schema = z.strictObject({ title: z.string() });
   const posts = qino.defineCollection({
     directory: "entries",
@@ -126,7 +126,7 @@ test.each([".md", ".mdx", ".markdown", ".json"] as const)(
     const file = `entries/hello${extension}` as const;
     await fs.writeFile(path.join(tmp, file), raw);
     const schema = z.object({ title: z.string(), body: z.number() });
-    const qino = initQino({ contentFolder: tmp, media: { folder: tmp } });
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const posts = qino.defineCollection({
       directory: "entries",
       extension,
@@ -159,7 +159,7 @@ test.each(["_meta", "markdown", "raw"])(
       path.join(tmp, "home.md"),
       "---\ntitle: Hello\n---\n# Hello",
     );
-    const qino = initQino({ contentFolder: tmp, media: { folder: tmp } });
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const item = qino.defineItem({
       file: "home.md",
       schema: z.object({ title: z.string() }),
@@ -185,7 +185,7 @@ test("JSON markdown, raw and nested reserved names remain user fields", async ()
   await fs.writeFile(path.join(tmp, "home.json"), JSON.stringify(data));
   const item = initQino({
     contentFolder: tmp,
-    media: { folder: tmp },
+    mediaFolder: tmp,
   }).defineItem({
     file: "home.json",
     schema: z.object({
@@ -205,7 +205,7 @@ test.each([".md", ".mdx", ".markdown"] as const)(
   "getters and CLI accept an empty schema for %s without frontmatter",
   async (extension) => {
     await fs.writeFile(path.join(tmp, `entries/hello${extension}`), "# Hello");
-    const qino = initQino({ contentFolder: tmp, media: { folder: tmp } });
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const schema = z.strictObject({});
     const item = qino.defineItem({
       file: `entries/hello${extension}`,

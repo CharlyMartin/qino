@@ -5,7 +5,7 @@ import { initQino } from "../runtime/qino/init-qino";
 
 const qino = initQino({
   contentFolder: "content",
-  media: { folder: "public" },
+  mediaFolder: "public",
 });
 
 const schema = z

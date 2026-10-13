@@ -10,7 +10,7 @@ import { z } from "zod";
 
 const qino = initQino({
   contentFolder: "content",
-  media: { folder: "public" },
+  mediaFolder: "public",
 });
 const site = qino.defineItem({
   file: "site.json",

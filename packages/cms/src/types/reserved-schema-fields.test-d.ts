@@ -6,7 +6,7 @@ import type { ObjectSchema } from "./schema";
 
 const qino = initQino({
   contentFolder: "content",
-  media: { folder: "public" },
+  mediaFolder: "public",
 });
 const metaSchema = z.object({
   title: z.string(),

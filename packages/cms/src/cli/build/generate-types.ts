@@ -1,17 +1,15 @@
-import nodePath from "node:path";
-
 import {
-  GENERATED_DIR_NAME,
   GENERATED_TYPES_FILE_NAME,
   QinoPrimitiveMarker,
-  ROOT_FOLDER_NAME,
 } from "../../data/globals";
 import type { AnyCollection } from "../../types/collection";
 import type { AnyTree } from "../../types/tree";
 import { collectTreeSlugs } from "./collect-tree-slugs";
+import { compareCodeUnits } from "./compare-code-units";
 import { generateTypeNames } from "./generate-type-names";
+import { getGeneratedFilePath } from "./get-generated-file-path";
 import { renderGeneratedTypes } from "./render-generated-types";
-import { writeGeneratedTypes } from "./write-generated-types";
+import { writeGeneratedFile } from "./write-generated-file";
 
 type GenerateTypesParams = {
   collections?: Array<AnyCollection>;
@@ -42,18 +40,14 @@ export async function generateTypes({
     )),
   ];
 
-  collected.sort((a, b) => a.directory.localeCompare(b.directory));
+  collected.sort((a, b) => compareCodeUnits(a.directory, b.directory));
 
   const generatedSlugTypeNames = generateTypeNames(collected);
 
   const content = renderGeneratedTypes(generatedSlugTypeNames);
 
-  const filePath = nodePath.join(
-    process.cwd(),
-    ROOT_FOLDER_NAME,
-    GENERATED_DIR_NAME,
-    GENERATED_TYPES_FILE_NAME,
+  return writeGeneratedFile(
+    getGeneratedFilePath(GENERATED_TYPES_FILE_NAME),
+    content,
   );
-
-  return writeGeneratedTypes(filePath, content);
 }

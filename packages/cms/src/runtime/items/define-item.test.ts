@@ -26,7 +26,7 @@ describe("defineItem", () => {
       ["---", "title: Home", "---", "", "One two"].join("\n"),
     );
 
-    const qino = initQino({ contentFolder: tmp, media: { folder: tmp } });
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const item = qino.defineItem({
       views: (view) => ({
         default: view({

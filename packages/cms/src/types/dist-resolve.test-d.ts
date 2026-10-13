@@ -16,7 +16,7 @@ class Price {
 
 const { defineCollection } = initQino({
   contentFolder: "content",
-  media: { folder: "public" },
+  mediaFolder: "public",
 });
 const authors = defineCollection({
   directory: "authors",

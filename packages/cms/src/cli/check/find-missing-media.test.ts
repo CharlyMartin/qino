@@ -33,7 +33,7 @@ describe("findMissingMedia", () => {
     expect(
       await findMissingMedia({
         contentFolder,
-        media: { folder },
+        mediaFolder: folder,
       }),
     ).toEqual([]);
   });
@@ -46,7 +46,7 @@ describe("findMissingMedia", () => {
 
     const missing = await findMissingMedia({
       contentFolder,
-      media: { folder },
+      mediaFolder: folder,
     });
 
     expect(missing).toEqual([
@@ -71,10 +71,8 @@ describe("findMissingMedia", () => {
     expect(
       await findMissingMedia({
         contentFolder,
-        media: {
-          folder,
-          checkReferences: { exclude: ["/api/**", "/rss.xml"] },
-        },
+        mediaFolder: folder,
+        checkLocalAssetReferences: { exclude: ["/api/**", "/rss.xml"] },
       }),
     ).toEqual([]);
   });
@@ -86,7 +84,7 @@ describe("findMissingMedia", () => {
     await expect(
       findMissingMedia({
         contentFolder,
-        media: { folder },
+        mediaFolder: folder,
       }),
     ).rejects.toThrow(`Could not scan "${mdx}" for media`);
   });
@@ -98,7 +96,7 @@ describe("findMissingMedia", () => {
     await expect(
       findMissingMedia({
         contentFolder,
-        media: { folder },
+        mediaFolder: folder,
       }),
     ).rejects.toThrow(`Could not scan "${json}" for media`);
   });
