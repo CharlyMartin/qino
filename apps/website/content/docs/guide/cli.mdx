@@ -122,7 +122,6 @@ Opt in with `buildConfigFile: true` on [`initQino`](/docs/api/init-qino), and `b
 ```json title="qino/_generated/config.json"
 {
   "version": 1,
-  "qinoVersion": "0.7.0",
   "config": {
     "contentFolder": "src/content",
     "mediaFolder": "public"
@@ -172,7 +171,7 @@ qino/_generated/*
 
 Exclude `qino/_generated/` from formatters like Prettier or Biome: reformatting `config.json` makes it differ from what `build` writes.
 
-`qino check` fails when the committed file is missing or differs from what `build` would write, so CI catches a schema change that wasn't rebuilt. Upgrading `@qino/cms` changes `qinoVersion`, so run `build` after upgrading. `build` itself skips this check, since it rewrites the file.
+`qino check` fails when the committed file is missing or differs from what `build` would write, so CI catches a schema change that wasn't rebuilt. `build` itself skips this check, since it rewrites the file.
 
 ## Exit codes
 

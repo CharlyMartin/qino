@@ -3,7 +3,6 @@ import nodePath from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 
-import { version } from "../../../package.json";
 import { QinoConfigMarker } from "../../data/globals";
 import { initQino } from "../../runtime/qino/init-qino";
 import { createConfigFile } from "./create-config-file";
@@ -57,7 +56,6 @@ describe("createConfigFile", () => {
     expect(content).toBe(`${JSON.stringify(json, null, 2)}\n`);
     expect(json).toMatchObject({
       version: 1,
-      qinoVersion: version,
       config: { contentFolder: "src/content", mediaFolder: "public" },
     });
     expect(Object.keys(json.config)).toEqual(["contentFolder", "mediaFolder"]);

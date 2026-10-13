@@ -1,4 +1,3 @@
-import { version as qinoVersion } from "../../../package.json";
 import { CONFIG_FILE_VERSION } from "../../data/globals";
 import type { QinoContext } from "../../runtime/qino/init-qino";
 import type { AnyCollection } from "../../types/collection";
@@ -31,7 +30,6 @@ export function createConfigFile({
   const cwd = process.cwd();
   const config = {
     version: CONFIG_FILE_VERSION,
-    qinoVersion,
     config: {
       contentFolder: toPortablePath(context.contentFolder, cwd),
       mediaFolder: toPortablePath(context.mediaFolder, cwd),
