@@ -9,10 +9,10 @@ import { categoryCollection } from "./categories";
 
 const PostSchema = z
   .object({
-    title: z.string(),
-    "created-on": z.string(),
-    "updated-on": z.string(),
-    categories: z.array(z.string()),
+    title: z.string().min(1).max(120),
+    "created-on": z.iso.datetime(),
+    "updated-on": z.iso.datetime(),
+    categories: z.array(z.string()).min(1),
     image: z.string(),
     author: z.string(),
   })
