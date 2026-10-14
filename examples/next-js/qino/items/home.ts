@@ -17,6 +17,7 @@ export const homeItem = qino.defineItem({
   relations: {
     "featured-posts[*]": postCollection,
   },
+  cloud: { media: { accepted: [] } },
   views: (view) => ({
     default: view({ resolveRelations: true }),
   }),

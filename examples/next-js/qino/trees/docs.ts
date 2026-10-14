@@ -20,4 +20,5 @@ export const docsTree = qino.defineTree({
   schema: DocsSchema,
   extension: ".mdx",
   titleField: "title",
+  cloud: { searchableBy: ["title"] },
 });

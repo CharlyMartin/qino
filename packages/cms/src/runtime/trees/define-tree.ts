@@ -7,6 +7,7 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
+import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
@@ -15,6 +16,7 @@ import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
 import { buildViews } from "../../lib/views/build-views";
 import { selectView } from "../../lib/views/select-view";
+import type { TreeCloudConfig } from "../../types/cloud";
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
@@ -61,6 +63,7 @@ export type DefineTreeParams<
   orderFileName?: string;
   relations?: Rels;
   views?: ViewsConfig<Views, ViewFactory<Schema, TreeEntryMeta<Ext>, Rels>>;
+  cloud?: NoInfer<TreeCloudConfig<Schema>>;
 } & RootViewSettings;
 
 export function defineTree<
@@ -71,9 +74,17 @@ export function defineTree<
   Dir extends ContentPath = ContentPath,
   const Views extends object = object,
 >(ctx: QinoContext, params: DefineTreeParams<S, Ext, Title, Rels, Dir, Views>) {
-  const { directory, schema, extension, titleField, orderFileName, relations } =
-    params;
+  const {
+    directory,
+    schema,
+    extension,
+    titleField,
+    orderFileName,
+    relations,
+    cloud,
+  } = params;
   assertContentPath(directory, "directory");
+  assertCloudEnabled(ctx, cloud, directory);
 
   const treeRelations = (relations ?? {}) as Rels;
   assertNoRootViewSettings(params);
@@ -94,6 +105,7 @@ export function defineTree<
       orderFileName: resolvedOrderFileName,
       relations: treeRelations,
       resolveRelations: defaultResolve,
+      cloud,
       readEntry,
     },
     getTree,

@@ -29,7 +29,9 @@ function setup() {
   const qino = initQino({
     contentFolder: "content",
     mediaFolder: "public",
-    buildConfigFile: true,
+    cloud: {
+      publish: { mode: "commit_to_default_branch", reviewBeforePublish: false },
+    },
   });
 
   return {

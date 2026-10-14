@@ -1,4 +1,5 @@
 import { QinoConfigMarker } from "../../data/globals";
+import type { CloudConfig } from "../../types/cloud";
 import type { Collection } from "../../types/collection";
 import type { ExtractItemExtension, Item, ItemFile } from "../../types/item";
 import type { Relations } from "../../types/relations";
@@ -28,12 +29,12 @@ export type QinoConfig = {
         readonly exclude?: ReadonlyArray<string>;
       };
   /**
-   * Makes `qino build` write `qino/_generated/config.json`, describing the
-   * config, primitives, schemas (as JSON Schema), and relations. Meant to be
-   * committed and read by the Qino cloud UI; `qino check` fails when it's
-   * stale. Defaults to `false`.
+   * Configures the Qino cloud UI. When set, `qino build` writes
+   * `qino/_generated/config.json`, describing the config, primitives, schemas
+   * (as JSON Schema), and relations. Meant to be committed and read by the
+   * cloud UI; `qino check` fails when it's stale.
    */
-  readonly buildConfigFile?: boolean;
+  readonly cloud?: CloudConfig;
 };
 
 export type QinoContext = {

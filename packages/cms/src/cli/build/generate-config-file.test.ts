@@ -25,7 +25,13 @@ afterEach(async () => {
 });
 
 function setup() {
-  const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
+  const qino = initQino({
+    contentFolder: "content",
+    mediaFolder: "public",
+    cloud: {
+      publish: { mode: "commit_to_default_branch", reviewBeforePublish: false },
+    },
+  });
 
   return {
     context: qino[QinoConfigMarker],

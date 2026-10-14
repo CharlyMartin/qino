@@ -44,6 +44,10 @@ describe("findJsonSchemaNode", () => {
     expect(find("meta.editors[*]")).toEqual({ type: "string" });
   });
 
+  test("returns a union at the end of the path, not its first branch", () => {
+    expect(find("meta")).toBe(schema.properties.meta);
+  });
+
   test("resolves local $refs", () => {
     expect(find("related[*].post")).toEqual({ type: "string" });
   });

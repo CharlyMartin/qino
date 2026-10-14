@@ -33,17 +33,19 @@ qino.defineItem(params: {
   schema: StandardSchemaV1<unknown, Record<string, unknown>>;
   relations?: Record<RelationPath, Primitive | (() => Primitive)>;
   views?: (view: ViewHelper) => Record<string, View> & { default: View };
+  cloud?: { media?: CloudMedia };
 }): Item;
 ```
 
 ## Parameters
 
-| Name        | Type                                         | Required | Default | Description                                                                   |
-| ----------- | -------------------------------------------- | -------- | ------- | ----------------------------------------------------------------------------- |
-| `file`      | `` `/${string}<ext>` ``                      | yes      |         | Path under `contentFolder`, with extension. The extension is inferred from it |
-| `schema`    | Standard Schema object validator             | yes      |         | Synchronous. May not declare `_meta`, nor `markdown`/`raw` for Markdown       |
-| `relations` | `Record<path, primitive \| () => primitive>` | no       | `{}`    | Same grammar as collections                                                   |
-| `views`     | `(view) => { default: View; [name]: View }`  | no       |         | Helper offers `resolveRelations` and `augment` only                           |
+| Name        | Type                                         | Required | Default | Description                                                                                 |
+| ----------- | -------------------------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------- |
+| `file`      | `` `/${string}<ext>` ``                      | yes      |         | Path under `contentFolder`, with extension. The extension is inferred from it               |
+| `schema`    | Standard Schema object validator             | yes      |         | Synchronous. May not declare `_meta`, nor `markdown`/`raw` for Markdown                     |
+| `relations` | `Record<path, primitive \| () => primitive>` | no       | `{}`    | Same grammar as collections                                                                 |
+| `views`     | `(view) => { default: View; [name]: View }`  | no       |         | Helper offers `resolveRelations` and `augment` only                                         |
+| `cloud`     | `{ media? }`                                 | no       |         | Cloud UI uploads. Requires `cloud` on `initQino`. See [Cloud](/docs/guide/cloud#primitives) |
 
 There is no `extension` option and no slug.
 
@@ -62,6 +64,7 @@ At definition time, the shared view errors listed on [defineCollection](/docs/ap
 - `extractExtension: file "<file>" must end with one of .md, .mdx, .markdown, .json.`
 - `item views do not support filter or sort.`
 - `item view "<name>" does not support filter or sort.`
+- `"<id>" sets \`cloud\`, but initQino doesn't. Add \`cloud\` to initQino.`
 
 ## See also
 

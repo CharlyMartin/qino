@@ -230,4 +230,29 @@ describe("initQino definition reloads", () => {
     expect(moved[QinoPrimitiveMarker].directory).toBe("articles");
     expect(replacement[QinoPrimitiveMarker].directory).toBe("posts");
   });
+
+  test("throws when a primitive sets cloud but initQino doesn't", () => {
+    const qino = initQino({ contentFolder: "content", mediaFolder: "public" });
+
+    expect(() =>
+      qino.defineCollection({
+        directory: "posts",
+        schema: Schema,
+        extension: ".md",
+        cloud: {},
+      }),
+    ).toThrow('"posts" sets `cloud`, but initQino doesn\'t.');
+    expect(() =>
+      qino.defineItem({ file: "pages/home.md", schema: Schema, cloud: {} }),
+    ).toThrow('"pages/home.md" sets `cloud`');
+    expect(() =>
+      qino.defineTree({
+        directory: "docs",
+        schema: Schema,
+        extension: ".md",
+        titleField: "title",
+        cloud: {},
+      }),
+    ).toThrow('"docs" sets `cloud`');
+  });
 });

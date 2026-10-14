@@ -2,8 +2,13 @@ import { describe, expect, test } from "vitest";
 import { z } from "zod";
 
 import { initQino } from "../../runtime/qino/init-qino";
+import type { CloudConfig } from "../../types/cloud";
 import { serializePrimitive } from "./serialize-primitive";
 
+const media = { saveAs: "{id}/{name}-{hash}.{ext}" };
+const cloud: CloudConfig = {
+  publish: { mode: "commit_to_default_branch", reviewBeforePublish: false },
+};
 const qino = initQino({
   contentFolder: "content",
   mediaFolder: "public",
@@ -32,7 +37,7 @@ describe("serializePrimitive", () => {
       views: (view) => ({ default: view({ resolveRelations: true }) }),
     });
 
-    expect(serializePrimitive(posts)).toEqual({
+    expect(serializePrimitive(posts, cloud)).toEqual({
       directory: "posts",
       extension: ".md",
       body: { format: "markdown" },
@@ -48,18 +53,20 @@ describe("serializePrimitive", () => {
           cardinality: "one",
         },
       ],
+      cloud: { searchableBy: [], sortableBy: [], media },
     });
   });
 
   test("serializes an item", () => {
     const home = qino.defineItem({ file: "pages/home.json", schema });
 
-    expect(serializePrimitive(home)).toEqual({
+    expect(serializePrimitive(home, cloud)).toEqual({
       file: "pages/home.json",
       extension: ".json",
       body: null,
       schema: jsonSchema,
       relations: [],
+      cloud: { media },
     });
   });
 
@@ -71,7 +78,7 @@ describe("serializePrimitive", () => {
       titleField: "title",
     });
 
-    expect(serializePrimitive(docs)).toEqual({
+    expect(serializePrimitive(docs, cloud)).toEqual({
       directory: "docs",
       extension: ".mdx",
       titleField: "title",
@@ -79,6 +86,7 @@ describe("serializePrimitive", () => {
       body: { format: "mdx" },
       schema: jsonSchema,
       relations: [],
+      cloud: { searchableBy: [], media },
     });
   });
 });
