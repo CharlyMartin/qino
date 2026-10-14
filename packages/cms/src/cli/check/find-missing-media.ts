@@ -12,12 +12,11 @@ import { extractMediaLinks } from "./extract-media-links";
 export async function findMissingMedia({
   contentFolder,
   mediaFolder,
-  checkLocalAssetReferences,
+  cli,
 }: QinoConfig) {
+  const localAssetReferences = cli?.check?.localAssetReferences;
   const isCheckedMedia = createMediaFilter(
-    typeof checkLocalAssetReferences == "object"
-      ? checkLocalAssetReferences.exclude
-      : [],
+    typeof localAssetReferences == "object" ? localAssetReferences.exclude : [],
   );
   const contentExtensions = SUPPORTED_CONTENT_EXTENSIONS.map((ext) =>
     ext.slice(1),

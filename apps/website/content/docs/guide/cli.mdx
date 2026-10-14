@@ -56,17 +56,19 @@ With `cloud` set on [`initQino`](/docs/api/init-qino), `check` also verifies tha
 
 ### Media
 
-On by default. After schema validation, `check` verifies that every file referenced in content exists in `mediaFolder`. Configure it with `checkLocalAssetReferences` on [`initQino`](/docs/api/init-qino):
+On by default. After schema validation, `check` verifies that every file referenced in content exists in `mediaFolder`. Configure it with `cli.check.localAssetReferences` on [`initQino`](/docs/api/init-qino):
 
 ```ts title="qino/index.ts"
 export default initQino({
   contentFolder: "content",
   mediaFolder: "public",
-  checkLocalAssetReferences: { exclude: ["/og/**", "/feed.xml"] },
+  cli: {
+    check: { localAssetReferences: { exclude: ["/og/**", "/feed.xml"] } },
+  },
 });
 ```
 
-Set `checkLocalAssetReferences: false` to skip the check.
+Set `cli.check.localAssetReferences` to `false` to skip the check.
 
 `check` scans every `.md`, `.mdx`, `.markdown`, and `.json` file in `contentFolder` and collects root-relative URLs from:
 

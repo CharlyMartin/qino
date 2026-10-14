@@ -24,7 +24,7 @@ function setup() {
   const qino = initQino({
     contentFolder: "src/content",
     mediaFolder: "public",
-    checkLocalAssetReferences: false,
+    cli: { check: { localAssetReferences: false } },
     cloud,
   });
   const schema = z.object({ title: z.string() });

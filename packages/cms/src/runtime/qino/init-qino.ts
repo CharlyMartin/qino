@@ -1,4 +1,5 @@
 import { QinoConfigMarker } from "../../data/globals";
+import type { CliConfig } from "../../types/cli";
 import type { CloudConfig } from "../../types/cloud";
 import type { Collection } from "../../types/collection";
 import type { ExtractItemExtension, Item, ItemFile } from "../../types/item";
@@ -18,16 +19,8 @@ export type QinoConfig = {
   readonly contentFolder: string;
   /** Folder serving media at the site root, e.g. `"public"`. */
   readonly mediaFolder: string;
-  /**
-   * Makes `qino check` verify that every local file referenced in content
-   * exists in `mediaFolder`. Defaults to `true`; `false` skips the check.
-   */
-  readonly checkLocalAssetReferences?:
-    | boolean
-    | {
-        /** URL globs served by routes instead of `mediaFolder`, e.g. `"/og/**"`. */
-        readonly exclude?: ReadonlyArray<string>;
-      };
+  /** Configures the CLI commands, keyed by command. */
+  readonly cli?: CliConfig;
   /**
    * Configures the Qino cloud UI. When set, `qino build` writes
    * `qino/_generated/config.json`, describing the config, primitives, schemas

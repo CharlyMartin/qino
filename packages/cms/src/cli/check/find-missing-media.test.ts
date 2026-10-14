@@ -72,7 +72,11 @@ describe("findMissingMedia", () => {
       await findMissingMedia({
         contentFolder,
         mediaFolder: folder,
-        checkLocalAssetReferences: { exclude: ["/api/**", "/rss.xml"] },
+        cli: {
+          check: {
+            localAssetReferences: { exclude: ["/api/**", "/rss.xml"] },
+          },
+        },
       }),
     ).toEqual([]);
   });
