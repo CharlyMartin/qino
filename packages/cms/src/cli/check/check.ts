@@ -37,8 +37,10 @@ export async function check(
     }
   }
 
-  if (context.checkLocalAssetReferences == false) {
-    consola.info("Media check skipped: `checkLocalAssetReferences` is false.");
+  if (context.cli?.check?.localAssetReferences == false) {
+    consola.info(
+      "Media check skipped: `cli.check.localAssetReferences` is false.",
+    );
   } else {
     await assertMediaExists(context);
     consola.success("All local media files exist.");
