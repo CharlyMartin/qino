@@ -6,6 +6,7 @@ import type {
   QinoPrimitives,
 } from "../data/globals";
 import type { AugmentOutput } from "./augment";
+import type { PrimitiveCloudConfig } from "./cloud";
 import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
 import type { Relations } from "./relations";
@@ -90,6 +91,7 @@ export type CollectionMeta<
   readonly extension: Ext;
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
+  readonly cloud?: PrimitiveCloudConfig;
   readonly readEntries: () => Promise<
     Array<ResolvedCollectionView<Schema, Ext, Rels, false>>
   >;

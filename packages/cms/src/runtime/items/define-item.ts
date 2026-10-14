@@ -6,6 +6,7 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
+import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { extractExtension } from "../../lib/paths/extract-extension";
@@ -14,6 +15,7 @@ import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
 import { buildViews } from "../../lib/views/build-views";
 import { selectView } from "../../lib/views/select-view";
+import type { ItemCloudConfig } from "../../types/cloud";
 import type {
   ExtractItemExtension,
   Item,
@@ -51,6 +53,7 @@ export type DefineItemParams<
     Views,
     ViewFactory<Schema, ItemEntryMeta<ExtractItemExtension<F>>, Rels>
   >;
+  cloud?: ItemCloudConfig;
 } & RootViewSettings;
 
 export function defineItem<
@@ -59,8 +62,9 @@ export function defineItem<
   Rels extends Relations<S> = object,
   const Views extends object = object,
 >(ctx: QinoContext, params: DefineItemParams<S, F, Rels, Views>) {
-  const { file, schema, relations } = params;
+  const { file, schema, relations, cloud } = params;
   assertContentPath(file, "file");
+  assertCloudEnabled(ctx, cloud, file);
 
   type Ext = ExtractItemExtension<F>;
   const extension = extractExtension(file) as Ext;
@@ -84,6 +88,7 @@ export function defineItem<
       extension,
       relations: itemRelations,
       resolveRelations: defaultResolve,
+      cloud,
       readEntry,
     },
     getEntry,

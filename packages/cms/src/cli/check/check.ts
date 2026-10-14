@@ -25,7 +25,7 @@ export async function check(
 
   consola.success("All content passes schema validation.");
 
-  if (context.buildConfigFile) {
+  if (context.cloud) {
     // Relation fields and titleField must be what's on disk for config.json.
     for (const primitive of [...collections, ...items, ...trees]) {
       await assertInputValuesMatch(primitive);

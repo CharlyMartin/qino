@@ -6,6 +6,7 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
+import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
@@ -15,6 +16,7 @@ import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
 import { buildViews } from "../../lib/views/build-views";
 import { selectView } from "../../lib/views/select-view";
+import type { CollectionCloudConfig } from "../../types/cloud";
 import type {
   Collection,
   CollectionEntryMeta,
@@ -61,6 +63,7 @@ export type DefineCollectionParams<
     CollectionViewFactory<Schema, CollectionEntryMeta<Ext>, Rels>,
     CollectionViewDefinition
   >;
+  cloud?: NoInfer<CollectionCloudConfig<Schema>>;
 } & RootViewSettings;
 
 export function defineCollection<
@@ -70,8 +73,9 @@ export function defineCollection<
   Dir extends ContentPath = ContentPath,
   const Views extends object = object,
 >(ctx: QinoContext, params: DefineCollectionParams<S, Ext, Rels, Dir, Views>) {
-  const { directory, schema, extension, relations } = params;
+  const { directory, schema, extension, relations, cloud } = params;
   assertContentPath(directory, "directory");
+  assertCloudEnabled(ctx, cloud, directory);
   const collectionRelations = (relations ?? {}) as Rels;
   assertNoRootViewSettings(params);
   const views = buildViews(params.views, "collection");
@@ -88,6 +92,7 @@ export function defineCollection<
       extension,
       relations: collectionRelations,
       resolveRelations: defaultResolve,
+      cloud,
       readEntries,
       readEntry,
     },

@@ -21,6 +21,9 @@ export const GENERATED_CONFIG_FILE_NAME = "config.json";
 export const CONFIG_FILE_VERSION = 1;
 
 export const DEFAULT_ORDER_FILE_NAME = "_order.json";
+export const DEFAULT_BRANCH_PREFIX = "qino/";
+export const DEFAULT_MEDIA_SAVE_AS = "{id}/{name}-{hash}.{ext}";
+export const MEDIA_PATH_TOKENS = ["id", "name", "hash", "ext"] as const;
 export const MAX_RESOLVE_DEPTH = 6;
 export const SUPPORTED_CODE_EXTENSIONS = [
   ".ts",

@@ -20,7 +20,7 @@ export async function build({
 }: BuildParams) {
   await generateTypes({ collections, trees });
 
-  if (context.buildConfigFile) {
+  if (context.cloud) {
     await generateConfigFile({ context, collections, items, trees });
   }
 }

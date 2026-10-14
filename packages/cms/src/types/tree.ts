@@ -6,6 +6,7 @@ import type {
   QinoPrimitives,
 } from "../data/globals";
 import type { AugmentOutput } from "./augment";
+import type { PrimitiveCloudConfig } from "./cloud";
 import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
 import type { Relations } from "./relations";
@@ -58,6 +59,7 @@ export type TreeMeta<
   readonly orderFileName: string;
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
+  readonly cloud?: PrimitiveCloudConfig;
   readonly readEntry: (
     slug: Slug,
   ) => Promise<ResolvedTreeEntry<Schema, Ext, Rels, false>>;
@@ -115,6 +117,7 @@ export type AnyTreeMeta = {
   readonly orderFileName: string;
   readonly relations: Relations<ObjectSchema>;
   readonly resolveRelations: ResolveOption;
+  readonly cloud?: PrimitiveCloudConfig;
   readonly readEntry: (
     slug: Slug,
   ) => Promise<
