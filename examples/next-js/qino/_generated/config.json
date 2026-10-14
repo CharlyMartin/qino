@@ -4,6 +4,25 @@
     "contentFolder": "src/content",
     "mediaFolder": "public"
   },
+  "cloud": {
+    "publish": {
+      "mode": "open_pull_request",
+      "reviewBeforePublish": true,
+      "branchPrefix": "qino/"
+    },
+    "media": {
+      "accepted": [
+        {
+          "type": "image/webp",
+          "maxSize": 5242880
+        },
+        {
+          "type": "image/png",
+          "maxSize": 5242880
+        }
+      ]
+    }
+  },
   "collections": {
     "authors": {
       "directory": "authors",
@@ -36,7 +55,24 @@
         ],
         "additionalProperties": false
       },
-      "relations": []
+      "relations": [],
+      "cloud": {
+        "searchableBy": [],
+        "sortableBy": [],
+        "media": {
+          "saveAs": "{id}/{name}-{hash}.{ext}",
+          "accepted": [
+            {
+              "type": "image/webp",
+              "maxSize": 5242880
+            },
+            {
+              "type": "image/png",
+              "maxSize": 5242880
+            }
+          ]
+        }
+      }
     },
     "categories": {
       "directory": "categories",
@@ -61,7 +97,24 @@
         ],
         "additionalProperties": false
       },
-      "relations": []
+      "relations": [],
+      "cloud": {
+        "searchableBy": [],
+        "sortableBy": [],
+        "media": {
+          "saveAs": "{id}/{name}-{hash}.{ext}",
+          "accepted": [
+            {
+              "type": "image/webp",
+              "maxSize": 5242880
+            },
+            {
+              "type": "image/png",
+              "maxSize": 5242880
+            }
+          ]
+        }
+      }
     },
     "posts": {
       "directory": "posts",
@@ -129,7 +182,29 @@
           },
           "cardinality": "many"
         }
-      ]
+      ],
+      "cloud": {
+        "searchableBy": [
+          "title"
+        ],
+        "sortableBy": [
+          "title",
+          "created-on"
+        ],
+        "media": {
+          "saveAs": "posts/{name}-{hash}.{ext}",
+          "accepted": [
+            {
+              "type": "image/webp",
+              "maxSize": 5242880
+            },
+            {
+              "type": "image/png",
+              "maxSize": 5242880
+            }
+          ]
+        }
+      }
     }
   },
   "items": {
@@ -172,7 +247,13 @@
           },
           "cardinality": "many"
         }
-      ]
+      ],
+      "cloud": {
+        "media": {
+          "saveAs": "{id}/{name}-{hash}.{ext}",
+          "accepted": []
+        }
+      }
     }
   },
   "trees": {
@@ -197,7 +278,23 @@
         ],
         "additionalProperties": false
       },
-      "relations": []
+      "relations": [],
+      "cloud": {
+        "searchableBy": [],
+        "media": {
+          "saveAs": "{id}/{name}-{hash}.{ext}",
+          "accepted": [
+            {
+              "type": "image/webp",
+              "maxSize": 5242880
+            },
+            {
+              "type": "image/png",
+              "maxSize": 5242880
+            }
+          ]
+        }
+      }
     },
     "docs/v2": {
       "directory": "docs/v2",
@@ -220,7 +317,25 @@
         ],
         "additionalProperties": false
       },
-      "relations": []
+      "relations": [],
+      "cloud": {
+        "searchableBy": [
+          "title"
+        ],
+        "media": {
+          "saveAs": "{id}/{name}-{hash}.{ext}",
+          "accepted": [
+            {
+              "type": "image/webp",
+              "maxSize": 5242880
+            },
+            {
+              "type": "image/png",
+              "maxSize": 5242880
+            }
+          ]
+        }
+      }
     }
   }
 }
