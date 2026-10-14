@@ -11,7 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@base-ui/react": "1.8.0",
+    "@base-ui/react": "1.9.0",
     "@phosphor-icons/react": "2.1.10",
     "@qino/cms": "workspace:*",
     "@tanstack/react-router": "1.170.42",
