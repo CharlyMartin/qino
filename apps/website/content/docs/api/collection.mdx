@@ -37,6 +37,7 @@ qino.defineCollection(params: {
   schema: StandardSchemaV1<unknown, Record<string, unknown>>;
   relations?: Record<RelationPath, Primitive | (() => Primitive)>;
   views?: (view: ViewHelper) => Record<string, View> & { default: View };
+  cloud?: { searchableBy?: Array<Field>; sortableBy?: Array<ScalarField>; media?: CloudMedia };
 }): Collection;
 ```
 
@@ -49,6 +50,7 @@ qino.defineCollection(params: {
 | `schema`    | Standard Schema object validator             | yes      |         | Synchronous. Receives frontmatter, or the JSON object. May not declare `_meta`, nor `markdown`/`raw` for Markdown |
 | `relations` | `Record<path, primitive \| () => primitive>` | no       | `{}`    | JSON paths into the schema output mapped to target primitives. `[*]` marks an array hop                           |
 | `views`     | `(view) => { default: View; [name]: View }`  | no       |         | Factory run once at definition. Must return a `default` view made with the helper                                 |
+| `cloud`     | `{ searchableBy?; sortableBy?; media? }`     | no       |         | Cloud UI search, sort, and uploads. Requires `cloud` on `initQino`. See [Cloud](/docs/guide/cloud#primitives)     |
 
 `resolveRelations`, `augment`, `filter`, and `sort` are rejected at the root. Put them inside a view. See [view](/docs/api/view).
 
@@ -73,6 +75,7 @@ At definition time:
 - `The views factory must synchronously return an object of named views.`
 - `The views factory must return a "default" view created with view({ ... }).`
 - `View "<name>" must be created with view({ ... }).`
+- `"<id>" sets \`cloud\`, but initQino doesn't. Add \`cloud\` to initQino.`
 
 ## See also
 

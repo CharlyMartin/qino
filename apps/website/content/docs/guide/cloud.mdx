@@ -1,0 +1,105 @@
+---
+title: Cloud
+description: Configure how the Qino cloud UI publishes, searches, sorts, and uploads media.
+---
+
+The Qino cloud UI lets editors change content without touching code. Its only contract with your project is `qino/_generated/config.json`. Set `cloud` on [`initQino`](/docs/api/init-qino) and `qino build` writes that file, including the cloud options below. See [Config file](/docs/guide/cli#config-file).
+
+```ts title="qino/index.ts"
+import { initQino } from "@qino/cms";
+
+export default initQino({
+  contentFolder: "src/content",
+  mediaFolder: "public",
+  cloud: {
+    publish: { mode: "open_pull_request", reviewBeforePublish: true },
+    media: {
+      accepted: [
+        { type: "image/webp", maxSize: "5MB" },
+        { type: "image/png", maxSize: "5MB" },
+      ],
+    },
+  },
+});
+```
+
+## Publish
+
+`publish.mode` decides what happens when an editor publishes:
+
+- `"open_pull_request"`: the cloud UI pushes a branch and opens a pull request. Branches start with `branchPrefix`, `"qino/"` by default.
+- `"commit_to_default_branch"`: the cloud UI commits to the repository's default branch. `branchPrefix` is a type error here.
+
+`publish.reviewBeforePublish` is required. When `true`, an approver signs off in Qino before the author can publish, in either mode.
+
+Until an editor publishes, edits are saved as drafts in the cloud UI, not in the repository.
+
+## Media
+
+`media.accepted` lists the file types editors can upload. Each entry has a MIME `type`, wildcards allowed (`"image/*"`), and a `maxSize` from `"50KB"` to `"950KB"` in steps of 50, or `"1MB"` to `"100MB"`, where 1KB is 1024 bytes. Anything else, like `"1.5MB"` or `"25KB"`, is a type error. `config.json` holds it in bytes, so `"5MB"` becomes `5242880`. Unset, it's left out of `config.json` and the cloud UI accepts any type up to 5 MB. `[]` disables uploads.
+
+## Primitives
+
+Each primitive takes its own `cloud` option. Setting it without `cloud` on `initQino` throws at definition.
+
+```ts title="qino/collections/posts.ts"
+export const postCollection = qino.defineCollection({
+  directory: "posts",
+  extension: ".md",
+  schema: z.object({ title: z.string(), draft: z.boolean() }),
+  cloud: {
+    searchableBy: ["title"],
+    sortableBy: ["title", "draft"],
+    media: { saveAs: "posts/{name}-{hash}.{ext}" },
+  },
+});
+```
+
+| Option           | Collections | Trees | Items | Default                      | Description                                                                          |
+| ---------------- | ----------- | ----- | ----- | ---------------------------- | ------------------------------------------------------------------------------------ |
+| `searchableBy`   | yes         | yes   |       | `[]`                         | Top-level fields the cloud UI searches. Empty, there's no search                     |
+| `sortableBy`     | yes         |       |       | `[]`                         | Top-level string, number, or boolean fields the cloud UI sorts by. Empty, no sorting |
+| `media.saveAs`   | yes         | yes   | yes   | `"{id}/{name}-{hash}.{ext}"` | File path an upload is saved to when publishing, relative to `mediaFolder`           |
+| `media.accepted` | yes         | yes   | yes   | `initQino`'s                 | Replaces `initQino`'s list for this primitive. `[]` disables uploads                 |
+
+Trees are ordered by their order file, so they have no `sortableBy`. Items are a single file, so they only take `media`.
+
+`searchableBy` and `sortableBy` are typed against the schema input, not its output, since the cloud UI reads files on disk: with a transform that renames `created-on` to `createdOn`, use `"created-on"`. Fields whose input is `unknown`, such as `z.coerce.date()`, can't be sorted by. `qino build` checks the same rules against the schema's JSON Schema, and also fails when a `sortableBy` field allows a non-scalar value in any union branch.
+
+### Saving uploads
+
+When an editor publishes, each uploaded file is saved to the path `media.saveAs` describes, relative to `mediaFolder`. With `mediaFolder: "public"` and `saveAs: "posts/{name}-{hash}.{ext}"`, uploading `Cover.webp` saves `public/posts/cover-1a2b3c4d.webp`, served at `/posts/cover-1a2b3c4d.webp`. Tokens:
+
+| Token    | Value                                                                      |
+| -------- | -------------------------------------------------------------------------- |
+| `{id}`   | The primitive's `directory`, or its `file` without the extension for items |
+| `{name}` | The uploaded file's name, slugified                                        |
+| `{hash}` | The first 8 hex characters of the file's SHA-256                           |
+| `{ext}`  | The uploaded file's extension, lowercased                                  |
+
+With `{hash}`, an upload never overwrites another file, and each URL always serves the same content, so it can be cached for good. `qino build` fails on an unknown token, a path not ending with `.{ext}`, or a path starting with `/` or containing `..`.
+
+## In config.json
+
+`config.json` holds every value resolved, so the cloud UI doesn't reimplement defaults: `branchPrefix` and `media.saveAs` are filled in, and each primitive's `media.accepted` falls back to `initQino`'s. It's left out when neither sets it.
+
+```json title="qino/_generated/config.json"
+{
+  "cloud": {
+    "publish": {
+      "mode": "open_pull_request",
+      "reviewBeforePublish": true,
+      "branchPrefix": "qino/"
+    }
+  },
+  "collections": {
+    "posts": {
+      "cloud": {
+        "searchableBy": ["title"],
+        "sortableBy": ["title", "draft"],
+        "media": { "saveAs": "posts/{name}-{hash}.{ext}" }
+      }
+    }
+  }
+}
+```

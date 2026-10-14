@@ -52,7 +52,7 @@ Reads and validates every content file against its schema:
 
 Views, relation resolution, filter, sort, and augment do not run. An empty collection or tree logs a warning but does not fail. Validation errors are reported with the primitive and file path.
 
-With `buildConfigFile` on, `check` also verifies that `qino/_generated/config.json` is up to date. See [Config file](#config-file).
+With `cloud` set on [`initQino`](/docs/api/init-qino), `check` also verifies that `qino/_generated/config.json` is up to date. See [Config file](#config-file).
 
 ### Media
 
@@ -101,14 +101,11 @@ export {};
 declare module "@qino/cms" {
   export type PostSlug = "hello-world" | "second-post" | (string & {});
   export type DocSlug =
-    | "introduction"
-    | "guides"
-    | "guides/setup"
-    | (string & {});
+    "introduction" | "guides" | "guides/setup" | (string & {});
 
   interface QinoSlugRegistry {
-    "docs": DocSlug;
-    "posts": PostSlug;
+    docs: DocSlug;
+    posts: PostSlug;
   }
 }
 ```
@@ -117,7 +114,7 @@ The write is idempotent: the file is only rewritten when its content changes. It
 
 ### Config file
 
-Opt in with `buildConfigFile: true` on [`initQino`](/docs/api/init-qino), and `build` also writes `qino/_generated/config.json`: a description of your project that tools can read without running your code. It lists the config, every primitive keyed by its `directory` (collections, trees) or `file` (items), its body format, its schema as [JSON Schema](https://json-schema.org/draft/2020-12), and its relations:
+Set [`cloud`](/docs/guide/cloud) on [`initQino`](/docs/api/init-qino), and `build` also writes `qino/_generated/config.json`: a description of your project that the cloud UI reads without running your code. It lists the config, the cloud config, every primitive keyed by its `directory` (collections, trees) or `file` (items), its body format, its schema as [JSON Schema](https://json-schema.org/draft/2020-12), its relations, and its cloud config:
 
 ```json title="qino/_generated/config.json"
 {
@@ -125,6 +122,12 @@ Opt in with `buildConfigFile: true` on [`initQino`](/docs/api/init-qino), and `b
   "config": {
     "contentFolder": "src/content",
     "mediaFolder": "public"
+  },
+  "cloud": {
+    "publish": {
+      "mode": "commit_to_default_branch",
+      "reviewBeforePublish": false
+    }
   },
   "collections": {
     "posts": {
@@ -146,7 +149,12 @@ Opt in with `buildConfigFile: true` on [`initQino`](/docs/api/init-qino), and `b
           "target": { "kind": "collection", "id": "authors" },
           "cardinality": "one"
         }
-      ]
+      ],
+      "cloud": {
+        "searchableBy": [],
+        "sortableBy": [],
+        "media": { "saveAs": "{id}/{name}-{hash}.{ext}" }
+      }
     }
   },
   "items": {},
@@ -154,9 +162,9 @@ Opt in with `buildConfigFile: true` on [`initQino`](/docs/api/init-qino), and `b
 }
 ```
 
-`body` is `{ "format": "markdown" }` for `.md` and `.markdown` entries, `{ "format": "mdx" }` for `.mdx`, and `null` for `.json`. Trees also list `titleField` and `orderFileName`. Views, augment, filter, and sort are functions and are left out.
+`body` is `{ "format": "markdown" }` for `.md` and `.markdown` entries, `{ "format": "mdx" }` for `.mdx`, and `null` for `.json`. Trees also list `titleField` and `orderFileName`. Views, augment, filter, and sort are functions and are left out. See [Cloud](/docs/guide/cloud#in-configjson) for the `cloud` fields.
 
-The JSON Schema describes the input side of each schema, the shape of the files on disk, before any transform. It comes from the [Standard JSON Schema](https://standardschema.dev/json-schema) interface, so `buildConfigFile` only works with validators that implement it, a subset of Standard Schema validators. Zod 4.2+ and ArkType schemas implement it as is. Others, like Valibot, need their schema wrapped with an adapter. See [the list of implementations](https://standardschema.dev/json-schema). `build` fails when a schema can't be converted, for example when its validator doesn't implement the interface or a field like `z.date()` has no JSON representation.
+The JSON Schema describes the input side of each schema, the shape of the files on disk, before any transform. It comes from the [Standard JSON Schema](https://standardschema.dev/json-schema) interface, so `cloud` only works with validators that implement it, a subset of Standard Schema validators. Zod 4.2+ and ArkType schemas implement it as is. Others, like Valibot, need their schema wrapped with an adapter. See [the list of implementations](https://standardschema.dev/json-schema). `build` fails when a schema can't be converted, for example when its validator doesn't implement the interface or a field like `z.date()` has no JSON representation.
 
 Relation paths and `titleField` must name fields of that input and pass through the schema unchanged. `build` fails when one of them isn't a field of the input, for example because a transform renames it. `build` and `check` also compare every entry's values on disk with its validated values, and fail when a transform maps another field onto a relation field or the title field, or changes its value, since the file couldn't point to the field on disk.
 
