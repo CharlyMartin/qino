@@ -1,5 +1,22 @@
 # @qino/cms
 
+## 0.9.0
+
+### Minor Changes
+
+- [#218](https://github.com/CharlyMartin/qino/pull/218) [`83f0269`](https://github.com/CharlyMartin/qino/commit/83f0269845cbecf8172ca0c03a94a29a3712a1e0) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Moves `checkLocalAssetReferences` on `initQino` to `cli.check.localAssetReferences`, so CLI options are namespaced by command. This is a breaking change:
+
+  ```diff
+   initQino({
+     contentFolder: "src/content",
+     mediaFolder: "public",
+  -  checkLocalAssetReferences: { exclude: ["/og/**"] },
+  +  cli: {
+  +    check: { localAssetReferences: { exclude: ["/og/**"] } },
+  +  },
+   });
+  ```
+
 ## 0.8.0
 
 ### Minor Changes
