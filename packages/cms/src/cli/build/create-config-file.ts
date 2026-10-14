@@ -4,6 +4,7 @@ import type { AnyCollection } from "../../types/collection";
 import type { AnyItem } from "../../types/item";
 import type { AnyTree } from "../../types/tree";
 import { assertRelationTargetsDiscovered } from "./assert-relation-targets-discovered";
+import { serializeCloudConfig } from "./serialize-cloud-config";
 import { serializePrimitives } from "./serialize-primitives";
 import { toPortablePath } from "./to-portable-path";
 
@@ -16,8 +17,8 @@ export type CreateConfigFileParams = {
 
 /**
  * Serializes `config.json`, the project description read by the Qino cloud
- * UI: config, primitives, JSON Schemas, and relations. Deterministic (sorted,
- * pretty-printed) so it diffs cleanly once committed.
+ * UI: config, cloud config, primitives, JSON Schemas, and relations.
+ * Deterministic (sorted, pretty-printed) so it diffs cleanly once committed.
  */
 export function createConfigFile({
   context,
@@ -25,6 +26,9 @@ export function createConfigFile({
   items = [],
   trees = [],
 }: CreateConfigFileParams) {
+  const { cloud } = context;
+  if (!cloud) throw new Error("config.json requires `cloud` in initQino.");
+
   assertRelationTargetsDiscovered([...collections, ...items, ...trees]);
 
   const cwd = process.cwd();
@@ -34,9 +38,10 @@ export function createConfigFile({
       contentFolder: toPortablePath(context.contentFolder, cwd),
       mediaFolder: toPortablePath(context.mediaFolder, cwd),
     },
-    collections: serializePrimitives(collections),
-    items: serializePrimitives(items),
-    trees: serializePrimitives(trees),
+    cloud: serializeCloudConfig(cloud),
+    collections: serializePrimitives(collections, cloud),
+    items: serializePrimitives(items, cloud),
+    trees: serializePrimitives(trees, cloud),
   };
 
   return `${JSON.stringify(config, null, 2)}\n`;

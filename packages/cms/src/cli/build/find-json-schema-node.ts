@@ -8,8 +8,9 @@ const COMBINATORS = ["anyOf", "oneOf", "allOf"] as const;
 /**
  * Walks a JSON Schema along relation path segments: keys follow `properties`,
  * `[*]` follows `items`. Branches of `anyOf` / `oneOf` / `allOf` (optional,
- * nullable, unions) and local `$ref`s are searched. Returns the node, or
- * `undefined` when the path doesn't exist in the schema.
+ * nullable, unions) and local `$ref`s are searched along the way. Returns the
+ * node at the end of the path, unions included rather than their first branch,
+ * or `undefined` when the path doesn't exist in the schema.
  */
 export function findJsonSchemaNode(
   root: JsonSchema,
@@ -35,6 +36,9 @@ export function findJsonSchemaNode(
       );
     }
 
+    const segment = segments[index];
+    if (!segment) return schema;
+
     for (const combinator of COMBINATORS) {
       const branches = schema[combinator];
       if (!Array.isArray(branches)) continue;
@@ -44,9 +48,6 @@ export function findJsonSchemaNode(
         if (found) return found;
       }
     }
-
-    const segment = segments[index];
-    if (!segment) return schema;
 
     if (segment.kind == "array") {
       return walk(schema.items, index + 1, new Set());
