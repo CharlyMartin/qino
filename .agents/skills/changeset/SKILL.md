@@ -1,6 +1,6 @@
 ---
 name: changeset
-description: Use when a change in the Qino monorepo touches a published package (`@qino/cms`) and needs a changeset, or when asked to add, write, or create a changeset or changelog entry.
+description: Use when a change in the Qino monorepo touches a published package (`@qino/cms`, `@qino/tooling`) and needs a changeset, or when asked to add, write, or create a changeset or changelog entry.
 metadata:
   internal: true
 ---
@@ -14,7 +14,7 @@ Changesets declare which published packages changed, the semver bump, and a user
 - **Required:** any change to `packages/*` that users of the package would notice (API, behavior, types, CLI output, error messages, dependencies).
 - **Not needed:** `apps/website`, `examples/*`, docs content, CI, or repo tooling. They're private and never released. An internal refactor or test-only change to `packages/*` doesn't need one either.
 
-The only published package is `@qino/cms`. Check `packages/*/package.json` for others before assuming.
+Published packages are `@qino/cms` and `@qino/tooling`. Check `packages/*/package.json` for others before assuming.
 
 ## Creating the file
 
