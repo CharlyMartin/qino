@@ -1,5 +1,19 @@
 # @qino/cms
 
+## 0.10.0
+
+### Minor Changes
+
+- [#223](https://github.com/CharlyMartin/qino/pull/223) [`c2b4bc5`](https://github.com/CharlyMartin/qino/commit/c2b4bc566bab5de39ba0a90efd16fa283375c32b) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Adds `cli.build.types` to `initQino`. Set it to `false` to make `qino build` skip writing `qino/_generated/types.d.ts`. Defaults to `true`.
+
+  ```ts
+  initQino({
+    contentFolder: "content",
+    mediaFolder: "public",
+    cli: { build: { types: false } },
+  });
+  ```
+
 ## 0.9.0
 
 ### Minor Changes
