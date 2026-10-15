@@ -367,6 +367,9 @@ importers:
       '@arethetypeswrong/cli':
         specifier: 0.18.5
         version: 0.18.5
+      '@qino/tooling':
+        specifier: workspace:*
+        version: link:../tooling
       '@types/mdast':
         specifier: 4.0.4
         version: 4.0.4

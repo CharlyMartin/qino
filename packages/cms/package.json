@@ -74,6 +74,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
+    "@qino/tooling": "workspace:*",
     "@types/mdast": "4.0.4",
     "@types/node": "22.19.18",
     "@types/picomatch": "4.0.3",
