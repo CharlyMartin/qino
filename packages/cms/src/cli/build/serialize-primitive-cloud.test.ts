@@ -219,4 +219,68 @@ describe("serializePrimitiveCloud", () => {
       serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
     ).toThrow('media.fields "image" of "posts" is also a relation');
   });
+
+  test("writes an entry saveAs for collections and trees", () => {
+    const posts = qino.defineCollection({
+      directory: "posts",
+      schema,
+      extension: ".md",
+      cloud: { saveAs: "post-{title}" },
+    });
+    const docs = qino.defineTree({
+      directory: "docs",
+      schema,
+      extension: ".mdx",
+      titleField: "title",
+      cloud: { saveAs: "{title}" },
+    });
+
+    expect(
+      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
+    ).toMatchObject({ saveAs: "post-{title}" });
+    expect(
+      serializePrimitiveCloud(docs, globalCloud, jsonSchema, "docs"),
+    ).toMatchObject({ saveAs: "{title}" });
+  });
+
+  test("leaves saveAs out when unset", () => {
+    const posts = qino.defineCollection({
+      directory: "posts",
+      schema,
+      extension: ".md",
+    });
+
+    expect(
+      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
+    ).not.toHaveProperty("saveAs");
+  });
+
+  test("validates an entry saveAs", () => {
+    const saveAs: string = "{notes}";
+    const posts = qino.defineCollection({
+      directory: "posts",
+      schema,
+      extension: ".md",
+      cloud: { saveAs },
+    });
+
+    expect(() =>
+      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
+    ).toThrow('saveAs "{notes}" of "posts" uses "{notes}", which is optional');
+  });
+
+  test("rejects an entry saveAs on an item", () => {
+    const home = qino.defineItem({
+      file: "pages/home.md",
+      schema,
+      // @ts-expect-error items are a single file.
+      cloud: { saveAs: "{title}" },
+    });
+
+    expect(() =>
+      serializePrimitiveCloud(home, globalCloud, jsonSchema, "pages/home.md"),
+    ).toThrow(
+      'saveAs of "pages/home.md" names new entries, but an item is a single file.',
+    );
+  });
 });

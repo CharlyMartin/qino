@@ -88,6 +88,67 @@ type OptionalKeys<Schema extends ObjectSchema> = Exclude<
   RequiredKeys<InputFields<Schema>>
 >;
 
+/** Keys optional in any member of a union of objects. */
+type OptionalInSomeKeys<T> = T extends unknown
+  ? {
+      [K in keyof T]-?: Record<never, never> extends Pick<T, K> ? K : never;
+    }[keyof T]
+  : never;
+
+/**
+ * Top-level scalar keys required in every variant of the schema input. Any
+ * field name for non-object inputs.
+ */
+type RequiredScalarKeys<Schema extends ObjectSchema> =
+  StandardSchemaV1.InferInput<Schema> extends Record<string, unknown>
+    ? Exclude<ScalarKeys<Schema>, OptionalInSomeKeys<InputFields<Schema>>>
+    : string;
+
+/** Checks each `{token}` of an entry's `saveAs` against the allowed fields. */
+type CheckSaveAsTokens<
+  S extends string,
+  Fields extends string,
+> = S extends `${string}{${infer Token}}${infer Rest}`
+  ? Token extends Fields
+    ? CheckSaveAsTokens<Rest, Fields>
+    : { readonly "Unknown or optional field in saveAs": Token }
+  : unknown;
+
+/**
+ * Validates an entry's `saveAs` literal: at least one `{field}`, no folders or
+ * extension, and only required scalar fields as tokens. A widened `string`
+ * can't be checked here; `qino build` checks it.
+ */
+export type CheckEntrySaveAs<
+  S extends string,
+  Schema extends ObjectSchema,
+> = string extends S
+  ? unknown
+  : S extends `${string}/${string}` | `${string}.${string}`
+    ? {
+        readonly "saveAs can't contain / or . (folders and extension are added)": S;
+      }
+    : S extends `${string}{${string}}${string}`
+      ? CheckSaveAsTokens<S, RequiredScalarKeys<Schema>>
+      : { readonly "saveAs needs at least one {field}": S };
+
+/**
+ * An entry's `saveAs`, kept literal so its tokens are checked: the name the
+ * cloud UI gives a new entry, from its fields. `"{firstName}-{lastName}"`
+ * names an author `jane-doe`.
+ */
+export type EntrySaveAsConfig<
+  SaveAs extends string,
+  Schema extends ObjectSchema,
+> = {
+  /**
+   * Name of new entries, from `{field}` tokens: required top-level fields of
+   * the schema input. Values are slugified; the extension, and in trees the
+   * parent folder, are added. Unset, editors type the slug.
+   */
+  readonly saveAs?: SaveAs & NoInfer<CheckEntrySaveAs<SaveAs, Schema>>;
+};
+
 /** Paths to string fields, as in relations. Any path for non-object inputs. */
 type StringPaths<Schema extends ObjectSchema> =
   StandardSchemaV1.InferInput<Schema> extends Record<string, unknown>
@@ -133,6 +194,7 @@ export type CollectionCloudConfig<Schema extends ObjectSchema> =
 
 /** Cloud config as stored on a primitive, erased from its schema. */
 export type PrimitiveCloudConfig = {
+  readonly saveAs?: string;
   readonly searchableBy?: ReadonlyArray<string>;
   readonly sortableBy?: ReadonlyArray<string>;
   readonly hiddenFields?: ReadonlyArray<string>;

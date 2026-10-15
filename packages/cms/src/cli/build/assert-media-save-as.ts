@@ -1,6 +1,5 @@
 import { MEDIA_PATH_TOKENS } from "../../data/globals";
-
-const TOKEN_PATTERN = /\{([^}]*)\}/g;
+import { getPathTokens } from "./get-path-tokens";
 
 /**
  * Fails on a `media.saveAs` the cloud UI can't fill in or that escapes
@@ -9,7 +8,7 @@ const TOKEN_PATTERN = /\{([^}]*)\}/g;
 export function assertMediaSaveAs(saveAs: string, primitiveId: string) {
   const prefix = `media.saveAs "${saveAs}" of "${primitiveId}"`;
 
-  for (const [, token] of saveAs.matchAll(TOKEN_PATTERN)) {
+  for (const token of getPathTokens(saveAs)) {
     if (!MEDIA_PATH_TOKENS.includes(token as never)) {
       throw new Error(
         `${prefix} has an unknown token "{${token}}". Use ${MEDIA_PATH_TOKENS.map((name) => `{${name}}`).join(", ")}.`,

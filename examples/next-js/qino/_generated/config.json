@@ -62,6 +62,7 @@
         "searchableBy": [],
         "sortableBy": [],
         "hiddenFields": [],
+        "saveAs": "{firstName}-{lastName}",
         "media": {
           "saveAs": "{id}/{name}-{hash}.{ext}",
           "fields": [],
@@ -198,6 +199,7 @@
           "created-on"
         ],
         "hiddenFields": [],
+        "saveAs": "{title}",
         "media": {
           "saveAs": "posts/{name}-{hash}.{ext}",
           "fields": [
@@ -294,6 +296,7 @@
       "cloud": {
         "searchableBy": [],
         "hiddenFields": [],
+        "saveAs": "{title}",
         "media": {
           "saveAs": "{id}/{name}-{hash}.{ext}",
           "fields": [],
@@ -337,6 +340,7 @@
           "title"
         ],
         "hiddenFields": [],
+        "saveAs": "{title}",
         "media": {
           "saveAs": "{id}/{name}-{hash}.{ext}",
           "fields": [],

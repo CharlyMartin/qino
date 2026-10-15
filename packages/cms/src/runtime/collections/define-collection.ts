@@ -16,7 +16,10 @@ import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
 import { buildViews } from "../../lib/views/build-views";
 import { selectView } from "../../lib/views/select-view";
-import type { CollectionCloudConfig } from "../../types/cloud";
+import type {
+  CollectionCloudConfig,
+  EntrySaveAsConfig,
+} from "../../types/cloud";
 import type {
   Collection,
   CollectionEntryMeta,
@@ -53,6 +56,7 @@ export type DefineCollectionParams<
   Rels extends Relations<Schema> = object,
   Dir extends ContentPath = ContentPath,
   Views extends object = object,
+  SaveAs extends string = never,
 > = {
   directory: Dir & NoInfer<NoLeadingSlash<Dir>>;
   schema: Schema & NoInfer<NoReservedSchemaFields<Schema, Ext>>;
@@ -63,7 +67,8 @@ export type DefineCollectionParams<
     CollectionViewFactory<Schema, CollectionEntryMeta<Ext>, Rels>,
     CollectionViewDefinition
   >;
-  cloud?: NoInfer<CollectionCloudConfig<Schema>>;
+  cloud?: NoInfer<CollectionCloudConfig<Schema>> &
+    EntrySaveAsConfig<SaveAs, Schema>;
 } & RootViewSettings;
 
 export function defineCollection<
@@ -72,7 +77,11 @@ export function defineCollection<
   Rels extends Relations<S> = object,
   Dir extends ContentPath = ContentPath,
   const Views extends object = object,
->(ctx: QinoContext, params: DefineCollectionParams<S, Ext, Rels, Dir, Views>) {
+  const SaveAs extends string = never,
+>(
+  ctx: QinoContext,
+  params: DefineCollectionParams<S, Ext, Rels, Dir, Views, SaveAs>,
+) {
   const { directory, schema, extension, relations, cloud } = params;
   assertContentPath(directory, "directory");
   assertCloudEnabled(ctx, cloud, directory);

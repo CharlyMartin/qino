@@ -178,6 +178,127 @@ test("types media fields as paths to strings", () => {
   });
 });
 
+test("checks saveAs tokens against required scalar fields", () => {
+  const author = z.object({
+    firstName: z.string(),
+    lastName: z.string(),
+    age: z.number(),
+    company: z.string().optional(),
+    role: z.string().default("writer"),
+    tags: z.array(z.string()),
+  });
+  qino.defineCollection({
+    directory: "authors",
+    extension: ".json",
+    schema: author,
+    cloud: { saveAs: "{firstName}-{lastName}", searchableBy: ["company"] },
+  });
+  qino.defineCollection({
+    directory: "authors",
+    extension: ".json",
+    schema: author,
+    cloud: { saveAs: "author-{lastName}-{age}" },
+  });
+  qino.defineTree({
+    directory: "docs",
+    extension: ".md",
+    titleField: "title",
+    schema,
+    cloud: { saveAs: "{title}" },
+  });
+  qino.defineCollection({
+    directory: "authors",
+    extension: ".json",
+    schema: author,
+    // @ts-expect-error "nope" isn't a field.
+    cloud: { saveAs: "{firstName}-{nope}" },
+  });
+  qino.defineCollection({
+    directory: "authors",
+    extension: ".json",
+    schema: author,
+    // @ts-expect-error "company" is optional.
+    cloud: { saveAs: "{company}" },
+  });
+  qino.defineCollection({
+    directory: "authors",
+    extension: ".json",
+    schema: author,
+    // @ts-expect-error "role" has a default, so it's optional on disk.
+    cloud: { saveAs: "{role}" },
+  });
+  qino.defineCollection({
+    directory: "authors",
+    extension: ".json",
+    schema: author,
+    // @ts-expect-error "tags" isn't a scalar.
+    cloud: { saveAs: "{tags}" },
+  });
+  qino.defineCollection({
+    directory: "authors",
+    extension: ".json",
+    schema: author,
+    // @ts-expect-error no {field}.
+    cloud: { saveAs: "author" },
+  });
+  qino.defineCollection({
+    directory: "authors",
+    extension: ".json",
+    schema: author,
+    // @ts-expect-error folders are added by the cloud UI.
+    cloud: { saveAs: "people/{lastName}" },
+  });
+  qino.defineCollection({
+    directory: "authors",
+    extension: ".json",
+    schema: author,
+    // @ts-expect-error the extension is added by the cloud UI.
+    cloud: { saveAs: "{lastName}.json" },
+  });
+  qino.defineItem({
+    file: "pages/home.md",
+    schema,
+    // @ts-expect-error items are a single, fixed file.
+    cloud: { saveAs: "{title}" },
+  });
+});
+
+test("checks saveAs tokens in every union variant", () => {
+  const variants = z.discriminatedUnion("kind", [
+    z.object({ kind: z.literal("a"), title: z.string(), slug: z.string() }),
+    z.object({
+      kind: z.literal("b"),
+      title: z.string(),
+      slug: z.string().optional(),
+    }),
+  ]);
+
+  qino.defineCollection({
+    directory: "posts",
+    extension: ".md",
+    schema: variants,
+    cloud: { saveAs: "{kind}-{title}" },
+  });
+  qino.defineCollection({
+    directory: "posts",
+    extension: ".md",
+    schema: variants,
+    // @ts-expect-error variant "b" makes "slug" optional.
+    cloud: { saveAs: "{slug}" },
+  });
+});
+
+test("can't check a widened saveAs", () => {
+  const saveAs: string = "{nope}";
+
+  qino.defineCollection({
+    directory: "posts",
+    extension: ".md",
+    schema,
+    cloud: { saveAs },
+  });
+});
+
 test("types collection fields against the schema", () => {
   qino.defineCollection({
     directory: "posts",

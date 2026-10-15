@@ -10,6 +10,7 @@ export const treeSchema = primitiveBaseSchema.extend({
   cloud: z.object({
     searchableBy: z.array(z.string()),
     hiddenFields: z.array(z.string()),
+    saveAs: z.string().optional(),
     media: primitiveMediaSchema,
   }),
 });

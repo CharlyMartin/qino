@@ -1,4 +1,4 @@
-import { collectJsonSchemaTypes } from "./collect-json-schema-types";
+import { allowsOnlyScalars } from "./allows-only-scalars";
 import { findJsonSchemaNodes } from "./find-json-schema-nodes";
 import { isRequiredJsonSchemaField } from "./is-required-json-schema-field";
 
@@ -7,8 +7,6 @@ type CloudFields = {
   sortableBy?: ReadonlyArray<string>;
   hiddenFields?: ReadonlyArray<string>;
 };
-
-const SCALAR_TYPES = new Set(["string", "number", "integer", "boolean"]);
 
 /**
  * `searchableBy`, `sortableBy`, and `hiddenFields` are typed against the
@@ -38,12 +36,7 @@ export function assertCloudFields(
         );
       }
 
-      if (
-        option == "sortableBy" &&
-        !nodes.every((node) =>
-          isScalar(collectJsonSchemaTypes(jsonSchema, node)),
-        )
-      ) {
+      if (option == "sortableBy" && !allowsOnlyScalars(jsonSchema, nodes)) {
         throw new Error(
           `sortableBy "${field}" of "${primitiveId}" isn't a string, number, or boolean on disk.`,
         );
@@ -59,9 +52,4 @@ export function assertCloudFields(
       }
     }
   }
-}
-
-function isScalar(types: Set<string>) {
-  const nonNull = [...types].filter((type) => type != "null");
-  return nonNull.length > 0 && nonNull.every((type) => SCALAR_TYPES.has(type));
 }

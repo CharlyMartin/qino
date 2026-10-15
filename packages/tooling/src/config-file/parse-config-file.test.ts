@@ -33,6 +33,7 @@ function setup() {
           searchableBy: ["title"],
           sortableBy: [],
           hiddenFields: ["notes"],
+          saveAs: "{title}",
           media: { ...media, fields: ["image"] },
         },
       },
