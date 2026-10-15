@@ -1,5 +1,6 @@
 import nodePath from "node:path";
 
+import { configV1Schema } from "@qino/tooling";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 
@@ -114,5 +115,40 @@ describe("createConfigFile", () => {
     const json = JSON.parse(createConfigFile({ context: setup().context }));
 
     expect(json).toMatchObject({ collections: {}, items: {}, trees: {} });
+  });
+
+  test("matches the cloud UI's schema, without unknown keys", () => {
+    const qino = initQino({
+      contentFolder: "content",
+      mediaFolder: "public",
+      cloud: {
+        publish: {
+          mode: "commit_to_default_branch",
+          reviewBeforePublish: false,
+        },
+        media: { accepted: [{ type: "image/*", maxSize: "5MB" }] },
+      },
+    });
+    const schema = z.object({ title: z.string(), author: z.string() });
+    const authors = qino.defineCollection({
+      directory: "authors",
+      schema,
+      extension: ".json",
+    });
+    const posts = qino.defineCollection({
+      directory: "posts",
+      schema,
+      extension: ".md",
+      relations: { author: () => authors },
+      cloud: { searchableBy: ["title"], sortableBy: ["title"] },
+    });
+
+    for (const params of [
+      setup(),
+      { context: qino[QinoConfigMarker], collections: [authors, posts] },
+    ]) {
+      const json = JSON.parse(createConfigFile(params));
+      expect(configV1Schema.parse(json)).toEqual(json);
+    }
   });
 });
