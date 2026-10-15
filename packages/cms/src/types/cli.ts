@@ -11,7 +11,17 @@ export type CheckConfig = {
   readonly localAssetReferences?: boolean | LocalAssetReferencesConfig;
 };
 
+export type BuildConfig = {
+  /**
+   * Makes `qino build` write `qino/_generated/types.d.ts`. Defaults to `true`;
+   * `false` skips it.
+   */
+  readonly types?: boolean;
+};
+
 export type CliConfig = {
   /** Options for `qino check`. */
   readonly check?: CheckConfig;
+  /** Options for `qino build`. */
+  readonly build?: BuildConfig;
 };

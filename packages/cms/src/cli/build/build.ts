@@ -1,3 +1,5 @@
+import { consola } from "consola";
+
 import type { QinoContext } from "../../runtime/qino/init-qino";
 import type { AnyCollection } from "../../types/collection";
 import type { AnyItem } from "../../types/item";
@@ -18,7 +20,11 @@ export async function build({
   items,
   trees,
 }: BuildParams) {
-  await generateTypes({ collections, trees });
+  if (context.cli?.build?.types == false) {
+    consola.info("Types generation skipped: `cli.build.types` is false.");
+  } else {
+    await generateTypes({ collections, trees });
+  }
 
   if (context.cloud) {
     await generateConfigFile({ context, collections, items, trees });
