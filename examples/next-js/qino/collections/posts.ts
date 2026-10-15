@@ -31,7 +31,7 @@ export const postCollection = qino.defineCollection({
     saveAs: "{title}",
     searchableBy: ["title"],
     sortableBy: ["title", "created-on"],
-    media: { saveAs: "posts/{name}-{hash}.{ext}", fields: ["image"] },
+    media: { saveAs: "posts/{name}-{hash}", fields: ["image"] },
   },
   views: (view) => {
     const base = view({ resolveRelations: 1 });

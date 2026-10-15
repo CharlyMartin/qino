@@ -3,7 +3,7 @@ import { ZodError } from "zod";
 
 import { parseConfigFile } from "./parse-config-file";
 
-const media = { saveAs: "{id}/{name}-{hash}.{ext}", fields: [] };
+const media = { saveAs: "{id}/{name}-{hash}", fields: [] };
 const base = { body: null, schema: { type: "object" }, relations: [] };
 
 function setup() {

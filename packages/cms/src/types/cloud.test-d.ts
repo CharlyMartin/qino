@@ -307,7 +307,7 @@ test("types collection fields against the schema", () => {
     cloud: {
       searchableBy: ["title", "tags"],
       sortableBy: ["title", "views"],
-      media: { saveAs: "posts/{name}.{ext}", accepted: [] },
+      media: { saveAs: "posts/{name}", accepted: [] },
     },
   });
   qino.defineCollection({
@@ -359,7 +359,7 @@ test("gives trees search and media, but no sort", () => {
     extension: ".md",
     titleField: "title",
     schema,
-    cloud: { searchableBy: ["title"], media: { saveAs: "docs/{name}.{ext}" } },
+    cloud: { searchableBy: ["title"], media: { saveAs: "docs/{name}" } },
   });
   qino.defineTree({
     directory: "docs",
@@ -375,7 +375,7 @@ test("gives items media only", () => {
   qino.defineItem({
     file: "pages/home.md",
     schema,
-    cloud: { media: { saveAs: "home/{name}.{ext}" } },
+    cloud: { media: { saveAs: "home/{name}" } },
   });
   qino.defineItem({
     file: "pages/home.md",

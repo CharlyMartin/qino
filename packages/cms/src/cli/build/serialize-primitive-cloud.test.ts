@@ -46,7 +46,7 @@ describe("serializePrimitiveCloud", () => {
       searchableBy: [],
       sortableBy: [],
       hiddenFields: [],
-      media: { saveAs: "{id}/{name}-{hash}.{ext}", fields: [] },
+      media: { saveAs: "{id}/{name}-{hash}", fields: [] },
     });
   });
 
@@ -59,7 +59,7 @@ describe("serializePrimitiveCloud", () => {
         searchableBy: ["title", "tags"],
         sortableBy: ["title"],
         hiddenFields: ["notes"],
-        media: { saveAs: "blog/{name}.{ext}", fields: ["image"], accepted },
+        media: { saveAs: "blog/{name}", fields: ["image"], accepted },
       },
     });
 
@@ -70,7 +70,7 @@ describe("serializePrimitiveCloud", () => {
       sortableBy: ["title"],
       hiddenFields: ["notes"],
       media: {
-        saveAs: "blog/{name}.{ext}",
+        saveAs: "blog/{name}",
         fields: ["image"],
         accepted: acceptedBytes,
       },
@@ -91,7 +91,7 @@ describe("serializePrimitiveCloud", () => {
     ).toEqual({
       searchableBy: ["title"],
       hiddenFields: [],
-      media: { saveAs: "{id}/{name}-{hash}.{ext}", fields: [] },
+      media: { saveAs: "{id}/{name}-{hash}", fields: [] },
     });
   });
 
@@ -106,7 +106,7 @@ describe("serializePrimitiveCloud", () => {
       serializePrimitiveCloud(home, globalCloud, jsonSchema, "pages/home.md"),
     ).toEqual({
       hiddenFields: ["notes"],
-      media: { saveAs: "{id}/{name}-{hash}.{ext}", fields: ["image"] },
+      media: { saveAs: "{id}/{name}-{hash}", fields: ["image"] },
     });
   });
 
@@ -121,7 +121,7 @@ describe("serializePrimitiveCloud", () => {
         "pages/home.md",
       ).media,
     ).toEqual({
-      saveAs: "{id}/{name}-{hash}.{ext}",
+      saveAs: "{id}/{name}-{hash}",
       fields: [],
       accepted: acceptedBytes,
     });
@@ -141,7 +141,7 @@ describe("serializePrimitiveCloud", () => {
         jsonSchema,
         "pages/home.md",
       ).media,
-    ).toEqual({ saveAs: "{id}/{name}-{hash}.{ext}", fields: [], accepted: [] });
+    ).toEqual({ saveAs: "{id}/{name}-{hash}", fields: [], accepted: [] });
   });
 
   test("validates media.saveAs", () => {
@@ -149,7 +149,7 @@ describe("serializePrimitiveCloud", () => {
       directory: "posts",
       schema,
       extension: ".md",
-      cloud: { media: { saveAs: "{slug}.{ext}" } },
+      cloud: { media: { saveAs: "{slug}" } },
     });
 
     expect(() =>

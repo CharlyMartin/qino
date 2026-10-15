@@ -5,7 +5,7 @@ import { initQino } from "../../runtime/qino/init-qino";
 import type { CloudConfig } from "../../types/cloud";
 import { serializePrimitive } from "./serialize-primitive";
 
-const media = { saveAs: "{id}/{name}-{hash}.{ext}", fields: [] };
+const media = { saveAs: "{id}/{name}-{hash}", fields: [] };
 const cloud: CloudConfig = {
   publish: { mode: "commit_to_default_branch", reviewBeforePublish: false },
 };

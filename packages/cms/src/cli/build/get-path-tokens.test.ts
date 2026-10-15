@@ -4,11 +4,7 @@ import { getPathTokens } from "./get-path-tokens";
 
 describe("getPathTokens", () => {
   test("lists tokens in order", () => {
-    expect(getPathTokens("posts/{name}-{hash}.{ext}")).toEqual([
-      "name",
-      "hash",
-      "ext",
-    ]);
+    expect(getPathTokens("posts/{name}-{hash}")).toEqual(["name", "hash"]);
   });
 
   test("keeps field names with dashes and empty tokens", () => {

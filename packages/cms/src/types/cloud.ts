@@ -159,9 +159,10 @@ export type PrimitiveCloudMediaConfig<Schema extends ObjectSchema> =
   CloudMediaConfig & {
     /**
      * File path an upload is saved to when publishing, relative to
-     * `mediaFolder`. Tokens: `{id}`, `{name}`, `{hash}`, `{ext}`. E.g.
-     * `"posts/{name}-{hash}.{ext}"` saves `cover.webp` as
-     * `public/posts/cover-1a2b3c4d.webp`. Defaults to `"{id}/{name}-{hash}.{ext}"`.
+     * `mediaFolder`, without the extension: the cloud UI adds the uploaded
+     * file's. Tokens: `{id}`, `{name}`, `{hash}`. E.g.
+     * `"posts/{name}-{hash}"` saves `cover.webp` as
+     * `public/posts/cover-1a2b3c4d.webp`. Defaults to `"{id}/{name}-{hash}"`.
      */
     readonly saveAs?: string;
     /**

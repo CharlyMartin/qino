@@ -68,20 +68,20 @@ export const postCollection = qino.defineCollection({
     searchableBy: ["title"],
     sortableBy: ["title", "draft"],
     hiddenFields: ["notes"],
-    media: { saveAs: "posts/{name}-{hash}.{ext}", fields: ["cover"] },
+    media: { saveAs: "posts/{name}-{hash}", fields: ["cover"] },
   },
 });
 ```
 
-| Option           | Collections | Trees | Items | Default                      | Description                                                                                              |
-| ---------------- | ----------- | ----- | ----- | ---------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `saveAs`         | yes         | yes   |       |                              | Name of new entries, from their fields, such as `"{firstName}-{lastName}"`. Unset, editors type the slug |
-| `searchableBy`   | yes         | yes   |       | `[]`                         | Top-level fields the cloud UI searches. Empty, there's no search                                         |
-| `sortableBy`     | yes         |       |       | `[]`                         | Top-level string, number, or boolean fields the cloud UI sorts by. Empty, no sorting                     |
-| `hiddenFields`   | yes         | yes   | yes   | `[]`                         | Top-level optional fields the cloud UI doesn't show. Their values are kept on save                       |
-| `media.fields`   | yes         | yes   | yes   | `[]`                         | Paths to string fields edited with a media picker, such as `"gallery[*]"`                                |
-| `media.saveAs`   | yes         | yes   | yes   | `"{id}/{name}-{hash}.{ext}"` | File path an upload is saved to when publishing, relative to `mediaFolder`                               |
-| `media.accepted` | yes         | yes   | yes   | `initQino`'s                 | Replaces `initQino`'s list for this primitive. `[]` disables uploads                                     |
+| Option           | Collections | Trees | Items | Default                | Description                                                                                              |
+| ---------------- | ----------- | ----- | ----- | ---------------------- | -------------------------------------------------------------------------------------------------------- |
+| `saveAs`         | yes         | yes   |       |                        | Name of new entries, from their fields, such as `"{firstName}-{lastName}"`. Unset, editors type the slug |
+| `searchableBy`   | yes         | yes   |       | `[]`                   | Top-level fields the cloud UI searches. Empty, there's no search                                         |
+| `sortableBy`     | yes         |       |       | `[]`                   | Top-level string, number, or boolean fields the cloud UI sorts by. Empty, no sorting                     |
+| `hiddenFields`   | yes         | yes   | yes   | `[]`                   | Top-level optional fields the cloud UI doesn't show. Their values are kept on save                       |
+| `media.fields`   | yes         | yes   | yes   | `[]`                   | Paths to string fields edited with a media picker, such as `"gallery[*]"`                                |
+| `media.saveAs`   | yes         | yes   | yes   | `"{id}/{name}-{hash}"` | File path an upload is saved to when publishing, relative to `mediaFolder`                               |
+| `media.accepted` | yes         | yes   | yes   | `initQino`'s           | Replaces `initQino`'s list for this primitive. `[]` disables uploads                                     |
 
 Trees are ordered by their order file, so they have no `sortableBy`. Items are a single file, so they have no `saveAs`, and only take `hiddenFields` and `media`.
 
@@ -112,16 +112,15 @@ The cloud UI writes the URL the file is served at, starting with `/`: picking th
 
 ### Saving uploads
 
-When an editor publishes, each uploaded file is saved to the path `media.saveAs` describes, relative to `mediaFolder`. With `mediaFolder: "public"` and `saveAs: "posts/{name}-{hash}.{ext}"`, uploading `Cover.webp` saves `public/posts/cover-1a2b3c4d.webp`, served at `/posts/cover-1a2b3c4d.webp`. Tokens:
+When an editor publishes, each uploaded file is saved to the path `media.saveAs` describes, relative to `mediaFolder`. As with entries' `saveAs`, the cloud UI adds the extension: the uploaded file's, lowercased. With `mediaFolder: "public"` and `saveAs: "posts/{name}-{hash}"`, uploading `Cover.webp` saves `public/posts/cover-1a2b3c4d.webp`, served at `/posts/cover-1a2b3c4d.webp`. Tokens:
 
 | Token    | Value                                                                      |
 | -------- | -------------------------------------------------------------------------- |
 | `{id}`   | The primitive's `directory`, or its `file` without the extension for items |
-| `{name}` | The uploaded file's name, slugified                                        |
+| `{name}` | The uploaded file's name without its extension, slugified                  |
 | `{hash}` | The first 8 hex characters of the file's SHA-256                           |
-| `{ext}`  | The uploaded file's extension, lowercased                                  |
 
-With `{hash}`, an upload never overwrites another file, and each URL always serves the same content, so it can be cached for good. `qino build` fails on an unknown token, a path not ending with `.{ext}`, or a path starting with `/` or containing `..`.
+With `{hash}`, an upload never overwrites another file, and each URL always serves the same content, so it can be cached for good. `qino build` fails on an unknown token, a `.` in the file name, a path ending with `/`, or a path starting with `/` or containing `..`.
 
 ## In config.json
 
@@ -142,7 +141,7 @@ With `{hash}`, an upload never overwrites another file, and each URL always serv
         "searchableBy": ["title"],
         "sortableBy": ["title", "draft"],
         "hiddenFields": ["notes"],
-        "media": { "saveAs": "posts/{name}-{hash}.{ext}", "fields": ["cover"] }
+        "media": { "saveAs": "posts/{name}-{hash}", "fields": ["cover"] }
       }
     }
   }
