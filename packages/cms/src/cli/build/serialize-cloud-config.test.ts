@@ -5,7 +5,7 @@ import { serializeCloudConfig } from "./serialize-cloud-config";
 const accepted = [{ type: "image/*", maxSize: "5MB" }] as const;
 
 describe("serializeCloudConfig", () => {
-  test("defaults branchPrefix for pull requests", () => {
+  test("defaults branchPrefix and review settings", () => {
     expect(
       serializeCloudConfig({
         publish: { mode: "open_pull_request", reviewBeforePublish: true },
@@ -13,7 +13,7 @@ describe("serializeCloudConfig", () => {
     ).toEqual({
       publish: {
         mode: "open_pull_request",
-        reviewBeforePublish: true,
+        reviewBeforePublish: { bypassIfAdmin: false },
         branchPrefix: "qino/",
       },
     });
@@ -40,8 +40,33 @@ describe("serializeCloudConfig", () => {
         },
       }),
     ).toEqual({
-      publish: { mode: "commit_to_default_branch", reviewBeforePublish: false },
+      publish: {
+        mode: "commit_to_default_branch",
+        reviewBeforePublish: false,
+      },
     });
+  });
+
+  test("keeps review settings", () => {
+    expect(
+      serializeCloudConfig({
+        publish: {
+          mode: "commit_to_default_branch",
+          reviewBeforePublish: { bypassIfAdmin: true },
+        },
+      }).publish,
+    ).toEqual({
+      mode: "commit_to_default_branch",
+      reviewBeforePublish: { bypassIfAdmin: true },
+    });
+  });
+
+  test("fills in an empty review object", () => {
+    expect(
+      serializeCloudConfig({
+        publish: { mode: "open_pull_request", reviewBeforePublish: {} },
+      }).publish,
+    ).toMatchObject({ reviewBeforePublish: { bypassIfAdmin: false } });
   });
 
   test("writes accepted media when set", () => {

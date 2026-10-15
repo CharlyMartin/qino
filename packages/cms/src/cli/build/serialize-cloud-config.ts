@@ -4,10 +4,16 @@ import { serializeAcceptedMedia } from "./serialize-accepted-media";
 
 /**
  * Describes `initQino`'s `cloud` in `config.json`, with defaults filled in.
- * `media.accepted` is left out when unset: the cloud UI applies its own.
+ * `reviewBeforePublish` is `false`, or its settings when review is on, `true`
+ * included. `media.accepted` is left out when unset: the cloud UI applies
+ * its own.
  */
 export function serializeCloudConfig({ publish, media }: CloudConfig) {
-  const { mode, reviewBeforePublish } = publish;
+  const { mode } = publish;
+  const review = publish.reviewBeforePublish;
+  const reviewBeforePublish = review != false && {
+    bypassIfAdmin: (typeof review == "object" && review.bypassIfAdmin) || false,
+  };
 
   return {
     publish:

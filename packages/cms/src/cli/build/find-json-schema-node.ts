@@ -1,61 +1,15 @@
 import type { Segment } from "../../lib/relations/parse-path";
-import { resolveJsonSchemaRef } from "./resolve-json-schema-ref";
-
-type JsonSchema = Record<string, unknown>;
-
-const COMBINATORS = ["anyOf", "oneOf", "allOf"] as const;
+import { findJsonSchemaNodes } from "./find-json-schema-nodes";
 
 /**
- * Walks a JSON Schema along relation path segments: keys follow `properties`,
- * `[*]` follows `items`. Branches of `anyOf` / `oneOf` / `allOf` (optional,
- * nullable, unions) and local `$ref`s are searched along the way. Returns the
- * node at the end of the path, unions included rather than their first branch,
- * or `undefined` when the path doesn't exist in the schema.
+ * The first node `findJsonSchemaNodes` finds at the end of a relation path,
+ * unions included rather than their first branch, or `undefined` when the
+ * path doesn't exist in the schema. Enough to check a path exists; use
+ * `findJsonSchemaNodes` to check what every branch allows there.
  */
 export function findJsonSchemaNode(
-  root: JsonSchema,
+  root: Record<string, unknown>,
   segments: Array<Segment>,
-): JsonSchema | undefined {
-  return walk(root, 0, new Set());
-
-  function walk(
-    node: unknown,
-    index: number,
-    seen: Set<unknown>,
-  ): JsonSchema | undefined {
-    if (typeof node != "object" || node == null || seen.has(node)) {
-      return undefined;
-    }
-
-    const schema = node as JsonSchema;
-    if (typeof schema.$ref == "string") {
-      return walk(
-        resolveJsonSchemaRef(root, schema.$ref),
-        index,
-        new Set(seen).add(node),
-      );
-    }
-
-    const segment = segments[index];
-    if (!segment) return schema;
-
-    for (const combinator of COMBINATORS) {
-      const branches = schema[combinator];
-      if (!Array.isArray(branches)) continue;
-
-      for (const branch of branches) {
-        const found = walk(branch, index, seen);
-        if (found) return found;
-      }
-    }
-
-    if (segment.kind == "array") {
-      return walk(schema.items, index + 1, new Set());
-    }
-
-    const properties = schema.properties as Record<string, unknown> | undefined;
-    return properties && Object.hasOwn(properties, segment.name)
-      ? walk(properties[segment.name], index + 1, new Set())
-      : undefined;
-  }
+) {
+  return findJsonSchemaNodes(root, segments)[0];
 }

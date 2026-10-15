@@ -5,7 +5,7 @@ import { initQino } from "../../runtime/qino/init-qino";
 import type { CloudConfig } from "../../types/cloud";
 import { serializePrimitive } from "./serialize-primitive";
 
-const media = { saveAs: "{id}/{name}-{hash}.{ext}" };
+const media = { saveAs: "{id}/{name}-{hash}.{ext}", fields: [] };
 const cloud: CloudConfig = {
   publish: { mode: "commit_to_default_branch", reviewBeforePublish: false },
 };
@@ -53,7 +53,7 @@ describe("serializePrimitive", () => {
           cardinality: "one",
         },
       ],
-      cloud: { searchableBy: [], sortableBy: [], media },
+      cloud: { searchableBy: [], sortableBy: [], hiddenFields: [], media },
     });
   });
 
@@ -66,7 +66,7 @@ describe("serializePrimitive", () => {
       body: null,
       schema: jsonSchema,
       relations: [],
-      cloud: { media },
+      cloud: { hiddenFields: [], media },
     });
   });
 
@@ -86,7 +86,7 @@ describe("serializePrimitive", () => {
       body: { format: "mdx" },
       schema: jsonSchema,
       relations: [],
-      cloud: { searchableBy: [], media },
+      cloud: { searchableBy: [], hiddenFields: [], media },
     });
   });
 });

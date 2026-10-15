@@ -64,7 +64,7 @@ describe("createConfigFile", () => {
       cloud: {
         publish: {
           mode: "open_pull_request",
-          reviewBeforePublish: true,
+          reviewBeforePublish: { bypassIfAdmin: false },
           branchPrefix: "qino/",
         },
       },

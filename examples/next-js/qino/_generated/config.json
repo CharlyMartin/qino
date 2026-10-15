@@ -7,7 +7,9 @@
   "cloud": {
     "publish": {
       "mode": "open_pull_request",
-      "reviewBeforePublish": true,
+      "reviewBeforePublish": {
+        "bypassIfAdmin": true
+      },
       "branchPrefix": "qino/"
     },
     "media": {
@@ -59,8 +61,10 @@
       "cloud": {
         "searchableBy": [],
         "sortableBy": [],
+        "hiddenFields": [],
         "media": {
           "saveAs": "{id}/{name}-{hash}.{ext}",
+          "fields": [],
           "accepted": [
             {
               "type": "image/webp",
@@ -101,8 +105,10 @@
       "cloud": {
         "searchableBy": [],
         "sortableBy": [],
+        "hiddenFields": [],
         "media": {
           "saveAs": "{id}/{name}-{hash}.{ext}",
+          "fields": [],
           "accepted": [
             {
               "type": "image/webp",
@@ -191,8 +197,12 @@
           "title",
           "created-on"
         ],
+        "hiddenFields": [],
         "media": {
           "saveAs": "posts/{name}-{hash}.{ext}",
+          "fields": [
+            "image"
+          ],
           "accepted": [
             {
               "type": "image/webp",
@@ -249,8 +259,10 @@
         }
       ],
       "cloud": {
+        "hiddenFields": [],
         "media": {
           "saveAs": "{id}/{name}-{hash}.{ext}",
+          "fields": [],
           "accepted": []
         }
       }
@@ -281,8 +293,10 @@
       "relations": [],
       "cloud": {
         "searchableBy": [],
+        "hiddenFields": [],
         "media": {
           "saveAs": "{id}/{name}-{hash}.{ext}",
+          "fields": [],
           "accepted": [
             {
               "type": "image/webp",
@@ -322,8 +336,10 @@
         "searchableBy": [
           "title"
         ],
+        "hiddenFields": [],
         "media": {
           "saveAs": "{id}/{name}-{hash}.{ext}",
+          "fields": [],
           "accepted": [
             {
               "type": "image/webp",

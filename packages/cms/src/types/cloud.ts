@@ -1,5 +1,6 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 
+import type { RelationPath } from "./relations";
 import type { ObjectSchema } from "./schema";
 
 type NonZeroDigit = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
@@ -25,9 +26,20 @@ export type CloudMediaConfig = {
   readonly accepted?: ReadonlyArray<CloudMediaType>;
 };
 
+export type CloudReviewConfig = {
+  /**
+   * Whether admins can publish before every entry is approved. Defaults to
+   * `false`.
+   */
+  readonly bypassIfAdmin?: boolean;
+};
+
 type CloudPublishReview = {
-  /** Whether an approver signs off in Qino before the author can publish. */
-  readonly reviewBeforePublish: boolean;
+  /**
+   * Whether an approver signs off in Qino before the author can publish. An
+   * object turns review on and configures it.
+   */
+  readonly reviewBeforePublish: boolean | CloudReviewConfig;
 };
 
 export type CloudPublishConfig =
@@ -41,16 +53,6 @@ export type CloudPublishConfig =
 export type CloudConfig = {
   readonly publish: CloudPublishConfig;
   readonly media?: CloudMediaConfig;
-};
-
-export type PrimitiveCloudMediaConfig = CloudMediaConfig & {
-  /**
-   * File path an upload is saved to when publishing, relative to
-   * `mediaFolder`. Tokens: `{id}`, `{name}`, `{hash}`, `{ext}`. E.g.
-   * `"posts/{name}-{hash}.{ext}"` saves `cover.webp` as
-   * `public/posts/cover-1a2b3c4d.webp`. Defaults to `"{id}/{name}-{hash}.{ext}"`.
-   */
-  readonly saveAs?: string;
 };
 
 type Scalar = string | number | boolean | null | undefined;
@@ -73,14 +75,55 @@ type ScalarKeys<Schema extends ObjectSchema> = {
     : never;
 }[TopLevelKeys<Schema>];
 
-export type ItemCloudConfig = {
-  readonly media?: PrimitiveCloudMediaConfig;
+/** Keys required by any member of a union of objects. */
+type RequiredKeys<T> = T extends unknown
+  ? {
+      [K in keyof T]-?: Record<never, never> extends Pick<T, K> ? never : K;
+    }[keyof T]
+  : never;
+
+/** Top-level keys optional in every variant of the schema input. */
+type OptionalKeys<Schema extends ObjectSchema> = Exclude<
+  TopLevelKeys<Schema>,
+  RequiredKeys<InputFields<Schema>>
+>;
+
+/** Paths to string fields, as in relations. Any path for non-object inputs. */
+type StringPaths<Schema extends ObjectSchema> =
+  StandardSchemaV1.InferInput<Schema> extends Record<string, unknown>
+    ? RelationPath<StandardSchemaV1.InferInput<Schema>>
+    : string;
+
+export type PrimitiveCloudMediaConfig<Schema extends ObjectSchema> =
+  CloudMediaConfig & {
+    /**
+     * File path an upload is saved to when publishing, relative to
+     * `mediaFolder`. Tokens: `{id}`, `{name}`, `{hash}`, `{ext}`. E.g.
+     * `"posts/{name}-{hash}.{ext}"` saves `cover.webp` as
+     * `public/posts/cover-1a2b3c4d.webp`. Defaults to `"{id}/{name}-{hash}.{ext}"`.
+     */
+    readonly saveAs?: string;
+    /**
+     * Fields the cloud UI edits with a media picker, as relation paths:
+     * `"image"`, `"gallery[*]"`, `"seo.image"`. Unset, there's no picker.
+     */
+    readonly fields?: ReadonlyArray<StringPaths<Schema>>;
+  };
+
+export type ItemCloudConfig<Schema extends ObjectSchema> = {
+  readonly media?: PrimitiveCloudMediaConfig<Schema>;
+  /**
+   * Fields the cloud UI doesn't show. Only optional fields, so editors can
+   * still create entries; existing values are kept on save.
+   */
+  readonly hiddenFields?: ReadonlyArray<OptionalKeys<Schema>>;
 };
 
-export type TreeCloudConfig<Schema extends ObjectSchema> = ItemCloudConfig & {
-  /** Fields the cloud UI searches. Unset, there's no search. */
-  readonly searchableBy?: ReadonlyArray<TopLevelKeys<Schema>>;
-};
+export type TreeCloudConfig<Schema extends ObjectSchema> =
+  ItemCloudConfig<Schema> & {
+    /** Fields the cloud UI searches. Unset, there's no search. */
+    readonly searchableBy?: ReadonlyArray<TopLevelKeys<Schema>>;
+  };
 
 export type CollectionCloudConfig<Schema extends ObjectSchema> =
   TreeCloudConfig<Schema> & {
@@ -92,5 +135,9 @@ export type CollectionCloudConfig<Schema extends ObjectSchema> =
 export type PrimitiveCloudConfig = {
   readonly searchableBy?: ReadonlyArray<string>;
   readonly sortableBy?: ReadonlyArray<string>;
-  readonly media?: PrimitiveCloudMediaConfig;
+  readonly hiddenFields?: ReadonlyArray<string>;
+  readonly media?: CloudMediaConfig & {
+    readonly saveAs?: string;
+    readonly fields?: ReadonlyArray<string>;
+  };
 };
