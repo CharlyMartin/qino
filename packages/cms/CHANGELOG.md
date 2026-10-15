@@ -1,5 +1,35 @@
 # @qino/cms
 
+## 0.12.0
+
+### Minor Changes
+
+- [#227](https://github.com/CharlyMartin/qino/pull/227) [`7000df9`](https://github.com/CharlyMartin/qino/commit/7000df9f269e88474a29384ce0338cc5b150846c) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - **Breaking:** `media.saveAs` no longer takes the extension, like an entry's `saveAs`: the cloud UI adds the uploaded file's. The `{ext}` token is gone, and the default is now `"{id}/{name}-{hash}"`. `qino build` fails on a `.` in the file name.
+
+  To upgrade, remove `.{ext}` from `media.saveAs`, then rerun `qino build` and commit `config.json`:
+
+  ```diff
+  - media: { saveAs: "posts/{name}-{hash}.{ext}" },
+  + media: { saveAs: "posts/{name}-{hash}" },
+  ```
+
+- [#227](https://github.com/CharlyMartin/qino/pull/227) [`7000df9`](https://github.com/CharlyMartin/qino/commit/7000df9f269e88474a29384ce0338cc5b150846c) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Adds `cloud.saveAs` to `defineCollection` and `defineTree`: how the cloud UI names the file of a new entry, from its fields. It uses the same `{token}` syntax as `media.saveAs`, with top-level fields as tokens:
+
+  ```ts
+  qino.defineCollection({
+    directory: "authors",
+    extension: ".json",
+    schema,
+    cloud: { saveAs: "{firstName}-{lastName}" }, // jane-doe.json
+  });
+  ```
+
+  Tokens must be required string, number, or boolean fields. An unknown or optional field, a `/` or `.`, or a pattern without a token is a type error, and `qino build` checks the same rules.
+
+### Patch Changes
+
+- [#227](https://github.com/CharlyMartin/qino/pull/227) [`7000df9`](https://github.com/CharlyMartin/qino/commit/7000df9f269e88474a29384ce0338cc5b150846c) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Fixes `qino build` rejecting `sortableBy`, `media.fields`, and `saveAs` fields narrowed by an intersection, such as `z.unknown().and(z.string())`: intersections now narrow a field's types instead of adding them up.
+
 ## 0.11.0
 
 ### Minor Changes

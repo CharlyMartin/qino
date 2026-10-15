@@ -1,5 +1,11 @@
 # @qino/tooling
 
+## 0.3.0
+
+### Minor Changes
+
+- [#227](https://github.com/CharlyMartin/qino/pull/227) [`7000df9`](https://github.com/CharlyMartin/qino/commit/7000df9f269e88474a29384ce0338cc5b150846c) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Adds the optional `saveAs` to collection and tree `cloud` in the config file schemas.
+
 ## 0.2.0
 
 ### Minor Changes
