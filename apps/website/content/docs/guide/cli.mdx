@@ -114,6 +114,20 @@ declare module "@qino/cms" {
 
 The write is idempotent: the file is only rewritten when its content changes. Items have no slugs and are skipped. A directory with no entries is omitted so its slug type stays `string`. See [Types](/docs/concepts/types).
 
+Set `cli.build.types` to `false` on [`initQino`](/docs/api/init-qino) to skip writing the file:
+
+```ts title="qino/index.ts"
+export default initQino({
+  contentFolder: "content",
+  mediaFolder: "public",
+  cli: {
+    build: { types: false },
+  },
+});
+```
+
+Slug types then fall back to `string`. An existing `types.d.ts` is left in place; delete it to drop its slug unions.
+
 ### Config file
 
 Set [`cloud`](/docs/guide/cloud) on [`initQino`](/docs/api/init-qino), and `build` also writes `qino/_generated/config.json`: a description of your project that the cloud UI reads without running your code. It lists the config, the cloud config, every primitive keyed by its `directory` (collections, trees) or `file` (items), its body format, its schema as [JSON Schema](https://json-schema.org/draft/2020-12), its relations, and its cloud config:

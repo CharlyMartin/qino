@@ -32,6 +32,9 @@ function initQino(config: {
       readonly localAssetReferences?:
         boolean | { readonly exclude?: ReadonlyArray<string> };
     };
+    readonly build?: {
+      readonly types?: boolean;
+    };
   };
   readonly cloud?: {
     readonly publish:
@@ -66,6 +69,7 @@ function initQino(config: {
 | `mediaFolder`                            | `string`                                            | yes      |           | Directory, relative to the working directory, serving media at the site root, such as `public`                                                                                                                                                  |
 | `cli.check.localAssetReferences`         | `boolean \| { exclude? }`                           | no       | `true`    | Whether `qino check` verifies that files referenced in content exist. See [Media](/docs/guide/cli#media)                                                                                                                                        |
 | `cli.check.localAssetReferences.exclude` | `ReadonlyArray<string>`                             | no       | `[]`      | URL globs served by routes instead of `mediaFolder`, such as `/og/**`                                                                                                                                                                           |
+| `cli.build.types`                        | `boolean`                                           | no       | `true`    | Whether `qino build` writes `qino/_generated/types.d.ts`. See [qino build](/docs/guide/cli#qino-build)                                                                                                                                          |
 | `cloud`                                  | `object`                                            | no       |           | Configures the cloud UI. When set, `qino build` writes `qino/_generated/config.json` and `qino check` verifies it. Requires schemas implementing [Standard JSON Schema](https://standardschema.dev/json-schema). See [Cloud](/docs/guide/cloud) |
 | `cloud.publish.mode`                     | `"open_pull_request" \| "commit_to_default_branch"` | yes      |           | Whether publishing opens a pull request or commits to the default branch                                                                                                                                                                        |
 | `cloud.publish.reviewBeforePublish`      | `boolean`                                           | yes      |           | Whether an approver signs off in Qino before the author can publish                                                                                                                                                                             |
