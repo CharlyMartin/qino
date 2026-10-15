@@ -52,7 +52,7 @@ describe("assertCloudFields", () => {
     expect(() => assertCloudFields({}, jsonSchema, "posts")).not.toThrow();
   });
 
-  test.each(["searchableBy", "sortableBy"] as const)(
+  test.each(["searchableBy", "sortableBy", "hiddenFields"] as const)(
     "rejects a %s field missing from the schema input",
     (option) => {
       expect(() =>
@@ -88,6 +88,74 @@ describe("assertCloudFields", () => {
   test("rejects a zod string-or-array union, string first", () => {
     const title = z.union([z.string(), z.array(z.string())]);
     const schema = serializeJsonSchema(z.object({ title }), "posts");
+
+    expect(() =>
+      assertCloudFields({ sortableBy: ["title"] }, schema, "posts"),
+    ).toThrow('sortableBy "title" of "posts" isn\'t a string');
+  });
+
+  test("accepts optional and defaulted hiddenFields", () => {
+    const schema = serializeJsonSchema(
+      z.object({
+        title: z.string(),
+        notes: z.string().optional(),
+        status: z.string().default("draft"),
+      }),
+      "posts",
+    );
+
+    expect(() =>
+      assertCloudFields({ hiddenFields: ["notes", "status"] }, schema, "posts"),
+    ).not.toThrow();
+  });
+
+  test("rejects a required hiddenFields field without a default", () => {
+    const schema = serializeJsonSchema(
+      z.object({ title: z.string() }),
+      "posts",
+    );
+
+    expect(() =>
+      assertCloudFields({ hiddenFields: ["title"] }, schema, "posts"),
+    ).toThrow(
+      'hiddenFields "title" of "posts" is required without a default, so editors couldn\'t create entries. Make it optional or give it a default.',
+    );
+  });
+
+  test("accepts a required hiddenFields field with a default", () => {
+    const schema = {
+      type: "object",
+      properties: { status: { type: "string", default: "draft" } },
+      required: ["status"],
+    };
+
+    expect(() =>
+      assertCloudFields({ hiddenFields: ["status"] }, schema, "posts"),
+    ).not.toThrow();
+  });
+
+  test("rejects a hiddenFields field one union variant requires", () => {
+    const schema = serializeJsonSchema(
+      z.discriminatedUnion("kind", [
+        z.object({ kind: z.literal("a"), secret: z.string() }),
+        z.object({ kind: z.literal("b"), secret: z.string().optional() }),
+      ]),
+      "posts",
+    );
+
+    expect(() =>
+      assertCloudFields({ hiddenFields: ["secret"] }, schema, "posts"),
+    ).toThrow('hiddenFields "secret" of "posts" is required without a default');
+  });
+
+  test("rejects a sortableBy field non-scalar in any root union branch", () => {
+    const schema = serializeJsonSchema(
+      z.union([
+        z.object({ title: z.string() }),
+        z.object({ title: z.array(z.string()) }),
+      ]),
+      "posts",
+    );
 
     expect(() =>
       assertCloudFields({ sortableBy: ["title"] }, schema, "posts"),

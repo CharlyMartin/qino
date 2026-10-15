@@ -3,7 +3,7 @@ import { ZodError } from "zod";
 
 import { parseConfigFile } from "./parse-config-file";
 
-const media = { saveAs: "{id}/{name}-{hash}.{ext}" };
+const media = { saveAs: "{id}/{name}-{hash}.{ext}", fields: [] };
 const base = { body: null, schema: { type: "object" }, relations: [] };
 
 function setup() {
@@ -11,7 +11,10 @@ function setup() {
     version: 1,
     config: { contentFolder: "src/content", mediaFolder: "public" },
     cloud: {
-      publish: { mode: "commit_to_default_branch", reviewBeforePublish: false },
+      publish: {
+        mode: "commit_to_default_branch",
+        reviewBeforePublish: { bypassIfAdmin: false },
+      },
     },
     collections: {
       posts: {
@@ -26,7 +29,12 @@ function setup() {
             cardinality: "one",
           },
         ],
-        cloud: { searchableBy: ["title"], sortableBy: [], media },
+        cloud: {
+          searchableBy: ["title"],
+          sortableBy: [],
+          hiddenFields: ["notes"],
+          media: { ...media, fields: ["image"] },
+        },
       },
     },
     items: {
@@ -34,7 +42,7 @@ function setup() {
         ...base,
         file: "pages/home.json",
         extension: ".json",
-        cloud: { media: { ...media, accepted: [] } },
+        cloud: { hiddenFields: [], media: { ...media, accepted: [] } },
       },
     },
     trees: {
@@ -44,7 +52,7 @@ function setup() {
         extension: ".mdx",
         titleField: "title",
         orderFileName: "_order.json",
-        cloud: { searchableBy: [], media },
+        cloud: { searchableBy: [], hiddenFields: [], media },
       },
     },
   };
@@ -54,6 +62,20 @@ describe("parseConfigFile", () => {
   test("parses a version 1 config file", () => {
     const json = setup();
     expect(parseConfigFile(json)).toEqual(json);
+  });
+
+  test("parses review turned off", () => {
+    const json = setup();
+    json.cloud.publish.reviewBeforePublish = false as never;
+    expect(parseConfigFile(json).cloud?.publish.reviewBeforePublish).toBe(
+      false,
+    );
+  });
+
+  test("rejects review turned on without its settings", () => {
+    const json = setup();
+    json.cloud.publish.reviewBeforePublish = true as never;
+    expect(() => parseConfigFile(json)).toThrow(ZodError);
   });
 
   test("strips unknown keys, so added optional fields don't fail", () => {

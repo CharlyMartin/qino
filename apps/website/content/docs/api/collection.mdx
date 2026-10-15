@@ -37,20 +37,20 @@ qino.defineCollection(params: {
   schema: StandardSchemaV1<unknown, Record<string, unknown>>;
   relations?: Record<RelationPath, Primitive | (() => Primitive)>;
   views?: (view: ViewHelper) => Record<string, View> & { default: View };
-  cloud?: { searchableBy?: Array<Field>; sortableBy?: Array<ScalarField>; media?: CloudMedia };
+  cloud?: { searchableBy?: Array<Field>; sortableBy?: Array<ScalarField>; hiddenFields?: Array<OptionalField>; media?: CloudMedia };
 }): Collection;
 ```
 
 ## Parameters
 
-| Name        | Type                                         | Required | Default | Description                                                                                                       |
-| ----------- | -------------------------------------------- | -------- | ------- | ----------------------------------------------------------------------------------------------------------------- |
-| `directory` | `` `/${string}` ``                           | yes      |         | Directory under `contentFolder`. Must start with `/`. Flat: nested files are ignored                              |
-| `extension` | `".md" \| ".mdx" \| ".markdown" \| ".json"`  | yes      |         | Only files with this extension are entries                                                                        |
-| `schema`    | Standard Schema object validator             | yes      |         | Synchronous. Receives frontmatter, or the JSON object. May not declare `_meta`, nor `markdown`/`raw` for Markdown |
-| `relations` | `Record<path, primitive \| () => primitive>` | no       | `{}`    | JSON paths into the schema output mapped to target primitives. `[*]` marks an array hop                           |
-| `views`     | `(view) => { default: View; [name]: View }`  | no       |         | Factory run once at definition. Must return a `default` view made with the helper                                 |
-| `cloud`     | `{ searchableBy?; sortableBy?; media? }`     | no       |         | Cloud UI search, sort, and uploads. Requires `cloud` on `initQino`. See [Cloud](/docs/guide/cloud#primitives)     |
+| Name        | Type                                                    | Required | Default | Description                                                                                                                |
+| ----------- | ------------------------------------------------------- | -------- | ------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `directory` | `` `/${string}` ``                                      | yes      |         | Directory under `contentFolder`. Must start with `/`. Flat: nested files are ignored                                       |
+| `extension` | `".md" \| ".mdx" \| ".markdown" \| ".json"`             | yes      |         | Only files with this extension are entries                                                                                 |
+| `schema`    | Standard Schema object validator                        | yes      |         | Synchronous. Receives frontmatter, or the JSON object. May not declare `_meta`, nor `markdown`/`raw` for Markdown          |
+| `relations` | `Record<path, primitive \| () => primitive>`            | no       | `{}`    | JSON paths into the schema output mapped to target primitives. `[*]` marks an array hop                                    |
+| `views`     | `(view) => { default: View; [name]: View }`             | no       |         | Factory run once at definition. Must return a `default` view made with the helper                                          |
+| `cloud`     | `{ searchableBy?; sortableBy?; hiddenFields?; media? }` | no       |         | Cloud UI search, sort, hidden fields, and media. Requires `cloud` on `initQino`. See [Cloud](/docs/guide/cloud#primitives) |
 
 `resolveRelations`, `augment`, `filter`, and `sort` are rejected at the root. Put them inside a view. See [view](/docs/api/view).
 

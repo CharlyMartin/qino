@@ -5,5 +5,8 @@ import { primitiveMediaSchema } from "./primitive-media";
 
 export const itemSchema = primitiveBaseSchema.extend({
   file: z.string(),
-  cloud: z.object({ media: primitiveMediaSchema }),
+  cloud: z.object({
+    hiddenFields: z.array(z.string()),
+    media: primitiveMediaSchema,
+  }),
 });

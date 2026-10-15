@@ -15,13 +15,21 @@ const qino = initQino({
   mediaFolder: "public",
   cloud: globalCloud,
 });
-const schema = z.object({ title: z.string(), tags: z.array(z.string()) });
+const schema = z.object({
+  title: z.string(),
+  tags: z.array(z.string()),
+  image: z.string().optional(),
+  notes: z.string().optional(),
+});
 const jsonSchema = {
   type: "object",
   properties: {
     title: { type: "string" },
     tags: { type: "array", items: { type: "string" } },
+    image: { type: "string" },
+    notes: { type: "string" },
   },
+  required: ["title", "tags"],
 };
 
 describe("serializePrimitiveCloud", () => {
@@ -37,7 +45,8 @@ describe("serializePrimitiveCloud", () => {
     ).toEqual({
       searchableBy: [],
       sortableBy: [],
-      media: { saveAs: "{id}/{name}-{hash}.{ext}" },
+      hiddenFields: [],
+      media: { saveAs: "{id}/{name}-{hash}.{ext}", fields: [] },
     });
   });
 
@@ -49,7 +58,8 @@ describe("serializePrimitiveCloud", () => {
       cloud: {
         searchableBy: ["title", "tags"],
         sortableBy: ["title"],
-        media: { saveAs: "blog/{name}.{ext}", accepted },
+        hiddenFields: ["notes"],
+        media: { saveAs: "blog/{name}.{ext}", fields: ["image"], accepted },
       },
     });
 
@@ -58,11 +68,16 @@ describe("serializePrimitiveCloud", () => {
     ).toEqual({
       searchableBy: ["title", "tags"],
       sortableBy: ["title"],
-      media: { saveAs: "blog/{name}.{ext}", accepted: acceptedBytes },
+      hiddenFields: ["notes"],
+      media: {
+        saveAs: "blog/{name}.{ext}",
+        fields: ["image"],
+        accepted: acceptedBytes,
+      },
     });
   });
 
-  test("gives trees search and media, but no sort", () => {
+  test("gives trees search, hidden fields, and media, but no sort", () => {
     const docs = qino.defineTree({
       directory: "docs",
       schema,
@@ -75,16 +90,24 @@ describe("serializePrimitiveCloud", () => {
       serializePrimitiveCloud(docs, globalCloud, jsonSchema, "docs"),
     ).toEqual({
       searchableBy: ["title"],
-      media: { saveAs: "{id}/{name}-{hash}.{ext}" },
+      hiddenFields: [],
+      media: { saveAs: "{id}/{name}-{hash}.{ext}", fields: [] },
     });
   });
 
-  test("gives items media only", () => {
-    const home = qino.defineItem({ file: "pages/home.md", schema });
+  test("gives items hidden fields and media only", () => {
+    const home = qino.defineItem({
+      file: "pages/home.md",
+      schema,
+      cloud: { hiddenFields: ["notes"], media: { fields: ["image"] } },
+    });
 
     expect(
       serializePrimitiveCloud(home, globalCloud, jsonSchema, "pages/home.md"),
-    ).toEqual({ media: { saveAs: "{id}/{name}-{hash}.{ext}" } });
+    ).toEqual({
+      hiddenFields: ["notes"],
+      media: { saveAs: "{id}/{name}-{hash}.{ext}", fields: ["image"] },
+    });
   });
 
   test("inherits accepted media from initQino", () => {
@@ -97,7 +120,11 @@ describe("serializePrimitiveCloud", () => {
         jsonSchema,
         "pages/home.md",
       ).media,
-    ).toEqual({ saveAs: "{id}/{name}-{hash}.{ext}", accepted: acceptedBytes });
+    ).toEqual({
+      saveAs: "{id}/{name}-{hash}.{ext}",
+      fields: [],
+      accepted: acceptedBytes,
+    });
   });
 
   test("keeps an empty accepted list, which disables uploads", () => {
@@ -114,7 +141,7 @@ describe("serializePrimitiveCloud", () => {
         jsonSchema,
         "pages/home.md",
       ).media,
-    ).toEqual({ saveAs: "{id}/{name}-{hash}.{ext}", accepted: [] });
+    ).toEqual({ saveAs: "{id}/{name}-{hash}.{ext}", fields: [], accepted: [] });
   });
 
   test("validates media.saveAs", () => {
@@ -159,5 +186,37 @@ describe("serializePrimitiveCloud", () => {
         "posts",
       ),
     ).toThrow('sortableBy "title" of "posts" isn\'t a string');
+  });
+
+  test("validates hidden fields", () => {
+    const home = qino.defineItem({
+      file: "pages/home.md",
+      schema,
+      // @ts-expect-error "title" is required.
+      cloud: { hiddenFields: ["title"] },
+    });
+
+    expect(() =>
+      serializePrimitiveCloud(home, globalCloud, jsonSchema, "pages/home.md"),
+    ).toThrow('hiddenFields "title" of "pages/home.md" is required');
+  });
+
+  test("validates media fields against relations", () => {
+    const authors = qino.defineCollection({
+      directory: "authors",
+      schema: z.object({ name: z.string() }),
+      extension: ".json",
+    });
+    const posts = qino.defineCollection({
+      directory: "posts",
+      schema,
+      extension: ".md",
+      relations: { image: authors },
+      cloud: { media: { fields: ["image"] } },
+    });
+
+    expect(() =>
+      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
+    ).toThrow('media.fields "image" of "posts" is also a relation');
   });
 });

@@ -53,7 +53,7 @@ export type DefineItemParams<
     Views,
     ViewFactory<Schema, ItemEntryMeta<ExtractItemExtension<F>>, Rels>
   >;
-  cloud?: ItemCloudConfig;
+  cloud?: NoInfer<ItemCloudConfig<Schema>>;
 } & RootViewSettings;
 
 export function defineItem<

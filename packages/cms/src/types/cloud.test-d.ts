@@ -46,6 +46,138 @@ test("requires reviewBeforePublish", () => {
   });
 });
 
+test("configures review with an object", () => {
+  initQino({
+    contentFolder: "content",
+    mediaFolder: "public",
+    cloud: {
+      publish: {
+        mode: "commit_to_default_branch",
+        reviewBeforePublish: { bypassIfAdmin: true },
+      },
+    },
+  });
+  initQino({
+    contentFolder: "content",
+    mediaFolder: "public",
+    cloud: {
+      publish: {
+        mode: "open_pull_request",
+        reviewBeforePublish: false,
+        // @ts-expect-error bypassing review is set on reviewBeforePublish.
+        bypassReviewIfAdmin: true,
+      },
+    },
+  });
+});
+
+test("accepts a computed reviewBeforePublish", () => {
+  const reviewBeforePublish = process.env.QINO_REVIEW == "true";
+
+  initQino({
+    contentFolder: "content",
+    mediaFolder: "public",
+    cloud: { publish: { mode: "open_pull_request", reviewBeforePublish } },
+  });
+});
+
+test("hides optional fields only", () => {
+  const withOptional = z.object({
+    title: z.string(),
+    notes: z.string().optional(),
+    status: z.string().default("draft"),
+  });
+
+  qino.defineCollection({
+    directory: "posts",
+    extension: ".md",
+    schema: withOptional,
+    cloud: { hiddenFields: ["notes", "status"] },
+  });
+  qino.defineTree({
+    directory: "docs",
+    extension: ".md",
+    titleField: "title",
+    schema: withOptional,
+    cloud: { hiddenFields: ["notes"] },
+  });
+  qino.defineItem({
+    file: "pages/home.md",
+    schema: withOptional,
+    cloud: { hiddenFields: ["status"] },
+  });
+  qino.defineCollection({
+    directory: "posts",
+    extension: ".md",
+    schema: withOptional,
+    // @ts-expect-error editors couldn't create entries without "title".
+    cloud: { hiddenFields: ["title"] },
+  });
+});
+
+test("hides fields only when every union variant makes them optional", () => {
+  const variants = z.discriminatedUnion("kind", [
+    z.object({
+      kind: z.literal("a"),
+      secret: z.string(),
+      notes: z.string().optional(),
+    }),
+    z.object({
+      kind: z.literal("b"),
+      secret: z.string().optional(),
+      notes: z.string().optional(),
+    }),
+  ]);
+
+  qino.defineItem({
+    file: "pages/home.md",
+    schema: variants,
+    cloud: { hiddenFields: ["notes"] },
+  });
+  qino.defineItem({
+    file: "pages/home.md",
+    schema: variants,
+    // @ts-expect-error variant "a" requires "secret".
+    cloud: { hiddenFields: ["secret"] },
+  });
+});
+
+test("types media fields as paths to strings", () => {
+  const withMedia = z.object({
+    title: z.string(),
+    views: z.number(),
+    image: z.string().optional(),
+    gallery: z.array(z.string()),
+    seo: z.object({ image: z.string() }),
+  });
+
+  qino.defineCollection({
+    directory: "posts",
+    extension: ".md",
+    schema: withMedia,
+    cloud: { media: { fields: ["image", "gallery[*]", "seo.image"] } },
+  });
+  qino.defineItem({
+    file: "pages/home.md",
+    schema: withMedia,
+    cloud: { media: { fields: ["seo.image"] } },
+  });
+  qino.defineCollection({
+    directory: "posts",
+    extension: ".md",
+    schema: withMedia,
+    // @ts-expect-error "views" isn't a string.
+    cloud: { media: { fields: ["views"] } },
+  });
+  qino.defineCollection({
+    directory: "posts",
+    extension: ".md",
+    schema: withMedia,
+    // @ts-expect-error "gallery" is an array, use "gallery[*]".
+    cloud: { media: { fields: ["gallery"] } },
+  });
+});
+
 test("types collection fields against the schema", () => {
   qino.defineCollection({
     directory: "posts",

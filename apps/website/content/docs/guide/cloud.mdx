@@ -1,6 +1,6 @@
 ---
 title: Cloud
-description: Configure how the Qino cloud UI publishes, searches, sorts, and uploads media.
+description: Configure how the Qino cloud UI publishes, searches, sorts, hides fields, and handles media.
 ---
 
 The Qino cloud UI lets editors change content without touching code. Its only contract with your project is `qino/_generated/config.json`. Set `cloud` on [`initQino`](/docs/api/init-qino) and `qino build` writes that file, including the cloud options below. See [Config file](/docs/guide/cli#config-file).
@@ -32,6 +32,17 @@ export default initQino({
 
 `publish.reviewBeforePublish` is required. When `true`, an approver signs off in Qino before the author can publish, in either mode.
 
+Pass an object instead of `true` to configure review. `bypassIfAdmin` lets admins publish before every entry is approved, `false` by default:
+
+```ts title="qino/index.ts"
+publish: {
+  mode: "open_pull_request",
+  reviewBeforePublish: { bypassIfAdmin: true },
+},
+```
+
+In `config.json`, `reviewBeforePublish` is `false`, or its settings with defaults filled in: `true` becomes `{ "bypassIfAdmin": false }`.
+
 Until an editor publishes, edits are saved as drafts in the cloud UI, not in the repository.
 
 ## Media
@@ -46,11 +57,17 @@ Each primitive takes its own `cloud` option. Setting it without `cloud` on `init
 export const postCollection = qino.defineCollection({
   directory: "posts",
   extension: ".md",
-  schema: z.object({ title: z.string(), draft: z.boolean() }),
+  schema: z.object({
+    title: z.string(),
+    draft: z.boolean(),
+    cover: z.string(),
+    notes: z.string().optional(),
+  }),
   cloud: {
     searchableBy: ["title"],
     sortableBy: ["title", "draft"],
-    media: { saveAs: "posts/{name}-{hash}.{ext}" },
+    hiddenFields: ["notes"],
+    media: { saveAs: "posts/{name}-{hash}.{ext}", fields: ["cover"] },
   },
 });
 ```
@@ -59,12 +76,24 @@ export const postCollection = qino.defineCollection({
 | ---------------- | ----------- | ----- | ----- | ---------------------------- | ------------------------------------------------------------------------------------ |
 | `searchableBy`   | yes         | yes   |       | `[]`                         | Top-level fields the cloud UI searches. Empty, there's no search                     |
 | `sortableBy`     | yes         |       |       | `[]`                         | Top-level string, number, or boolean fields the cloud UI sorts by. Empty, no sorting |
+| `hiddenFields`   | yes         | yes   | yes   | `[]`                         | Top-level optional fields the cloud UI doesn't show. Their values are kept on save   |
+| `media.fields`   | yes         | yes   | yes   | `[]`                         | Paths to string fields edited with a media picker, such as `"gallery[*]"`            |
 | `media.saveAs`   | yes         | yes   | yes   | `"{id}/{name}-{hash}.{ext}"` | File path an upload is saved to when publishing, relative to `mediaFolder`           |
 | `media.accepted` | yes         | yes   | yes   | `initQino`'s                 | Replaces `initQino`'s list for this primitive. `[]` disables uploads                 |
 
-Trees are ordered by their order file, so they have no `sortableBy`. Items are a single file, so they only take `media`.
+Trees are ordered by their order file, so they have no `sortableBy`. Items are a single file, so they only take `hiddenFields` and `media`.
 
-`searchableBy` and `sortableBy` are typed against the schema input, not its output, since the cloud UI reads files on disk: with a transform that renames `created-on` to `createdOn`, use `"created-on"`. Fields whose input is `unknown`, such as `z.coerce.date()`, can't be sorted by. `qino build` checks the same rules against the schema's JSON Schema, and also fails when a `sortableBy` field allows a non-scalar value in any union branch.
+Fields are typed against the schema input, not its output, since the cloud UI reads files on disk: with a transform that renames `created-on` to `createdOn`, use `"created-on"`. Fields whose input is `unknown`, such as `z.coerce.date()`, can't be sorted by. `qino build` checks the same rules against the schema's JSON Schema, and also fails when a `sortableBy` field allows a non-scalar value in any union branch.
+
+### Hidden fields
+
+`hiddenFields` only takes optional fields, `.optional()` or `.default()` in zod, so editors can still create entries: a required field is a type error, and `qino build` fails on one without a default. Hidden fields can also be in `searchableBy` and `sortableBy`.
+
+### Media fields
+
+`media.fields` uses the [relation path](/docs/concepts/relations#declaring) syntax, so media fields can be nested: `"image"`, `"gallery[*]"` for each string of an array, `"seo.image"` for an object field. Each path must lead to a string. A path can't also be a relation: a field holds either a media URL or a reference.
+
+The cloud UI writes the URL the file is served at, starting with `/`: picking the upload saved at `public/posts/cover-1a2b3c4d.webp` writes `"/posts/cover-1a2b3c4d.webp"`. That's the URL [`qino check`](/docs/guide/cli#media) resolves against `mediaFolder` to find missing files.
 
 ### Saving uploads
 
@@ -81,14 +110,14 @@ With `{hash}`, an upload never overwrites another file, and each URL always serv
 
 ## In config.json
 
-`config.json` holds every value resolved, so the cloud UI doesn't reimplement defaults: `branchPrefix` and `media.saveAs` are filled in, and each primitive's `media.accepted` falls back to `initQino`'s. It's left out when neither sets it.
+`config.json` holds every value resolved, so the cloud UI doesn't reimplement defaults: `branchPrefix`, `reviewBeforePublish`'s settings, and `media.saveAs` are filled in, lists default to `[]`, and each primitive's `media.accepted` falls back to `initQino`'s. It's left out when neither sets it.
 
 ```json title="qino/_generated/config.json"
 {
   "cloud": {
     "publish": {
       "mode": "open_pull_request",
-      "reviewBeforePublish": true,
+      "reviewBeforePublish": { "bypassIfAdmin": false },
       "branchPrefix": "qino/"
     }
   },
@@ -97,7 +126,8 @@ With `{hash}`, an upload never overwrites another file, and each URL always serv
       "cloud": {
         "searchableBy": ["title"],
         "sortableBy": ["title", "draft"],
-        "media": { "saveAs": "posts/{name}-{hash}.{ext}" }
+        "hiddenFields": ["notes"],
+        "media": { "saveAs": "posts/{name}-{hash}.{ext}", "fields": ["cover"] }
       }
     }
   }
