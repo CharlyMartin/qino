@@ -89,4 +89,16 @@ describe("assertEntrySaveAs", () => {
       "which isn't a string, number, or boolean on disk",
     );
   });
+
+  test("accepts a field an intersection narrows to a scalar", () => {
+    const schema = serializeJsonSchema(
+      z.object({
+        title: z.unknown().and(z.string()),
+        slug: z.union([z.string(), z.array(z.string())]).and(z.string()),
+      }),
+      "posts",
+    );
+
+    expect(() => assert("{title}-{slug}", schema)).not.toThrow();
+  });
 });

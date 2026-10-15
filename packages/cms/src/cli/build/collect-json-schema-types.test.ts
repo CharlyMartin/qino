@@ -20,11 +20,40 @@ describe("collectJsonSchemaTypes", () => {
     expect(collect({ oneOf: [{ type: "string" }, { type: "array" }] })).toEqual(
       ["array", "string"],
     );
+  });
+
+  test("narrows to the types every allOf branch allows", () => {
+    expect(collect({ allOf: [{}, { type: "string" }] })).toEqual(["string"]);
     expect(
       collect({
-        allOf: [{ type: "string" }, { anyOf: [{ type: "integer" }] }],
+        allOf: [
+          { anyOf: [{ type: "string" }, { type: "array" }] },
+          { type: ["string", "null"] },
+        ],
       }),
-    ).toEqual(["integer", "string"]);
+    ).toEqual(["string"]);
+    expect(collect({ allOf: [{ type: "string" }, { type: "array" }] })).toEqual(
+      [],
+    );
+  });
+
+  test("narrows numbers to integers", () => {
+    expect(
+      collect({ allOf: [{ type: "number" }, { type: "integer" }] }),
+    ).toEqual(["integer"]);
+  });
+
+  test("narrows a type with its sibling unions", () => {
+    expect(
+      collect({
+        type: ["string", "null"],
+        anyOf: [{ type: "string" }, { type: "number" }],
+      }),
+    ).toEqual(["string"]);
+  });
+
+  test("gives unknown when a union branch allows any type", () => {
+    expect(collect({ anyOf: [{}, { type: "string" }] })).toEqual(["unknown"]);
   });
 
   test("resolves local $refs", () => {

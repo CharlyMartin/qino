@@ -85,4 +85,20 @@ describe("assertMediaFields", () => {
       }),
     ).toThrow('media.fields "seo.image" of "posts" isn\'t a string on disk.');
   });
+
+  test("accepts a field an intersection narrows to a string", () => {
+    const schema = serializeJsonSchema(
+      z.object({ image: z.unknown().and(z.string()) }),
+      "posts",
+    );
+
+    expect(() =>
+      assertMediaFields({
+        fields: ["image"],
+        relationPaths: [],
+        jsonSchema: schema,
+        primitiveId: "posts",
+      }),
+    ).not.toThrow();
+  });
 });
