@@ -19,6 +19,13 @@
     "test": {
       "dependsOn": ["^build"]
     },
+    "@qino/tooling#test": {
+      "dependsOn": ["^build", "next-js#build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/examples/*/qino/_generated/config.json"
+      ]
+    },
     "dev": {
       "cache": false,
       "persistent": true
