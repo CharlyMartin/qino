@@ -46,7 +46,7 @@ describe("serializePrimitiveCloud", () => {
       searchableBy: [],
       sortableBy: [],
       hiddenFields: [],
-      media: { saveAs: "{id}/{name}-{hash}.{ext}", fields: [] },
+      media: { saveAs: "{id}/{name}-{hash}", fields: [] },
     });
   });
 
@@ -59,7 +59,7 @@ describe("serializePrimitiveCloud", () => {
         searchableBy: ["title", "tags"],
         sortableBy: ["title"],
         hiddenFields: ["notes"],
-        media: { saveAs: "blog/{name}.{ext}", fields: ["image"], accepted },
+        media: { saveAs: "blog/{name}", fields: ["image"], accepted },
       },
     });
 
@@ -70,7 +70,7 @@ describe("serializePrimitiveCloud", () => {
       sortableBy: ["title"],
       hiddenFields: ["notes"],
       media: {
-        saveAs: "blog/{name}.{ext}",
+        saveAs: "blog/{name}",
         fields: ["image"],
         accepted: acceptedBytes,
       },
@@ -91,7 +91,7 @@ describe("serializePrimitiveCloud", () => {
     ).toEqual({
       searchableBy: ["title"],
       hiddenFields: [],
-      media: { saveAs: "{id}/{name}-{hash}.{ext}", fields: [] },
+      media: { saveAs: "{id}/{name}-{hash}", fields: [] },
     });
   });
 
@@ -106,7 +106,7 @@ describe("serializePrimitiveCloud", () => {
       serializePrimitiveCloud(home, globalCloud, jsonSchema, "pages/home.md"),
     ).toEqual({
       hiddenFields: ["notes"],
-      media: { saveAs: "{id}/{name}-{hash}.{ext}", fields: ["image"] },
+      media: { saveAs: "{id}/{name}-{hash}", fields: ["image"] },
     });
   });
 
@@ -121,7 +121,7 @@ describe("serializePrimitiveCloud", () => {
         "pages/home.md",
       ).media,
     ).toEqual({
-      saveAs: "{id}/{name}-{hash}.{ext}",
+      saveAs: "{id}/{name}-{hash}",
       fields: [],
       accepted: acceptedBytes,
     });
@@ -141,7 +141,7 @@ describe("serializePrimitiveCloud", () => {
         jsonSchema,
         "pages/home.md",
       ).media,
-    ).toEqual({ saveAs: "{id}/{name}-{hash}.{ext}", fields: [], accepted: [] });
+    ).toEqual({ saveAs: "{id}/{name}-{hash}", fields: [], accepted: [] });
   });
 
   test("validates media.saveAs", () => {
@@ -149,7 +149,7 @@ describe("serializePrimitiveCloud", () => {
       directory: "posts",
       schema,
       extension: ".md",
-      cloud: { media: { saveAs: "{slug}.{ext}" } },
+      cloud: { media: { saveAs: "{slug}" } },
     });
 
     expect(() =>
@@ -218,5 +218,69 @@ describe("serializePrimitiveCloud", () => {
     expect(() =>
       serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
     ).toThrow('media.fields "image" of "posts" is also a relation');
+  });
+
+  test("writes an entry saveAs for collections and trees", () => {
+    const posts = qino.defineCollection({
+      directory: "posts",
+      schema,
+      extension: ".md",
+      cloud: { saveAs: "post-{title}" },
+    });
+    const docs = qino.defineTree({
+      directory: "docs",
+      schema,
+      extension: ".mdx",
+      titleField: "title",
+      cloud: { saveAs: "{title}" },
+    });
+
+    expect(
+      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
+    ).toMatchObject({ saveAs: "post-{title}" });
+    expect(
+      serializePrimitiveCloud(docs, globalCloud, jsonSchema, "docs"),
+    ).toMatchObject({ saveAs: "{title}" });
+  });
+
+  test("leaves saveAs out when unset", () => {
+    const posts = qino.defineCollection({
+      directory: "posts",
+      schema,
+      extension: ".md",
+    });
+
+    expect(
+      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
+    ).not.toHaveProperty("saveAs");
+  });
+
+  test("validates an entry saveAs", () => {
+    const saveAs: string = "{notes}";
+    const posts = qino.defineCollection({
+      directory: "posts",
+      schema,
+      extension: ".md",
+      cloud: { saveAs },
+    });
+
+    expect(() =>
+      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
+    ).toThrow('saveAs "{notes}" of "posts" uses "{notes}", which is optional');
+  });
+
+  test("rejects an entry saveAs on an item", () => {
+    const home = qino.defineItem({
+      file: "pages/home.md",
+      schema,
+      // @ts-expect-error items are a single file.
+      cloud: { saveAs: "{title}" },
+    });
+
+    expect(() =>
+      serializePrimitiveCloud(home, globalCloud, jsonSchema, "pages/home.md"),
+    ).toThrow(
+      'saveAs of "pages/home.md" names new entries, but an item is a single file.',
+    );
   });
 });

@@ -48,8 +48,9 @@ export function initQino(config: QinoConfig) {
       Rels extends Relations<S> = object,
       Dir extends ContentPath = ContentPath,
       const Views extends object = object,
+      const SaveAs extends string = never,
     >(
-      params: DefineCollectionParams<S, Ext, Rels, Dir, Views>,
+      params: DefineCollectionParams<S, Ext, Rels, Dir, Views, SaveAs>,
     ): Collection<S, Ext, Rels, Dir, ConfiguredViews<Views>> {
       return defineCollection(ctx, params);
     },
@@ -70,8 +71,9 @@ export function initQino(config: QinoConfig) {
       Rels extends Relations<S> = object,
       Dir extends ContentPath = ContentPath,
       const Views extends object = object,
+      const SaveAs extends string = never,
     >(
-      params: DefineTreeParams<S, Ext, Title, Rels, Dir, Views>,
+      params: DefineTreeParams<S, Ext, Title, Rels, Dir, Views, SaveAs>,
     ): Tree<S, Ext, Title, Rels, Dir, ConfiguredViews<Views>> {
       return defineTree(ctx, params);
     },

@@ -4,6 +4,7 @@ import { isItem } from "../../lib/guards/is-item";
 import type { CloudConfig } from "../../types/cloud";
 import type { AnyPrimitive } from "../../types/utils";
 import { assertCloudFields } from "./assert-cloud-fields";
+import { assertEntrySaveAs } from "./assert-entry-save-as";
 import { assertMediaFields } from "./assert-media-fields";
 import { assertMediaSaveAs } from "./assert-media-save-as";
 import { serializeAcceptedMedia } from "./serialize-accepted-media";
@@ -13,7 +14,8 @@ import { serializeAcceptedMedia } from "./serialize-accepted-media";
  * cloud UI doesn't reimplement defaults: `media.saveAs` defaults, lists
  * default to `[]`, and `media.accepted` falls back to `initQino`'s, left out
  * when neither sets it. Every primitive gets media and hidden fields;
- * collections and trees add search, and collections sort.
+ * collections and trees add search and `saveAs` (left out when unset), and
+ * collections sort.
  */
 export function serializePrimitiveCloud(
   primitive: AnyPrimitive,
@@ -22,8 +24,8 @@ export function serializePrimitiveCloud(
   primitiveId: string,
 ) {
   const { cloud = {}, relations } = primitive[QinoPrimitiveMarker];
-  const saveAs = cloud.media?.saveAs ?? DEFAULT_MEDIA_SAVE_AS;
-  assertMediaSaveAs(saveAs, primitiveId);
+  const mediaSaveAs = cloud.media?.saveAs ?? DEFAULT_MEDIA_SAVE_AS;
+  assertMediaSaveAs(mediaSaveAs, primitiveId);
   const fields = cloud.media?.fields ?? [];
   assertMediaFields({
     fields,
@@ -37,14 +39,22 @@ export function serializePrimitiveCloud(
     ? serializeAcceptedMedia(cloud.media.accepted, `"${primitiveId}"`)
     : globalCloud.media?.accepted &&
       serializeAcceptedMedia(globalCloud.media.accepted, "initQino");
-  const media = { saveAs, fields, ...(accepted && { accepted }) };
+  const media = { saveAs: mediaSaveAs, fields, ...(accepted && { accepted }) };
 
   if (isItem(primitive)) {
+    if (cloud.saveAs != undefined) {
+      throw new Error(
+        `saveAs of "${primitiveId}" names new entries, but an item is a single file.`,
+      );
+    }
     assertCloudFields({ hiddenFields }, jsonSchema, primitiveId);
     return { hiddenFields, media };
   }
 
   const searchableBy = cloud.searchableBy ?? [];
+  const { saveAs } = cloud;
+  if (saveAs != undefined) assertEntrySaveAs(saveAs, jsonSchema, primitiveId);
+  const entrySaveAs = saveAs != undefined && { saveAs };
 
   if (isCollection(primitive)) {
     const sortableBy = cloud.sortableBy ?? [];
@@ -53,9 +63,9 @@ export function serializePrimitiveCloud(
       jsonSchema,
       primitiveId,
     );
-    return { searchableBy, sortableBy, hiddenFields, media };
+    return { searchableBy, sortableBy, hiddenFields, ...entrySaveAs, media };
   }
 
   assertCloudFields({ searchableBy, hiddenFields }, jsonSchema, primitiveId);
-  return { searchableBy, hiddenFields, media };
+  return { searchableBy, hiddenFields, ...entrySaveAs, media };
 }
