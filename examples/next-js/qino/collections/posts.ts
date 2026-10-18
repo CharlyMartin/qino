@@ -29,6 +29,8 @@ export const postCollection = qino.defineCollection({
   },
   cloud: {
     saveAs: "{title}",
+    displayAs: "Blog posts",
+    displayEntryAs: "{title}",
     searchableBy: ["title"],
     sortableBy: ["title", "created-on"],
     media: { saveAs: "posts/{name}-{hash}", fields: ["image"] },

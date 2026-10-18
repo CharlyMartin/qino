@@ -15,5 +15,8 @@ export const authorCollection = qino.defineCollection({
   directory: "authors",
   schema: AuthorSchema,
   extension: ".json",
-  cloud: { saveAs: "{firstName}-{lastName}" },
+  cloud: {
+    saveAs: "{firstName}-{lastName}",
+    displayEntryAs: "{firstName} {lastName}",
+  },
 });
