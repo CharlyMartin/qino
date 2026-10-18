@@ -269,6 +269,101 @@ describe("serializePrimitiveCloud", () => {
     ).toThrow('saveAs "{notes}" of "posts" uses "{notes}", which is optional');
   });
 
+  test("makes displayEntryAs optional", () => {
+    const posts = qino.defineCollection({
+      directory: "posts",
+      schema,
+      extension: ".md",
+    });
+    const docs = qino.defineTree({
+      directory: "docs",
+      schema,
+      extension: ".mdx",
+      titleField: "title",
+      cloud: { searchableBy: ["title"] },
+    });
+    const home = qino.defineItem({
+      file: "pages/home.md",
+      schema,
+      cloud: { hiddenFields: ["notes"] },
+    });
+
+    expect(() =>
+      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
+    ).not.toThrow();
+    expect(() =>
+      serializePrimitiveCloud(docs, globalCloud, jsonSchema, "docs"),
+    ).not.toThrow();
+    expect(() =>
+      serializePrimitiveCloud(home, globalCloud, jsonSchema, "pages/home.md"),
+    ).not.toThrow();
+  });
+
+  test("validates displayEntryAs, and leaves it out of cloud", () => {
+    const displayEntryAs: string = "{notes}";
+    const posts = qino.defineCollection({
+      directory: "posts",
+      schema,
+      extension: ".md",
+      cloud: { displayEntryAs },
+    });
+    const docs = qino.defineTree({
+      directory: "docs",
+      schema,
+      extension: ".mdx",
+      titleField: "title",
+      cloud: { displayEntryAs: "{title}" },
+    });
+
+    expect(() =>
+      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
+    ).toThrow(
+      'displayEntryAs "{notes}" of "posts" uses "{notes}", which is optional',
+    );
+    expect(
+      serializePrimitiveCloud(docs, globalCloud, jsonSchema, "docs"),
+    ).not.toHaveProperty("displayEntryAs");
+  });
+
+  test("validates displayAs, and leaves it out of cloud", () => {
+    const home = qino.defineItem({
+      file: "pages/home.md",
+      schema,
+      cloud: { displayAs: "Home: {title}" },
+    });
+    const docs = qino.defineTree({
+      directory: "docs",
+      schema,
+      extension: ".mdx",
+      titleField: "title",
+      cloud: { displayAs: "Docs" },
+    });
+
+    expect(() =>
+      serializePrimitiveCloud(home, globalCloud, jsonSchema, "pages/home.md"),
+    ).toThrow(
+      'displayAs "Home: {title}" of "pages/home.md" names the primitive, so it takes no {field}. Label entries with displayEntryAs.',
+    );
+    expect(
+      serializePrimitiveCloud(docs, globalCloud, jsonSchema, "docs"),
+    ).not.toHaveProperty("displayAs");
+  });
+
+  test("rejects displayEntryAs on an item", () => {
+    const home = qino.defineItem({
+      file: "pages/home.md",
+      schema,
+      // @ts-expect-error an item is a single entry.
+      cloud: { displayEntryAs: "{title}" },
+    });
+
+    expect(() =>
+      serializePrimitiveCloud(home, globalCloud, jsonSchema, "pages/home.md"),
+    ).toThrow(
+      'displayEntryAs of "pages/home.md" labels entries, but an item is a single file. Name it with displayAs.',
+    );
+  });
+
   test("rejects an entry saveAs on an item", () => {
     const home = qino.defineItem({
       file: "pages/home.md",

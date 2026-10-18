@@ -40,6 +40,7 @@ describe("serializePrimitive", () => {
     expect(serializePrimitive(posts, cloud)).toEqual({
       directory: "posts",
       extension: ".md",
+      displayAs: "posts",
       body: { format: "markdown" },
       schema: {
         ...jsonSchema,
@@ -63,11 +64,63 @@ describe("serializePrimitive", () => {
     expect(serializePrimitive(home, cloud)).toEqual({
       file: "pages/home.json",
       extension: ".json",
+      displayAs: "pages/home.json",
       body: null,
       schema: jsonSchema,
       relations: [],
       cloud: { hiddenFields: [], media },
     });
+  });
+
+  test("writes displayAs and displayEntryAs top-level", () => {
+    const qinoCloud = initQino({
+      contentFolder: "content",
+      mediaFolder: "public",
+      cloud,
+    });
+    const posts = qinoCloud.defineCollection({
+      directory: "posts",
+      schema,
+      extension: ".md",
+      cloud: { displayAs: "Blog posts", displayEntryAs: "{title}" },
+    });
+    const home = qinoCloud.defineItem({
+      file: "pages/home.json",
+      schema,
+      cloud: { displayAs: "Home page" },
+    });
+    const docs = qinoCloud.defineTree({
+      directory: "docs",
+      schema,
+      extension: ".mdx",
+      titleField: "title",
+      cloud: { displayAs: "Docs", displayEntryAs: "{title}!" },
+    });
+
+    expect(serializePrimitive(posts, cloud)).toMatchObject({
+      displayAs: "Blog posts",
+      displayEntryAs: "{title}",
+    });
+    expect(serializePrimitive(home, cloud)).toMatchObject({
+      displayAs: "Home page",
+    });
+    expect(serializePrimitive(docs, cloud)).toMatchObject({
+      displayAs: "Docs",
+      displayEntryAs: "{title}!",
+      titleField: "title",
+    });
+    expect(serializePrimitive(posts, cloud).cloud).toEqual({
+      searchableBy: [],
+      sortableBy: [],
+      hiddenFields: [],
+      media,
+    });
+  });
+
+  test("leaves displayEntryAs out of collections when unset", () => {
+    expect(serializePrimitive(authors, cloud)).not.toHaveProperty(
+      "displayEntryAs",
+    );
   });
 
   test("serializes a tree", () => {
@@ -81,6 +134,8 @@ describe("serializePrimitive", () => {
     expect(serializePrimitive(docs, cloud)).toEqual({
       directory: "docs",
       extension: ".mdx",
+      displayAs: "docs",
+      displayEntryAs: "{title}",
       titleField: "title",
       orderFileName: "_order.json",
       body: { format: "mdx" },

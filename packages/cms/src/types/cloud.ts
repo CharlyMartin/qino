@@ -104,14 +104,18 @@ type RequiredScalarKeys<Schema extends ObjectSchema> =
     ? Exclude<ScalarKeys<Schema>, OptionalInSomeKeys<InputFields<Schema>>>
     : string;
 
-/** Checks each `{token}` of an entry's `saveAs` against the allowed fields. */
-type CheckSaveAsTokens<
+/**
+ * Checks each `{token}` of an entry template (`saveAs`, `displayEntryAs`) against
+ * the allowed fields.
+ */
+type CheckTemplateTokens<
   S extends string,
   Fields extends string,
+  Option extends string,
 > = S extends `${string}{${infer Token}}${infer Rest}`
   ? Token extends Fields
-    ? CheckSaveAsTokens<Rest, Fields>
-    : { readonly "Unknown or optional field in saveAs": Token }
+    ? CheckTemplateTokens<Rest, Fields, Option>
+    : { readonly [K in `Unknown or optional field in ${Option}`]: Token }
   : unknown;
 
 /**
@@ -129,7 +133,7 @@ export type CheckEntrySaveAs<
         readonly "saveAs can't contain / or . (folders and extension are added)": S;
       }
     : S extends `${string}{${string}}${string}`
-      ? CheckSaveAsTokens<S, RequiredScalarKeys<Schema>>
+      ? CheckTemplateTokens<S, RequiredScalarKeys<Schema>, "saveAs">
       : { readonly "saveAs needs at least one {field}": S };
 
 /**
@@ -147,6 +151,38 @@ export type EntrySaveAsConfig<
    * parent folder, are added. Unset, editors type the slug.
    */
   readonly saveAs?: SaveAs & NoInfer<CheckEntrySaveAs<SaveAs, Schema>>;
+};
+
+/**
+ * Validates a `displayEntryAs` literal: at least one `{field}`, and only
+ * required scalar fields as tokens. A widened `string` can't be checked here;
+ * `qino build` checks it.
+ */
+export type CheckDisplayEntryAs<
+  S extends string,
+  Schema extends ObjectSchema,
+> = string extends S
+  ? unknown
+  : S extends `${string}{${string}}${string}`
+    ? CheckTemplateTokens<S, RequiredScalarKeys<Schema>, "displayEntryAs">
+    : { readonly "displayEntryAs needs at least one {field}": S };
+
+/**
+ * `displayEntryAs`, kept literal so its tokens are checked: the label the
+ * cloud UI shows for an entry, from its fields. `"{firstName} {lastName}"`
+ * shows an author as `Jane Doe`.
+ */
+export type DisplayEntryAsConfig<
+  DisplayEntryAs extends string,
+  Schema extends ObjectSchema,
+> = {
+  /**
+   * Label of entries in the cloud UI, from `{field}` tokens: required
+   * top-level fields of the schema input. Unset, the cloud UI shows the slug,
+   * or a tree's `titleField`.
+   */
+  readonly displayEntryAs?: DisplayEntryAs &
+    NoInfer<CheckDisplayEntryAs<DisplayEntryAs, Schema>>;
 };
 
 /** Paths to string fields, as in relations. Any path for non-object inputs. */
@@ -173,6 +209,12 @@ export type PrimitiveCloudMediaConfig<Schema extends ObjectSchema> =
   };
 
 export type ItemCloudConfig<Schema extends ObjectSchema> = {
+  /**
+   * Name of the primitive in the cloud UI, such as `"Blog posts"`. A plain
+   * string, without tokens. Defaults to its id: `directory`, or `file` for
+   * items.
+   */
+  readonly displayAs?: string;
   readonly media?: PrimitiveCloudMediaConfig<Schema>;
   /**
    * Fields the cloud UI doesn't show. Only optional fields, so editors can
@@ -195,6 +237,8 @@ export type CollectionCloudConfig<Schema extends ObjectSchema> =
 
 /** Cloud config as stored on a primitive, erased from its schema. */
 export type PrimitiveCloudConfig = {
+  readonly displayAs?: string;
+  readonly displayEntryAs?: string;
   readonly saveAs?: string;
   readonly searchableBy?: ReadonlyArray<string>;
   readonly sortableBy?: ReadonlyArray<string>;

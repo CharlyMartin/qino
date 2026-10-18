@@ -299,6 +299,101 @@ test("can't check a widened saveAs", () => {
   });
 });
 
+test("checks displayEntryAs tokens against required scalar fields", () => {
+  const author = z.object({
+    firstName: z.string(),
+    lastName: z.string(),
+    age: z.number(),
+    company: z.string().optional(),
+    tags: z.array(z.string()),
+  });
+
+  qino.defineCollection({
+    directory: "authors",
+    extension: ".json",
+    schema: author,
+    cloud: { displayEntryAs: "{lastName}, {firstName} ({age})" },
+  });
+  qino.defineCollection({
+    directory: "authors",
+    extension: ".json",
+    schema: author,
+    // @ts-expect-error "nope" isn't a field.
+    cloud: { displayEntryAs: "{firstName} {nope}" },
+  });
+  qino.defineCollection({
+    directory: "authors",
+    extension: ".json",
+    schema: author,
+    // @ts-expect-error "company" is optional.
+    cloud: { displayEntryAs: "{company}" },
+  });
+  qino.defineCollection({
+    directory: "authors",
+    extension: ".json",
+    schema: author,
+    // @ts-expect-error "tags" isn't a scalar.
+    cloud: { displayEntryAs: "{tags}" },
+  });
+  qino.defineCollection({
+    directory: "authors",
+    extension: ".json",
+    schema: author,
+    // @ts-expect-error no {field}.
+    cloud: { displayEntryAs: "Author" },
+  });
+});
+
+test("makes displayEntryAs optional", () => {
+  qino.defineCollection({
+    directory: "posts",
+    extension: ".md",
+    schema,
+    cloud: { searchableBy: ["title"] },
+  });
+  qino.defineTree({
+    directory: "docs",
+    extension: ".md",
+    titleField: "title",
+    schema,
+    cloud: { searchableBy: ["title"] },
+  });
+  qino.defineTree({
+    directory: "docs",
+    extension: ".md",
+    titleField: "title",
+    schema,
+    cloud: { displayEntryAs: "Docs: {title}" },
+  });
+});
+
+test("names every primitive with displayAs, but labels items with it only", () => {
+  qino.defineCollection({
+    directory: "posts",
+    extension: ".md",
+    schema,
+    cloud: { displayAs: "Blog posts", displayEntryAs: "{title}" },
+  });
+  qino.defineTree({
+    directory: "docs",
+    extension: ".md",
+    titleField: "title",
+    schema,
+    cloud: { displayAs: "Documentation" },
+  });
+  qino.defineItem({
+    file: "pages/home.md",
+    schema,
+    cloud: { displayAs: "Home page" },
+  });
+  qino.defineItem({
+    file: "pages/home.md",
+    schema,
+    // @ts-expect-error an item is a single entry, named with displayAs.
+    cloud: { displayEntryAs: "{title}" },
+  });
+});
+
 test("types collection fields against the schema", () => {
   qino.defineCollection({
     directory: "posts",
