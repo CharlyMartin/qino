@@ -29,12 +29,12 @@ view(config: {
 
 ## Parameters
 
-| Name               | Type                                   | Required | Default | Collection | Tree | Item | Description                                                                  |
-| ------------------ | -------------------------------------- | -------- | ------- | ---------- | ---- | ---- | ---------------------------------------------------------------------------- |
-| `resolveRelations` | `boolean \| 1..6`                      | no       | `false` | yes        | yes  | yes  | Relation depth. `true` is `6`. Numbers are clamped to `0..6`                 |
-| `augment`          | `(entry) => object \| Promise<object>` | no       |         | yes        | yes  | yes  | Adds fields. Receives resolved relations. May not overwrite existing fields  |
+| Name               | Type                                   | Required | Default | Collection | Tree | Item | Description                                                                       |
+| ------------------ | -------------------------------------- | -------- | ------- | ---------- | ---- | ---- | --------------------------------------------------------------------------------- |
+| `resolveRelations` | `boolean \| 1..6`                      | no       | `false` | yes        | yes  | yes  | Relation depth. `true` is `6`. Numbers are clamped to `0..6`                      |
+| `augment`          | `(entry) => object \| Promise<object>` | no       |         | yes        | yes  | yes  | Adds fields. Receives resolved relations. May not overwrite existing fields       |
 | `filter`           | `(entry) => boolean`                   | no       |         | yes        | no   | no   | Synchronous predicate, runs after augment. Applies to `getEntries` and `getEntry` |
-| `sort`             | `(a, b) => number`                     | no       |         | yes        | no   | no   | Synchronous comparator, runs after filter. Applies to `getEntries` only         |
+| `sort`             | `(a, b) => number`                     | no       |         | yes        | no   | no   | Synchronous comparator, runs after filter. Applies to `getEntries` only           |
 
 The helper for trees and items omits `filter` and `sort` from autocomplete and rejects them at runtime.
 
