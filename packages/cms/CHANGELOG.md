@@ -1,5 +1,11 @@
 # @qino/cms
 
+## 0.13.1
+
+### Patch Changes
+
+- [#249](https://github.com/CharlyMartin/qino/pull/249) [`1481086`](https://github.com/CharlyMartin/qino/commit/14810863ec84497684526069dedb8d2c34f84286) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Replaces the `fast-glob` dependency with `tinyglobby`, dropping `braces` (GHSA-vfj7-8cjw-p6xm) from the dependency tree
+
 ## 0.13.0
 
 ### Minor Changes
