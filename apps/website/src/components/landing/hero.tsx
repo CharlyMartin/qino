@@ -1,22 +1,25 @@
-import { version } from "../../../../../packages/cms/package.json";
+import type { ProjectStats } from "@/types/project-stats";
 import { ButtonLink } from "./button-link";
 import { Eyebrow } from "./eyebrow";
+import { HeroStats } from "./hero-stats";
 import { InstallBox } from "./install-box";
 import { Section } from "./section";
 import { Text } from "./text";
 import { Title } from "./title";
 
-export function Hero() {
+type HeroProps = {
+  stats: ProjectStats;
+};
+
+export function Hero({ stats }: HeroProps) {
   return (
     <Section aria-labelledby="hero-heading" spacing="hero" align="center">
-      <Eyebrow tone="accent">
-        Headless flat-file CMS{" "}
-        <span className="text-muted-foreground normal-case">
-          · v{version.split(".").slice(0, 3).join(".")}
-        </span>
-      </Eyebrow>
+      <Eyebrow tone="accent">Headless flat-file CMS</Eyebrow>
+      <div className="mt-4">
+        <HeroStats stats={stats} />
+      </div>
 
-      <div className="space-y-8 mt-4 mb-20">
+      <div className="space-y-8 mt-8 mb-28">
         <div className="max-w-3xl md:mx-auto">
           <Title as="h1" size="display" id="hero-heading">
             Markdown in.

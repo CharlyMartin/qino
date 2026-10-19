@@ -11,7 +11,8 @@
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".output/**", ".vercel/output/**", "qino/_generated/**"],
-      "env": ["NITRO_PRESET", "VERCEL"]
+      "env": ["NITRO_PRESET", "VERCEL"],
+      "passThroughEnv": ["GITHUB_TOKEN"]
     },
     "check-types": {
       "dependsOn": ["^check-types"]
