@@ -16,7 +16,11 @@ import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
 import { buildViews } from "../../lib/views/build-views";
 import { selectView } from "../../lib/views/select-view";
-import type { EntrySaveAsConfig, TreeCloudConfig } from "../../types/cloud";
+import type {
+  DisplayEntryAsConfig,
+  EntrySaveAsConfig,
+  TreeCloudConfig,
+} from "../../types/cloud";
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
@@ -56,6 +60,7 @@ export type DefineTreeParams<
   Dir extends ContentPath = ContentPath,
   Views extends object = object,
   SaveAs extends string = never,
+  DisplayEntryAs extends string = never,
 > = {
   directory: Dir & NoInfer<NoLeadingSlash<Dir>>;
   schema: Schema & NoInfer<NoReservedSchemaFields<Schema, Ext>>;
@@ -64,7 +69,9 @@ export type DefineTreeParams<
   orderFileName?: string;
   relations?: Rels;
   views?: ViewsConfig<Views, ViewFactory<Schema, TreeEntryMeta<Ext>, Rels>>;
-  cloud?: NoInfer<TreeCloudConfig<Schema>> & EntrySaveAsConfig<SaveAs, Schema>;
+  cloud?: NoInfer<TreeCloudConfig<Schema>> &
+    EntrySaveAsConfig<SaveAs, Schema> &
+    DisplayEntryAsConfig<DisplayEntryAs, Schema>;
 } & RootViewSettings;
 
 export function defineTree<
@@ -75,9 +82,19 @@ export function defineTree<
   Dir extends ContentPath = ContentPath,
   const Views extends object = object,
   const SaveAs extends string = never,
+  const DisplayEntryAs extends string = never,
 >(
   ctx: QinoContext,
-  params: DefineTreeParams<S, Ext, Title, Rels, Dir, Views, SaveAs>,
+  params: DefineTreeParams<
+    S,
+    Ext,
+    Title,
+    Rels,
+    Dir,
+    Views,
+    SaveAs,
+    DisplayEntryAs
+  >,
 ) {
   const {
     directory,

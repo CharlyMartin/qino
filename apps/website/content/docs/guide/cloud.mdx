@@ -64,6 +64,8 @@ export const postCollection = qino.defineCollection({
     notes: z.string().optional(),
   }),
   cloud: {
+    displayAs: "Blog posts",
+    displayEntryAs: "{title}",
     saveAs: "{title}",
     searchableBy: ["title"],
     sortableBy: ["title", "draft"],
@@ -73,17 +75,19 @@ export const postCollection = qino.defineCollection({
 });
 ```
 
-| Option           | Collections | Trees | Items | Default                | Description                                                                                              |
-| ---------------- | ----------- | ----- | ----- | ---------------------- | -------------------------------------------------------------------------------------------------------- |
-| `saveAs`         | yes         | yes   |       |                        | Name of new entries, from their fields, such as `"{firstName}-{lastName}"`. Unset, editors type the slug |
-| `searchableBy`   | yes         | yes   |       | `[]`                   | Top-level fields the cloud UI searches. Empty, there's no search                                         |
-| `sortableBy`     | yes         |       |       | `[]`                   | Top-level string, number, or boolean fields the cloud UI sorts by. Empty, no sorting                     |
-| `hiddenFields`   | yes         | yes   | yes   | `[]`                   | Top-level optional fields the cloud UI doesn't show. Their values are kept on save                       |
-| `media.fields`   | yes         | yes   | yes   | `[]`                   | Paths to string fields edited with a media picker, such as `"gallery[*]"`                                |
-| `media.saveAs`   | yes         | yes   | yes   | `"{id}/{name}-{hash}"` | File path an upload is saved to when publishing, relative to `mediaFolder`                               |
-| `media.accepted` | yes         | yes   | yes   | `initQino`'s           | Replaces `initQino`'s list for this primitive. `[]` disables uploads                                     |
+| Option           | Collections | Trees | Items | Default                     | Description                                                                                                                                |
+| ---------------- | ----------- | ----- | ----- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `displayAs`      | yes         | yes   | yes   | The id                      | Name of the primitive in the cloud UI, such as `"Blog posts"`. A plain string, without tokens                                              |
+| `displayEntryAs` | yes         | yes   |       | `"{<titleField>}"` on trees | Label of entries in the cloud UI, from their fields, such as `"{firstName} {lastName}"`. Unset on collections, the cloud UI shows the slug |
+| `saveAs`         | yes         | yes   |       |                             | Name of new entries, from their fields, such as `"{firstName}-{lastName}"`. Unset, editors type the slug                                   |
+| `searchableBy`   | yes         | yes   |       | `[]`                        | Top-level fields the cloud UI searches. Empty, there's no search                                                                           |
+| `sortableBy`     | yes         |       |       | `[]`                        | Top-level string, number, or boolean fields the cloud UI sorts by. Empty, no sorting                                                       |
+| `hiddenFields`   | yes         | yes   | yes   | `[]`                        | Top-level optional fields the cloud UI doesn't show. Their values are kept on save                                                         |
+| `media.fields`   | yes         | yes   | yes   | `[]`                        | Paths to string fields edited with a media picker, such as `"gallery[*]"`                                                                  |
+| `media.saveAs`   | yes         | yes   | yes   | `"{id}/{name}-{hash}"`      | File path an upload is saved to when publishing, relative to `mediaFolder`                                                                 |
+| `media.accepted` | yes         | yes   | yes   | `initQino`'s                | Replaces `initQino`'s list for this primitive. `[]` disables uploads                                                                       |
 
-Trees are ordered by their order file, so they have no `sortableBy`. Items are a single file, so they have no `saveAs`, and only take `hiddenFields` and `media`.
+Trees are ordered by their order file, so they have no `sortableBy`. Items are a single file, so they have no `saveAs` or `displayEntryAs`, and only take `displayAs`, `hiddenFields`, and `media`.
 
 Fields are typed against the schema input, not its output, since the cloud UI reads files on disk: with a transform that renames `created-on` to `createdOn`, use `"created-on"`. Fields whose input is `unknown`, such as `z.coerce.date()`, can't be sorted by. `qino build` checks the same rules against the schema's JSON Schema, and also fails when a `sortableBy` field allows a non-scalar value in any union branch.
 
@@ -100,9 +104,23 @@ The cloud UI adds the extension, and in trees the parent folder, from where the 
 
 Tokens must be fields every entry has: required, without a default, in every variant of a union schema, and a string, number, or boolean. `saveAs` is type-checked from its literal, so an unknown or optional field, a `/` or `.`, or a pattern without a token is a type error. `qino build` checks the same rules, including for a `saveAs` passed as a `string` variable, which types can't check.
 
+### Naming primitives and entries
+
+`displayAs` names the primitive itself, such as `"Blog posts"` for the `posts` collection, where the cloud UI lists primitives and titles their pages. It's a plain string: `qino build` fails on an empty one or one with a `{field}`. Unset, it's the id: the `directory`, or the `file` of an item. An item is a single entry, so `displayAs` names that entry too.
+
+`displayEntryAs` is how the cloud UI labels each entry of a collection or tree, from its fields. It uses the same `{token}` syntax as `saveAs`, but values aren't slugified, and text outside tokens can be anything:
+
+| `displayEntryAs`            | Fields                                 | Label           |
+| --------------------------- | -------------------------------------- | --------------- |
+| `"{firstName} {lastName}"`  | `firstName: "Jane"`, `lastName: "Doe"` | `Jane Doe`      |
+| `"{lastName}, {firstName}"` | `firstName: "Jane"`, `lastName: "Doe"` | `Doe, Jane`     |
+| `"Post: {title}"`           | `title: "Welcome"`                     | `Post: Welcome` |
+
+Unset, collections' entries show their slug, and trees fall back to `titleField`, which titles nodes in `getTree` too. Tokens follow the same rules as `saveAs`'s: required fields every entry has, and strings, numbers, or booleans. They're type-checked from the literal, and `qino build` checks them too.
+
 ### Hidden fields
 
-`hiddenFields` only takes optional fields, `.optional()` or `.default()` in zod, so editors can still create entries: a required field is a type error, and `qino build` fails on one without a default. Hidden fields can also be in `searchableBy` and `sortableBy`, but never in `saveAs`, whose fields are required.
+`hiddenFields` only takes optional fields, `.optional()` or `.default()` in zod, so editors can still create entries: a required field is a type error, and `qino build` fails on one without a default. Hidden fields can also be in `searchableBy` and `sortableBy`, but never in `saveAs` or `displayEntryAs`, whose fields are required.
 
 ### Media fields
 
@@ -124,7 +142,7 @@ With `{hash}`, an upload never overwrites another file, and each URL always serv
 
 ## In config.json
 
-`config.json` holds every value resolved, so the cloud UI doesn't reimplement defaults: `branchPrefix`, `reviewBeforePublish`'s settings, and `media.saveAs` are filled in, lists default to `[]`, and each primitive's `media.accepted` falls back to `initQino`'s. It's left out when neither sets it.
+`config.json` holds every value resolved, so the cloud UI doesn't reimplement defaults: `branchPrefix`, `reviewBeforePublish`'s settings, and `media.saveAs` are filled in, lists default to `[]`, and each primitive's `media.accepted` falls back to `initQino`'s. It's left out when neither sets it. `displayAs` and `displayEntryAs` sit at the top level of the primitive, next to `titleField`. `displayAs` defaults to the id, and trees' `displayEntryAs` to `"{<titleField>}"`. Collections leave `displayEntryAs` out when unset.
 
 ```json title="qino/_generated/config.json"
 {
@@ -137,6 +155,8 @@ With `{hash}`, an upload never overwrites another file, and each URL always serv
   },
   "collections": {
     "posts": {
+      "displayAs": "Blog posts",
+      "displayEntryAs": "{title}",
       "cloud": {
         "searchableBy": ["title"],
         "sortableBy": ["title", "draft"],

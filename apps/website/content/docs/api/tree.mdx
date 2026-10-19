@@ -32,22 +32,22 @@ qino.defineTree(params: {
   orderFileName?: string;
   relations?: Record<RelationPath, Primitive | (() => Primitive)>;
   views?: (view: ViewHelper) => Record<string, View> & { default: View };
-  cloud?: { saveAs?: `${string}{${RequiredField}}${string}`; searchableBy?: Array<Field>; hiddenFields?: Array<OptionalField>; media?: CloudMedia };
+  cloud?: { displayAs?: string; displayEntryAs?: `${string}{${RequiredField}}${string}`; saveAs?: `${string}{${RequiredField}}${string}`; searchableBy?: Array<Field>; hiddenFields?: Array<OptionalField>; media?: CloudMedia };
 }): Tree;
 ```
 
 ## Parameters
 
-| Name            | Type                                                | Required | Default         | Description                                                                                                                        |
-| --------------- | --------------------------------------------------- | -------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `directory`     | `` `/${string}` ``                                  | yes      |                 | Directory under `contentFolder`. Walked recursively. Owned exclusively by this tree                                                |
-| `extension`     | `".md" \| ".mdx" \| ".markdown" \| ".json"`         | yes      |                 | Only files with this extension are nodes                                                                                           |
-| `schema`        | Standard Schema object validator                    | yes      |                 | Synchronous. May not declare `_meta`, nor `markdown`/`raw` for Markdown                                                            |
-| `titleField`    | key of schema output                                | yes      |                 | Field whose string value titles each node. Non-string keys are a type error                                                        |
-| `orderFileName` | `string`                                            | no       | `"_order.json"` | Per-folder ordering file                                                                                                           |
-| `relations`     | `Record<path, primitive \| () => primitive>`        | no       | `{}`            | Same grammar as collections                                                                                                        |
-| `views`         | `(view) => { default: View; [name]: View }`         | no       |                 | Helper offers `resolveRelations` and `augment` only. `filter` and `sort` are rejected                                              |
-| `cloud`         | `{ saveAs?; searchableBy?; hiddenFields?; media? }` | no       |                 | Cloud UI entry naming, search, hidden fields, and media. Requires `cloud` on `initQino`. See [Cloud](/docs/guide/cloud#primitives) |
+| Name            | Type                                                                             | Required | Default         | Description                                                                                                                                                                  |
+| --------------- | -------------------------------------------------------------------------------- | -------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `directory`     | `` `/${string}` ``                                                               | yes      |                 | Directory under `contentFolder`. Walked recursively. Owned exclusively by this tree                                                                                          |
+| `extension`     | `".md" \| ".mdx" \| ".markdown" \| ".json"`                                      | yes      |                 | Only files with this extension are nodes                                                                                                                                     |
+| `schema`        | Standard Schema object validator                                                 | yes      |                 | Synchronous. May not declare `_meta`, nor `markdown`/`raw` for Markdown                                                                                                      |
+| `titleField`    | key of schema output                                                             | yes      |                 | Field whose string value titles each node. Non-string keys are a type error                                                                                                  |
+| `orderFileName` | `string`                                                                         | no       | `"_order.json"` | Per-folder ordering file                                                                                                                                                     |
+| `relations`     | `Record<path, primitive \| () => primitive>`                                     | no       | `{}`            | Same grammar as collections                                                                                                                                                  |
+| `views`         | `(view) => { default: View; [name]: View }`                                      | no       |                 | Helper offers `resolveRelations` and `augment` only. `filter` and `sort` are rejected                                                                                        |
+| `cloud`         | `{ displayAs?; displayEntryAs?; saveAs?; searchableBy?; hiddenFields?; media? }` | no       |                 | Cloud UI names, entry labels (default: `titleField`) and naming, search, hidden fields, and media. Requires `cloud` on `initQino`. See [Cloud](/docs/guide/cloud#primitives) |
 
 ## Returns
 

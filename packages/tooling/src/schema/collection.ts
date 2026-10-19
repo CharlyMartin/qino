@@ -5,6 +5,8 @@ import { primitiveMediaSchema } from "./primitive-media";
 
 export const collectionSchema = primitiveBaseSchema.extend({
   directory: z.string(),
+  displayAs: z.string().optional(),
+  displayEntryAs: z.string().optional(),
   cloud: z.object({
     searchableBy: z.array(z.string()),
     sortableBy: z.array(z.string()),

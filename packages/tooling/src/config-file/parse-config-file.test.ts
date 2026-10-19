@@ -20,6 +20,8 @@ function setup() {
       posts: {
         ...base,
         directory: "posts",
+        displayAs: "Blog posts",
+        displayEntryAs: "{title}",
         extension: ".md",
         body: { format: "markdown" },
         relations: [
@@ -42,6 +44,7 @@ function setup() {
       "pages/home.json": {
         ...base,
         file: "pages/home.json",
+        displayAs: "Home page",
         extension: ".json",
         cloud: { hiddenFields: [], media: { ...media, accepted: [] } },
       },
@@ -50,6 +53,8 @@ function setup() {
       docs: {
         ...base,
         directory: "docs",
+        displayAs: "docs",
+        displayEntryAs: "{title}",
         extension: ".mdx",
         titleField: "title",
         orderFileName: "_order.json",
@@ -63,6 +68,18 @@ describe("parseConfigFile", () => {
   test("parses a version 1 config file", () => {
     const json = setup();
     expect(parseConfigFile(json)).toEqual(json);
+  });
+
+  test("parses config files without displayAs or displayEntryAs", () => {
+    const json = setup();
+    const {
+      displayAs: _,
+      displayEntryAs: __,
+      ...posts
+    } = json.collections.posts;
+    const parsed = parseConfigFile({ ...json, collections: { posts } });
+    expect(parsed.collections.posts).not.toHaveProperty("displayAs");
+    expect(parsed.collections.posts).not.toHaveProperty("displayEntryAs");
   });
 
   test("parses review turned off", () => {

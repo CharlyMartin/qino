@@ -11,9 +11,11 @@ import { serializePrimitiveCloud } from "./serialize-primitive-cloud";
 import { serializeRelations } from "./serialize-relations";
 
 /**
- * Describes one primitive in `config.json`: location, extension, body,
- * JSON Schema, relations, and cloud config. Function-valued config (views,
- * augment, sort) is left out.
+ * Describes one primitive in `config.json`: location, extension, names
+ * (`displayAs`, `displayEntryAs`, `titleField`), body, JSON Schema,
+ * relations, and cloud config. `displayAs` defaults to the id, and a tree's
+ * `displayEntryAs` to its `titleField`, so the cloud UI always gets them.
+ * Function-valued config (views, augment, sort) is left out.
  */
 export function serializePrimitive(
   primitive: AnyPrimitive,
@@ -30,17 +32,35 @@ export function serializePrimitive(
     cloud: serializePrimitiveCloud(primitive, cloud, schema, id),
   };
 
+  const primitiveCloud = primitive[QinoPrimitiveMarker].cloud;
+  const displayAs = primitiveCloud?.displayAs ?? id;
+  const displayEntryAs = primitiveCloud?.displayEntryAs;
+
   if (isItem(primitive)) {
     const { file, extension } = primitive[QinoPrimitiveMarker];
-    return { file, extension, ...shared };
+    return { file, extension, displayAs, ...shared };
   }
 
   if (isCollection(primitive)) {
     const { directory, extension } = primitive[QinoPrimitiveMarker];
-    return { directory, extension, ...shared };
+    return {
+      directory,
+      extension,
+      displayAs,
+      ...(displayEntryAs != undefined && { displayEntryAs }),
+      ...shared,
+    };
   }
 
   const { directory, extension, titleField, orderFileName } =
     primitive[QinoPrimitiveMarker];
-  return { directory, extension, titleField, orderFileName, ...shared };
+  return {
+    directory,
+    extension,
+    displayAs,
+    displayEntryAs: displayEntryAs ?? `{${titleField}}`,
+    titleField,
+    orderFileName,
+    ...shared,
+  };
 }

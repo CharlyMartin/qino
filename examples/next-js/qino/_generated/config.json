@@ -29,6 +29,8 @@
     "authors": {
       "directory": "authors",
       "extension": ".json",
+      "displayAs": "authors",
+      "displayEntryAs": "{firstName} {lastName}",
       "body": null,
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -82,6 +84,7 @@
     "categories": {
       "directory": "categories",
       "extension": ".json",
+      "displayAs": "categories",
       "body": null,
       "schema": {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -126,6 +129,8 @@
     "posts": {
       "directory": "posts",
       "extension": ".md",
+      "displayAs": "Blog posts",
+      "displayEntryAs": "{title}",
       "body": {
         "format": "markdown"
       },
@@ -223,6 +228,7 @@
     "pages/home.md": {
       "file": "pages/home.md",
       "extension": ".md",
+      "displayAs": "Home page",
       "body": {
         "format": "markdown"
       },
@@ -274,6 +280,8 @@
     "docs/v1": {
       "directory": "docs/v1",
       "extension": ".mdx",
+      "displayAs": "docs/v1",
+      "displayEntryAs": "{title}",
       "titleField": "title",
       "orderFileName": "_order.json",
       "body": {
@@ -316,6 +324,8 @@
     "docs/v2": {
       "directory": "docs/v2",
       "extension": ".mdx",
+      "displayAs": "docs/v2",
+      "displayEntryAs": "{title}",
       "titleField": "title",
       "orderFileName": "_order.json",
       "body": {

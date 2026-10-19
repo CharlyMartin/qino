@@ -179,7 +179,7 @@ Set [`cloud`](/docs/guide/cloud) on [`initQino`](/docs/api/init-qino), and `buil
 }
 ```
 
-`body` is `{ "format": "markdown" }` for `.md` and `.markdown` entries, `{ "format": "mdx" }` for `.mdx`, and `null` for `.json`. Trees also list `titleField` and `orderFileName`. Views, augment, filter, and sort are functions and are left out. See [Cloud](/docs/guide/cloud#in-configjson) for the `cloud` fields.
+`body` is `{ "format": "markdown" }` for `.md` and `.markdown` entries, `{ "format": "mdx" }` for `.mdx`, and `null` for `.json`. Every primitive lists `displayAs`, its name in the cloud UI, which defaults to its id. Trees also list `titleField`, `orderFileName`, and `displayEntryAs`, which defaults to `"{<titleField>}"`. Collections list `displayEntryAs` when set. Views, augment, filter, and sort are functions and are left out. See [Cloud](/docs/guide/cloud#in-configjson) for the `cloud` fields.
 
 The JSON Schema describes the input side of each schema, the shape of the files on disk, before any transform. It comes from the [Standard JSON Schema](https://standardschema.dev/json-schema) interface, so `cloud` only works with validators that implement it, a subset of Standard Schema validators. Zod 4.2+ and ArkType schemas implement it as is. Others, like Valibot, need their schema wrapped with an adapter. See [the list of implementations](https://standardschema.dev/json-schema). `build` fails when a schema can't be converted, for example when its validator doesn't implement the interface or a field like `z.date()` has no JSON representation.
 

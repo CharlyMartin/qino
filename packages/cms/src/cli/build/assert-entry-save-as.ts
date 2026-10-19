@@ -1,14 +1,10 @@
-import { allowsOnlyScalars } from "./allows-only-scalars";
-import { findJsonSchemaNodes } from "./find-json-schema-nodes";
-import { getPathTokens } from "./get-path-tokens";
-import { isRequiredJsonSchemaField } from "./is-required-json-schema-field";
+import { assertTemplateFields } from "./assert-template-fields";
 
 /**
  * An entry's `saveAs` is type-checked from its literal, which widened strings,
- * opaque validators, and JS users bypass. Fails without a token, with a `/`
- * or `.` (the cloud UI adds the extension and, in trees, the parent folder),
- * or when a token isn't a top-level field that every variant of the input
- * JSON Schema requires and allows only scalars for.
+ * opaque validators, and JS users bypass. Fails with a `/` or `.` (the cloud
+ * UI adds the extension and, in trees, the parent folder), or when its tokens
+ * don't pass `assertTemplateFields`.
  */
 export function assertEntrySaveAs(
   saveAs: string,
@@ -16,11 +12,6 @@ export function assertEntrySaveAs(
   primitiveId: string,
 ) {
   const prefix = `saveAs "${saveAs}" of "${primitiveId}"`;
-  const tokens = getPathTokens(saveAs);
-
-  if (tokens.length == 0) {
-    throw new Error(`${prefix} needs at least one {field}.`);
-  }
 
   if (/[/.]/.test(saveAs)) {
     throw new Error(
@@ -28,27 +19,10 @@ export function assertEntrySaveAs(
     );
   }
 
-  for (const token of tokens) {
-    const nodes = findJsonSchemaNodes(jsonSchema, [
-      { kind: "key", name: token },
-    ]);
-
-    if (nodes.length == 0) {
-      throw new Error(
-        `${prefix} has an unknown field "{${token}}". Use a top-level field of its schema input.`,
-      );
-    }
-
-    if (!allowsOnlyScalars(jsonSchema, nodes)) {
-      throw new Error(
-        `${prefix} uses "{${token}}", which isn't a string, number, or boolean on disk.`,
-      );
-    }
-
-    if (!isRequiredJsonSchemaField(jsonSchema, token, "every")) {
-      throw new Error(
-        `${prefix} uses "{${token}}", which is optional, so entries could get an empty name. Use a required field.`,
-      );
-    }
-  }
+  assertTemplateFields({
+    prefix,
+    template: saveAs,
+    result: "name",
+    jsonSchema,
+  });
 }
