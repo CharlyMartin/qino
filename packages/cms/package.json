@@ -54,7 +54,6 @@
     "@standard-schema/spec": "1.1.0",
     "consola": "3.4.2",
     "es-toolkit": "1.52.0",
-    "fast-glob": "3.3.3",
     "gray-matter": "4.0.3",
     "htmlparser2": "12.0.0",
     "jiti": "2.7.0",
@@ -69,6 +68,7 @@
     "remark-gfm": "4.0.1",
     "remark-mdx": "3.1.1",
     "remark-parse": "11.0.0",
+    "tinyglobby": "0.2.17",
     "type-fest": "5.10.0",
     "unified": "11.0.5"
   },

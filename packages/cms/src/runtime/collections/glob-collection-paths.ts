@@ -1,4 +1,4 @@
-import fg from "fast-glob";
+import { glob } from "tinyglobby";
 
 import type { SupportedFileExtension } from "../../types/utils";
 
@@ -12,7 +12,7 @@ export async function globCollectionPaths({
   extension,
 }: GetRelativePathsParams) {
   // `*${extension}`, NOT `**/*${extension}` -> collections are flat directories, not nested like trees.
-  const relativeFilePaths = await fg(`*${extension}`, {
+  const relativeFilePaths = await glob(`*${extension}`, {
     cwd: absoluteDirPath,
   });
 
