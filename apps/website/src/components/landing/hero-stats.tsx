@@ -1,11 +1,10 @@
 import { siGithub, siNpm } from "simple-icons";
 
-import { version } from "../../../../../packages/cms/package.json";
-
 import { useProjectStats } from "@/hooks/use-project-stats";
 import { externalLinks } from "@/lib/external-links";
 import { formatVersion } from "@/lib/format-version";
 import type { ProjectStats } from "@/types/project-stats";
+import { version } from "../../../../../packages/cms/package.json";
 import { DotSeparator } from "./dot-separator";
 import { SimpleIcon } from "./simple-icon";
 import { StatBadge } from "./stat-badge";
