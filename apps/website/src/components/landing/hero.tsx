@@ -19,7 +19,7 @@ export function Hero({ stats }: HeroProps) {
         <HeroStats stats={stats} />
       </div>
 
-      <div className="space-y-8 mt-8 mb-28">
+      <div className="space-y-8 mt-8 mb-16">
         <div className="max-w-3xl md:mx-auto">
           <Title as="h1" size="display" id="hero-heading">
             Markdown in.
