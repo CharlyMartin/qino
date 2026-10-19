@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import nodePath from "node:path";
 
-import fg from "fast-glob";
+import { glob } from "tinyglobby";
 
 import { SUPPORTED_CONTENT_EXTENSIONS } from "../../data/globals";
 import { isFile } from "../../lib/fs/is-file";
@@ -21,7 +21,7 @@ export async function findMissingMedia({
   const contentExtensions = SUPPORTED_CONTENT_EXTENSIONS.map((ext) =>
     ext.slice(1),
   );
-  const files = await fg(`**/*.{${contentExtensions.join(",")}}`, {
+  const files = await glob(`**/*.{${contentExtensions.join(",")}}`, {
     cwd: contentFolder,
     absolute: true,
   });
