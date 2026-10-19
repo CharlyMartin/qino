@@ -9,16 +9,19 @@ import { PrimitivesSection } from "@/components/landing/primitives-section";
 import { RelationsSection } from "@/components/landing/relations-section";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { SiteHeader } from "@/components/landing/site-header";
+import { TestimonialsSection } from "@/components/landing/testimonials-section";
 import { getProjectStats } from "@/server/get-project-stats";
 import { getSnippets } from "@/server/get-snippets";
+import { getTestimonials } from "@/server/get-testimonials";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
-    const [snippets, stats] = await Promise.all([
+    const [snippets, testimonials, stats] = await Promise.all([
       getSnippets(),
+      getTestimonials(),
       getProjectStats(),
     ]);
-    return { ...snippets, stats };
+    return { ...snippets, testimonials, stats };
   },
   head: () => ({
     meta: [
@@ -39,6 +42,7 @@ function HomePage() {
     pipelineDefine,
     pipelineQuery,
     relationsPosts,
+    testimonials,
     stats,
   } = Route.useLoaderData();
 
@@ -53,6 +57,7 @@ function HomePage() {
       <SiteHeader />
       <main id="main-content">
         <Hero stats={stats} />
+        <TestimonialsSection testimonials={testimonials} />
         <Pipeline
           files={pipelineFiles}
           define={pipelineDefine}
