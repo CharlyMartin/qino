@@ -1,6 +1,6 @@
 {
   "name": "@qino/tooling",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Schemas and helpers for tools built on Qino projects",
   "license": "MIT",
   "type": "module",

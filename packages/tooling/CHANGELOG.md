@@ -1,5 +1,19 @@
 # @qino/tooling
 
+## 0.6.0
+
+### Minor Changes
+
+- [#259](https://github.com/CharlyMartin/qino/pull/259) [`1179ac6`](https://github.com/CharlyMartin/qino/commit/1179ac658f0998399ca924a297bca1e510acc513) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Renames `cloud.saveAs` to `cloud.saveEntryAs`, matching `displayEntryAs` and `media.saveFileAs`. `config.json` writes `saveEntryAs` too:
+
+  ```diff
+   cloud: {
+     displayEntryAs: "{title}",
+  -  saveAs: "{title}",
+  +  saveEntryAs: "{title}",
+   },
+  ```
+
 ## 0.5.0
 
 ### Minor Changes
