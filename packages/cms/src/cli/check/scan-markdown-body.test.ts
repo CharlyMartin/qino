@@ -85,9 +85,9 @@ describe("scanMarkdownBody", () => {
     ].join("\n");
 
     expect(scanMarkdownBody(content, { mdx: false })).toEqual([
-      { url: "/a&b.jpg", line: 1 },
-      { url: "/c.mp4", line: 2 },
-      { url: "/d.png", line: 5 },
+      { url: "/a&b.jpg", line: 1, image: false },
+      { url: "/c.mp4", line: 2, image: false },
+      { url: "/d.png", line: 5, image: true },
     ]);
   });
 
@@ -129,8 +129,38 @@ describe("scanMarkdownBody", () => {
 
   test("reports line numbers", () => {
     expect(scanMarkdownBody("# Title\n\n![](/a.png)", { mdx: false })).toEqual([
-      { url: "/a.png", line: 3 },
+      { url: "/a.png", line: 3, image: true },
     ]);
+  });
+
+  test("flags images only", () => {
+    function images(content: string, mdx: boolean) {
+      return scanMarkdownBody(content, { mdx })
+        .filter(({ image }) => image)
+        .map(({ url }) => url);
+    }
+
+    expect(
+      images(
+        [
+          "![Alt](/a.png) [PDF](/b.pdf) ![ref][logo] [link][doc]",
+          "",
+          "[logo]: /c.svg",
+          "[doc]: /d.pdf",
+        ].join("\n"),
+        false,
+      ),
+    ).toEqual(["/a.png", "/c.svg"]);
+    expect(
+      images(
+        [
+          '<Image src="/e.png" />',
+          '<img src="/f.png" />',
+          '<Video poster="/g.jpg" src="/h.mp4" />',
+        ].join("\n\n"),
+        true,
+      ),
+    ).toEqual(["/e.png", "/f.png"]);
   });
 
   test("throws on invalid MDX", () => {

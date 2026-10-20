@@ -27,6 +27,7 @@ export default async function PostsIndex() {
                   src={post.image}
                   alt=""
                   fill
+                  placeholder="blur"
                   sizes="(min-width: 768px) 768px, 100vw"
                   className="object-cover"
                 />

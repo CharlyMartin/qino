@@ -1,6 +1,6 @@
 ---
 title: Cloud
-description: Configure how the Qino cloud UI publishes, searches, sorts, hides fields, and handles media.
+description: Configure how the Qino cloud UI publishes, searches, sorts, hides fields, and saves uploads.
 ---
 
 The Qino cloud UI lets editors change content without touching code. Its only contract with your project is `qino/_generated/config.json`. Set `cloud` on [`initQino`](/docs/api/init-qino) and `qino build` writes that file, including the cloud options below. See [Config file](/docs/guide/cli#config-file).
@@ -13,12 +13,6 @@ export default initQino({
   mediaFolder: "public",
   cloud: {
     publish: { mode: "open_pull_request", reviewBeforePublish: true },
-    media: {
-      accepted: [
-        { type: "image/webp", maxSize: "5MB" },
-        { type: "image/png", maxSize: "5MB" },
-      ],
-    },
   },
 });
 ```
@@ -45,10 +39,6 @@ In `config.json`, `reviewBeforePublish` is `false`, or its settings with default
 
 Until an editor publishes, edits are saved as drafts in the cloud UI, not in the repository.
 
-## Media
-
-`media.accepted` lists the file types editors can upload. Each entry has a MIME `type`, wildcards allowed (`"image/*"`), and a `maxSize` from `"50KB"` to `"950KB"` in steps of 50, or `"1MB"` to `"100MB"`, where 1KB is 1024 bytes. Anything else, like `"1.5MB"` or `"25KB"`, is a type error. `config.json` holds it in bytes, so `"5MB"` becomes `5242880`. Unset, it's left out of `config.json` and the cloud UI accepts any type up to 5 MB. `[]` disables uploads.
-
 ## Primitives
 
 Each primitive takes its own `cloud` option. Setting it without `cloud` on `initQino` throws at definition.
@@ -63,6 +53,7 @@ export const postCollection = qino.defineCollection({
     cover: z.string(),
     notes: z.string().optional(),
   }),
+  media: { cover: { accepted: "image/webp", maxSize: "5MB" } },
   cloud: {
     displayAs: "Blog posts",
     displayEntryAs: "{title}",
@@ -70,24 +61,24 @@ export const postCollection = qino.defineCollection({
     searchableBy: ["title"],
     sortableBy: ["title", "draft"],
     hiddenFields: ["notes"],
-    media: { saveAs: "posts/{name}-{hash}", fields: ["cover"] },
+    media: { saveFileAs: "posts/{field}/{name}-{hash}" },
   },
 });
 ```
 
-| Option           | Collections | Trees | Items | Default                     | Description                                                                                                                                |
-| ---------------- | ----------- | ----- | ----- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `displayAs`      | yes         | yes   | yes   | The id                      | Name of the primitive in the cloud UI, such as `"Blog posts"`. A plain string, without tokens                                              |
-| `displayEntryAs` | yes         | yes   |       | `"{<titleField>}"` on trees | Label of entries in the cloud UI, from their fields, such as `"{firstName} {lastName}"`. Unset on collections, the cloud UI shows the slug |
-| `saveAs`         | yes         | yes   |       |                             | Name of new entries, from their fields, such as `"{firstName}-{lastName}"`. Unset, editors type the slug                                   |
-| `searchableBy`   | yes         | yes   |       | `[]`                        | Top-level fields the cloud UI searches. Empty, there's no search                                                                           |
-| `sortableBy`     | yes         |       |       | `[]`                        | Top-level string, number, or boolean fields the cloud UI sorts by. Empty, no sorting                                                       |
-| `hiddenFields`   | yes         | yes   | yes   | `[]`                        | Top-level optional fields the cloud UI doesn't show. Their values are kept on save                                                         |
-| `media.fields`   | yes         | yes   | yes   | `[]`                        | Paths to string fields edited with a media picker, such as `"gallery[*]"`                                                                  |
-| `media.saveAs`   | yes         | yes   | yes   | `"{id}/{name}-{hash}"`      | File path an upload is saved to when publishing, relative to `mediaFolder`                                                                 |
-| `media.accepted` | yes         | yes   | yes   | `initQino`'s                | Replaces `initQino`'s list for this primitive. `[]` disables uploads                                                                       |
+| Option             | Collections | Trees | Items | Default                     | Description                                                                                                                                |
+| ------------------ | ----------- | ----- | ----- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `displayAs`        | yes         | yes   | yes   | The id                      | Name of the primitive in the cloud UI, such as `"Blog posts"`. A plain string, without tokens                                              |
+| `displayEntryAs`   | yes         | yes   |       | `"{<titleField>}"` on trees | Label of entries in the cloud UI, from their fields, such as `"{firstName} {lastName}"`. Unset on collections, the cloud UI shows the slug |
+| `saveAs`           | yes         | yes   |       |                             | Name of new entries, from their fields, such as `"{firstName}-{lastName}"`. Unset, editors type the slug                                   |
+| `searchableBy`     | yes         | yes   |       | `[]`                        | Top-level fields the cloud UI searches. Empty, there's no search                                                                           |
+| `sortableBy`       | yes         |       |       | `[]`                        | Top-level string, number, or boolean fields the cloud UI sorts by. Empty, no sorting                                                       |
+| `hiddenFields`     | yes         | yes   | yes   | `[]`                        | Top-level optional fields the cloud UI doesn't show. Their values are kept on save                                                         |
+| `media.saveFileAs` | yes         | yes   | yes   | `"{id}/{name}-{hash}"`      | File path an upload is saved to when publishing, relative to `mediaFolder`                                                                 |
 
 Trees are ordered by their order file, so they have no `sortableBy`. Items are a single file, so they have no `saveAs` or `displayEntryAs`, and only take `displayAs`, `hiddenFields`, and `media`.
+
+Which fields hold media, and the files they accept, isn't cloud config: it's the primitive's own [`media`](/docs/concepts/media), which works without `cloud`. The cloud UI reads it from `config.json` to offer a media picker on each media field and accept only matching uploads, in fields and in the body.
 
 Fields are typed against the schema input, not its output, since the cloud UI reads files on disk: with a transform that renames `created-on` to `createdOn`, use `"created-on"`. Fields whose input is `unknown`, such as `z.coerce.date()`, can't be sorted by. `qino build` checks the same rules against the schema's JSON Schema, and also fails when a `sortableBy` field allows a non-scalar value in any union branch.
 
@@ -124,25 +115,26 @@ Unset, collections' entries show their slug, and trees fall back to `titleField`
 
 ### Media fields
 
-`media.fields` uses the [relation path](/docs/concepts/relations#declaring) syntax, so media fields can be nested: `"image"`, `"gallery[*]"` for each string of an array, `"seo.image"` for an object field. Each path must lead to a string. A path can't also be a relation: a field holds either a media URL or a reference.
+The cloud UI edits each field of the primitive's [`media`](/docs/concepts/media) with a media picker, and accepts uploads of its type and size. `markdown` rules apply to images added to the body. A media path must also be a field of the schema input, as with relations: `qino build` fails when a transform renames it.
 
-The cloud UI writes the URL the file is served at, starting with `/`: picking the upload saved at `public/posts/cover-1a2b3c4d.webp` writes `"/posts/cover-1a2b3c4d.webp"`. That's the URL [`qino check`](/docs/guide/cli#media) resolves against `mediaFolder` to find missing files.
+The cloud UI writes the URL the file is served at, starting with `/`: picking the upload saved at `public/posts/cover/cover-1a2b3c4d.webp` writes `"/posts/cover/cover-1a2b3c4d.webp"`. That's the URL Qino reads images from and [`qino check`](/docs/guide/cli#media) resolves against `mediaFolder`.
 
 ### Saving uploads
 
-When an editor publishes, each uploaded file is saved to the path `media.saveAs` describes, relative to `mediaFolder`. As with entries' `saveAs`, the cloud UI adds the extension: the uploaded file's, lowercased. With `mediaFolder: "public"` and `saveAs: "posts/{name}-{hash}"`, uploading `Cover.webp` saves `public/posts/cover-1a2b3c4d.webp`, served at `/posts/cover-1a2b3c4d.webp`. Tokens:
+When an editor publishes, each uploaded file is saved to the path `media.saveFileAs` describes, relative to `mediaFolder`. As with entries' `saveAs`, the cloud UI adds the extension: the uploaded file's, lowercased. With `mediaFolder: "public"` and `saveFileAs: "posts/{field}/{name}-{hash}"`, uploading `Cover.webp` to the `cover` field saves `public/posts/cover/cover-1a2b3c4d.webp`, served at `/posts/cover/cover-1a2b3c4d.webp`. Tokens:
 
-| Token    | Value                                                                      |
-| -------- | -------------------------------------------------------------------------- |
-| `{id}`   | The primitive's `directory`, or its `file` without the extension for items |
-| `{name}` | The uploaded file's name without its extension, slugified                  |
-| `{hash}` | The first 8 hex characters of the file's SHA-256                           |
+| Token     | Value                                                                                                                                            |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `{id}`    | The primitive's `directory`, or its `file` without the extension for items                                                                       |
+| `{field}` | The media path the file is uploaded to, slugified: `cover`, `gallery` for `"gallery[*]"`, `seo-image` for `"seo.image"`, `markdown` for the body |
+| `{name}`  | The uploaded file's name without its extension, slugified                                                                                        |
+| `{hash}`  | The first 8 hex characters of the file's SHA-256                                                                                                 |
 
 With `{hash}`, an upload never overwrites another file, and each URL always serves the same content, so it can be cached for good. `qino build` fails on an unknown token, a `.` in the file name, a path ending with `/`, or a path starting with `/` or containing `..`.
 
 ## In config.json
 
-`config.json` holds every value resolved, so the cloud UI doesn't reimplement defaults: `branchPrefix`, `reviewBeforePublish`'s settings, and `media.saveAs` are filled in, lists default to `[]`, and each primitive's `media.accepted` falls back to `initQino`'s. It's left out when neither sets it. `displayAs` and `displayEntryAs` sit at the top level of the primitive, next to `titleField`. `displayAs` defaults to the id, and trees' `displayEntryAs` to `"{<titleField>}"`. Collections leave `displayEntryAs` out when unset.
+`config.json` holds every value resolved, so the cloud UI doesn't reimplement defaults: `branchPrefix`, `reviewBeforePublish`'s settings, and `media.saveFileAs` are filled in, and lists default to `[]`. Each primitive's [`media`](/docs/concepts/media) sits next to its relations, with `maxSize` in bytes, so `"5MB"` becomes `5242880`. `displayAs` and `displayEntryAs` sit at the top level of the primitive, next to `titleField`. `displayAs` defaults to the id, and trees' `displayEntryAs` to `"{<titleField>}"`. Collections leave `displayEntryAs` out when unset.
 
 ```json title="qino/_generated/config.json"
 {
@@ -157,11 +149,14 @@ With `{hash}`, an upload never overwrites another file, and each URL always serv
     "posts": {
       "displayAs": "Blog posts",
       "displayEntryAs": "{title}",
+      "media": {
+        "cover": { "accepted": "image/webp", "maxSize": 5242880 }
+      },
       "cloud": {
         "searchableBy": ["title"],
         "sortableBy": ["title", "draft"],
         "hiddenFields": ["notes"],
-        "media": { "saveAs": "posts/{name}-{hash}", "fields": ["cover"] }
+        "media": { "saveFileAs": "posts/{field}/{name}-{hash}" }
       }
     }
   }

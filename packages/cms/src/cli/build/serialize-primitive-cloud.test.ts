@@ -8,8 +8,6 @@ import { serializePrimitiveCloud } from "./serialize-primitive-cloud";
 const globalCloud: CloudConfig = {
   publish: { mode: "commit_to_default_branch", reviewBeforePublish: false },
 };
-const accepted = [{ type: "image/*", maxSize: "5MB" }] as const;
-const acceptedBytes = [{ type: "image/*", maxSize: 5242880 }];
 const qino = initQino({
   contentFolder: "content",
   mediaFolder: "public",
@@ -40,13 +38,11 @@ describe("serializePrimitiveCloud", () => {
       extension: ".md",
     });
 
-    expect(
-      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
-    ).toEqual({
+    expect(serializePrimitiveCloud(posts, jsonSchema, "posts")).toEqual({
       searchableBy: [],
       sortableBy: [],
       hiddenFields: [],
-      media: { saveAs: "{id}/{name}-{hash}", fields: [] },
+      media: { saveFileAs: "{id}/{name}-{hash}" },
     });
   });
 
@@ -59,21 +55,15 @@ describe("serializePrimitiveCloud", () => {
         searchableBy: ["title", "tags"],
         sortableBy: ["title"],
         hiddenFields: ["notes"],
-        media: { saveAs: "blog/{name}", fields: ["image"], accepted },
+        media: { saveFileAs: "blog/{field}/{name}" },
       },
     });
 
-    expect(
-      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
-    ).toEqual({
+    expect(serializePrimitiveCloud(posts, jsonSchema, "posts")).toEqual({
       searchableBy: ["title", "tags"],
       sortableBy: ["title"],
       hiddenFields: ["notes"],
-      media: {
-        saveAs: "blog/{name}",
-        fields: ["image"],
-        accepted: acceptedBytes,
-      },
+      media: { saveFileAs: "blog/{field}/{name}" },
     });
   });
 
@@ -86,12 +76,10 @@ describe("serializePrimitiveCloud", () => {
       cloud: { searchableBy: ["title"] },
     });
 
-    expect(
-      serializePrimitiveCloud(docs, globalCloud, jsonSchema, "docs"),
-    ).toEqual({
+    expect(serializePrimitiveCloud(docs, jsonSchema, "docs")).toEqual({
       searchableBy: ["title"],
       hiddenFields: [],
-      media: { saveAs: "{id}/{name}-{hash}", fields: [] },
+      media: { saveFileAs: "{id}/{name}-{hash}" },
     });
   });
 
@@ -99,75 +87,26 @@ describe("serializePrimitiveCloud", () => {
     const home = qino.defineItem({
       file: "pages/home.md",
       schema,
-      cloud: { hiddenFields: ["notes"], media: { fields: ["image"] } },
+      cloud: { hiddenFields: ["notes"] },
     });
 
-    expect(
-      serializePrimitiveCloud(home, globalCloud, jsonSchema, "pages/home.md"),
-    ).toEqual({
+    expect(serializePrimitiveCloud(home, jsonSchema, "pages/home.md")).toEqual({
       hiddenFields: ["notes"],
-      media: { saveAs: "{id}/{name}-{hash}", fields: ["image"] },
+      media: { saveFileAs: "{id}/{name}-{hash}" },
     });
   });
 
-  test("inherits accepted media from initQino", () => {
-    const home = qino.defineItem({ file: "pages/home.md", schema });
-
-    expect(
-      serializePrimitiveCloud(
-        home,
-        { ...globalCloud, media: { accepted } },
-        jsonSchema,
-        "pages/home.md",
-      ).media,
-    ).toEqual({
-      saveAs: "{id}/{name}-{hash}",
-      fields: [],
-      accepted: acceptedBytes,
-    });
-  });
-
-  test("keeps an empty accepted list, which disables uploads", () => {
-    const home = qino.defineItem({
-      file: "pages/home.md",
-      schema,
-      cloud: { media: { accepted: [] } },
-    });
-
-    expect(
-      serializePrimitiveCloud(
-        home,
-        { ...globalCloud, media: { accepted } },
-        jsonSchema,
-        "pages/home.md",
-      ).media,
-    ).toEqual({ saveAs: "{id}/{name}-{hash}", fields: [], accepted: [] });
-  });
-
-  test("validates media.saveAs", () => {
+  test("validates cloud.media.saveFileAs", () => {
     const posts = qino.defineCollection({
       directory: "posts",
       schema,
       extension: ".md",
-      cloud: { media: { saveAs: "{slug}" } },
+      cloud: { media: { saveFileAs: "{slug}" } },
     });
 
-    expect(() =>
-      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
-    ).toThrow('unknown token "{slug}"');
-  });
-
-  test("validates accepted media", () => {
-    const posts = qino.defineCollection({
-      directory: "posts",
-      schema,
-      extension: ".md",
-      cloud: { media: { accepted: [{ type: "png", maxSize: "50KB" }] } },
-    });
-
-    expect(() =>
-      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
-    ).toThrow('media.accepted type "png" of "posts" isn\'t a MIME type');
+    expect(() => serializePrimitiveCloud(posts, jsonSchema, "posts")).toThrow(
+      'unknown token "{slug}"',
+    );
   });
 
   test("validates sortable fields", () => {
@@ -181,7 +120,6 @@ describe("serializePrimitiveCloud", () => {
     expect(() =>
       serializePrimitiveCloud(
         posts,
-        globalCloud,
         { type: "object", properties: { title: { type: "array" } } },
         "posts",
       ),
@@ -197,27 +135,8 @@ describe("serializePrimitiveCloud", () => {
     });
 
     expect(() =>
-      serializePrimitiveCloud(home, globalCloud, jsonSchema, "pages/home.md"),
+      serializePrimitiveCloud(home, jsonSchema, "pages/home.md"),
     ).toThrow('hiddenFields "title" of "pages/home.md" is required');
-  });
-
-  test("validates media fields against relations", () => {
-    const authors = qino.defineCollection({
-      directory: "authors",
-      schema: z.object({ name: z.string() }),
-      extension: ".json",
-    });
-    const posts = qino.defineCollection({
-      directory: "posts",
-      schema,
-      extension: ".md",
-      relations: { image: authors },
-      cloud: { media: { fields: ["image"] } },
-    });
-
-    expect(() =>
-      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
-    ).toThrow('media.fields "image" of "posts" is also a relation');
   });
 
   test("writes an entry saveAs for collections and trees", () => {
@@ -235,12 +154,12 @@ describe("serializePrimitiveCloud", () => {
       cloud: { saveAs: "{title}" },
     });
 
-    expect(
-      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
-    ).toMatchObject({ saveAs: "post-{title}" });
-    expect(
-      serializePrimitiveCloud(docs, globalCloud, jsonSchema, "docs"),
-    ).toMatchObject({ saveAs: "{title}" });
+    expect(serializePrimitiveCloud(posts, jsonSchema, "posts")).toMatchObject({
+      saveAs: "post-{title}",
+    });
+    expect(serializePrimitiveCloud(docs, jsonSchema, "docs")).toMatchObject({
+      saveAs: "{title}",
+    });
   });
 
   test("leaves saveAs out when unset", () => {
@@ -251,7 +170,7 @@ describe("serializePrimitiveCloud", () => {
     });
 
     expect(
-      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
+      serializePrimitiveCloud(posts, jsonSchema, "posts"),
     ).not.toHaveProperty("saveAs");
   });
 
@@ -264,9 +183,9 @@ describe("serializePrimitiveCloud", () => {
       cloud: { saveAs },
     });
 
-    expect(() =>
-      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
-    ).toThrow('saveAs "{notes}" of "posts" uses "{notes}", which is optional');
+    expect(() => serializePrimitiveCloud(posts, jsonSchema, "posts")).toThrow(
+      'saveAs "{notes}" of "posts" uses "{notes}", which is optional',
+    );
   });
 
   test("makes displayEntryAs optional", () => {
@@ -289,13 +208,13 @@ describe("serializePrimitiveCloud", () => {
     });
 
     expect(() =>
-      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
+      serializePrimitiveCloud(posts, jsonSchema, "posts"),
     ).not.toThrow();
     expect(() =>
-      serializePrimitiveCloud(docs, globalCloud, jsonSchema, "docs"),
+      serializePrimitiveCloud(docs, jsonSchema, "docs"),
     ).not.toThrow();
     expect(() =>
-      serializePrimitiveCloud(home, globalCloud, jsonSchema, "pages/home.md"),
+      serializePrimitiveCloud(home, jsonSchema, "pages/home.md"),
     ).not.toThrow();
   });
 
@@ -315,13 +234,11 @@ describe("serializePrimitiveCloud", () => {
       cloud: { displayEntryAs: "{title}" },
     });
 
-    expect(() =>
-      serializePrimitiveCloud(posts, globalCloud, jsonSchema, "posts"),
-    ).toThrow(
+    expect(() => serializePrimitiveCloud(posts, jsonSchema, "posts")).toThrow(
       'displayEntryAs "{notes}" of "posts" uses "{notes}", which is optional',
     );
     expect(
-      serializePrimitiveCloud(docs, globalCloud, jsonSchema, "docs"),
+      serializePrimitiveCloud(docs, jsonSchema, "docs"),
     ).not.toHaveProperty("displayEntryAs");
   });
 
@@ -340,12 +257,12 @@ describe("serializePrimitiveCloud", () => {
     });
 
     expect(() =>
-      serializePrimitiveCloud(home, globalCloud, jsonSchema, "pages/home.md"),
+      serializePrimitiveCloud(home, jsonSchema, "pages/home.md"),
     ).toThrow(
       'displayAs "Home: {title}" of "pages/home.md" names the primitive, so it takes no {field}. Label entries with displayEntryAs.',
     );
     expect(
-      serializePrimitiveCloud(docs, globalCloud, jsonSchema, "docs"),
+      serializePrimitiveCloud(docs, jsonSchema, "docs"),
     ).not.toHaveProperty("displayAs");
   });
 
@@ -358,7 +275,7 @@ describe("serializePrimitiveCloud", () => {
     });
 
     expect(() =>
-      serializePrimitiveCloud(home, globalCloud, jsonSchema, "pages/home.md"),
+      serializePrimitiveCloud(home, jsonSchema, "pages/home.md"),
     ).toThrow(
       'displayEntryAs of "pages/home.md" labels entries, but an item is a single file. Name it with displayAs.',
     );
@@ -373,7 +290,7 @@ describe("serializePrimitiveCloud", () => {
     });
 
     expect(() =>
-      serializePrimitiveCloud(home, globalCloud, jsonSchema, "pages/home.md"),
+      serializePrimitiveCloud(home, jsonSchema, "pages/home.md"),
     ).toThrow(
       'saveAs of "pages/home.md" names new entries, but an item is a single file.',
     );

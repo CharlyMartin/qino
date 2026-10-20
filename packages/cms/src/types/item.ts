@@ -9,6 +9,7 @@ import type { AugmentOutput } from "./augment";
 import type { PrimitiveCloudConfig } from "./cloud";
 import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
+import type { AnyMediaConfig } from "./media";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
@@ -40,12 +41,20 @@ export type ItemMeta<
   readonly extension: Ext;
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
+  readonly media: AnyMediaConfig;
   readonly cloud?: PrimitiveCloudConfig;
   readonly readEntry: () => Promise<ResolvedItemView<Schema, Ext, Rels, false>>;
 };
 
+// Erased entries, so typed items compare structurally, not by variance.
 export type AnyItem = {
-  readonly [QinoPrimitiveMarker]: ItemMeta<ObjectSchema>;
+  readonly [QinoPrimitiveMarker]: Omit<ItemMeta<ObjectSchema>, "readEntry"> & {
+    readonly readEntry: () => Promise<
+      Record<string, unknown> & {
+        [K in typeof META_FIELD_NAME]: ItemEntryMeta;
+      }
+    >;
+  };
   getEntry(options?: GetterOptions<undefined>): Promise<
     Record<string, unknown> & {
       [K in typeof META_FIELD_NAME]: ItemEntryMeta;

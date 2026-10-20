@@ -11,18 +11,6 @@
         "bypassIfAdmin": true
       },
       "branchPrefix": "qino/"
-    },
-    "media": {
-      "accepted": [
-        {
-          "type": "image/webp",
-          "maxSize": 5242880
-        },
-        {
-          "type": "image/png",
-          "maxSize": 5242880
-        }
-      ]
     }
   },
   "collections": {
@@ -60,24 +48,14 @@
         "additionalProperties": false
       },
       "relations": [],
+      "media": {},
       "cloud": {
         "searchableBy": [],
         "sortableBy": [],
         "hiddenFields": [],
         "saveAs": "{firstName}-{lastName}",
         "media": {
-          "saveAs": "{id}/{name}-{hash}",
-          "fields": [],
-          "accepted": [
-            {
-              "type": "image/webp",
-              "maxSize": 5242880
-            },
-            {
-              "type": "image/png",
-              "maxSize": 5242880
-            }
-          ]
+          "saveFileAs": "{id}/{name}-{hash}"
         }
       }
     },
@@ -106,23 +84,13 @@
         "additionalProperties": false
       },
       "relations": [],
+      "media": {},
       "cloud": {
         "searchableBy": [],
         "sortableBy": [],
         "hiddenFields": [],
         "media": {
-          "saveAs": "{id}/{name}-{hash}",
-          "fields": [],
-          "accepted": [
-            {
-              "type": "image/webp",
-              "maxSize": 5242880
-            },
-            {
-              "type": "image/png",
-              "maxSize": 5242880
-            }
-          ]
+          "saveFileAs": "{id}/{name}-{hash}"
         }
       }
     },
@@ -195,6 +163,26 @@
           "cardinality": "many"
         }
       ],
+      "media": {
+        "image": {
+          "accepted": "image/webp",
+          "maxSize": 5242880
+        },
+        "markdown": [
+          {
+            "accepted": "image/webp",
+            "maxSize": 512000
+          },
+          {
+            "accepted": "image/png",
+            "maxSize": 512000
+          },
+          {
+            "accepted": "image/jpeg",
+            "maxSize": 512000
+          }
+        ]
+      },
       "cloud": {
         "searchableBy": [
           "title"
@@ -206,20 +194,7 @@
         "hiddenFields": [],
         "saveAs": "{title}",
         "media": {
-          "saveAs": "posts/{name}-{hash}",
-          "fields": [
-            "image"
-          ],
-          "accepted": [
-            {
-              "type": "image/webp",
-              "maxSize": 5242880
-            },
-            {
-              "type": "image/png",
-              "maxSize": 5242880
-            }
-          ]
+          "saveFileAs": "posts/{field}/{name}-{hash}"
         }
       }
     }
@@ -266,12 +241,11 @@
           "cardinality": "many"
         }
       ],
+      "media": {},
       "cloud": {
         "hiddenFields": [],
         "media": {
-          "saveAs": "{id}/{name}-{hash}",
-          "fields": [],
-          "accepted": []
+          "saveFileAs": "{id}/{name}-{hash}"
         }
       }
     }
@@ -301,23 +275,13 @@
         "additionalProperties": false
       },
       "relations": [],
+      "media": {},
       "cloud": {
         "searchableBy": [],
         "hiddenFields": [],
         "saveAs": "{title}",
         "media": {
-          "saveAs": "{id}/{name}-{hash}",
-          "fields": [],
-          "accepted": [
-            {
-              "type": "image/webp",
-              "maxSize": 5242880
-            },
-            {
-              "type": "image/png",
-              "maxSize": 5242880
-            }
-          ]
+          "saveFileAs": "{id}/{name}-{hash}"
         }
       }
     },
@@ -345,6 +309,7 @@
         "additionalProperties": false
       },
       "relations": [],
+      "media": {},
       "cloud": {
         "searchableBy": [
           "title"
@@ -352,18 +317,7 @@
         "hiddenFields": [],
         "saveAs": "{title}",
         "media": {
-          "saveAs": "{id}/{name}-{hash}",
-          "fields": [],
-          "accepted": [
-            {
-              "type": "image/webp",
-              "maxSize": 5242880
-            },
-            {
-              "type": "image/png",
-              "maxSize": 5242880
-            }
-          ]
+          "saveFileAs": "{id}/{name}-{hash}"
         }
       }
     }

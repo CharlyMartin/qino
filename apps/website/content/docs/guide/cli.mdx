@@ -50,7 +50,9 @@ Reads and validates every content file against its schema:
 - Trees: the full walk, including anchor files and `_order.json` consistency.
 - Items: the single file.
 
-Views, relation resolution, filter, sort, and augment do not run. An empty collection or tree logs a warning but does not fail. Validation errors are reported with the primitive and file path.
+Views, relation resolution, filter, sort, and augment do not run. Image fields of a primitive's [`media`](/docs/concepts/media) are read as getters read them, so an image that's missing or outside `mediaFolder` fails validation. An empty collection or tree logs a warning but does not fail. Validation errors are reported with the primitive and file path.
+
+For primitives with [`media`](/docs/concepts/media), `check` then verifies that each media field and body image follows its rules: a file in `mediaFolder`, of an accepted type, under its `maxSize`. See [Checks](/docs/concepts/media#checks).
 
 With `cloud` set on [`initQino`](/docs/api/init-qino), `check` also verifies that `qino/_generated/config.json` is up to date. See [Config file](#config-file).
 
@@ -130,7 +132,7 @@ Slug types then fall back to `string`. An existing `types.d.ts` is left in place
 
 ### Config file
 
-Set [`cloud`](/docs/guide/cloud) on [`initQino`](/docs/api/init-qino), and `build` also writes `qino/_generated/config.json`: a description of your project that the cloud UI reads without running your code. It lists the config, the cloud config, every primitive keyed by its `directory` (collections, trees) or `file` (items), its body format, its schema as [JSON Schema](https://json-schema.org/draft/2020-12), its relations, and its cloud config:
+Set [`cloud`](/docs/guide/cloud) on [`initQino`](/docs/api/init-qino), and `build` also writes `qino/_generated/config.json`: a description of your project that the cloud UI reads without running your code. It lists the config, the cloud config, every primitive keyed by its `directory` (collections, trees) or `file` (items), its body format, its schema as [JSON Schema](https://json-schema.org/draft/2020-12), its relations, its [media](/docs/concepts/media), and its cloud config:
 
 ```json title="qino/_generated/config.json"
 {
@@ -166,11 +168,12 @@ Set [`cloud`](/docs/guide/cloud) on [`initQino`](/docs/api/init-qino), and `buil
           "cardinality": "one"
         }
       ],
+      "media": {},
       "cloud": {
         "searchableBy": [],
         "sortableBy": [],
         "hiddenFields": [],
-        "media": { "saveAs": "{id}/{name}-{hash}", "fields": [] }
+        "media": { "saveFileAs": "{id}/{name}-{hash}" }
       }
     }
   },

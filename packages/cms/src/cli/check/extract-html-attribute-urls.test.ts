@@ -32,7 +32,20 @@ describe("extractHtmlAttributeUrls", () => {
   test("ignores attribute-like text inside other values", () => {
     expect(
       extractHtmlAttributeUrls(`<img alt='src="/x.png"' src="/y.png">`),
-    ).toEqual([{ url: "/y.png", lineOffset: 0 }]);
+    ).toEqual([{ url: "/y.png", lineOffset: 0, image: true }]);
+  });
+
+  test("flags the src of img only", () => {
+    expect(
+      extractHtmlAttributeUrls(
+        `<img src="/a.png"><video poster="/b.jpg" src="/c.mp4"></video><IMG SRC="/d.png">`,
+      ).map(({ url, image }) => [url, image]),
+    ).toEqual([
+      ["/a.png", true],
+      ["/b.jpg", false],
+      ["/c.mp4", false],
+      ["/d.png", true],
+    ]);
   });
 
   test("ignores other attributes", () => {
@@ -45,8 +58,8 @@ describe("extractHtmlAttributeUrls", () => {
     expect(
       extractHtmlAttributeUrls(`<video\n  poster="/a.jpg"\n  src="/b.mp4">`),
     ).toEqual([
-      { url: "/a.jpg", lineOffset: 1 },
-      { url: "/b.mp4", lineOffset: 2 },
+      { url: "/a.jpg", lineOffset: 1, image: false },
+      { url: "/b.mp4", lineOffset: 2, image: false },
     ]);
   });
 });

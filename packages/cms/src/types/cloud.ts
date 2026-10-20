@@ -1,30 +1,6 @@
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 
-import type { RelationPath } from "./relations";
 import type { ObjectSchema } from "./schema";
-
-type NonZeroDigit = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
-type Digit = "0" | NonZeroDigit;
-type Kilobytes = "50" | `${NonZeroDigit}${"00" | "50"}`;
-type Megabytes = NonZeroDigit | `${NonZeroDigit}${Digit}` | "100";
-
-/** 50–950KB in steps of 50, or 1–100MB, where 1KB = 1024 bytes. */
-export type CloudMediaSize = `${Kilobytes}KB` | `${Megabytes}MB`;
-
-export type CloudMediaType = {
-  /** MIME type, wildcards allowed: `"image/webp"`, `"image/*"`. */
-  readonly type: string;
-  /** Maximum file size, e.g. `"5MB"` or `"600KB"`. */
-  readonly maxSize: CloudMediaSize;
-};
-
-export type CloudMediaConfig = {
-  /**
-   * File types editors can upload. Unset, the cloud UI accepts any type up
-   * to 5 MB. `[]` disables uploads.
-   */
-  readonly accepted?: ReadonlyArray<CloudMediaType>;
-};
 
 export type CloudReviewConfig = {
   /**
@@ -52,7 +28,6 @@ export type CloudPublishConfig =
 
 export type CloudConfig = {
   readonly publish: CloudPublishConfig;
-  readonly media?: CloudMediaConfig;
 };
 
 type Scalar = string | number | boolean | null | undefined;
@@ -185,28 +160,17 @@ export type DisplayEntryAsConfig<
     NoInfer<CheckDisplayEntryAs<DisplayEntryAs, Schema>>;
 };
 
-/** Paths to string fields, as in relations. Any path for non-object inputs. */
-type StringPaths<Schema extends ObjectSchema> =
-  StandardSchemaV1.InferInput<Schema> extends Record<string, unknown>
-    ? RelationPath<StandardSchemaV1.InferInput<Schema>>
-    : string;
-
-export type PrimitiveCloudMediaConfig<Schema extends ObjectSchema> =
-  CloudMediaConfig & {
-    /**
-     * File path an upload is saved to when publishing, relative to
-     * `mediaFolder`, without the extension: the cloud UI adds the uploaded
-     * file's. Tokens: `{id}`, `{name}`, `{hash}`. E.g.
-     * `"posts/{name}-{hash}"` saves `cover.webp` as
-     * `public/posts/cover-1a2b3c4d.webp`. Defaults to `"{id}/{name}-{hash}"`.
-     */
-    readonly saveAs?: string;
-    /**
-     * Fields the cloud UI edits with a media picker, as relation paths:
-     * `"image"`, `"gallery[*]"`, `"seo.image"`. Unset, there's no picker.
-     */
-    readonly fields?: ReadonlyArray<StringPaths<Schema>>;
-  };
+export type PrimitiveCloudMediaConfig = {
+  /**
+   * File path an upload is saved to when publishing, relative to
+   * `mediaFolder`, without the extension: the cloud UI adds the uploaded
+   * file's. Tokens: `{id}`, `{field}`, `{name}`, `{hash}`. E.g.
+   * `"posts/{field}/{name}-{hash}"` saves `cover.webp`, uploaded to the
+   * `cover` field, as `public/posts/cover/cover-1a2b3c4d.webp`. Defaults to
+   * `"{id}/{name}-{hash}"`.
+   */
+  readonly saveFileAs?: string;
+};
 
 export type ItemCloudConfig<Schema extends ObjectSchema> = {
   /**
@@ -215,7 +179,7 @@ export type ItemCloudConfig<Schema extends ObjectSchema> = {
    * items.
    */
   readonly displayAs?: string;
-  readonly media?: PrimitiveCloudMediaConfig<Schema>;
+  readonly media?: PrimitiveCloudMediaConfig;
   /**
    * Fields the cloud UI doesn't show. Only optional fields, so editors can
    * still create entries; existing values are kept on save.
@@ -243,8 +207,5 @@ export type PrimitiveCloudConfig = {
   readonly searchableBy?: ReadonlyArray<string>;
   readonly sortableBy?: ReadonlyArray<string>;
   readonly hiddenFields?: ReadonlyArray<string>;
-  readonly media?: CloudMediaConfig & {
-    readonly saveAs?: string;
-    readonly fields?: ReadonlyArray<string>;
-  };
+  readonly media?: PrimitiveCloudMediaConfig;
 };

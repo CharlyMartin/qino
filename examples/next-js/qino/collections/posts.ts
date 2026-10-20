@@ -27,13 +27,21 @@ export const postCollection = qino.defineCollection({
     author: authorCollection,
     "categories[*]": categoryCollection,
   },
+  media: {
+    image: { accepted: "image/webp", maxSize: "5MB" },
+    markdown: [
+      { accepted: "image/webp", maxSize: "500KB" },
+      { accepted: "image/png", maxSize: "500KB" },
+      { accepted: "image/jpeg", maxSize: "500KB" },
+    ],
+  },
   cloud: {
     saveAs: "{title}",
     displayAs: "Blog posts",
     displayEntryAs: "{title}",
     searchableBy: ["title"],
     sortableBy: ["title", "created-on"],
-    media: { saveAs: "posts/{name}-{hash}", fields: ["image"] },
+    media: { saveFileAs: "posts/{field}/{name}-{hash}" },
   },
   views: (view) => {
     const base = view({ resolveRelations: 1 });

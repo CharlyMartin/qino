@@ -1,6 +1,6 @@
 {
   "name": "@qino/cms",
-  "version": "0.13.1",
+  "version": "0.14.0",
   "description": "The modern headless Markdown CMS",
   "license": "MIT",
   "type": "module",
@@ -63,11 +63,13 @@
     "mdast-util-mdx": "3.0.0",
     "micromark-extension-gfm": "3.0.0",
     "micromark-extension-mdxjs": "3.0.0",
+    "mrmime": "2.0.1",
     "picomatch": "4.0.7",
     "pluralize": "8.0.0",
     "remark-gfm": "4.0.1",
     "remark-mdx": "3.1.1",
     "remark-parse": "11.0.0",
+    "sharp": "0.35.5",
     "tinyglobby": "0.2.17",
     "type-fest": "5.10.0",
     "unified": "11.0.5"

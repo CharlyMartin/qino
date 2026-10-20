@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { acceptedMediaSchema } from "./accepted-media";
-
 /** `false`, or the review settings when review is on. */
 const reviewSchema = z.union([
   z.literal(false),
@@ -21,5 +19,4 @@ export const cloudConfigSchema = z.object({
       reviewBeforePublish: reviewSchema,
     }),
   ]),
-  media: z.object({ accepted: acceptedMediaSchema }).optional(),
 });

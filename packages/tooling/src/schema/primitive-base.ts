@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { bodySchema } from "./body";
+import { mediaSchema } from "./media";
 import { relationSchema } from "./relation";
 
 /**
@@ -12,4 +13,5 @@ export const primitiveBaseSchema = z.object({
   body: bodySchema,
   schema: z.record(z.string(), z.unknown()),
   relations: z.array(relationSchema),
+  media: mediaSchema,
 });

@@ -40,13 +40,13 @@ describe("assertMediaFields", () => {
 
   test("rejects a malformed path", () => {
     expect(() => assert(["seo..image"])).toThrow(
-      'media.fields "seo..image" of "posts" isn\'t a valid path: Invalid relation path "seo..image": empty segment.',
+      'media "seo..image" of "posts" isn\'t a valid path: Invalid relation path "seo..image": empty segment.',
     );
   });
 
   test("rejects a path missing from the schema input", () => {
     expect(() => assert(["thumbnail"])).toThrow(
-      'media.fields "thumbnail" of "posts" isn\'t a field of its schema input. Use the on-disk field name.',
+      'media "thumbnail" of "posts" isn\'t a field of its schema input. Use the on-disk field name.',
     );
   });
 
@@ -54,14 +54,14 @@ describe("assertMediaFields", () => {
     "rejects non-string field %s",
     (field) => {
       expect(() => assert([field])).toThrow(
-        `media.fields "${field}" of "posts" isn't a string on disk.`,
+        `media "${field}" of "posts" isn't a string on disk.`,
       );
     },
   );
 
   test("rejects a relation path", () => {
     expect(() => assert(["author"], ["author"])).toThrow(
-      'media.fields "author" of "posts" is also a relation. A field holds either a media URL or a reference.',
+      'media "author" of "posts" is also a relation. A field holds either a media URL or a reference.',
     );
   });
 
@@ -83,7 +83,7 @@ describe("assertMediaFields", () => {
         jsonSchema: schema,
         primitiveId: "posts",
       }),
-    ).toThrow('media.fields "seo.image" of "posts" isn\'t a string on disk.');
+    ).toThrow('media "seo.image" of "posts" isn\'t a string on disk.');
   });
 
   test("accepts a field an intersection narrows to a string", () => {

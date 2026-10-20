@@ -1,0 +1,43 @@
+---
+title: QinoImage
+description: An image field once read, shaped like Next's StaticImageData.
+---
+
+Fields a primitive's [`media`](/docs/concepts/media) declares as images are read as a `QinoImage`, not a URL.
+
+```ts title="@qino/cms"
+import type { QinoImage } from "@qino/cms";
+
+type QinoImage = {
+  src: string;
+  width: number;
+  height: number;
+  blurDataURL?: string;
+  blurWidth?: number;
+  blurHeight?: number;
+};
+```
+
+## Fields
+
+| Field         | Description                                                                 |
+| ------------- | --------------------------------------------------------------------------- |
+| `src`         | The URL stored in the file, starting with `/`                               |
+| `width`       | Width in pixels, with EXIF orientation applied                              |
+| `height`      | Height in pixels, with EXIF orientation applied                             |
+| `blurDataURL` | A base64 data URL of the image, 8px on its long side. JPEG, PNG, WebP, AVIF |
+| `blurWidth`   | Width of the blur image. JPEG, PNG, WebP, AVIF                              |
+| `blurHeight`  | Height of the blur image. JPEG, PNG, WebP, AVIF                             |
+
+It's assignable to Next's `StaticImageData`, so it can be passed as `src` to `next/image`.
+
+## Example
+
+```tsx title="src/components/cover.tsx"
+import type { QinoImage } from "@qino/cms";
+import Image from "next/image";
+
+export function Cover({ image }: { image: QinoImage }) {
+  return <Image src={image} alt="" placeholder="blur" />;
+}
+```

@@ -39,9 +39,9 @@ export function createConfigFile({
       mediaFolder: toPortablePath(context.mediaFolder, cwd),
     },
     cloud: serializeCloudConfig(cloud),
-    collections: serializePrimitives(collections, cloud),
-    items: serializePrimitives(items, cloud),
-    trees: serializePrimitives(trees, cloud),
+    collections: serializePrimitives(collections),
+    items: serializePrimitives(items),
+    trees: serializePrimitives(trees),
   };
 
   return `${JSON.stringify(config, null, 2)}\n`;

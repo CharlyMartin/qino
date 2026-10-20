@@ -1,8 +1,10 @@
 import { consola } from "consola";
 
+import { QinoPrimitiveMarker } from "../../data/globals";
 import type { Loaded } from "../load/load";
 import { assertConfigFileFresh } from "./assert-config-file-fresh";
 import { assertInputValuesMatch } from "./assert-input-values-match";
+import { assertMediaConstraints } from "./assert-media-constraints";
 import { assertMediaExists } from "./assert-media-exists";
 import { validateCollection } from "./validate-collection";
 import { validateItem } from "./validate-item";
@@ -25,9 +27,17 @@ export async function check(
 
   consola.success("All content passes schema validation.");
 
+  const primitives = [...collections, ...items, ...trees];
+  await assertMediaConstraints(primitives, context.mediaFolder);
+  if (
+    primitives.some((p) => Object.keys(p[QinoPrimitiveMarker].media).length)
+  ) {
+    consola.success("All media files follow their media rules.");
+  }
+
   if (context.cloud) {
     // Relation fields and titleField must be what's on disk for config.json.
-    for (const primitive of [...collections, ...items, ...trees]) {
+    for (const primitive of primitives) {
       await assertInputValuesMatch(primitive);
     }
 

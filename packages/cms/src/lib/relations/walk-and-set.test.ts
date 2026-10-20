@@ -127,6 +127,15 @@ describe("walkAndSet", () => {
     expect(result).toBe(value);
   });
 
+  test.each([null, undefined])(
+    "returns %s unchanged at an array segment",
+    async (value) => {
+      const segments: Array<Segment> = [{ kind: "array" }];
+
+      expect(await walkAndSet({ value, segments, setLeaf: upper })).toBe(value);
+    },
+  );
+
   test("throws with [*] and the typeof when an array segment hits a non-array", async () => {
     const segments: Array<Segment> = [{ kind: "array" }];
 

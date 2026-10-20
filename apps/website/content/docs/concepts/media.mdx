@@ -1,0 +1,115 @@
+---
+title: Media
+description: Declare media fields, read images ready for next/image, and check media files with qino check.
+---
+
+`media` declares which fields hold media files, the type each one accepts, and its maximum size. Image fields are read as objects with their dimensions and a blur placeholder, ready for [`next/image`](https://nextjs.org/docs/app/api-reference/components/image). `qino check` verifies every media file follows its rules.
+
+## Declaring
+
+`media` maps a path in the schema output to the one MIME type the field accepts and its `maxSize`:
+
+```ts title="qino/collections/posts.ts"
+export const postCollection = qino.defineCollection({
+  directory: "posts",
+  extension: ".md",
+  schema: z.object({
+    title: z.string(),
+    cover: z.string(),
+    gallery: z.array(z.string()),
+    attachment: z.string().optional(),
+  }),
+  media: {
+    cover: { accepted: "image/webp", maxSize: "5MB" },
+    "gallery[*]": { accepted: "image/png", maxSize: "2MB" },
+    attachment: { accepted: "application/pdf", maxSize: "10MB" },
+    markdown: [
+      { accepted: "image/webp", maxSize: "1MB" },
+      { accepted: "image/png", maxSize: "2MB" },
+      { accepted: "image/jpeg", maxSize: "2MB" },
+    ],
+  },
+});
+```
+
+Paths use the [relation path](/docs/concepts/relations#declaring) syntax: `"cover"`, `"gallery[*]"` for each string of an array, `"seo.image"` for an object field. Each path must lead to a string, and can't also be a relation: a field holds either a media URL or a reference. An unknown path is a type error.
+
+`accepted` is one exact MIME type, such as `"image/webp"` or `"application/pdf"`. Wildcards like `"image/*"` aren't accepted, so a file's type is always known from its extension. `maxSize` goes from `"50KB"` to `"950KB"` in steps of 50, or `"1MB"` to `"100MB"`, where 1KB is 1024 bytes. Anything else, like `"1.5MB"` or `"25KB"`, is a type error.
+
+`markdown` checks the images embedded in the body. See [Body images](#body-images).
+
+Content stores the URL the file is served at, starting with `/`: with `mediaFolder: "public"`, `/images/cover.webp` is the file `public/images/cover.webp`.
+
+```yaml title="src/content/posts/hello-world.md"
+cover: /images/cover.webp
+gallery:
+  - /images/one.png
+  - /images/two.png
+attachment: /files/guide.pdf
+```
+
+## Image fields
+
+A field is an image field when it accepts a type Next imports as an image: `image/png`, `image/jpeg`, `image/gif`, `image/webp`, `image/avif`, or `image/svg+xml`. BMP and ICO files stay strings: sharp can't read them. When an entry is read, Qino reads the image from `mediaFolder` and replaces its URL with a `QinoImage`:
+
+```ts
+post.cover;
+// {
+//   src: "/images/cover.webp",
+//   width: 1600,
+//   height: 900,
+//   blurDataURL: "data:image/webp;base64,...",
+//   blurWidth: 8,
+//   blurHeight: 5,
+// }
+```
+
+| Field         | Type     | Description                                                           |
+| ------------- | -------- | --------------------------------------------------------------------- |
+| `src`         | `string` | The URL in the file, unchanged                                        |
+| `width`       | `number` | Width in pixels, with EXIF orientation applied                        |
+| `height`      | `number` | Height in pixels, with EXIF orientation applied                       |
+| `blurDataURL` | `string` | A tiny copy of the image, as a base64 data URL. JPEG, PNG, WebP, AVIF |
+| `blurWidth`   | `number` | Width of the blur image: 8px on the long side. JPEG, PNG, WebP, AVIF  |
+| `blurHeight`  | `number` | Height of the blur image, at least 1px. JPEG, PNG, WebP, AVIF         |
+
+The blur follows Next's own static imports: GIF and SVG images get no blur fields. The shape matches Next's `StaticImageData`, so it goes straight into `next/image`:
+
+```tsx title="src/app/posts/[slug]/page.tsx"
+import Image from "next/image";
+
+const post = await postCollection.getEntry(slug);
+
+return <Image src={post.cover} alt="" placeholder="blur" />;
+```
+
+The output type follows: `post.cover` is `QinoImage`, `post.gallery` is `Array<QinoImage>`, and an optional or nullable field keeps its `undefined` or `null`. Fields of other types, like `attachment` above, stay strings. Image fields of [related entries](/docs/concepts/relations) are read the same way.
+
+Images are read with [sharp](https://sharp.pixelplumbing.com), loaded only when an entry has an image field. Results are cached by file and modification time, so an image shared by many entries is read once, and a changed file is read again.
+
+Reading an entry fails when an image field holds a URL outside `mediaFolder`, such as `https://example.com/a.png`, a file that doesn't exist, or a file of another type or over its `maxSize`. So `next dev` and `next build` catch a mismatched image even without `qino check`. `null` and missing values are left as they are.
+
+## Body images
+
+`markdown` lists the files the body can embed, as rules: an image must match one rule's type and stay under its `maxSize`. Like a field, each rule accepts one exact MIME type: list one rule per type, even when they share a `maxSize`. It's checked by [`qino check`](/docs/guide/cli#media) only: the body isn't changed when read.
+
+Only images are checked: `![](/a.png)`, reference images like `![][logo]`, and the `src` of `<img>` and, in MDX, `<Image>`. Links, `<video>`, and external URLs are left out. JSON files have no body, so `markdown` on a JSON primitive is a type error, and throws at definition when set from JavaScript.
+
+## Checks
+
+`qino check` verifies, for every entry:
+
+- Each media field holds a URL in `mediaFolder` to a file that exists, of its `accepted` type, and under its `maxSize`.
+- Each body image matches one `markdown` rule, by type and size.
+
+It lists every file that breaks a rule:
+
+```txt
+Error: 2 media files break their media rules:
+  - src/content/posts/a.md (cover) → /images/cover.png is image/png, but only image/webp is accepted.
+  - src/content/posts/a.md (line 12) → /images/diagram.png is 2.4MB, over the 2MB limit.
+```
+
+`qino check` and `qino build` also fail on an `accepted` type that isn't a known MIME type, a `markdown` rule without types, or a `maxSize` out of range, for config passed from JavaScript or a widened `string`.
+
+With [`cloud`](/docs/guide/cloud#media-fields) set, `media` is written to `config.json`, so the cloud UI offers a media picker for each field and accepts the same files. Paths must then be fields of the schema input too, as with relations.
