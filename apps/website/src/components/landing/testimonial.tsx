@@ -31,7 +31,7 @@ export function Testimonial({
           width={40}
           height={40}
           loading="lazy"
-          className="size-10 shrink-0 rounded-full"
+          className="size-10 shrink-0 rounded-full border border-primary p-0.5"
         />
         <div>
           <p className="text-sm font-medium">
