@@ -1,9 +1,9 @@
 import matter from "gray-matter";
 
+import { isLocalMediaUrl } from "../../lib/media/is-local-media-url";
+import { normalizeMediaUrl } from "../../lib/media/normalize-media-url";
 import { parseYaml } from "../../lib/parse/parse-yaml";
 import { collectStrings } from "./collect-strings";
-import { isLocalMediaUrl } from "./is-local-media-url";
-import { normalizeMediaUrl } from "./normalize-media-url";
 import { scanMarkdownBody } from "./scan-markdown-body";
 
 export function extractMediaLinks(raw: string, extension: string) {
@@ -20,6 +20,7 @@ export function extractMediaLinks(raw: string, extension: string) {
   const candidates = collectStrings(parsed.data).map((url) => ({
     url,
     line: head.slice(0, Math.max(head.indexOf(url), 0)).split("\n").length,
+    image: false,
   }));
 
   if (!isJson) {
@@ -36,13 +37,21 @@ export function extractMediaLinks(raw: string, extension: string) {
     }
   }
 
-  const links = new Map<string, { url: string; line: number }>();
+  const links = new Map<
+    string,
+    { url: string; line: number; image: boolean }
+  >();
 
-  for (const { url, line } of candidates) {
+  for (const { url, line, image } of candidates) {
     if (!isLocalMediaUrl(url)) continue;
 
     const normalized = normalizeMediaUrl(url);
-    links.set(`${line}:${normalized}`, { url: normalized, line });
+    const key = `${line}:${normalized}`;
+    links.set(key, {
+      url: normalized,
+      line,
+      image: image || (links.get(key)?.image ?? false),
+    });
   }
 
   return [...links.values()].sort((a, b) => a.line - b.line);
