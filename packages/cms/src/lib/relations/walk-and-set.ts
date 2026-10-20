@@ -18,6 +18,9 @@ export async function walkAndSet({
   }
 
   if (head.kind == "array") {
+    // A nullable array stays as is, like a null object at a key segment.
+    if (value == null) return value;
+
     if (!Array.isArray(value)) {
       throw new Error(
         `Expected array at "${JSON_PATH_ARRAY}" segment; got ${typeof value}.`,
