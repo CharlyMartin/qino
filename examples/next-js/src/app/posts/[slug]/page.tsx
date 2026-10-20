@@ -30,13 +30,12 @@ export default async function PostPage({ params }: PostPageProps) {
       >
         {"< All posts"}
       </Link>
-      <div className="relative mb-8 aspect-video w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-900">
+      <div className="mb-8 aspect-video w-full overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-900">
         <Image
           src={post.image}
           alt=""
-          fill
           sizes="(min-width: 768px) 768px, 100vw"
-          className="object-cover"
+          placeholder="blur"
           priority
         />
       </div>

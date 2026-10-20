@@ -8,11 +8,5 @@ export default initQino({
       mode: "open_pull_request",
       reviewBeforePublish: { bypassIfAdmin: true },
     },
-    media: {
-      accepted: [
-        { type: "image/webp", maxSize: "5MB" },
-        { type: "image/png", maxSize: "5MB" },
-      ],
-    },
   },
 });
