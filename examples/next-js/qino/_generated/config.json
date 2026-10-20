@@ -53,7 +53,7 @@
         "searchableBy": [],
         "sortableBy": [],
         "hiddenFields": [],
-        "saveAs": "{firstName}-{lastName}",
+        "saveEntryAs": "{firstName}-{lastName}",
         "media": {
           "saveFileAs": "{id}/{name}-{hash}"
         }
@@ -192,7 +192,7 @@
           "created-on"
         ],
         "hiddenFields": [],
-        "saveAs": "{title}",
+        "saveEntryAs": "{title}",
         "media": {
           "saveFileAs": "posts/{field}/{name}-{hash}"
         }
@@ -279,7 +279,7 @@
       "cloud": {
         "searchableBy": [],
         "hiddenFields": [],
-        "saveAs": "{title}",
+        "saveEntryAs": "{title}",
         "media": {
           "saveFileAs": "{id}/{name}-{hash}"
         }
@@ -315,7 +315,7 @@
           "title"
         ],
         "hiddenFields": [],
-        "saveAs": "{title}",
+        "saveEntryAs": "{title}",
         "media": {
           "saveFileAs": "{id}/{name}-{hash}"
         }

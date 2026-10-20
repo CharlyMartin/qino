@@ -13,7 +13,7 @@ export const docsTreeV1 = qino.defineTree({
   schema: DocsSchema,
   extension: ".mdx",
   titleField: "title",
-  cloud: { saveAs: "{title}" },
+  cloud: { saveEntryAs: "{title}" },
 });
 
 export const docsTree = qino.defineTree({
@@ -21,5 +21,5 @@ export const docsTree = qino.defineTree({
   schema: DocsSchema,
   extension: ".mdx",
   titleField: "title",
-  cloud: { saveAs: "{title}", searchableBy: ["title"] },
+  cloud: { saveEntryAs: "{title}", searchableBy: ["title"] },
 });
