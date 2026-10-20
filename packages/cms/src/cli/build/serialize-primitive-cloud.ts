@@ -5,14 +5,14 @@ import type { AnyPrimitive } from "../../types/utils";
 import { assertCloudFields } from "./assert-cloud-fields";
 import { assertDisplayAs } from "./assert-display-as";
 import { assertDisplayEntryAs } from "./assert-display-entry-as";
-import { assertEntrySaveAs } from "./assert-entry-save-as";
+import { assertSaveEntryAs } from "./assert-save-entry-as";
 import { assertSaveFileAs } from "./assert-save-file-as";
 
 /**
  * Describes a primitive's `cloud` in `config.json`, fully resolved so the
  * cloud UI doesn't reimplement defaults: `media.saveFileAs` defaults, and
  * lists default to `[]`. Every primitive gets media and hidden fields;
- * collections and trees add search and `saveAs` (left out when unset), and
+ * collections and trees add search and `saveEntryAs` (left out when unset), and
  * collections sort. `displayAs` and `displayEntryAs` are checked here but
  * written top-level by `serializePrimitive`.
  */
@@ -33,9 +33,9 @@ export function serializePrimitiveCloud(
   const hiddenFields = cloud.hiddenFields ?? [];
 
   if (isItem(primitive)) {
-    if (cloud.saveAs != undefined) {
+    if (cloud.saveEntryAs != undefined) {
       throw new Error(
-        `saveAs of "${primitiveId}" names new entries, but an item is a single file.`,
+        `saveEntryAs of "${primitiveId}" names new entries, but an item is a single file.`,
       );
     }
     if (cloud.displayEntryAs != undefined) {
@@ -48,9 +48,10 @@ export function serializePrimitiveCloud(
   }
 
   const searchableBy = cloud.searchableBy ?? [];
-  const { saveAs } = cloud;
-  if (saveAs != undefined) assertEntrySaveAs(saveAs, jsonSchema, primitiveId);
-  const entrySaveAs = saveAs != undefined && { saveAs };
+  const { saveEntryAs } = cloud;
+  if (saveEntryAs != undefined)
+    assertSaveEntryAs(saveEntryAs, jsonSchema, primitiveId);
+  const withSaveEntryAs = saveEntryAs != undefined && { saveEntryAs };
 
   if (isCollection(primitive)) {
     const sortableBy = cloud.sortableBy ?? [];
@@ -59,9 +60,15 @@ export function serializePrimitiveCloud(
       jsonSchema,
       primitiveId,
     );
-    return { searchableBy, sortableBy, hiddenFields, ...entrySaveAs, media };
+    return {
+      searchableBy,
+      sortableBy,
+      hiddenFields,
+      ...withSaveEntryAs,
+      media,
+    };
   }
 
   assertCloudFields({ searchableBy, hiddenFields }, jsonSchema, primitiveId);
-  return { searchableBy, hiddenFields, ...entrySaveAs, media };
+  return { searchableBy, hiddenFields, ...withSaveEntryAs, media };
 }

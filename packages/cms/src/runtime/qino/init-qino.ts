@@ -53,7 +53,7 @@ export function initQino(config: QinoConfig) {
       Rels extends Relations<S> = object,
       Dir extends ContentPath = ContentPath,
       const Views extends object = object,
-      const SaveAs extends string = never,
+      const SaveEntryAs extends string = never,
       const DisplayEntryAs extends string = never,
       const Media extends MediaConfig<S, Ext> = EmptyObject,
     >(
@@ -63,7 +63,7 @@ export function initQino(config: QinoConfig) {
         Rels,
         Dir,
         Views,
-        SaveAs,
+        SaveEntryAs,
         DisplayEntryAs,
         Media
       >,
@@ -99,7 +99,7 @@ export function initQino(config: QinoConfig) {
       Rels extends Relations<S> = object,
       Dir extends ContentPath = ContentPath,
       const Views extends object = object,
-      const SaveAs extends string = never,
+      const SaveEntryAs extends string = never,
       const DisplayEntryAs extends string = never,
       const Media extends MediaConfig<S, Ext> = EmptyObject,
     >(
@@ -110,7 +110,7 @@ export function initQino(config: QinoConfig) {
         Rels,
         Dir,
         Views,
-        SaveAs,
+        SaveEntryAs,
         DisplayEntryAs,
         Media
       >,

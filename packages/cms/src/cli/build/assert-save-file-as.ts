@@ -1,18 +1,18 @@
 import { MEDIA_PATH_TOKENS } from "../../data/globals";
-import { getPathTokens } from "./get-path-tokens";
+import { getTemplateTokens } from "./get-template-tokens";
 
 /**
  * Fails on a `cloud.media.saveFileAs` the cloud UI can't fill in or that escapes
  * `mediaFolder`: unknown tokens, a `.` in the file name (the cloud UI adds
  * the extension), no file name, a leading `/`, or `..`.
  */
-export function assertSaveFileAs(saveAs: string, primitiveId: string) {
-  const prefix = `cloud.media.saveFileAs "${saveAs}" of "${primitiveId}"`;
+export function assertSaveFileAs(saveFileAs: string, primitiveId: string) {
+  const prefix = `cloud.media.saveFileAs "${saveFileAs}" of "${primitiveId}"`;
 
-  const segments = saveAs.split("/");
+  const segments = saveFileAs.split("/");
   const fileName = segments.at(-1) ?? "";
 
-  if (saveAs.startsWith("/") || segments.includes("..")) {
+  if (saveFileAs.startsWith("/") || segments.includes("..")) {
     throw new Error(
       `${prefix} must be relative to mediaFolder, without a leading "/" or "..".`,
     );
@@ -28,7 +28,7 @@ export function assertSaveFileAs(saveAs: string, primitiveId: string) {
     );
   }
 
-  for (const token of getPathTokens(saveAs)) {
+  for (const token of getTemplateTokens(saveFileAs)) {
     if (!MEDIA_PATH_TOKENS.includes(token as never)) {
       throw new Error(
         `${prefix} has an unknown token "{${token}}". Use ${MEDIA_PATH_TOKENS.map((name) => `{${name}}`).join(", ")}.`,

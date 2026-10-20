@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { assertEntrySaveAs } from "./assert-entry-save-as";
+import { assertSaveEntryAs } from "./assert-save-entry-as";
 import { serializeJsonSchema } from "./serialize-json-schema";
 
 const jsonSchema = serializeJsonSchema(
@@ -17,49 +17,49 @@ const jsonSchema = serializeJsonSchema(
   "authors",
 );
 
-function assert(saveAs: string, schema = jsonSchema) {
-  assertEntrySaveAs(saveAs, schema, "authors");
+function assert(saveEntryAs: string, schema = jsonSchema) {
+  assertSaveEntryAs(saveEntryAs, schema, "authors");
 }
 
-describe("assertEntrySaveAs", () => {
+describe("assertSaveEntryAs", () => {
   test.each([
     "{firstName}-{lastName}",
     "author-{lastName}-{age}",
     "{created-on}-{firstName}",
-  ])("accepts %s", (saveAs) => {
-    expect(() => assert(saveAs)).not.toThrow();
+  ])("accepts %s", (saveEntryAs) => {
+    expect(() => assert(saveEntryAs)).not.toThrow();
   });
 
   test("needs a token", () => {
     expect(() => assert("author")).toThrow(
-      'saveAs "author" of "authors" needs at least one {field}.',
+      'saveEntryAs "author" of "authors" needs at least one {field}.',
     );
   });
 
   test.each(["people/{lastName}", "{lastName}.json", "../{lastName}"])(
     "rejects folders and extensions: %s",
-    (saveAs) => {
-      expect(() => assert(saveAs)).toThrow(
-        `saveAs "${saveAs}" of "authors" can't contain "/" or ".": the cloud UI adds the extension and, in trees, the parent folder.`,
+    (saveEntryAs) => {
+      expect(() => assert(saveEntryAs)).toThrow(
+        `saveEntryAs "${saveEntryAs}" of "authors" can't contain "/" or ".": the cloud UI adds the extension and, in trees, the parent folder.`,
       );
     },
   );
 
   test("rejects an unknown field", () => {
     expect(() => assert("{nope}")).toThrow(
-      'saveAs "{nope}" of "authors" has an unknown field "{nope}". Use a top-level field of its schema input.',
+      'saveEntryAs "{nope}" of "authors" has an unknown field "{nope}". Use a top-level field of its schema input.',
     );
   });
 
   test("rejects a non-scalar field", () => {
     expect(() => assert("{tags}")).toThrow(
-      'saveAs "{tags}" of "authors" uses "{tags}", which isn\'t a string, number, or boolean on disk.',
+      'saveEntryAs "{tags}" of "authors" uses "{tags}", which isn\'t a string, number, or boolean on disk.',
     );
   });
 
   test.each(["company", "role"])("rejects optional field %s", (field) => {
     expect(() => assert(`{${field}}`)).toThrow(
-      `saveAs "{${field}}" of "authors" uses "{${field}}", which is optional, so entries could get an empty name. Use a required field.`,
+      `saveEntryAs "{${field}}" of "authors" uses "{${field}}", which is optional, so entries could get an empty name. Use a required field.`,
     );
   });
 
