@@ -18,11 +18,11 @@ describe("extractMediaLinks", () => {
     ].join("\n");
 
     expect(extractMediaLinks(raw, ".md")).toEqual([
-      { url: "/images/cover.png", line: 3 },
-      { url: "/images/one.jpg", line: 5 },
-      { url: "/images/inline.png", line: 8 },
-      { url: "/videos/clip.mp4", line: 9 },
-      { url: "/files/my doc.pdf", line: 10 },
+      { url: "/images/cover.png", line: 3, image: false },
+      { url: "/images/one.jpg", line: 5, image: false },
+      { url: "/images/inline.png", line: 8, image: true },
+      { url: "/videos/clip.mp4", line: 9, image: false },
+      { url: "/files/my doc.pdf", line: 10, image: false },
     ]);
   });
 
@@ -37,13 +37,13 @@ describe("extractMediaLinks", () => {
     ].join("\n");
 
     expect(extractMediaLinks(raw, ".md")).toEqual([
-      { url: "/real.png", line: 6 },
+      { url: "/real.png", line: 6, image: true },
     ]);
   });
 
   test("reports body lines without frontmatter", () => {
     expect(extractMediaLinks("Hi\n\n![](/a.png)", ".markdown")).toEqual([
-      { url: "/a.png", line: 3 },
+      { url: "/a.png", line: 3, image: true },
     ]);
   });
 
@@ -81,14 +81,14 @@ describe("extractMediaLinks", () => {
     );
 
     expect(extractMediaLinks(raw, ".json")).toEqual([
-      { url: "/about", line: 3 },
-      { url: "/a.webp", line: 6 },
+      { url: "/about", line: 3, image: false },
+      { url: "/a.webp", line: 6, image: false },
     ]);
   });
 
   test("deduplicates the same url on the same line", () => {
     expect(
       extractMediaLinks(`<img src="/a.png" /> ![](/a.png)`, ".md"),
-    ).toEqual([{ url: "/a.png", line: 1 }]);
+    ).toEqual([{ url: "/a.png", line: 1, image: true }]);
   });
 });
