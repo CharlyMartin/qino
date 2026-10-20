@@ -7,6 +7,8 @@ import {
   QinoPrimitives,
 } from "../../data/globals";
 import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
+import { assertMediaConfig } from "../../lib/media/assert-media-config";
+import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { extractExtension } from "../../lib/paths/extract-extension";
@@ -23,10 +25,15 @@ import type {
   ItemFile,
   ResolvedItemView,
 } from "../../types/item";
+import type {
+  CheckMediaKeys,
+  MediaConfig,
+  TaggedRelations,
+} from "../../types/media";
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
-import type { NoLeadingSlash } from "../../types/utils";
+import type { EmptyObject, NoLeadingSlash } from "../../types/utils";
 import type {
   ConfiguredViews,
   RootViewSettings,
@@ -44,14 +51,22 @@ export type DefineItemParams<
   F extends ItemFile,
   Rels extends Relations<Schema> = object,
   Views extends object = object,
+  Media extends MediaConfig<Schema, ExtractItemExtension<F>> = EmptyObject,
 > = {
   file: F & NoInfer<NoLeadingSlash<F>>;
   schema: Schema &
     NoInfer<NoReservedSchemaFields<Schema, ExtractItemExtension<F>>>;
   relations?: Rels;
+  /** Media fields, keyed by path. Image fields are read as `QinoImage`. */
+  media?: Media &
+    NoInfer<CheckMediaKeys<Media, Schema, ExtractItemExtension<F>>>;
   views?: ViewsConfig<
     Views,
-    ViewFactory<Schema, ItemEntryMeta<ExtractItemExtension<F>>, Rels>
+    ViewFactory<
+      Schema,
+      ItemEntryMeta<ExtractItemExtension<F>>,
+      TaggedRelations<Rels, Media>
+    >
   >;
   cloud?: NoInfer<ItemCloudConfig<Schema>>;
 } & RootViewSettings;
@@ -61,14 +76,22 @@ export function defineItem<
   F extends ItemFile,
   Rels extends Relations<S> = object,
   const Views extends object = object,
->(ctx: QinoContext, params: DefineItemParams<S, F, Rels, Views>) {
-  const { file, schema, relations, cloud } = params;
+  const Media extends MediaConfig<S, ExtractItemExtension<F>> = EmptyObject,
+>(ctx: QinoContext, params: DefineItemParams<S, F, Rels, Views, Media>) {
+  type MediaRels = TaggedRelations<Rels, Media>;
+  const { file, schema, relations, media = {}, cloud } = params;
   assertContentPath(file, "file");
   assertCloudEnabled(ctx, cloud, file);
 
   type Ext = ExtractItemExtension<F>;
   const extension = extractExtension(file) as Ext;
-  const itemRelations = (relations ?? {}) as Rels;
+  const itemRelations = (relations ?? {}) as MediaRels;
+  assertMediaConfig({
+    media,
+    relations: itemRelations,
+    extension,
+    primitiveId: file,
+  });
   assertNoRootViewSettings(params);
   const views = buildViews(params.views, "item");
   const defaultResolve = views?.default.resolveRelations ?? false;
@@ -88,11 +111,12 @@ export function defineItem<
       extension,
       relations: itemRelations,
       resolveRelations: defaultResolve,
+      media,
       cloud,
       readEntry,
     },
     getEntry,
-  } as const satisfies Item<S, Ext, Rels, ConfiguredViews<Views>>;
+  } as const satisfies Item<S, Ext, MediaRels, ConfiguredViews<Views>>;
 
   return item;
 
@@ -101,7 +125,7 @@ export function defineItem<
 
     const raw = await fs.readFile(absoluteFilePath, "utf-8");
 
-    return {
+    const entry = {
       [META_FIELD_NAME]: meta,
       ...parseFile({
         schema,
@@ -109,7 +133,13 @@ export function defineItem<
         filePath: absoluteFilePath,
         validatorFn: validate,
       }),
-    } as ResolvedItemView<S, Ext, Rels, false>;
+    };
+    return (await resolveEntryMedia({
+      entry,
+      media,
+      mediaFolder: ctx.mediaFolder,
+      filePath: absoluteFilePath,
+    })) as ResolvedItemView<S, Ext, MediaRels, false>;
   }
 
   async function getEntry<
@@ -126,7 +156,7 @@ export function defineItem<
     return result as SelectedView<
       S,
       ItemEntryMeta<Ext>,
-      Rels,
+      MediaRels,
       ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;

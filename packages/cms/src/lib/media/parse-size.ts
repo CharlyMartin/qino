@@ -3,7 +3,7 @@ const KB = 1024;
 const MB = 1024 * KB;
 
 /**
- * Converts a `CloudMediaSize` such as `"5MB"` to bytes (1KB = 1024 bytes).
+ * Converts a `MediaSize` such as `"5MB"` to bytes (1KB = 1024 bytes).
  * Returns `undefined` when it isn't 50–950KB in steps of 50, or 1–100MB.
  */
 export function parseSize(size: string) {

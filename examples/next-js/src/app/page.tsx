@@ -33,6 +33,7 @@ export default async function Home() {
                     src={post.image}
                     alt=""
                     fill
+                    placeholder="blur"
                     sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
                     className="object-cover"
                   />

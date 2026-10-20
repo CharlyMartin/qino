@@ -8,6 +8,8 @@ import {
   QinoPrimitives,
 } from "../../data/globals";
 import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
+import { assertMediaConfig } from "../../lib/media/assert-media-config";
+import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
@@ -21,6 +23,11 @@ import type {
   EntrySaveAsConfig,
   TreeCloudConfig,
 } from "../../types/cloud";
+import type {
+  CheckMediaKeys,
+  MediaConfig,
+  TaggedRelations,
+} from "../../types/media";
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
@@ -33,6 +40,7 @@ import type {
 } from "../../types/tree";
 import type {
   ContentPath,
+  EmptyObject,
   NoLeadingSlash,
   Slug,
   SupportedFileExtension,
@@ -61,6 +69,7 @@ export type DefineTreeParams<
   Views extends object = object,
   SaveAs extends string = never,
   DisplayEntryAs extends string = never,
+  Media extends MediaConfig<Schema, Ext> = EmptyObject,
 > = {
   directory: Dir & NoInfer<NoLeadingSlash<Dir>>;
   schema: Schema & NoInfer<NoReservedSchemaFields<Schema, Ext>>;
@@ -68,7 +77,12 @@ export type DefineTreeParams<
   titleField: Title;
   orderFileName?: string;
   relations?: Rels;
-  views?: ViewsConfig<Views, ViewFactory<Schema, TreeEntryMeta<Ext>, Rels>>;
+  /** Media fields, keyed by path. Image fields are read as `QinoImage`. */
+  media?: Media & NoInfer<CheckMediaKeys<Media, Schema, Ext>>;
+  views?: ViewsConfig<
+    Views,
+    ViewFactory<Schema, TreeEntryMeta<Ext>, TaggedRelations<Rels, Media>>
+  >;
   cloud?: NoInfer<TreeCloudConfig<Schema>> &
     EntrySaveAsConfig<SaveAs, Schema> &
     DisplayEntryAsConfig<DisplayEntryAs, Schema>;
@@ -83,6 +97,7 @@ export function defineTree<
   const Views extends object = object,
   const SaveAs extends string = never,
   const DisplayEntryAs extends string = never,
+  const Media extends MediaConfig<S, Ext> = EmptyObject,
 >(
   ctx: QinoContext,
   params: DefineTreeParams<
@@ -93,9 +108,11 @@ export function defineTree<
     Dir,
     Views,
     SaveAs,
-    DisplayEntryAs
+    DisplayEntryAs,
+    Media
   >,
 ) {
+  type MediaRels = TaggedRelations<Rels, Media>;
   const {
     directory,
     schema,
@@ -103,12 +120,19 @@ export function defineTree<
     titleField,
     orderFileName,
     relations,
+    media = {},
     cloud,
   } = params;
   assertContentPath(directory, "directory");
   assertCloudEnabled(ctx, cloud, directory);
 
-  const treeRelations = (relations ?? {}) as Rels;
+  const treeRelations = (relations ?? {}) as MediaRels;
+  assertMediaConfig({
+    media,
+    relations: treeRelations,
+    extension,
+    primitiveId: directory,
+  });
   assertNoRootViewSettings(params);
   const views = buildViews(params.views, "tree");
   const defaultResolve = views?.default.resolveRelations ?? false;
@@ -127,6 +151,7 @@ export function defineTree<
       orderFileName: resolvedOrderFileName,
       relations: treeRelations,
       resolveRelations: defaultResolve,
+      media,
       cloud,
       readEntry,
     },
@@ -135,7 +160,14 @@ export function defineTree<
     getEntry,
     getNextNode,
     getPreviousNode,
-  } as const satisfies Tree<S, Ext, Title, Rels, Dir, ConfiguredViews<Views>>;
+  } as const satisfies Tree<
+    S,
+    Ext,
+    Title,
+    MediaRels,
+    Dir,
+    ConfiguredViews<Views>
+  >;
 
   return tree;
 
@@ -167,7 +199,7 @@ export function defineTree<
 
     const raw = await fs.readFile(meta.filePath, "utf-8");
 
-    return {
+    const entry = {
       [META_FIELD_NAME]: meta,
       ...parseFile({
         schema,
@@ -175,7 +207,13 @@ export function defineTree<
         filePath: meta.filePath,
         validatorFn: validate,
       }),
-    } as ResolvedTreeEntry<S, Ext, Rels, false>;
+    };
+    return (await resolveEntryMedia({
+      entry,
+      media,
+      mediaFolder: ctx.mediaFolder,
+      filePath: meta.filePath,
+    })) as ResolvedTreeEntry<S, Ext, MediaRels, false>;
   }
 
   async function getEntry<
@@ -192,7 +230,7 @@ export function defineTree<
     return result as SelectedView<
       S,
       TreeEntryMeta<Ext>,
-      Rels,
+      MediaRels,
       ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;

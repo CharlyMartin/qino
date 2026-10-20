@@ -8,10 +8,15 @@ import { mdxjs } from "micromark-extension-mdxjs";
 import { extractHtmlAttributeUrls } from "./extract-html-attribute-urls";
 
 const MEDIA_ATTRIBUTES = new Set(["src", "poster"]);
+const IMAGE_ELEMENTS = new Set(["img", "Image"]);
 type ScanMarkdownBodyOptions = { mdx: boolean };
-type Link = { url: string; line: number };
+type Link = { url: string; line: number; image: boolean };
 
-/** Collects image, link, and media attribute URLs; code is never visited. */
+/**
+ * Collects image, link, and media attribute URLs; code is never visited.
+ * `image` flags images: `![]()`, definitions used by `![][ref]`, and the
+ * `src` of `<img>` or `<Image>`.
+ */
 export function scanMarkdownBody(
   content: string,
   { mdx }: ScanMarkdownBodyOptions,
@@ -25,21 +30,35 @@ export function scanMarkdownBody(
   });
 
   const links: Array<Link> = [];
+  const definitions: Array<Link & { identifier: string }> = [];
+  const imageReferences = new Set<string>();
 
   function visit(node: Nodes) {
     const line = node.position?.start.line ?? 1;
 
     switch (node.type) {
       case "image":
+        links.push({ url: node.url, line, image: true });
+        break;
       case "link":
+        links.push({ url: node.url, line, image: false });
+        break;
       case "definition":
-        links.push({ url: node.url, line });
+        definitions.push({
+          url: node.url,
+          line,
+          image: false,
+          identifier: node.identifier,
+        });
+        break;
+      case "imageReference":
+        imageReferences.add(node.identifier);
         break;
       case "html":
-        for (const { url, lineOffset } of extractHtmlAttributeUrls(
+        for (const { url, lineOffset, image } of extractHtmlAttributeUrls(
           node.value,
         )) {
-          links.push({ url, line: line + lineOffset });
+          links.push({ url, line: line + lineOffset, image });
         }
         break;
       case "mdxJsxFlowElement":
@@ -72,7 +91,12 @@ export function scanMarkdownBody(
                   : undefined;
 
           if (url != null) {
-            links.push({ url, line: attribute.position?.start.line ?? line });
+            links.push({
+              url,
+              line: attribute.position?.start.line ?? line,
+              image:
+                IMAGE_ELEMENTS.has(node.name ?? "") && attribute.name == "src",
+            });
           }
         }
         break;
@@ -85,5 +109,9 @@ export function scanMarkdownBody(
 
   visit(tree);
 
-  return links;
+  for (const { identifier, ...link } of definitions) {
+    links.push({ ...link, image: imageReferences.has(identifier) });
+  }
+
+  return links.sort((a, b) => a.line - b.line);
 }

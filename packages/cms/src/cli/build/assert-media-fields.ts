@@ -10,11 +10,11 @@ type AssertMediaFieldsParams = {
 };
 
 /**
- * `media.fields` is typed against the schema input, which opaque validators
- * and JS users bypass. Fails when a path is malformed, isn't in the input
+ * `media` paths are typed against the schema output, but `config.json`
+ * describes files on disk. Fails when a path is malformed, isn't in the input
  * JSON Schema, allows anything but strings (and `null`) there in any union
- * branch, or is also a
- * relation: a field holds either a media URL or a reference.
+ * branch, or is also a relation: a field holds either a media URL or a
+ * reference.
  */
 export function assertMediaFields({
   fields,
@@ -23,7 +23,7 @@ export function assertMediaFields({
   primitiveId,
 }: AssertMediaFieldsParams) {
   for (const field of fields) {
-    const prefix = `media.fields "${field}" of "${primitiveId}"`;
+    const prefix = `media "${field}" of "${primitiveId}"`;
 
     const nodes = findJsonSchemaNodes(jsonSchema, parseField(field, prefix));
     if (nodes.length == 0) {

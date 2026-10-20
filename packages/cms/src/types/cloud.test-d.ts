@@ -1,8 +1,6 @@
 import { initQino } from "@qino/cms";
-import { expectTypeOf, test } from "vitest";
+import { test } from "vitest";
 import { z } from "zod";
-
-import type { CloudMediaSize } from "./cloud";
 
 const qino = initQino({
   contentFolder: "content",
@@ -13,7 +11,6 @@ const qino = initQino({
       reviewBeforePublish: true,
       branchPrefix: "content/",
     },
-    media: { accepted: [{ type: "image/*", maxSize: "5MB" }] },
   },
 });
 const schema = z.object({
@@ -139,42 +136,6 @@ test("hides fields only when every union variant makes them optional", () => {
     schema: variants,
     // @ts-expect-error variant "a" requires "secret".
     cloud: { hiddenFields: ["secret"] },
-  });
-});
-
-test("types media fields as paths to strings", () => {
-  const withMedia = z.object({
-    title: z.string(),
-    views: z.number(),
-    image: z.string().optional(),
-    gallery: z.array(z.string()),
-    seo: z.object({ image: z.string() }),
-  });
-
-  qino.defineCollection({
-    directory: "posts",
-    extension: ".md",
-    schema: withMedia,
-    cloud: { media: { fields: ["image", "gallery[*]", "seo.image"] } },
-  });
-  qino.defineItem({
-    file: "pages/home.md",
-    schema: withMedia,
-    cloud: { media: { fields: ["seo.image"] } },
-  });
-  qino.defineCollection({
-    directory: "posts",
-    extension: ".md",
-    schema: withMedia,
-    // @ts-expect-error "views" isn't a string.
-    cloud: { media: { fields: ["views"] } },
-  });
-  qino.defineCollection({
-    directory: "posts",
-    extension: ".md",
-    schema: withMedia,
-    // @ts-expect-error "gallery" is an array, use "gallery[*]".
-    cloud: { media: { fields: ["gallery"] } },
   });
 });
 
@@ -402,7 +363,7 @@ test("types collection fields against the schema", () => {
     cloud: {
       searchableBy: ["title", "tags"],
       sortableBy: ["title", "views"],
-      media: { saveAs: "posts/{name}", accepted: [] },
+      media: { saveFileAs: "posts/{field}/{name}" },
     },
   });
   qino.defineCollection({
@@ -454,7 +415,7 @@ test("gives trees search and media, but no sort", () => {
     extension: ".md",
     titleField: "title",
     schema,
-    cloud: { searchableBy: ["title"], media: { saveAs: "docs/{name}" } },
+    cloud: { searchableBy: ["title"], media: { saveFileAs: "docs/{name}" } },
   });
   qino.defineTree({
     directory: "docs",
@@ -470,7 +431,7 @@ test("gives items media only", () => {
   qino.defineItem({
     file: "pages/home.md",
     schema,
-    cloud: { media: { saveAs: "home/{name}" } },
+    cloud: { media: { saveFileAs: "home/{name}" } },
   });
   qino.defineItem({
     file: "pages/home.md",
@@ -478,40 +439,4 @@ test("gives items media only", () => {
     // @ts-expect-error items are a single file.
     cloud: { searchableBy: ["title"] },
   });
-});
-
-test("types maxSize as 50–950KB in steps of 50, or 1–100MB", () => {
-  const sizes: Array<CloudMediaSize> = ["50KB", "950KB", "1MB", "100MB"];
-  expectTypeOf(sizes).toEqualTypeOf<Array<CloudMediaSize>>();
-
-  // @ts-expect-error plain numbers aren't sizes.
-  const bytes: CloudMediaSize = 5000;
-  // @ts-expect-error B isn't a unit.
-  const byteUnit: CloudMediaSize = "1B";
-  // @ts-expect-error KB goes in steps of 50.
-  const offStep: CloudMediaSize = "25KB";
-  // @ts-expect-error KB tops out at 950.
-  const tooManyKilobytes: CloudMediaSize = "999KB";
-  // @ts-expect-error MB tops out at 100.
-  const tooManyMegabytes: CloudMediaSize = "101MB";
-  // @ts-expect-error sizes are whole numbers.
-  const decimal: CloudMediaSize = "1.5MB";
-  // @ts-expect-error units are uppercase.
-  const lowercase: CloudMediaSize = "5mb";
-  // @ts-expect-error no space between number and unit.
-  const spaced: CloudMediaSize = "5 MB";
-  // @ts-expect-error GB isn't a unit.
-  const gigabytes: CloudMediaSize = "1GB";
-
-  expectTypeOf([
-    bytes,
-    byteUnit,
-    offStep,
-    tooManyKilobytes,
-    tooManyMegabytes,
-    decimal,
-    lowercase,
-    spaced,
-    gigabytes,
-  ]).toBeArray();
 });

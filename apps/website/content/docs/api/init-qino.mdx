@@ -49,12 +49,6 @@ function initQino(config: {
           readonly reviewBeforePublish:
             boolean | { readonly bypassIfAdmin?: boolean };
         };
-    readonly media?: {
-      readonly accepted?: ReadonlyArray<{
-        type: string;
-        maxSize: Size; // "50KB" to "950KB" in steps of 50, or "1MB" to "100MB"
-      }>;
-    };
   };
 }): {
   defineCollection: typeof defineCollection;
@@ -77,7 +71,6 @@ function initQino(config: {
 | `cloud.publish.reviewBeforePublish`               | `boolean \| { bypassIfAdmin? }`                     | yes      |           | Whether an approver signs off in Qino before the author can publish. An object turns review on and configures it                                                                                                                                |
 | `cloud.publish.reviewBeforePublish.bypassIfAdmin` | `boolean`                                           | no       | `false`   | Whether admins can publish before every entry is approved                                                                                                                                                                                       |
 | `cloud.publish.branchPrefix`                      | `string`                                            | no       | `"qino/"` | Prefix of the branches the cloud UI opens. `open_pull_request` only                                                                                                                                                                             |
-| `cloud.media.accepted`                            | `ReadonlyArray<{ type; maxSize }>`                  | no       |           | MIME types, wildcards allowed, and their max size, such as `"5MB"`. Unset, the cloud UI accepts any type up to 5 MB. `[]` disables uploads                                                                                                      |
 
 The config type is not exported; pass an object literal.
 

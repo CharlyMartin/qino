@@ -1,14 +1,12 @@
 import { DEFAULT_BRANCH_PREFIX } from "../../data/globals";
 import type { CloudConfig } from "../../types/cloud";
-import { serializeAcceptedMedia } from "./serialize-accepted-media";
 
 /**
  * Describes `initQino`'s `cloud` in `config.json`, with defaults filled in.
  * `reviewBeforePublish` is `false`, or its settings when review is on, `true`
- * included. `media.accepted` is left out when unset: the cloud UI applies
- * its own.
+ * included.
  */
-export function serializeCloudConfig({ publish, media }: CloudConfig) {
+export function serializeCloudConfig({ publish }: CloudConfig) {
   const { mode } = publish;
   const review = publish.reviewBeforePublish;
   const reviewBeforePublish = review != false && {
@@ -24,8 +22,5 @@ export function serializeCloudConfig({ publish, media }: CloudConfig) {
             branchPrefix: publish.branchPrefix ?? DEFAULT_BRANCH_PREFIX,
           }
         : { mode, reviewBeforePublish },
-    ...(media?.accepted && {
-      media: { accepted: serializeAcceptedMedia(media.accepted, "initQino") },
-    }),
   };
 }

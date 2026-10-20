@@ -3,10 +3,15 @@ import type { CliConfig } from "../../types/cli";
 import type { CloudConfig } from "../../types/cloud";
 import type { Collection } from "../../types/collection";
 import type { ExtractItemExtension, Item, ItemFile } from "../../types/item";
+import type { MediaConfig, TaggedRelations } from "../../types/media";
 import type { Relations } from "../../types/relations";
 import type { ObjectSchema } from "../../types/schema";
 import type { StringKeys, Tree } from "../../types/tree";
-import type { ContentPath, SupportedFileExtension } from "../../types/utils";
+import type {
+  ContentPath,
+  EmptyObject,
+  SupportedFileExtension,
+} from "../../types/utils";
 import type { ConfiguredViews } from "../../types/views";
 import {
   type DefineCollectionParams,
@@ -50,6 +55,7 @@ export function initQino(config: QinoConfig) {
       const Views extends object = object,
       const SaveAs extends string = never,
       const DisplayEntryAs extends string = never,
+      const Media extends MediaConfig<S, Ext> = EmptyObject,
     >(
       params: DefineCollectionParams<
         S,
@@ -58,9 +64,16 @@ export function initQino(config: QinoConfig) {
         Dir,
         Views,
         SaveAs,
-        DisplayEntryAs
+        DisplayEntryAs,
+        Media
       >,
-    ): Collection<S, Ext, Rels, Dir, ConfiguredViews<Views>> {
+    ): Collection<
+      S,
+      Ext,
+      TaggedRelations<Rels, Media>,
+      Dir,
+      ConfiguredViews<Views>
+    > {
       return defineCollection(ctx, params);
     },
     defineItem<
@@ -68,9 +81,15 @@ export function initQino(config: QinoConfig) {
       F extends ItemFile,
       Rels extends Relations<S> = object,
       const Views extends object = object,
+      const Media extends MediaConfig<S, ExtractItemExtension<F>> = EmptyObject,
     >(
-      params: DefineItemParams<S, F, Rels, Views>,
-    ): Item<S, ExtractItemExtension<F>, Rels, ConfiguredViews<Views>> {
+      params: DefineItemParams<S, F, Rels, Views, Media>,
+    ): Item<
+      S,
+      ExtractItemExtension<F>,
+      TaggedRelations<Rels, Media>,
+      ConfiguredViews<Views>
+    > {
       return defineItem(ctx, params);
     },
     defineTree<
@@ -82,6 +101,7 @@ export function initQino(config: QinoConfig) {
       const Views extends object = object,
       const SaveAs extends string = never,
       const DisplayEntryAs extends string = never,
+      const Media extends MediaConfig<S, Ext> = EmptyObject,
     >(
       params: DefineTreeParams<
         S,
@@ -91,9 +111,17 @@ export function initQino(config: QinoConfig) {
         Dir,
         Views,
         SaveAs,
-        DisplayEntryAs
+        DisplayEntryAs,
+        Media
       >,
-    ): Tree<S, Ext, Title, Rels, Dir, ConfiguredViews<Views>> {
+    ): Tree<
+      S,
+      Ext,
+      Title,
+      TaggedRelations<Rels, Media>,
+      Dir,
+      ConfiguredViews<Views>
+    > {
       return defineTree(ctx, params);
     },
   };
