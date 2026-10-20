@@ -21,7 +21,7 @@ import { selectView } from "../../lib/views/select-view";
 import type {
   CollectionCloudConfig,
   DisplayEntryAsConfig,
-  EntrySaveAsConfig,
+  SaveEntryAsConfig,
 } from "../../types/cloud";
 import type {
   Collection,
@@ -65,7 +65,7 @@ export type DefineCollectionParams<
   Rels extends Relations<Schema> = object,
   Dir extends ContentPath = ContentPath,
   Views extends object = object,
-  SaveAs extends string = never,
+  SaveEntryAs extends string = never,
   DisplayEntryAs extends string = never,
   Media extends MediaConfig<Schema, Ext> = EmptyObject,
 > = {
@@ -85,7 +85,7 @@ export type DefineCollectionParams<
     CollectionViewDefinition
   >;
   cloud?: NoInfer<CollectionCloudConfig<Schema>> &
-    EntrySaveAsConfig<SaveAs, Schema> &
+    SaveEntryAsConfig<SaveEntryAs, Schema> &
     DisplayEntryAsConfig<DisplayEntryAs, Schema>;
 } & RootViewSettings;
 
@@ -95,7 +95,7 @@ export function defineCollection<
   Rels extends Relations<S> = object,
   Dir extends ContentPath = ContentPath,
   const Views extends object = object,
-  const SaveAs extends string = never,
+  const SaveEntryAs extends string = never,
   const DisplayEntryAs extends string = never,
   const Media extends MediaConfig<S, Ext> = EmptyObject,
 >(
@@ -106,7 +106,7 @@ export function defineCollection<
     Rels,
     Dir,
     Views,
-    SaveAs,
+    SaveEntryAs,
     DisplayEntryAs,
     Media
   >,

@@ -20,7 +20,7 @@ import { buildViews } from "../../lib/views/build-views";
 import { selectView } from "../../lib/views/select-view";
 import type {
   DisplayEntryAsConfig,
-  EntrySaveAsConfig,
+  SaveEntryAsConfig,
   TreeCloudConfig,
 } from "../../types/cloud";
 import type {
@@ -67,7 +67,7 @@ export type DefineTreeParams<
   Rels extends Relations<Schema> = object,
   Dir extends ContentPath = ContentPath,
   Views extends object = object,
-  SaveAs extends string = never,
+  SaveEntryAs extends string = never,
   DisplayEntryAs extends string = never,
   Media extends MediaConfig<Schema, Ext> = EmptyObject,
 > = {
@@ -84,7 +84,7 @@ export type DefineTreeParams<
     ViewFactory<Schema, TreeEntryMeta<Ext>, TaggedRelations<Rels, Media>>
   >;
   cloud?: NoInfer<TreeCloudConfig<Schema>> &
-    EntrySaveAsConfig<SaveAs, Schema> &
+    SaveEntryAsConfig<SaveEntryAs, Schema> &
     DisplayEntryAsConfig<DisplayEntryAs, Schema>;
 } & RootViewSettings;
 
@@ -95,7 +95,7 @@ export function defineTree<
   Rels extends Relations<S> = object,
   Dir extends ContentPath = ContentPath,
   const Views extends object = object,
-  const SaveAs extends string = never,
+  const SaveEntryAs extends string = never,
   const DisplayEntryAs extends string = never,
   const Media extends MediaConfig<S, Ext> = EmptyObject,
 >(
@@ -107,7 +107,7 @@ export function defineTree<
     Rels,
     Dir,
     Views,
-    SaveAs,
+    SaveEntryAs,
     DisplayEntryAs,
     Media
   >,

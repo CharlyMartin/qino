@@ -80,7 +80,7 @@ type RequiredScalarKeys<Schema extends ObjectSchema> =
     : string;
 
 /**
- * Checks each `{token}` of an entry template (`saveAs`, `displayEntryAs`) against
+ * Checks each `{token}` of an entry template (`saveEntryAs`, `displayEntryAs`) against
  * the allowed fields.
  */
 type CheckTemplateTokens<
@@ -94,30 +94,30 @@ type CheckTemplateTokens<
   : unknown;
 
 /**
- * Validates an entry's `saveAs` literal: at least one `{field}`, no folders or
+ * Validates an entry's `saveEntryAs` literal: at least one `{field}`, no folders or
  * extension, and only required scalar fields as tokens. A widened `string`
  * can't be checked here; `qino build` checks it.
  */
-export type CheckEntrySaveAs<
+export type CheckSaveEntryAs<
   S extends string,
   Schema extends ObjectSchema,
 > = string extends S
   ? unknown
   : S extends `${string}/${string}` | `${string}.${string}`
     ? {
-        readonly "saveAs can't contain / or . (folders and extension are added)": S;
+        readonly "saveEntryAs can't contain / or . (folders and extension are added)": S;
       }
     : S extends `${string}{${string}}${string}`
-      ? CheckTemplateTokens<S, RequiredScalarKeys<Schema>, "saveAs">
-      : { readonly "saveAs needs at least one {field}": S };
+      ? CheckTemplateTokens<S, RequiredScalarKeys<Schema>, "saveEntryAs">
+      : { readonly "saveEntryAs needs at least one {field}": S };
 
 /**
- * An entry's `saveAs`, kept literal so its tokens are checked: the name the
+ * An entry's `saveEntryAs`, kept literal so its tokens are checked: the name the
  * cloud UI gives a new entry, from its fields. `"{firstName}-{lastName}"`
  * names an author `jane-doe`.
  */
-export type EntrySaveAsConfig<
-  SaveAs extends string,
+export type SaveEntryAsConfig<
+  SaveEntryAs extends string,
   Schema extends ObjectSchema,
 > = {
   /**
@@ -125,7 +125,8 @@ export type EntrySaveAsConfig<
    * the schema input. Values are slugified; the extension, and in trees the
    * parent folder, are added. Unset, editors type the slug.
    */
-  readonly saveAs?: SaveAs & NoInfer<CheckEntrySaveAs<SaveAs, Schema>>;
+  readonly saveEntryAs?: SaveEntryAs &
+    NoInfer<CheckSaveEntryAs<SaveEntryAs, Schema>>;
 };
 
 /**
@@ -203,7 +204,7 @@ export type CollectionCloudConfig<Schema extends ObjectSchema> =
 export type PrimitiveCloudConfig = {
   readonly displayAs?: string;
   readonly displayEntryAs?: string;
-  readonly saveAs?: string;
+  readonly saveEntryAs?: string;
   readonly searchableBy?: ReadonlyArray<string>;
   readonly sortableBy?: ReadonlyArray<string>;
   readonly hiddenFields?: ReadonlyArray<string>;

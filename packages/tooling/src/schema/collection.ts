@@ -11,7 +11,7 @@ export const collectionSchema = primitiveBaseSchema.extend({
     searchableBy: z.array(z.string()),
     sortableBy: z.array(z.string()),
     hiddenFields: z.array(z.string()),
-    saveAs: z.string().optional(),
+    saveEntryAs: z.string().optional(),
     media: primitiveMediaSchema,
   }),
 });

@@ -1,10 +1,10 @@
 import { allowsOnlyScalars } from "./allows-only-scalars";
 import { findJsonSchemaNodes } from "./find-json-schema-nodes";
-import { getPathTokens } from "./get-path-tokens";
+import { getTemplateTokens } from "./get-template-tokens";
 import { isRequiredJsonSchemaField } from "./is-required-json-schema-field";
 
 type TemplateFieldsOptions = {
-  /** Error prefix, e.g. `saveAs "{title}" of "posts"`. */
+  /** Error prefix, e.g. `saveEntryAs "{title}" of "posts"`. */
   prefix: string;
   template: string;
   /** What an optional token could leave empty, e.g. `"name"`. */
@@ -13,7 +13,7 @@ type TemplateFieldsOptions = {
 };
 
 /**
- * Checks the `{field}` tokens of an entry template (`saveAs`, `displayAs`):
+ * Checks the `{field}` tokens of an entry template (`saveEntryAs`, `displayEntryAs`):
  * at least one, each a top-level field that every variant of the input JSON
  * Schema requires and allows only scalars for.
  */
@@ -23,7 +23,7 @@ export function assertTemplateFields({
   result,
   jsonSchema,
 }: TemplateFieldsOptions) {
-  const tokens = getPathTokens(template);
+  const tokens = getTemplateTokens(template);
 
   if (tokens.length == 0) {
     throw new Error(`${prefix} needs at least one {field}.`);

@@ -57,7 +57,7 @@ export const postCollection = qino.defineCollection({
   cloud: {
     displayAs: "Blog posts",
     displayEntryAs: "{title}",
-    saveAs: "{title}",
+    saveEntryAs: "{title}",
     searchableBy: ["title"],
     sortableBy: ["title", "draft"],
     hiddenFields: ["notes"],
@@ -70,13 +70,13 @@ export const postCollection = qino.defineCollection({
 | ------------------ | ----------- | ----- | ----- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | `displayAs`        | yes         | yes   | yes   | The id                      | Name of the primitive in the cloud UI, such as `"Blog posts"`. A plain string, without tokens                                              |
 | `displayEntryAs`   | yes         | yes   |       | `"{<titleField>}"` on trees | Label of entries in the cloud UI, from their fields, such as `"{firstName} {lastName}"`. Unset on collections, the cloud UI shows the slug |
-| `saveAs`           | yes         | yes   |       |                             | Name of new entries, from their fields, such as `"{firstName}-{lastName}"`. Unset, editors type the slug                                   |
+| `saveEntryAs`      | yes         | yes   |       |                             | Name of new entries, from their fields, such as `"{firstName}-{lastName}"`. Unset, editors type the slug                                   |
 | `searchableBy`     | yes         | yes   |       | `[]`                        | Top-level fields the cloud UI searches. Empty, there's no search                                                                           |
 | `sortableBy`       | yes         |       |       | `[]`                        | Top-level string, number, or boolean fields the cloud UI sorts by. Empty, no sorting                                                       |
 | `hiddenFields`     | yes         | yes   | yes   | `[]`                        | Top-level optional fields the cloud UI doesn't show. Their values are kept on save                                                         |
 | `media.saveFileAs` | yes         | yes   | yes   | `"{id}/{name}-{hash}"`      | File path an upload is saved to when publishing, relative to `mediaFolder`                                                                 |
 
-Trees are ordered by their order file, so they have no `sortableBy`. Items are a single file, so they have no `saveAs` or `displayEntryAs`, and only take `displayAs`, `hiddenFields`, and `media`.
+Trees are ordered by their order file, so they have no `sortableBy`. Items are a single file, so they have no `saveEntryAs` or `displayEntryAs`, and only take `displayAs`, `hiddenFields`, and `media`.
 
 Which fields hold media, and the files they accept, isn't cloud config: it's the primitive's own [`media`](/docs/concepts/media), which works without `cloud`. The cloud UI reads it from `config.json` to offer a media picker on each media field and accept only matching uploads, in fields and in the body.
 
@@ -84,22 +84,22 @@ Fields are typed against the schema input, not its output, since the cloud UI re
 
 ### Naming new entries
 
-`saveAs` names the file of an entry an editor creates, from its fields. Each `{token}` is a top-level field, filled with the value the editor enters, then slugified. Text outside tokens is kept:
+`saveEntryAs` names the file of an entry an editor creates, from its fields. Each `{token}` is a top-level field, filled with the value the editor enters, then slugified. Text outside tokens is kept:
 
-| `saveAs`                   | Fields                                 | File                  |
+| `saveEntryAs`              | Fields                                 | File                  |
 | -------------------------- | -------------------------------------- | --------------------- |
 | `"{firstName}-{lastName}"` | `firstName: "Jane"`, `lastName: "Doe"` | `jane-doe.json`       |
 | `"post-{title}"`           | `title: "Hello, World!"`               | `post-hello-world.md` |
 
 The cloud UI adds the extension, and in trees the parent folder, from where the entry is added in the outline: `"{title}"` names a child "Caching" under `guides` `guides/caching.mdx`. When the name is taken, it adds `-2`, `-3`, and so on. The name is set once, when the entry is created. Unset, editors type the slug.
 
-Tokens must be fields every entry has: required, without a default, in every variant of a union schema, and a string, number, or boolean. `saveAs` is type-checked from its literal, so an unknown or optional field, a `/` or `.`, or a pattern without a token is a type error. `qino build` checks the same rules, including for a `saveAs` passed as a `string` variable, which types can't check.
+Tokens must be fields every entry has: required, without a default, in every variant of a union schema, and a string, number, or boolean. `saveEntryAs` is type-checked from its literal, so an unknown or optional field, a `/` or `.`, or a pattern without a token is a type error. `qino build` checks the same rules, including for a `saveEntryAs` passed as a `string` variable, which types can't check.
 
 ### Naming primitives and entries
 
 `displayAs` names the primitive itself, such as `"Blog posts"` for the `posts` collection, where the cloud UI lists primitives and titles their pages. It's a plain string: `qino build` fails on an empty one or one with a `{field}`. Unset, it's the id: the `directory`, or the `file` of an item. An item is a single entry, so `displayAs` names that entry too.
 
-`displayEntryAs` is how the cloud UI labels each entry of a collection or tree, from its fields. It uses the same `{token}` syntax as `saveAs`, but values aren't slugified, and text outside tokens can be anything:
+`displayEntryAs` is how the cloud UI labels each entry of a collection or tree, from its fields. It uses the same `{token}` syntax as `saveEntryAs`, but values aren't slugified, and text outside tokens can be anything:
 
 | `displayEntryAs`            | Fields                                 | Label           |
 | --------------------------- | -------------------------------------- | --------------- |
@@ -107,11 +107,11 @@ Tokens must be fields every entry has: required, without a default, in every var
 | `"{lastName}, {firstName}"` | `firstName: "Jane"`, `lastName: "Doe"` | `Doe, Jane`     |
 | `"Post: {title}"`           | `title: "Welcome"`                     | `Post: Welcome` |
 
-Unset, collections' entries show their slug, and trees fall back to `titleField`, which titles nodes in `getTree` too. Tokens follow the same rules as `saveAs`'s: required fields every entry has, and strings, numbers, or booleans. They're type-checked from the literal, and `qino build` checks them too.
+Unset, collections' entries show their slug, and trees fall back to `titleField`, which titles nodes in `getTree` too. Tokens follow the same rules as `saveEntryAs`'s: required fields every entry has, and strings, numbers, or booleans. They're type-checked from the literal, and `qino build` checks them too.
 
 ### Hidden fields
 
-`hiddenFields` only takes optional fields, `.optional()` or `.default()` in zod, so editors can still create entries: a required field is a type error, and `qino build` fails on one without a default. Hidden fields can also be in `searchableBy` and `sortableBy`, but never in `saveAs` or `displayEntryAs`, whose fields are required.
+`hiddenFields` only takes optional fields, `.optional()` or `.default()` in zod, so editors can still create entries: a required field is a type error, and `qino build` fails on one without a default. Hidden fields can also be in `searchableBy` and `sortableBy`, but never in `saveEntryAs` or `displayEntryAs`, whose fields are required.
 
 ### Media fields
 
@@ -121,7 +121,7 @@ The cloud UI writes the URL the file is served at, starting with `/`: picking th
 
 ### Saving uploads
 
-When an editor publishes, each uploaded file is saved to the path `media.saveFileAs` describes, relative to `mediaFolder`. As with entries' `saveAs`, the cloud UI adds the extension: the uploaded file's, lowercased. With `mediaFolder: "public"` and `saveFileAs: "posts/{field}/{name}-{hash}"`, uploading `Cover.webp` to the `cover` field saves `public/posts/cover/cover-1a2b3c4d.webp`, served at `/posts/cover/cover-1a2b3c4d.webp`. Tokens:
+When an editor publishes, each uploaded file is saved to the path `media.saveFileAs` describes, relative to `mediaFolder`. As with entries' `saveEntryAs`, the cloud UI adds the extension: the uploaded file's, lowercased. With `mediaFolder: "public"` and `saveFileAs: "posts/{field}/{name}-{hash}"`, uploading `Cover.webp` to the `cover` field saves `public/posts/cover/cover-1a2b3c4d.webp`, served at `/posts/cover/cover-1a2b3c4d.webp`. Tokens:
 
 | Token     | Value                                                                                                                                            |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |

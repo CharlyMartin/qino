@@ -139,7 +139,7 @@ test("hides fields only when every union variant makes them optional", () => {
   });
 });
 
-test("checks saveAs tokens against required scalar fields", () => {
+test("checks saveEntryAs tokens against required scalar fields", () => {
   const author = z.object({
     firstName: z.string(),
     lastName: z.string(),
@@ -152,79 +152,79 @@ test("checks saveAs tokens against required scalar fields", () => {
     directory: "authors",
     extension: ".json",
     schema: author,
-    cloud: { saveAs: "{firstName}-{lastName}", searchableBy: ["company"] },
+    cloud: { saveEntryAs: "{firstName}-{lastName}", searchableBy: ["company"] },
   });
   qino.defineCollection({
     directory: "authors",
     extension: ".json",
     schema: author,
-    cloud: { saveAs: "author-{lastName}-{age}" },
+    cloud: { saveEntryAs: "author-{lastName}-{age}" },
   });
   qino.defineTree({
     directory: "docs",
     extension: ".md",
     titleField: "title",
     schema,
-    cloud: { saveAs: "{title}" },
+    cloud: { saveEntryAs: "{title}" },
   });
   qino.defineCollection({
     directory: "authors",
     extension: ".json",
     schema: author,
     // @ts-expect-error "nope" isn't a field.
-    cloud: { saveAs: "{firstName}-{nope}" },
+    cloud: { saveEntryAs: "{firstName}-{nope}" },
   });
   qino.defineCollection({
     directory: "authors",
     extension: ".json",
     schema: author,
     // @ts-expect-error "company" is optional.
-    cloud: { saveAs: "{company}" },
+    cloud: { saveEntryAs: "{company}" },
   });
   qino.defineCollection({
     directory: "authors",
     extension: ".json",
     schema: author,
     // @ts-expect-error "role" has a default, so it's optional on disk.
-    cloud: { saveAs: "{role}" },
+    cloud: { saveEntryAs: "{role}" },
   });
   qino.defineCollection({
     directory: "authors",
     extension: ".json",
     schema: author,
     // @ts-expect-error "tags" isn't a scalar.
-    cloud: { saveAs: "{tags}" },
+    cloud: { saveEntryAs: "{tags}" },
   });
   qino.defineCollection({
     directory: "authors",
     extension: ".json",
     schema: author,
     // @ts-expect-error no {field}.
-    cloud: { saveAs: "author" },
+    cloud: { saveEntryAs: "author" },
   });
   qino.defineCollection({
     directory: "authors",
     extension: ".json",
     schema: author,
     // @ts-expect-error folders are added by the cloud UI.
-    cloud: { saveAs: "people/{lastName}" },
+    cloud: { saveEntryAs: "people/{lastName}" },
   });
   qino.defineCollection({
     directory: "authors",
     extension: ".json",
     schema: author,
     // @ts-expect-error the extension is added by the cloud UI.
-    cloud: { saveAs: "{lastName}.json" },
+    cloud: { saveEntryAs: "{lastName}.json" },
   });
   qino.defineItem({
     file: "pages/home.md",
     schema,
     // @ts-expect-error items are a single, fixed file.
-    cloud: { saveAs: "{title}" },
+    cloud: { saveEntryAs: "{title}" },
   });
 });
 
-test("checks saveAs tokens in every union variant", () => {
+test("checks saveEntryAs tokens in every union variant", () => {
   const variants = z.discriminatedUnion("kind", [
     z.object({ kind: z.literal("a"), title: z.string(), slug: z.string() }),
     z.object({
@@ -238,25 +238,25 @@ test("checks saveAs tokens in every union variant", () => {
     directory: "posts",
     extension: ".md",
     schema: variants,
-    cloud: { saveAs: "{kind}-{title}" },
+    cloud: { saveEntryAs: "{kind}-{title}" },
   });
   qino.defineCollection({
     directory: "posts",
     extension: ".md",
     schema: variants,
     // @ts-expect-error variant "b" makes "slug" optional.
-    cloud: { saveAs: "{slug}" },
+    cloud: { saveEntryAs: "{slug}" },
   });
 });
 
-test("can't check a widened saveAs", () => {
-  const saveAs: string = "{nope}";
+test("can't check a widened saveEntryAs", () => {
+  const saveEntryAs: string = "{nope}";
 
   qino.defineCollection({
     directory: "posts",
     extension: ".md",
     schema,
-    cloud: { saveAs },
+    cloud: { saveEntryAs },
   });
 });
 

@@ -139,30 +139,30 @@ describe("serializePrimitiveCloud", () => {
     ).toThrow('hiddenFields "title" of "pages/home.md" is required');
   });
 
-  test("writes an entry saveAs for collections and trees", () => {
+  test("writes an entry saveEntryAs for collections and trees", () => {
     const posts = qino.defineCollection({
       directory: "posts",
       schema,
       extension: ".md",
-      cloud: { saveAs: "post-{title}" },
+      cloud: { saveEntryAs: "post-{title}" },
     });
     const docs = qino.defineTree({
       directory: "docs",
       schema,
       extension: ".mdx",
       titleField: "title",
-      cloud: { saveAs: "{title}" },
+      cloud: { saveEntryAs: "{title}" },
     });
 
     expect(serializePrimitiveCloud(posts, jsonSchema, "posts")).toMatchObject({
-      saveAs: "post-{title}",
+      saveEntryAs: "post-{title}",
     });
     expect(serializePrimitiveCloud(docs, jsonSchema, "docs")).toMatchObject({
-      saveAs: "{title}",
+      saveEntryAs: "{title}",
     });
   });
 
-  test("leaves saveAs out when unset", () => {
+  test("leaves saveEntryAs out when unset", () => {
     const posts = qino.defineCollection({
       directory: "posts",
       schema,
@@ -171,20 +171,20 @@ describe("serializePrimitiveCloud", () => {
 
     expect(
       serializePrimitiveCloud(posts, jsonSchema, "posts"),
-    ).not.toHaveProperty("saveAs");
+    ).not.toHaveProperty("saveEntryAs");
   });
 
-  test("validates an entry saveAs", () => {
-    const saveAs: string = "{notes}";
+  test("validates an entry saveEntryAs", () => {
+    const saveEntryAs: string = "{notes}";
     const posts = qino.defineCollection({
       directory: "posts",
       schema,
       extension: ".md",
-      cloud: { saveAs },
+      cloud: { saveEntryAs },
     });
 
     expect(() => serializePrimitiveCloud(posts, jsonSchema, "posts")).toThrow(
-      'saveAs "{notes}" of "posts" uses "{notes}", which is optional',
+      'saveEntryAs "{notes}" of "posts" uses "{notes}", which is optional',
     );
   });
 
@@ -281,18 +281,18 @@ describe("serializePrimitiveCloud", () => {
     );
   });
 
-  test("rejects an entry saveAs on an item", () => {
+  test("rejects an entry saveEntryAs on an item", () => {
     const home = qino.defineItem({
       file: "pages/home.md",
       schema,
       // @ts-expect-error items are a single file.
-      cloud: { saveAs: "{title}" },
+      cloud: { saveEntryAs: "{title}" },
     });
 
     expect(() =>
       serializePrimitiveCloud(home, jsonSchema, "pages/home.md"),
     ).toThrow(
-      'saveAs of "pages/home.md" names new entries, but an item is a single file.',
+      'saveEntryAs of "pages/home.md" names new entries, but an item is a single file.',
     );
   });
 });
