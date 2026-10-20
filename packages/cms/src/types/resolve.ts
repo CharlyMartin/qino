@@ -8,6 +8,7 @@ import type {
 import type { CollectionEntryMeta } from "./collection";
 import type { GeneratedFields } from "./generated-fields";
 import type { ItemEntryMeta } from "./item";
+import type { WithImages } from "./media";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
 import type { TreeEntryMeta } from "./tree";
 import type { JsonPathArray, SupportedFileExtension } from "./utils";
@@ -111,6 +112,9 @@ export type ResolveEntry<
   S extends ObjectSchema,
   Rels,
   D extends Depth,
-> = D extends 0
-  ? ValidatedOutput<S>
-  : ResolveValue<ValidatedOutput<S>, Rels, "", D>;
+> = WithImages<
+  D extends 0
+    ? ValidatedOutput<S>
+    : ResolveValue<ValidatedOutput<S>, Rels, "", D>,
+  Rels
+>;

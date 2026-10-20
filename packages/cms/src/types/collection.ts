@@ -9,6 +9,7 @@ import type { AugmentOutput } from "./augment";
 import type { PrimitiveCloudConfig } from "./cloud";
 import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
+import type { AnyMediaConfig } from "./media";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema } from "./schema";
@@ -91,6 +92,7 @@ export type CollectionMeta<
   readonly extension: Ext;
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
+  readonly media: AnyMediaConfig;
   readonly cloud?: PrimitiveCloudConfig;
   readonly readEntries: () => Promise<
     Array<ResolvedCollectionView<Schema, Ext, Rels, false>>
@@ -100,8 +102,19 @@ export type CollectionMeta<
   ) => Promise<ResolvedCollectionView<Schema, Ext, Rels, false>>;
 };
 
+type AnyCollectionEntry = Record<string, unknown> & {
+  [K in typeof META_FIELD_NAME]: CollectionEntryMeta;
+};
+
+// Erased entries, so typed collections compare structurally, not by variance.
 export type AnyCollection = {
-  readonly [QinoPrimitiveMarker]: CollectionMeta<ObjectSchema>;
+  readonly [QinoPrimitiveMarker]: Omit<
+    CollectionMeta<ObjectSchema>,
+    "readEntries" | "readEntry"
+  > & {
+    readonly readEntries: () => Promise<Array<AnyCollectionEntry>>;
+    readonly readEntry: (slug: Slug) => Promise<AnyCollectionEntry>;
+  };
   getAllSlugs(): Promise<Array<Slug>>;
   getEntries(options?: GetterOptions<undefined>): Promise<
     Array<

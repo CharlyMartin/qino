@@ -9,6 +9,7 @@ import type { AugmentOutput } from "./augment";
 import type { PrimitiveCloudConfig } from "./cloud";
 import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
+import type { AnyMediaConfig } from "./media";
 import type { Relations } from "./relations";
 import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
@@ -59,6 +60,7 @@ export type TreeMeta<
   readonly orderFileName: string;
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
+  readonly media: AnyMediaConfig;
   readonly cloud?: PrimitiveCloudConfig;
   readonly readEntry: (
     slug: Slug,
@@ -117,6 +119,7 @@ export type AnyTreeMeta = {
   readonly orderFileName: string;
   readonly relations: Relations<ObjectSchema>;
   readonly resolveRelations: ResolveOption;
+  readonly media: AnyMediaConfig;
   readonly cloud?: PrimitiveCloudConfig;
   readonly readEntry: (
     slug: Slug,

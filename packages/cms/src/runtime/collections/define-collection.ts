@@ -7,6 +7,8 @@ import {
   QinoPrimitives,
 } from "../../data/globals";
 import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
+import { assertMediaConfig } from "../../lib/media/assert-media-config";
+import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
@@ -30,12 +32,18 @@ import type {
   CollectionViewDefinition,
   CollectionViewFactory,
 } from "../../types/collection-views";
+import type {
+  CheckMediaKeys,
+  MediaConfig,
+  TaggedRelations,
+} from "../../types/media";
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
 import type { SlugFor } from "../../types/slug-registry";
 import type {
   ContentPath,
+  EmptyObject,
   NoLeadingSlash,
   Slug,
   SupportedFileExtension,
@@ -59,14 +67,21 @@ export type DefineCollectionParams<
   Views extends object = object,
   SaveAs extends string = never,
   DisplayEntryAs extends string = never,
+  Media extends MediaConfig<Schema, Ext> = EmptyObject,
 > = {
   directory: Dir & NoInfer<NoLeadingSlash<Dir>>;
   schema: Schema & NoInfer<NoReservedSchemaFields<Schema, Ext>>;
   extension: Ext;
   relations?: Rels;
+  /** Media fields, keyed by path. Image fields are read as `QinoImage`. */
+  media?: Media & NoInfer<CheckMediaKeys<Media, Schema, Ext>>;
   views?: ViewsConfig<
     Views,
-    CollectionViewFactory<Schema, CollectionEntryMeta<Ext>, Rels>,
+    CollectionViewFactory<
+      Schema,
+      CollectionEntryMeta<Ext>,
+      TaggedRelations<Rels, Media>
+    >,
     CollectionViewDefinition
   >;
   cloud?: NoInfer<CollectionCloudConfig<Schema>> &
@@ -82,6 +97,7 @@ export function defineCollection<
   const Views extends object = object,
   const SaveAs extends string = never,
   const DisplayEntryAs extends string = never,
+  const Media extends MediaConfig<S, Ext> = EmptyObject,
 >(
   ctx: QinoContext,
   params: DefineCollectionParams<
@@ -91,13 +107,21 @@ export function defineCollection<
     Dir,
     Views,
     SaveAs,
-    DisplayEntryAs
+    DisplayEntryAs,
+    Media
   >,
 ) {
-  const { directory, schema, extension, relations, cloud } = params;
+  type MediaRels = TaggedRelations<Rels, Media>;
+  const { directory, schema, extension, relations, media = {}, cloud } = params;
   assertContentPath(directory, "directory");
   assertCloudEnabled(ctx, cloud, directory);
-  const collectionRelations = (relations ?? {}) as Rels;
+  const collectionRelations = (relations ?? {}) as MediaRels;
+  assertMediaConfig({
+    media,
+    relations: collectionRelations,
+    extension,
+    primitiveId: directory,
+  });
   assertNoRootViewSettings(params);
   const views = buildViews(params.views, "collection");
   const defaultResolve = views?.default.resolveRelations ?? false;
@@ -113,6 +137,7 @@ export function defineCollection<
       extension,
       relations: collectionRelations,
       resolveRelations: defaultResolve,
+      media,
       cloud,
       readEntries,
       readEntry,
@@ -120,7 +145,13 @@ export function defineCollection<
     getEntries,
     getAllSlugs,
     getEntry,
-  } as const satisfies Collection<S, Ext, Rels, Dir, ConfiguredViews<Views>>;
+  } as const satisfies Collection<
+    S,
+    Ext,
+    MediaRels,
+    Dir,
+    ConfiguredViews<Views>
+  >;
 
   return collection;
 
@@ -140,7 +171,7 @@ export function defineCollection<
       extension,
     });
     const data = await fs.readFile(meta.filePath, "utf-8");
-    return {
+    const entry = {
       ...parseFile({
         schema,
         data,
@@ -148,7 +179,13 @@ export function defineCollection<
         validatorFn: validate,
       }),
       [META_FIELD_NAME]: meta,
-    } as ResolvedCollectionView<S, Ext, Rels, false>;
+    };
+    return (await resolveEntryMedia({
+      entry,
+      media,
+      mediaFolder: ctx.mediaFolder,
+      filePath: meta.filePath,
+    })) as ResolvedCollectionView<S, Ext, MediaRels, false>;
   }
 
   async function readEntries() {
@@ -184,7 +221,7 @@ export function defineCollection<
       SelectedView<
         S,
         CollectionEntryMeta<Ext>,
-        Rels,
+        MediaRels,
         ConfiguredViews<Views>,
         ViewSelection<Args[0]>
       >
@@ -210,7 +247,7 @@ export function defineCollection<
     return result as SelectedView<
       S,
       CollectionEntryMeta<Ext>,
-      Rels,
+      MediaRels,
       ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;
