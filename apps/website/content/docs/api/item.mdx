@@ -32,20 +32,22 @@ qino.defineItem(params: {
   file: `/${string}.md` | `/${string}.mdx` | `/${string}.markdown` | `/${string}.json`;
   schema: StandardSchemaV1<unknown, Record<string, unknown>>;
   relations?: Record<RelationPath, Primitive | (() => Primitive)>;
+  media?: Record<StringPath, { accepted: MimeType; maxSize: Size }> & { markdown?: Array<{ accepted: MimeType; maxSize: Size }> };
   views?: (view: ViewHelper) => Record<string, View> & { default: View };
-  cloud?: { displayAs?: string; hiddenFields?: Array<OptionalField>; media?: CloudMedia };
+  cloud?: { displayAs?: string; hiddenFields?: Array<OptionalField>; media?: { saveFileAs?: string } };
 }): Item;
 ```
 
 ## Parameters
 
-| Name        | Type                                         | Required | Default | Description                                                                                                        |
-| ----------- | -------------------------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------ |
-| `file`      | `` `/${string}<ext>` ``                      | yes      |         | Path under `contentFolder`, with extension. The extension is inferred from it                                      |
-| `schema`    | Standard Schema object validator             | yes      |         | Synchronous. May not declare `_meta`, nor `markdown`/`raw` for Markdown                                            |
-| `relations` | `Record<path, primitive \| () => primitive>` | no       | `{}`    | Same grammar as collections                                                                                        |
-| `views`     | `(view) => { default: View; [name]: View }`  | no       |         | Helper offers `resolveRelations` and `augment` only                                                                |
-| `cloud`     | `{ displayAs?; hiddenFields?; media? }`      | no       |         | Cloud UI name, hidden fields, and media. Requires `cloud` on `initQino`. See [Cloud](/docs/guide/cloud#primitives) |
+| Name        | Type                                                  | Required | Default | Description                                                                                                                                                                                                                     |
+| ----------- | ----------------------------------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `file`      | `` `/${string}<ext>` ``                               | yes      |         | Path under `contentFolder`, with extension. The extension is inferred from it                                                                                                                                                   |
+| `schema`    | Standard Schema object validator                      | yes      |         | Synchronous. May not declare `_meta`, nor `markdown`/`raw` for Markdown                                                                                                                                                         |
+| `relations` | `Record<path, primitive \| () => primitive>`          | no       | `{}`    | Same grammar as collections                                                                                                                                                                                                     |
+| `media`     | `Record<path, { accepted; maxSize }> & { markdown? }` | no       | `{}`    | Media fields, keyed by path to a string field, with the one MIME type each accepts and its max size. Image fields are read as `QinoImage`. `markdown` lists the rules body images must match. See [Media](/docs/concepts/media) |
+| `views`     | `(view) => { default: View; [name]: View }`           | no       |         | Helper offers `resolveRelations` and `augment` only                                                                                                                                                                             |
+| `cloud`     | `{ displayAs?; hiddenFields?; media? }`               | no       |         | Cloud UI name, hidden fields, and where uploads are saved. Requires `cloud` on `initQino`. See [Cloud](/docs/guide/cloud#primitives)                                                                                            |
 
 There is no `extension` option and no slug.
 
