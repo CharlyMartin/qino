@@ -44,7 +44,7 @@ function setup() {
           searchableBy: ["title"],
           sortableBy: [],
           hiddenFields: ["notes"],
-          saveAs: "{title}",
+          saveEntryAs: "{title}",
           media: { saveFileAs: "posts/{field}/{name}-{hash}" },
         },
       },
