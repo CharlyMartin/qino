@@ -126,10 +126,13 @@ describe("createConfigFile", () => {
           mode: "commit_to_default_branch",
           reviewBeforePublish: false,
         },
-        media: { accepted: [{ type: "image/*", maxSize: "5MB" }] },
       },
     });
-    const schema = z.object({ title: z.string(), author: z.string() });
+    const schema = z.object({
+      title: z.string(),
+      author: z.string(),
+      cover: z.string(),
+    });
     const authors = qino.defineCollection({
       directory: "authors",
       schema,
@@ -140,7 +143,15 @@ describe("createConfigFile", () => {
       schema,
       extension: ".md",
       relations: { author: () => authors },
-      cloud: { searchableBy: ["title"], sortableBy: ["title"] },
+      media: {
+        cover: { accepted: "image/webp", maxSize: "5MB" },
+        markdown: [{ accepted: "image/png", maxSize: "1MB" }],
+      },
+      cloud: {
+        searchableBy: ["title"],
+        sortableBy: ["title"],
+        media: { saveFileAs: "posts/{field}/{name}-{hash}" },
+      },
     });
 
     for (const params of [

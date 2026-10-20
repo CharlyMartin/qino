@@ -2,12 +2,8 @@ import { describe, expect, test } from "vitest";
 import { z } from "zod";
 
 import { initQino } from "../../runtime/qino/init-qino";
-import type { CloudConfig } from "../../types/cloud";
 import { serializePrimitives } from "./serialize-primitives";
 
-const cloud: CloudConfig = {
-  publish: { mode: "commit_to_default_branch", reviewBeforePublish: false },
-};
 const qino = initQino({
   contentFolder: "content",
   mediaFolder: "public",
@@ -16,7 +12,7 @@ const schema = z.object({ title: z.string() });
 
 describe("serializePrimitives", () => {
   test("returns an empty object without primitives", () => {
-    expect(serializePrimitives([], cloud)).toEqual({});
+    expect(serializePrimitives([])).toEqual({});
   });
 
   test("keys primitives by id, sorted", () => {
@@ -31,7 +27,7 @@ describe("serializePrimitives", () => {
       extension: ".json",
     });
 
-    const serialized = serializePrimitives([posts, authors], cloud);
+    const serialized = serializePrimitives([posts, authors]);
 
     expect(Object.keys(serialized)).toEqual(["authors", "posts"]);
     expect(serialized.posts).toMatchObject({

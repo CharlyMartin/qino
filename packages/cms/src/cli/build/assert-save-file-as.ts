@@ -2,12 +2,12 @@ import { MEDIA_PATH_TOKENS } from "../../data/globals";
 import { getPathTokens } from "./get-path-tokens";
 
 /**
- * Fails on a `media.saveAs` the cloud UI can't fill in or that escapes
+ * Fails on a `cloud.media.saveFileAs` the cloud UI can't fill in or that escapes
  * `mediaFolder`: unknown tokens, a `.` in the file name (the cloud UI adds
  * the extension), no file name, a leading `/`, or `..`.
  */
-export function assertMediaSaveAs(saveAs: string, primitiveId: string) {
-  const prefix = `media.saveAs "${saveAs}" of "${primitiveId}"`;
+export function assertSaveFileAs(saveAs: string, primitiveId: string) {
+  const prefix = `cloud.media.saveFileAs "${saveAs}" of "${primitiveId}"`;
 
   const segments = saveAs.split("/");
   const fileName = segments.at(-1) ?? "";

@@ -5,7 +5,7 @@ import { initQino } from "../../runtime/qino/init-qino";
 import type { CloudConfig } from "../../types/cloud";
 import { serializePrimitive } from "./serialize-primitive";
 
-const media = { saveAs: "{id}/{name}-{hash}", fields: [] };
+const media = { saveFileAs: "{id}/{name}-{hash}" };
 const cloud: CloudConfig = {
   publish: { mode: "commit_to_default_branch", reviewBeforePublish: false },
 };
@@ -37,7 +37,7 @@ describe("serializePrimitive", () => {
       views: (view) => ({ default: view({ resolveRelations: true }) }),
     });
 
-    expect(serializePrimitive(posts, cloud)).toEqual({
+    expect(serializePrimitive(posts)).toEqual({
       directory: "posts",
       extension: ".md",
       displayAs: "posts",
@@ -54,6 +54,7 @@ describe("serializePrimitive", () => {
           cardinality: "one",
         },
       ],
+      media: {},
       cloud: { searchableBy: [], sortableBy: [], hiddenFields: [], media },
     });
   });
@@ -61,13 +62,14 @@ describe("serializePrimitive", () => {
   test("serializes an item", () => {
     const home = qino.defineItem({ file: "pages/home.json", schema });
 
-    expect(serializePrimitive(home, cloud)).toEqual({
+    expect(serializePrimitive(home)).toEqual({
       file: "pages/home.json",
       extension: ".json",
       displayAs: "pages/home.json",
       body: null,
       schema: jsonSchema,
       relations: [],
+      media: {},
       cloud: { hiddenFields: [], media },
     });
   });
@@ -97,19 +99,19 @@ describe("serializePrimitive", () => {
       cloud: { displayAs: "Docs", displayEntryAs: "{title}!" },
     });
 
-    expect(serializePrimitive(posts, cloud)).toMatchObject({
+    expect(serializePrimitive(posts)).toMatchObject({
       displayAs: "Blog posts",
       displayEntryAs: "{title}",
     });
-    expect(serializePrimitive(home, cloud)).toMatchObject({
+    expect(serializePrimitive(home)).toMatchObject({
       displayAs: "Home page",
     });
-    expect(serializePrimitive(docs, cloud)).toMatchObject({
+    expect(serializePrimitive(docs)).toMatchObject({
       displayAs: "Docs",
       displayEntryAs: "{title}!",
       titleField: "title",
     });
-    expect(serializePrimitive(posts, cloud).cloud).toEqual({
+    expect(serializePrimitive(posts).cloud).toEqual({
       searchableBy: [],
       sortableBy: [],
       hiddenFields: [],
@@ -118,9 +120,7 @@ describe("serializePrimitive", () => {
   });
 
   test("leaves displayEntryAs out of collections when unset", () => {
-    expect(serializePrimitive(authors, cloud)).not.toHaveProperty(
-      "displayEntryAs",
-    );
+    expect(serializePrimitive(authors)).not.toHaveProperty("displayEntryAs");
   });
 
   test("serializes a tree", () => {
@@ -131,7 +131,7 @@ describe("serializePrimitive", () => {
       titleField: "title",
     });
 
-    expect(serializePrimitive(docs, cloud)).toEqual({
+    expect(serializePrimitive(docs)).toEqual({
       directory: "docs",
       extension: ".mdx",
       displayAs: "docs",
@@ -141,7 +141,45 @@ describe("serializePrimitive", () => {
       body: { format: "mdx" },
       schema: jsonSchema,
       relations: [],
+      media: {},
       cloud: { searchableBy: [], hiddenFields: [], media },
     });
+  });
+
+  test("writes media with sizes in bytes", () => {
+    const posts = qino.defineCollection({
+      directory: "posts",
+      schema: z.object({ title: z.string(), gallery: z.array(z.string()) }),
+      extension: ".md",
+      media: {
+        "gallery[*]": { accepted: "image/webp", maxSize: "5MB" },
+        markdown: [
+          { accepted: "image/png", maxSize: "600KB" },
+          { accepted: "image/jpeg", maxSize: "600KB" },
+        ],
+      },
+    });
+
+    expect(serializePrimitive(posts).media).toEqual({
+      "gallery[*]": { accepted: "image/webp", maxSize: 5242880 },
+      markdown: [
+        { accepted: "image/png", maxSize: 614400 },
+        { accepted: "image/jpeg", maxSize: 614400 },
+      ],
+    });
+  });
+
+  test("checks media fields against the schema input", () => {
+    const posts = qino.defineCollection({
+      directory: "posts",
+      schema: z.object({ count: z.number() }),
+      extension: ".md",
+      // @ts-expect-error "count" isn't a string.
+      media: { count: { accepted: "image/webp", maxSize: "5MB" } },
+    });
+
+    expect(() => serializePrimitive(posts)).toThrow(
+      'media "count" of "posts" isn\'t a string on disk.',
+    );
   });
 });
