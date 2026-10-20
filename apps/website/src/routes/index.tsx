@@ -9,10 +9,20 @@ import { PrimitivesSection } from "@/components/landing/primitives-section";
 import { RelationsSection } from "@/components/landing/relations-section";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { SiteHeader } from "@/components/landing/site-header";
+import { TestimonialsSection } from "@/components/landing/testimonials-section";
+import { getProjectStats } from "@/server/get-project-stats";
 import { getSnippets } from "@/server/get-snippets";
+import { getTestimonials } from "@/server/get-testimonials";
 
 export const Route = createFileRoute("/")({
-  loader: () => getSnippets(),
+  loader: async () => {
+    const [snippets, testimonials, stats] = await Promise.all([
+      getSnippets(),
+      getTestimonials(),
+      getProjectStats(),
+    ]);
+    return { ...snippets, testimonials, stats };
+  },
   head: () => ({
     meta: [
       { title: "Qino — Markdown in. TypeScript out." },
@@ -27,8 +37,14 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const { pipelineFiles, pipelineDefine, pipelineQuery, relationsPosts } =
-    Route.useLoaderData();
+  const {
+    pipelineFiles,
+    pipelineDefine,
+    pipelineQuery,
+    relationsPosts,
+    testimonials,
+    stats,
+  } = Route.useLoaderData();
 
   return (
     <>
@@ -40,7 +56,8 @@ function HomePage() {
       </a>
       <SiteHeader />
       <main id="main-content">
-        <Hero />
+        <Hero stats={stats} />
+        <TestimonialsSection testimonials={testimonials} />
         <Pipeline
           files={pipelineFiles}
           define={pipelineDefine}

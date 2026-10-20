@@ -1,17 +1,32 @@
+import { cva, type VariantProps } from "class-variance-authority";
 import type { SimpleIcon as Icon } from "simple-icons";
 
-type SimpleIconProps = {
+const iconVariants = cva("w-auto shrink-0 text-foreground-2", {
+  variants: {
+    size: {
+      default: "h-5",
+      small: "h-3.5",
+    },
+  },
+  defaultVariants: { size: "default" },
+});
+
+type SimpleIconProps = VariantProps<typeof iconVariants> & {
   icon: Icon;
   /** Crop to the glyph bounds so icons can share a height. */
   viewBox?: string;
 };
 
-export function SimpleIcon({ icon, viewBox = "0 0 24 24" }: SimpleIconProps) {
+export function SimpleIcon({
+  icon,
+  viewBox = "0 0 24 24",
+  size,
+}: SimpleIconProps) {
   return (
     <svg
       viewBox={viewBox}
       fill="currentColor"
-      className="h-5 w-auto shrink-0 text-foreground-2"
+      className={iconVariants({ size })}
       aria-hidden="true"
     >
       <path d={icon.path} />

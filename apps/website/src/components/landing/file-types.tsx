@@ -13,20 +13,23 @@ const fileTypes = [
 
 export function FileTypes() {
   return (
-    <Section aria-labelledby="file-types-heading" spacing="compact">
+    <Section aria-labelledby="file-types-heading" spacing="none">
       <h2 id="file-types-heading" className="sr-only">
         Supported file types
       </h2>
-      <div className="grid grid-cols-2 items-center gap-x-7 gap-y-6 md:grid-cols-4">
-        <Eyebrow>
-          Reads the files
-          <br />
-          you already have
-        </Eyebrow>
+      {/* Cells carry the vertical padding on desktop so their dividers run full height. */}
+      <div className="grid grid-cols-2 gap-x-7 gap-y-6 py-8 md:grid-cols-4 md:py-0">
+        <div className="flex items-center md:py-8">
+          <Eyebrow>
+            Reads the files
+            <br />
+            you already have
+          </Eyebrow>
+        </div>
         {fileTypes.map(({ icon, viewBox }) => (
           <div
             key={icon.slug}
-            className="flex min-w-0 items-center gap-3 md:border-l md:pl-4 lg:gap-4 lg:pl-6"
+            className="flex min-w-0 items-center gap-3 md:border-l md:py-8 md:pl-4 lg:gap-4 lg:pl-6"
           >
             <SimpleIcon icon={icon} viewBox={viewBox} />
             <Text size="small">{icon.title}</Text>
