@@ -3,8 +3,13 @@ import { ZodError } from "zod";
 
 import { parseConfigFile } from "./parse-config-file";
 
-const media = { saveAs: "{id}/{name}-{hash}", fields: [] };
-const base = { body: null, schema: { type: "object" }, relations: [] };
+const media = { saveFileAs: "{id}/{name}-{hash}" };
+const base = {
+  body: null,
+  schema: { type: "object" },
+  relations: [],
+  media: {},
+};
 
 function setup() {
   return {
@@ -24,6 +29,10 @@ function setup() {
         displayEntryAs: "{title}",
         extension: ".md",
         body: { format: "markdown" },
+        media: {
+          image: { accepted: "image/webp", maxSize: 5242880 },
+          markdown: [{ accepted: "image/png", maxSize: 1048576 }],
+        },
         relations: [
           {
             path: "author",
@@ -36,7 +45,7 @@ function setup() {
           sortableBy: [],
           hiddenFields: ["notes"],
           saveAs: "{title}",
-          media: { ...media, fields: ["image"] },
+          media: { saveFileAs: "posts/{field}/{name}-{hash}" },
         },
       },
     },
@@ -46,7 +55,7 @@ function setup() {
         file: "pages/home.json",
         displayAs: "Home page",
         extension: ".json",
-        cloud: { hiddenFields: [], media: { ...media, accepted: [] } },
+        cloud: { hiddenFields: [], media },
       },
     },
     trees: {
@@ -105,6 +114,23 @@ describe("parseConfigFile", () => {
     expect(() => parseConfigFile({ ...setup(), version: 2 })).toThrow(
       "Unsupported config.json version",
     );
+  });
+
+  test("rejects a media field accepting several types", () => {
+    const json = setup();
+    json.collections.posts.media.image = {
+      accepted: ["image/webp"],
+      maxSize: 1024,
+    } as never;
+    expect(() => parseConfigFile(json)).toThrow(ZodError);
+  });
+
+  test("rejects a markdown rule accepting several types", () => {
+    const json = setup();
+    json.collections.posts.media.markdown = [
+      { accepted: ["image/png", "image/jpeg"], maxSize: 1024 },
+    ] as never;
+    expect(() => parseConfigFile(json)).toThrow(ZodError);
   });
 
   test("fails on a missing or invalid field", () => {
