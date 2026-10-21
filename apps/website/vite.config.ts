@@ -17,7 +17,11 @@ export default defineConfig(({ mode }) => ({
     tailwindcss(),
     tanstackStart({
       // /docs redirects and is excluded, so seed the first content page.
-      pages: [{ path: "/docs/guide" }],
+      pages: [
+        { path: "/docs/guide" },
+        { path: "/llms.txt", sitemap: { exclude: true } },
+        { path: "/llms-full.txt", sitemap: { exclude: true } },
+      ],
       prerender: {
         enabled: true,
         crawlLinks: true,

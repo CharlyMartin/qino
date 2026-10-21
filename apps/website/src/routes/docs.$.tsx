@@ -11,6 +11,7 @@ import { Title } from "../components/landing/title";
 import { getPageHead } from "../lib/get-page-head";
 import { hasDocsSlug } from "../lib/has-docs-slug";
 import { site } from "../lib/site";
+import { getDocsMarkdown } from "../server/get-docs-markdown";
 import { getDocsPage } from "../server/get-docs-page";
 
 const notFoundMeta = [
@@ -62,7 +63,33 @@ export const Route = createFileRoute("/docs/$")({
       ],
     });
 
-    return head;
+    return {
+      ...head,
+      links: [
+        ...head.links,
+        { rel: "alternate", type: "text/markdown", href: `${path}.md` },
+      ],
+    };
+  },
+  server: {
+    handlers: {
+      // `/docs/<slug>.md` serves the page as plain Markdown for LLMs and agents.
+      GET: async ({ params, next }) => {
+        // The prerender crawler requests paths with a trailing slash.
+        const slug = (params._splat ?? "").replace(/\/$/, "");
+        if (!slug.endsWith(".md")) return next();
+
+        const markdown = await getDocsMarkdown(slug.slice(0, -".md".length));
+        if (markdown == null) return new Response("Not found", { status: 404 });
+
+        return new Response(markdown, {
+          headers: {
+            "Content-Type": "text/markdown; charset=utf-8",
+            "Cache-Control": "public, s-maxage=86400",
+          },
+        });
+      },
+    },
   },
   component: DocsPage,
   notFoundComponent: DocsNotFound,
