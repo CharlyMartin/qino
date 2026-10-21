@@ -7,7 +7,7 @@ import viteReact from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 
-import { site } from "./src/lib/site";
+import { site } from "./src/lib/site.ts";
 
 export default defineConfig(({ mode }) => ({
   server: { port: 3000 },
