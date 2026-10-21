@@ -10,6 +10,9 @@ import { RelationsSection } from "@/components/landing/relations-section";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { SiteHeader } from "@/components/landing/site-header";
 import { TestimonialsSection } from "@/components/landing/testimonials-section";
+import { externalLinks } from "@/lib/external-links";
+import { getPageHead } from "@/lib/get-page-head";
+import { site } from "@/lib/site";
 import { getProjectStats } from "@/server/get-project-stats";
 import { getSnippets } from "@/server/get-snippets";
 import { getTestimonials } from "@/server/get-testimonials";
@@ -23,16 +26,27 @@ export const Route = createFileRoute("/")({
     ]);
     return { ...snippets, testimonials, stats };
   },
-  head: () => ({
-    meta: [
-      { title: "Qino — Markdown in. TypeScript out." },
-      {
-        name: "description",
-        content:
-          "A headless flat-file CMS for Markdown, MDX and JSON. Query your content with schema validation, resolved relations and inferred TypeScript types. Nothing to deploy.",
-      },
-    ],
-  }),
+  head: () =>
+    getPageHead({
+      title: "qino — Markdown in. TypeScript out.",
+      description: site.description,
+      path: "/",
+      jsonLd: [
+        {
+          "@type": "SoftwareApplication",
+          name: site.name,
+          url: site.url,
+          description: site.description,
+          applicationCategory: "DeveloperApplication",
+          operatingSystem: "Node.js 22+",
+          license: "https://opensource.org/licenses/MIT",
+          downloadUrl: externalLinks.npm,
+          sameAs: [externalLinks.github, externalLinks.npm],
+          offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+          author: { "@type": "Person", ...site.author },
+        },
+      ],
+    }),
   component: HomePage,
 });
 

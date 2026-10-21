@@ -8,8 +8,15 @@ import { mdxComponents } from "../components/docs/mdx-components";
 import { Eyebrow } from "../components/landing/eyebrow";
 import { Text } from "../components/landing/text";
 import { Title } from "../components/landing/title";
+import { getPageHead } from "../lib/get-page-head";
 import { hasDocsSlug } from "../lib/has-docs-slug";
+import { site } from "../lib/site";
 import { getDocsPage } from "../server/get-docs-page";
+
+const notFoundMeta = [
+  { title: "Page not found | qino" },
+  { name: "robots", content: "noindex" },
+];
 
 export const Route = createFileRoute("/docs/$")({
   loader: async ({ params, parentMatchPromise }) => {
@@ -19,14 +26,44 @@ export const Route = createFileRoute("/docs/$")({
 
     return getDocsPage({ data: slug });
   },
-  head: ({ loaderData }) => ({
-    meta: loaderData
-      ? [
-          { title: `${loaderData.title} | Qino` },
-          { name: "description", content: loaderData.description },
-        ]
-      : [{ title: "Page not found | Qino" }],
-  }),
+  head: ({ loaderData }) => {
+    if (!loaderData) return { meta: notFoundMeta };
+
+    const { slug, title, description, breadcrumbs } = loaderData;
+    const path = `/docs/${slug}`;
+    const head = getPageHead({
+      title: `${title} | qino`,
+      description,
+      path,
+      type: "article",
+      jsonLd: [
+        {
+          "@type": "TechArticle",
+          headline: title,
+          description,
+          url: `${site.url}${path}`,
+          image: `${site.url}${site.ogImage}`,
+          author: { "@type": "Person", ...site.author },
+          publisher: {
+            "@type": "Organization",
+            name: site.name,
+            url: site.url,
+          },
+        },
+        {
+          "@type": "BreadcrumbList",
+          itemListElement: breadcrumbs.map((crumb, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            name: crumb.title,
+            item: `${site.url}/docs/${crumb.slug}`,
+          })),
+        },
+      ],
+    });
+
+    return head;
+  },
   component: DocsPage,
   notFoundComponent: DocsNotFound,
 });

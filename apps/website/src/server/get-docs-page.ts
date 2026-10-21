@@ -4,6 +4,7 @@ import { staticFunctionMiddleware } from "@tanstack/start-static-server-function
 import { z } from "zod";
 
 import { docsTree } from "../../qino/docs";
+import { getDocsLinks } from "./get-docs-links";
 import { serializeMdx } from "./serialize-mdx";
 import { toDocsNode } from "./to-docs-node";
 
@@ -19,13 +20,15 @@ export const getDocsPage = createServerFn({ method: "GET" })
       docsTree.getEntry(node.slug),
       docsTree.getPreviousNode(node.slug),
       docsTree.getNextNode(node.slug),
-      Promise.all(
-        node.children.map(async (child) => {
-          const { title, description } = await docsTree.getEntry(child.slug);
-          return { slug: child.slug, title, description };
-        }),
-      ),
+      getDocsLinks(node),
     ]);
+
+    // Ancestors are the slug's prefixes: "api/tree/get-entry" → "api", "api/tree".
+    const breadcrumbs = slug.split("/").map((_, index, parts) => {
+      const crumbSlug = parts.slice(0, index + 1).join("/");
+      const crumb = flat.find((candidate) => candidate.slug == crumbSlug);
+      return { slug: crumbSlug, title: crumb?.title ?? crumbSlug };
+    });
 
     const mdx = await serializeMdx(entry.markdown);
 
@@ -37,6 +40,7 @@ export const getDocsPage = createServerFn({ method: "GET" })
       raw: entry.raw,
       mdx,
       links,
+      breadcrumbs,
       previousNode: previousNode ? toDocsNode(previousNode) : null,
       nextNode: nextNode ? toDocsNode(nextNode) : null,
     };
