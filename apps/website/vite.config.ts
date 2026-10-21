@@ -7,6 +7,8 @@ import viteReact from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 
+import { site } from "./src/lib/site";
+
 export default defineConfig(({ mode }) => ({
   server: { port: 3000 },
   resolve: { tsconfigPaths: true },
@@ -20,15 +22,28 @@ export default defineConfig(({ mode }) => ({
         enabled: true,
         crawlLinks: true,
         failOnError: true,
-        filter: ({ path }) => path != "/docs" && path != "/docs/",
+        // Skip the "/docs" redirect and duplicates of other pages: trailing slashes
+        // ("/blog/") and crawled anchors ("/docs/guide/cli#media"), which would also
+        // race to write the same file. Pages reach the sitemap before this filter
+        // runs, so exclude skipped ones there too.
+        filter: (page) => {
+          const keep =
+            page.path == "/" ||
+            (page.path != "/docs" &&
+              !page.path.endsWith("/") &&
+              !page.path.includes("#"));
+          if (!keep) page.sitemap = { exclude: true };
+          return keep;
+        },
       },
+      sitemap: { enabled: true, host: site.url },
     }),
     mode != "test" &&
       nitro({
         compatibilityDate: "2026-09-20",
         modules: [
           (nitro) => {
-            // Qino needs the content files in the deployed server's working directory.
+            // qino needs the content files in the deployed server's working directory.
             nitro.hooks.hook("compiled", () =>
               cp(
                 join(nitro.options.rootDir, "content"),
