@@ -24,7 +24,7 @@ Every command runs from the working directory and expects:
 
 The CLI loads `qino/index.ts`, definitions, and their imports with [jiti](https://github.com/unjs/jiti). TypeScript requires no separate compilation step. See [Project structure](/docs/guide/project-structure).
 
-You can reuse your project's import aliases, such as `@/schemas/post`. The CLI reads `compilerOptions.paths` from the nearest `tsconfig.json`, searching upward from the working directory, including paths inherited through `extends`. No Qino-specific configuration is needed.
+You can reuse your project's import aliases, such as `@/schemas/post`. The CLI reads `compilerOptions.paths` from the nearest `tsconfig.json`, searching upward from the working directory, including paths inherited through `extends`. No qino-specific configuration is needed.
 
 The CLI runs outside your app's bundler. Definitions and shared schemas must not import CSS, images, or Markdown through bundler loaders, including indirectly through other modules.
 
@@ -83,7 +83,7 @@ The body is parsed as Markdown with GFM (tables, autolinks), plus MDX for `.mdx`
 
 A URL is a file reference when its last segment has an extension, like `/images/a.png` or `/files/b.pdf`, and it matches no `exclude` glob. It maps to a path inside `mediaFolder`: with `mediaFolder: "public"`, `/images/a.png` must exist at `public/images/a.png`.
 
-Query strings and hashes are stripped, percent-encoded characters like `%20` and `%23` are decoded, and so are HTML character references like `&amp;` in attributes. External URLs, protocol-relative `//` URLs, and relative paths like `./a.png` are ignored. Page links without an extension, like `/blog/post`, are skipped. Qino never lists the media folder; files it doesn't reference are left alone. Use `exclude` for files served by routes, such as generated Open Graph images, feeds, or sitemaps.
+Query strings and hashes are stripped, percent-encoded characters like `%20` and `%23` are decoded, and so are HTML character references like `&amp;` in attributes. External URLs, protocol-relative `//` URLs, and relative paths like `./a.png` are ignored. Page links without an extension, like `/blog/post`, are skipped. qino never lists the media folder; files it doesn't reference are left alone. Use `exclude` for files served by routes, such as generated Open Graph images, feeds, or sitemaps.
 
 Every missing file is reported at once:
 

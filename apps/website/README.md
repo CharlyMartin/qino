@@ -1,4 +1,4 @@
-# Qino website
+# qino website
 
 TanStack Start renders the Markdown documentation in `content/docs` through
 `@qino/cms`. Section pages include their body and child links. The homepage is a
@@ -14,8 +14,8 @@ pnpm --filter website build
 pnpm --filter website preview
 ```
 
-Use the workspace commands so Qino resolves its content and config relative to
-`apps/website`. The website build validates content and generates Qino types before
+Use the workspace commands so qino resolves its content and config relative to
+`apps/website`. The website build validates content and generates qino types before
 Vite runs. Keep `src/routeTree.gen.ts` in version control; Vite regenerates it.
 
 The build prerenders `/` and every documentation page into Nitro's public output
@@ -48,6 +48,18 @@ against the docs tree and display the existing not-found page. Missing static
 assets for known pages are deployment errors, with no runtime compilation fallback.
 The error screen offers a full-page reload to recover from a failed request or
 pick up a newer deployment. Other unknown URLs show a site-wide not-found page.
+
+SEO and LLM endpoints:
+
+- Each page sets a canonical URL, Open Graph/Twitter tags and JSON-LD through
+  `src/lib/get-page-head.ts`. The site URL lives in `src/lib/site.ts`.
+- The build writes `sitemap.xml`; `public/robots.txt` points to it.
+- `/llms.txt` and `/llms-full.txt` are generated from the docs tree and prerendered.
+- `/docs/<slug>.md` returns a page as plain Markdown (`src/server/get-docs-markdown.ts`).
+  Pages with a "View Markdown" link are prerendered through the crawler; section
+  landings are served by the Start runtime. Both stay out of the sitemap.
+- `public/og.png` (1200×630), `public/favicon.svg` and `public/apple-touch-icon.png`
+  are referenced from the root route.
 
 Checks:
 

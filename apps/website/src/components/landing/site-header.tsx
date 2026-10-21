@@ -9,7 +9,7 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-7 lg:px-12">
         <Link
           to="/"
-          aria-label="Qino home"
+          aria-label="qino home"
           className="text-xl font-extrabold tracking-tight"
         >
           qino

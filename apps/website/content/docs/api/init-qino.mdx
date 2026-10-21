@@ -4,7 +4,7 @@ description: Initialize the instance that all definitions hang off.
 since: "releases/0.1.0.md"
 ---
 
-Initializes a Qino instance bound to a content folder and a media folder. Every collection, tree, and item is defined through the returned instance.
+Initializes a qino instance bound to a content folder and a media folder. Every collection, tree, and item is defined through the returned instance.
 
 ```ts title="qino/index.ts"
 import { initQino } from "@qino/cms";
@@ -68,7 +68,7 @@ function initQino(config: {
 | `cli.build.types`                                 | `boolean`                                           | no       | `true`    | Whether `qino build` writes `qino/_generated/types.d.ts`. See [qino build](/docs/guide/cli#qino-build)                                                                                                                                          |
 | `cloud`                                           | `object`                                            | no       |           | Configures the cloud UI. When set, `qino build` writes `qino/_generated/config.json` and `qino check` verifies it. Requires schemas implementing [Standard JSON Schema](https://standardschema.dev/json-schema). See [Cloud](/docs/guide/cloud) |
 | `cloud.publish.mode`                              | `"open_pull_request" \| "commit_to_default_branch"` | yes      |           | Whether publishing opens a pull request or commits to the default branch                                                                                                                                                                        |
-| `cloud.publish.reviewBeforePublish`               | `boolean \| { bypassIfAdmin? }`                     | yes      |           | Whether an approver signs off in Qino before the author can publish. An object turns review on and configures it                                                                                                                                |
+| `cloud.publish.reviewBeforePublish`               | `boolean \| { bypassIfAdmin? }`                     | yes      |           | Whether an approver signs off in qino before the author can publish. An object turns review on and configures it                                                                                                                                |
 | `cloud.publish.reviewBeforePublish.bypassIfAdmin` | `boolean`                                           | no       | `false`   | Whether admins can publish before every entry is approved                                                                                                                                                                                       |
 | `cloud.publish.branchPrefix`                      | `string`                                            | no       | `"qino/"` | Prefix of the branches the cloud UI opens. `open_pull_request` only                                                                                                                                                                             |
 

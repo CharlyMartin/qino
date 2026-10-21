@@ -35,7 +35,7 @@ test("renders a card per link with title and description", async () => {
     {
       slug: "guide/installation",
       title: "Installation",
-      description: "Add Qino to a project.",
+      description: "Add qino to a project.",
     },
   ]);
 
@@ -44,7 +44,7 @@ test("renders a card per link with title and description", async () => {
   expect(html).toContain('href="/docs/guide/installation"');
   expect(html).toContain(">CLI</span>");
   expect(html).toContain(">The qino command.</span>");
-  expect(html).toContain(">Add Qino to a project.</span>");
+  expect(html).toContain(">Add qino to a project.</span>");
 });
 
 test("renders nothing without links", async () => {

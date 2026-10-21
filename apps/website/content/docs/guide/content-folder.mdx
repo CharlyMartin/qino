@@ -7,7 +7,7 @@ The content folder is the directory passed as `contentFolder` to `initQino`. Eac
 
 ## Content paths
 
-Every path Qino reads, in primitive definitions and in content, is a **content path**: relative to the content folder, with no leading `/`.
+Every path qino reads, in primitive definitions and in content, is a **content path**: relative to the content folder, with no leading `/`.
 
 ```ts title="qino/collections/posts.ts"
 qino.defineCollection({ directory: "posts", ... }); // src/content/posts/
@@ -25,7 +25,7 @@ Content paths are relative to the content folder, not to the file they appear in
 | `.markdown` | YAML frontmatter + Markdown body |
 | `.json`     | A JSON object                    |
 
-For the three Markdown formats, the schema validates the frontmatter only. Qino then adds the body as a `markdown` string and the untouched file as a `raw` string. See [Frontmatter](/docs/guide/frontmatter) and [Schemas](/docs/concepts/schemas).
+For the three Markdown formats, the schema validates the frontmatter only. qino then adds the body as a `markdown` string and the untouched file as a `raw` string. See [Frontmatter](/docs/guide/frontmatter) and [Schemas](/docs/concepts/schemas).
 
 ## Collections
 
@@ -93,7 +93,7 @@ categories:
 
 Bare slugs are rejected. The directory and extension must match the target primitive. For item targets, the value must equal the item's `file`. See [Relations](/docs/concepts/relations).
 
-A relation value can also be a **root path**: a path from the project or repository root that goes through the content folder. Qino strips everything up to the content folder:
+A relation value can also be a **root path**: a path from the project or repository root that goes through the content folder. qino strips everything up to the content folder:
 
 ```yaml title="src/content/posts/hello-world.md"
 author: "src/content/authors/camille-laurent.json" # from the project root
@@ -101,12 +101,12 @@ categories:
   - "apps/site/src/content/categories/content-modeling.json" # from the monorepo root
 ```
 
-These resolve like `authors/camille-laurent.json` and `categories/content-modeling.json`. This keeps content written by Git-based CMSs such as Decap CMS, which store paths from the repository root, working with Qino.
+These resolve like `authors/camille-laurent.json` and `categories/content-modeling.json`. This keeps content written by Git-based CMSs such as Decap CMS, which store paths from the repository root, working with qino.
 
 ## Reserved names
 
 - `_meta` is reserved at the top level of every content file and every schema.
-- `markdown` and `raw` are reserved in Markdown frontmatter and schemas; Qino adds them after validation. In JSON files, they are ordinary fields.
+- `markdown` and `raw` are reserved in Markdown frontmatter and schemas; qino adds them after validation. In JSON files, they are ordinary fields.
 
 Nested keys with those names are ordinary user fields.
 

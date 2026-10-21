@@ -3,7 +3,7 @@ title: Next.js
 description: The reference Next.js app that exercises collections, trees, items, relations, and views.
 ---
 
-The canonical Qino example is a Next.js App Router site. It lives in the repository at [`examples/next-js`](https://github.com/CharlyMartin/qino/tree/main/examples/next-js).
+The canonical qino example is a Next.js App Router site. It lives in the repository at [`examples/next-js`](https://github.com/CharlyMartin/qino/tree/main/examples/next-js).
 
 ## What it covers
 
@@ -60,7 +60,7 @@ const [nodes, entry, previousNode, nextNode] = await Promise.all([
 
 ## Rendering
 
-Qino returns raw Markdown. The example renders `.md` posts with `react-markdown` and `.mdx` docs with `next-mdx-remote`, both with `remark-gfm`, `rehype-slug`, `rehype-autolink-headings`, and `rehype-highlight`.
+qino returns raw Markdown. The example renders `.md` posts with `react-markdown` and `.mdx` docs with `next-mdx-remote`, both with `remark-gfm`, `rehype-slug`, `rehype-autolink-headings`, and `rehype-highlight`.
 
 <Callout type="note">
 The example on Github lives in a monorepo and imports `@qino/cms` from the workspace, which exposes raw TypeScript, so Next.js must transpile it. Apps installing `@qino/cms` from `npm` get compiled JavaScript and don't need to add it to `transpilePackages` in `nextConfig`.

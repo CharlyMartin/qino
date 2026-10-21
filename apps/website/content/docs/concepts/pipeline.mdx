@@ -1,15 +1,15 @@
 ---
 title: Entry pipeline
-description: The order in which Qino reads, validates, and shapes an entry, and where to transform data.
+description: The order in which qino reads, validates, and shapes an entry, and where to transform data.
 ---
 
 Every getter builds its entries through the same steps, in the same order. Each step only sees what the previous ones produced.
 
 ## Steps
 
-1. **Parse.** Qino reads the file. For Markdown, MDX, and `.markdown`, it parses the frontmatter with js-yaml. For `.json`, it parses the whole file. See [Frontmatter](/docs/guide/frontmatter).
+1. **Parse.** qino reads the file. For Markdown, MDX, and `.markdown`, it parses the frontmatter with js-yaml. For `.json`, it parses the whole file. See [Frontmatter](/docs/guide/frontmatter).
 2. **Validate.** The schema validates the parsed data. Schema transforms run here. Reserved fields are rejected in both the input and the output. See [Schemas](/docs/concepts/schemas).
-3. **Add Qino fields.** Qino adds `markdown` and `raw` to Markdown entries, and `_meta` to every entry.
+3. **Add qino fields.** qino adds `markdown` and `raw` to Markdown entries, and `_meta` to every entry.
 4. **Read images.** Image fields of `media` are replaced by a `QinoImage`, with their dimensions and a blur placeholder. Reading fails when an image is missing, of another type, or over its `maxSize`. See [Media](/docs/concepts/media).
 5. **Resolve relations.** Relation references are replaced by their target entries, up to the view's `resolveRelations` depth. See [Relations](/docs/concepts/relations).
 6. **Augment.** The view's `augment` adds derived fields.
@@ -24,7 +24,7 @@ Steps 5 to 8 come from the selected view. See [Views](/docs/concepts/views).
 | `relations` paths   | The schema output                                              |
 | `media` paths       | The schema output                                              |
 | `titleField`        | The schema output                                              |
-| `augment`           | The schema output, Qino fields, images, and resolved relations |
+| `augment`           | The schema output, qino fields, images, and resolved relations |
 | `filter` and `sort` | The augmented entry                                            |
 
 Some reads never run views:
@@ -35,7 +35,7 @@ Some reads never run views:
 
 ## Transforming data
 
-Qino has no transform option. Reshape data in the schema instead: most [Standard Schema](https://standardschema.dev) validators accept a transform callback, and Qino runs it during validation, in step 2. The example below turns a comma-separated `tags` string into an array.
+qino has no transform option. Reshape data in the schema instead: most [Standard Schema](https://standardschema.dev) validators accept a transform callback, and qino runs it during validation, in step 2. The example below turns a comma-separated `tags` string into an array.
 
 ```ts title="Zod"
 schema: z
@@ -69,7 +69,7 @@ A transform must:
 
 - be synchronous. A validator that returns a Promise is rejected.
 - return an object.
-- not add `_meta`, nor `markdown` or `raw` in Markdown entries. Qino adds those in step 3.
+- not add `_meta`, nor `markdown` or `raw` in Markdown entries. qino adds those in step 3.
 
 ## Transform or augment?
 
@@ -78,7 +78,7 @@ Both derive data. They run at different steps:
 |            | Schema transform                    | View `augment`                                         |
 | ---------- | ----------------------------------- | ------------------------------------------------------ |
 | Runs       | Step 2, once per file               | Step 6, per view                                       |
-| Sees       | The file's data                     | Schema output, Qino fields, images, resolved relations |
+| Sees       | The file's data                     | Schema output, qino fields, images, resolved relations |
 | Can        | Rename, remove, and reshape fields  | Add fields only                                        |
 | Async      | No                                  | Yes                                                    |
 | Applies to | Every view, relations, `qino check` | The view that declares it                              |
@@ -87,7 +87,7 @@ Use a transform to change the shape of your content. Use `augment` for values th
 
 ## Example: camel case keys
 
-Qino returns keys as written in the source. To read `published_at` as `publishedAt`, rename the keys in a transform, for instance with [camelcase-keys](https://github.com/sindresorhus/camelcase-keys):
+qino returns keys as written in the source. To read `published_at` as `publishedAt`, rename the keys in a transform, for instance with [camelcase-keys](https://github.com/sindresorhus/camelcase-keys):
 
 ```ts title="qino/collections/posts.ts"
 import camelcaseKeys from "camelcase-keys";

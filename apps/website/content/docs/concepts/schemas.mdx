@@ -1,9 +1,9 @@
 ---
 title: Schemas
-description: How entries are validated and what Qino adds or reserves.
+description: How entries are validated and what qino adds or reserves.
 ---
 
-Every primitive takes a `schema`. Qino accepts any [Standard Schema](https://standardschema.dev) validator and treats it as a black box: it calls the standard validate function and never touches validator-specific APIs. Zod, Valibot, and ArkType all work.
+Every primitive takes a `schema`. qino accepts any [Standard Schema](https://standardschema.dev) validator and treats it as a black box: it calls the standard validate function and never touches validator-specific APIs. Zod, Valibot, and ArkType all work.
 
 The schema must be synchronous. A validator that returns a Promise is rejected.
 
@@ -28,7 +28,7 @@ To reshape data, such as splitting a string or renaming keys, use your validator
 
 ## markdown and raw
 
-After validation, Qino adds two strings to every Markdown entry, like it adds `_meta`:
+After validation, qino adds two strings to every Markdown entry, like it adds `_meta`:
 
 - `markdown`: the body, without frontmatter. An empty body is an empty string.
 - `raw`: the whole source file, frontmatter included, byte for byte.
@@ -51,7 +51,7 @@ In Markdown files, `markdown` and `raw` are reserved at the top level of frontma
 
 `_meta` is reserved at the top level of content, schema input, and schema output, for every format. Declaring it in a schema is a type error. A transform that introduces it fails at runtime. Nested keys named `_meta` are ordinary fields.
 
-After validation, Qino adds `_meta`:
+After validation, qino adds `_meta`:
 
 | Primitive  | `_meta` fields                 |
 | ---------- | ------------------------------ |
