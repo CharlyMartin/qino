@@ -38,12 +38,8 @@ export function Hero({ stats }: HeroProps) {
 
         <div className="flex flex-col gap-3 md:flex-row md:justify-center">
           <ButtonLink to="/docs">Read the docs</ButtonLink>
-          <ButtonLink
-            to="/docs/$"
-            params={{ _splat: "examples" }}
-            variant="outline"
-          >
-            See examples
+          <ButtonLink to="/cloud" variant="outline">
+            Join the Cloud waitlist
           </ButtonLink>
         </div>
       </div>
