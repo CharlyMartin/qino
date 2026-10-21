@@ -39,6 +39,11 @@ export default defineConfig(({ mode }) => ({
           if (!keep) page.sitemap = { exclude: true };
           return keep;
         },
+        // "View Markdown" links get `/docs/<slug>.md` prerendered; they're not pages.
+        onSuccess: ({ page }) =>
+          page.path.endsWith(".md")
+            ? { sitemap: { exclude: true } }
+            : undefined,
       },
       sitemap: { enabled: true, host: site.url },
     }),

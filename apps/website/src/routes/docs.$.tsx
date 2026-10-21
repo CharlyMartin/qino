@@ -5,6 +5,7 @@ import { CopyMarkdownButton } from "../components/docs/copy-markdown-button";
 import { DocsNotFound } from "../components/docs/docs-not-found";
 import { DocsPagination } from "../components/docs/docs-pagination";
 import { mdxComponents } from "../components/docs/mdx-components";
+import { ViewMarkdownLink } from "../components/docs/view-markdown-link";
 import { Eyebrow } from "../components/landing/eyebrow";
 import { Text } from "../components/landing/text";
 import { Title } from "../components/landing/title";
@@ -107,7 +108,12 @@ function DocsPage() {
         {since ? <Eyebrow tone="accent">Since {since.version}</Eyebrow> : null}
         <Title as="h1">{title}</Title>
         <Text size="lead">{description}</Text>
-        {isSectionLanding ? null : <CopyMarkdownButton markdown={raw} />}
+        {isSectionLanding ? null : (
+          <div className="flex flex-wrap gap-2">
+            <CopyMarkdownButton markdown={raw} />
+            <ViewMarkdownLink slug={slug} />
+          </div>
+        )}
       </header>
       <div className="prose prose-invert max-w-none">
         <MDXRemote {...mdx} components={mdxComponents} />
