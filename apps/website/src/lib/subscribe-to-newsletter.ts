@@ -8,6 +8,8 @@ const forminit = new Forminit();
 
 export type NewsletterState = {
   done: boolean;
+  /** The subscribed address, once done. */
+  email?: string;
   errorText?: string;
 };
 
@@ -28,7 +30,8 @@ export async function subscribeToNewsletter(
       console.error("Forminit:", error ?? data);
       return { done: false, errorText: getForminitErrorText(error) };
     }
-    return { done: true };
+    const email = fd.get("fi-sender-email");
+    return { done: true, email: typeof email == "string" ? email : undefined };
   } catch (error) {
     console.error("Forminit:", error);
     return { done: false, errorText: getForminitErrorText() };

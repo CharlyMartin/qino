@@ -28,7 +28,7 @@ test("returns done when Forminit accepts the submission", async () => {
   submit.mockResolvedValue({ data: { hashId: "abc" }, error: null });
   await expect(
     subscribeToNewsletter(initialState, formData("Jane")),
-  ).resolves.toEqual({ done: true });
+  ).resolves.toEqual({ done: true, email: "jane@example.com" });
 });
 
 test("straightens curly apostrophes in the name", async () => {

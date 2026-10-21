@@ -1,3 +1,4 @@
+import { CheckCircleIcon } from "@phosphor-icons/react/ssr";
 import { type SubmitEvent, startTransition, useActionState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,7 @@ import {
   type NewsletterState,
   subscribeToNewsletter,
 } from "@/lib/subscribe-to-newsletter";
-import { Text } from "./text";
+import { Callout } from "./callout";
 
 const initialState: NewsletterState = { done: false };
 
@@ -26,9 +27,16 @@ export function NewsletterForm() {
 
   if (state.done) {
     return (
-      <Text role="status">
-        Thank you! We'll email as soon as the cloud UI is ready.
-      </Text>
+      <div className="max-w-lg mx-auto">
+        <Callout
+          role="status"
+          icon={CheckCircleIcon}
+          title="You're on the list"
+        >
+          We'll email {state.email ?? "you"} when early access opens, with beta
+          pricing locked in.
+        </Callout>
+      </div>
     );
   }
 
