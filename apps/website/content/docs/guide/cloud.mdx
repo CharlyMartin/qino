@@ -3,7 +3,12 @@ title: Cloud
 description: Configure how the qino cloud UI publishes, searches, sorts, hides fields, and saves uploads.
 ---
 
+<Callout type="warn">
+The cloud UI is in development and not available yet. Setting `cloud` won't do anything for now: `qino build` writes the options to the config file, but nothing reads them yet.
+</Callout>
+
 The qino cloud UI lets editors change content without touching code. Its only contract with your project is `qino/_generated/config.json`. Set `cloud` on [`initQino`](/docs/api/init-qino) and `qino build` writes that file, including the cloud options below. See [Config file](/docs/guide/cli#config-file).
+
 
 ```ts title="qino/index.ts"
 import { initQino } from "@qino/cms";
