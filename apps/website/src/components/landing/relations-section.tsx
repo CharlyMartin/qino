@@ -19,7 +19,7 @@ export function RelationsSection({ snippet }: RelationsSectionProps) {
           <Eyebrow tone="accent">Relations</Eyebrow>
           <div className="mt-4">
             <Title id="relations-heading">
-              Qino makes your content a relational database.
+              qino makes your content a relational database.
             </Title>
           </div>
           <div className="mt-5 max-w-md">
@@ -59,7 +59,7 @@ export function RelationsSection({ snippet }: RelationsSectionProps) {
           </Title>
           <div className="mt-2 max-w-xl">
             <Text>
-              When a view resolves a relation, Qino checks that the linked entry
+              When a view resolves a relation, qino checks that the linked entry
               exists. If it doesn't, the build fails, so broken links never
               ship.
             </Text>

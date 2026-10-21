@@ -17,7 +17,7 @@ Zod is only an example. Any [Standard Schema validator](https://standardschema.d
 
 ## Install with an agent
 
-To let a coding agent do the setup, install the `set-up-qino-cms` skill, then ask your agent to add Qino to the project:
+To let a coding agent do the setup, install the `set-up-qino-cms` skill, then ask your agent to add qino to the project:
 
 <InstallBox command="skill" />
 
@@ -56,7 +56,7 @@ export const postCollection = qino.defineCollection({
 });
 ```
 
-The frontmatter of every file in `src/content/posts/*.md` is validated against the schema. Qino then adds the body as `markdown`, the source as `raw`, and `_meta` with the slug and file path.
+The frontmatter of every file in `src/content/posts/*.md` is validated against the schema. qino then adds the body as `markdown`, the source as `raw`, and `_meta` with the slug and file path.
 
 ## Read content
 
@@ -86,7 +86,7 @@ Add `qino build` as a `prebuild` step so lint, content validation, and type gene
 
 ## Runtime
 
-Qino reads content from the file system with Node.js APIs, so getters only run in server code: build scripts, prerendering, React Server Components, route loaders, server functions, and API routes. They never run in the browser, so don't import definitions from `qino/` into client components. Edge runtimes without a file system, such as Cloudflare Workers or Vercel Edge Functions, are not supported.
+qino reads content from the file system with Node.js APIs, so getters only run in server code: build scripts, prerendering, React Server Components, route loaders, server functions, and API routes. They never run in the browser, so don't import definitions from `qino/` into client components. Edge runtimes without a file system, such as Cloudflare Workers or Vercel Edge Functions, are not supported.
 
 Prerendered pages read content at build time and need nothing at runtime. Pages rendered on request read it from the deployed server, so the content folder must exist in that server's working directory. Platforms that bundle only the files your code imports can leave it out:
 

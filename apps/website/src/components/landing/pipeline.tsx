@@ -20,7 +20,7 @@ export function Pipeline({ files, define, query }: PipelineProps) {
         </div>
 
         <div className="min-w-0 bg-surface/50 px-4 py-8 md:px-7 lg:border-r lg:px-8 space-y-6">
-          <Eyebrow tone="accent">02 — Qino</Eyebrow>
+          <Eyebrow tone="accent">02 — qino</Eyebrow>
           <CodeBlock snippet={define} />
         </div>
 

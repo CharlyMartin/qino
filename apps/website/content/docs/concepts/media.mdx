@@ -50,7 +50,7 @@ attachment: /files/guide.pdf
 
 ## Image fields
 
-A field is an image field when it accepts a type Next imports as an image: `image/png`, `image/jpeg`, `image/gif`, `image/webp`, `image/avif`, or `image/svg+xml`. BMP and ICO files stay strings: sharp can't read them. When an entry is read, Qino reads the image from `mediaFolder` and replaces its URL with a `QinoImage`:
+A field is an image field when it accepts a type Next imports as an image: `image/png`, `image/jpeg`, `image/gif`, `image/webp`, `image/avif`, or `image/svg+xml`. BMP and ICO files stay strings: sharp can't read them. When an entry is read, qino reads the image from `mediaFolder` and replaces its URL with a `QinoImage`:
 
 ```ts
 post.cover;

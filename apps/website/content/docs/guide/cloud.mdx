@@ -1,9 +1,9 @@
 ---
 title: Cloud
-description: Configure how the Qino cloud UI publishes, searches, sorts, hides fields, and saves uploads.
+description: Configure how the qino cloud UI publishes, searches, sorts, hides fields, and saves uploads.
 ---
 
-The Qino cloud UI lets editors change content without touching code. Its only contract with your project is `qino/_generated/config.json`. Set `cloud` on [`initQino`](/docs/api/init-qino) and `qino build` writes that file, including the cloud options below. See [Config file](/docs/guide/cli#config-file).
+The qino cloud UI lets editors change content without touching code. Its only contract with your project is `qino/_generated/config.json`. Set `cloud` on [`initQino`](/docs/api/init-qino) and `qino build` writes that file, including the cloud options below. See [Config file](/docs/guide/cli#config-file).
 
 ```ts title="qino/index.ts"
 import { initQino } from "@qino/cms";
@@ -24,7 +24,7 @@ export default initQino({
 - `"open_pull_request"`: the cloud UI pushes a branch and opens a pull request. Branches start with `branchPrefix`, `"qino/"` by default.
 - `"commit_to_default_branch"`: the cloud UI commits to the repository's default branch. `branchPrefix` is a type error here.
 
-`publish.reviewBeforePublish` is required. When `true`, an approver signs off in Qino before the author can publish, in either mode.
+`publish.reviewBeforePublish` is required. When `true`, an approver signs off in qino before the author can publish, in either mode.
 
 Pass an object instead of `true` to configure review. `bypassIfAdmin` lets admins publish before every entry is approved, `false` by default:
 
@@ -117,7 +117,7 @@ Unset, collections' entries show their slug, and trees fall back to `titleField`
 
 The cloud UI edits each field of the primitive's [`media`](/docs/concepts/media) with a media picker, and accepts uploads of its type and size. `markdown` rules apply to images added to the body. A media path must also be a field of the schema input, as with relations: `qino build` fails when a transform renames it.
 
-The cloud UI writes the URL the file is served at, starting with `/`: picking the upload saved at `public/posts/cover/cover-1a2b3c4d.webp` writes `"/posts/cover/cover-1a2b3c4d.webp"`. That's the URL Qino reads images from and [`qino check`](/docs/guide/cli#media) resolves against `mediaFolder`.
+The cloud UI writes the URL the file is served at, starting with `/`: picking the upload saved at `public/posts/cover/cover-1a2b3c4d.webp` writes `"/posts/cover/cover-1a2b3c4d.webp"`. That's the URL qino reads images from and [`qino check`](/docs/guide/cli#media) resolves against `mediaFolder`.
 
 ### Saving uploads
 

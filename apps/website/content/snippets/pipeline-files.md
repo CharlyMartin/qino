@@ -1,5 +1,5 @@
 ---
-label: Project with content files and Qino collections
+label: Project with content files and qino collections
 ---
 
 ```text
