@@ -14,7 +14,7 @@ import { getPageHead } from "../lib/get-page-head";
 import { getTestimonials } from "../server/get-testimonials";
 
 const description =
-  "The Cloud UI lets editors draft, review and publish content managed by qino to GitHub from the browser. Join the waitlist for early access and secure beta pricing for life.";
+  "The Cloud UI lets editors draft, review and publish content to GitHub from the browser. Join the waitlist for early access and secure beta pricing for life.";
 
 export const Route = createFileRoute("/cloud")({
   loader: () => getTestimonials(),
