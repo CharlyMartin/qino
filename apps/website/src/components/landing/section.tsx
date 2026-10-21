@@ -10,6 +10,10 @@ const sectionVariants = cva("border-b", {
       compact: "py-8",
       none: "py-0",
     },
+    // Fills the remaining height of a flex column, e.g. to pin the footer down.
+    grow: {
+      true: "flex-1",
+    },
   },
   defaultVariants: { spacing: "default" },
 });
@@ -30,9 +34,15 @@ type SectionProps = Omit<ComponentProps<"section">, "className"> &
     "aria-labelledby": string;
   };
 
-export function Section({ children, spacing, align, ...props }: SectionProps) {
+export function Section({
+  children,
+  spacing,
+  grow,
+  align,
+  ...props
+}: SectionProps) {
   return (
-    <section className={sectionVariants({ spacing })} {...props}>
+    <section className={sectionVariants({ spacing, grow })} {...props}>
       <div className={containerVariants({ align })}>{children}</div>
     </section>
   );

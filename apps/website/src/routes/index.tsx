@@ -9,6 +9,7 @@ import { PrimitivesSection } from "@/components/landing/primitives-section";
 import { RelationsSection } from "@/components/landing/relations-section";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { SiteHeader } from "@/components/landing/site-header";
+import { SkipLink } from "@/components/landing/skip-link";
 import { TestimonialsSection } from "@/components/landing/testimonials-section";
 import { externalLinks } from "@/lib/external-links";
 import { getPageHead } from "@/lib/get-page-head";
@@ -62,12 +63,7 @@ function HomePage() {
 
   return (
     <>
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:z-10 focus:bg-background focus:p-4"
-      >
-        Skip to content
-      </a>
+      <SkipLink />
       <SiteHeader />
       <main id="main-content">
         <Hero stats={stats} />

@@ -160,6 +160,9 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
+      forminit:
+        specifier: 0.2.4
+        version: 0.2.4(next@16.4.0(@babel/core@7.29.7(supports-color@7.2.0))(@types/node@22.19.18)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))
       highlight.js:
         specifier: 11.12.0
         version: 11.12.0
@@ -2925,6 +2928,15 @@ packages:
   find-up@3.0.0:
     resolution: {integrity: sha512-1yD6RmLI1XBfxugvORwlck6f75tYL+iR0jqwsOrOxMZyGYqUuDhJ0l4AXdO1iX/FTs9cBAMEk1gWSEx1kSbylg==}
     engines: {node: '>=6'}
+
+  forminit@0.2.4:
+    resolution: {integrity: sha512-p7GyP2dz4zIONMmETANUBK36KFr+Td8qwOX6Zn/+eeBvf023Zr5aRv2d46bsFlFRhwrhnpojizw9tHwhAvplYw==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      next: '>=14.0.0'
+    peerDependenciesMeta:
+      next:
+        optional: true
 
   forwarded@0.2.0:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
@@ -7021,6 +7033,10 @@ snapshots:
   find-up@3.0.0:
     dependencies:
       locate-path: 3.0.0
+
+  forminit@0.2.4(next@16.4.0(@babel/core@7.29.7(supports-color@7.2.0))(@types/node@22.19.18)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)):
+    optionalDependencies:
+      next: 16.4.0(@babel/core@7.29.7(supports-color@7.2.0))(@types/node@22.19.18)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
 
   forwarded@0.2.0: {}
 

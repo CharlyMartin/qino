@@ -5,6 +5,7 @@ import { DocsMobileNav } from "../components/docs/docs-mobile-nav";
 import { DocsSidebar } from "../components/docs/docs-sidebar";
 import { SiteFooter } from "../components/landing/site-footer";
 import { SiteHeader } from "../components/landing/site-header";
+import { SkipLink } from "../components/landing/skip-link";
 import { getDocsTree } from "../server/get-docs-tree";
 
 export const Route = createFileRoute("/docs")({
@@ -18,12 +19,7 @@ function DocsLayout() {
 
   return (
     <>
-      <a
-        href="#docs-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-background focus:p-4"
-      >
-        Skip to content
-      </a>
+      <SkipLink />
       <div className="sticky top-0 z-30 bg-background">
         <SiteHeader />
       </div>
@@ -47,7 +43,7 @@ function DocsLayout() {
             </ScrollArea.Scrollbar>
           </ScrollArea.Root>
         </aside>
-        <main id="docs-content" className="min-w-0 flex-1 md:py-16">
+        <main id="main-content" className="min-w-0 flex-1 md:py-16">
           <Outlet />
         </main>
       </div>
