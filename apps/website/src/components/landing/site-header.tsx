@@ -1,7 +1,4 @@
-import { ArrowUpRightIcon } from "@phosphor-icons/react/ssr";
 import { Link } from "@tanstack/react-router";
-
-import { externalLinks } from "@/lib/external-links";
 
 export function SiteHeader() {
   return (
@@ -24,12 +21,9 @@ export function SiteHeader() {
           <Link to="/blog" className="hover:text-foreground">
             Blog
           </Link>
-          <a
-            href={externalLinks.github}
-            className="inline-flex items-center gap-1 text-primary hover:text-foreground"
-          >
-            GitHub <ArrowUpRightIcon className="size-3" aria-hidden="true" />
-          </a>
+          <Link to="/cloud" className="text-primary hover:text-foreground">
+            Cloud
+          </Link>
         </nav>
       </div>
     </header>
