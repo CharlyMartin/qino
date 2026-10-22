@@ -12,10 +12,6 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
-    },
-    "./utils": {
-      "types": "./src/utils/index.ts",
-      "default": "./src/utils/index.ts"
     }
   },
   "bin": {
@@ -35,7 +31,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "biome check .",
-    "check-dist": "tsc --project tsconfig.dist.json && node --input-type=module -e \"await import('./dist/index.mjs'); await import('./dist/utils.mjs')\" && publint && pnpm pack --out .check-dist.tgz && attw .check-dist.tgz --profile esm-only; status=$?; node -e \"require('node:fs').rmSync('.check-dist.tgz',{force:true})\"; exit $status"
+    "check-dist": "tsc --project tsconfig.dist.json && node --input-type=module -e \"await import('./dist/index.mjs')\" && publint && pnpm pack --out .check-dist.tgz && attw .check-dist.tgz --profile esm-only; status=$?; node -e \"require('node:fs').rmSync('.check-dist.tgz',{force:true})\"; exit $status"
   },
   "publishConfig": {
     "access": "public",
@@ -43,10 +39,6 @@
       ".": {
         "types": "./dist/index.d.mts",
         "import": "./dist/index.mjs"
-      },
-      "./utils": {
-        "types": "./dist/utils.d.mts",
-        "import": "./dist/utils.mjs"
       }
     }
   },

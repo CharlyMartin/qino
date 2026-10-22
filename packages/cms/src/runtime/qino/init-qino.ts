@@ -56,6 +56,7 @@ export function initQino(config: QinoConfig) {
       const SaveEntryAs extends string = never,
       const DisplayEntryAs extends string = never,
       const Media extends MediaConfig<S, Ext> = EmptyObject,
+      const Stats extends boolean = false,
     >(
       params: DefineCollectionParams<
         S,
@@ -65,12 +66,13 @@ export function initQino(config: QinoConfig) {
         Views,
         SaveEntryAs,
         DisplayEntryAs,
-        Media
+        Media,
+        Stats
       >,
     ): Collection<
       S,
       Ext,
-      TaggedRelations<Rels, Media>,
+      TaggedRelations<Rels, Media, Stats>,
       Dir,
       ConfiguredViews<Views>
     > {
@@ -82,12 +84,13 @@ export function initQino(config: QinoConfig) {
       Rels extends Relations<S> = object,
       const Views extends object = object,
       const Media extends MediaConfig<S, ExtractItemExtension<F>> = EmptyObject,
+      const Stats extends boolean = false,
     >(
-      params: DefineItemParams<S, F, Rels, Views, Media>,
+      params: DefineItemParams<S, F, Rels, Views, Media, Stats>,
     ): Item<
       S,
       ExtractItemExtension<F>,
-      TaggedRelations<Rels, Media>,
+      TaggedRelations<Rels, Media, Stats>,
       ConfiguredViews<Views>
     > {
       return defineItem(ctx, params);
@@ -102,6 +105,7 @@ export function initQino(config: QinoConfig) {
       const SaveEntryAs extends string = never,
       const DisplayEntryAs extends string = never,
       const Media extends MediaConfig<S, Ext> = EmptyObject,
+      const Stats extends boolean = false,
     >(
       params: DefineTreeParams<
         S,
@@ -112,13 +116,14 @@ export function initQino(config: QinoConfig) {
         Views,
         SaveEntryAs,
         DisplayEntryAs,
-        Media
+        Media,
+        Stats
       >,
     ): Tree<
       S,
       Ext,
       Title,
-      TaggedRelations<Rels, Media>,
+      TaggedRelations<Rels, Media, Stats>,
       Dir,
       ConfiguredViews<Views>
     > {

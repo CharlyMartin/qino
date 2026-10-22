@@ -12,6 +12,8 @@ import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { extractExtension } from "../../lib/paths/extract-extension";
+import { addEntryStats } from "../../lib/stats/add-entry-stats";
+import { assertMarkdownStatsConfig } from "../../lib/stats/assert-markdown-stats-config";
 import { validate } from "../../lib/validate/validate";
 import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
@@ -25,6 +27,7 @@ import type {
   ItemFile,
   ResolvedItemView,
 } from "../../types/item";
+import type { CheckMarkdownStats } from "../../types/markdown-stats";
 import type {
   CheckMediaKeys,
   MediaConfig,
@@ -52,6 +55,7 @@ export type DefineItemParams<
   Rels extends Relations<Schema> = object,
   Views extends object = object,
   Media extends MediaConfig<Schema, ExtractItemExtension<F>> = EmptyObject,
+  Stats extends boolean = false,
 > = {
   file: F & NoInfer<NoLeadingSlash<F>>;
   schema: Schema &
@@ -60,12 +64,15 @@ export type DefineItemParams<
   /** Media fields, keyed by path. Image fields are read as `QinoImage`. */
   media?: Media &
     NoInfer<CheckMediaKeys<Media, Schema, ExtractItemExtension<F>>>;
+  /** Adds `_stats` (word and character counts) from the Markdown body. */
+  markdownStats?: Stats &
+    NoInfer<CheckMarkdownStats<Stats, ExtractItemExtension<F>>>;
   views?: ViewsConfig<
     Views,
     ViewFactory<
       Schema,
       ItemEntryMeta<ExtractItemExtension<F>>,
-      TaggedRelations<Rels, Media>
+      TaggedRelations<Rels, Media, Stats>
     >
   >;
   cloud?: NoInfer<ItemCloudConfig<Schema>>;
@@ -77,21 +84,30 @@ export function defineItem<
   Rels extends Relations<S> = object,
   const Views extends object = object,
   const Media extends MediaConfig<S, ExtractItemExtension<F>> = EmptyObject,
->(ctx: QinoContext, params: DefineItemParams<S, F, Rels, Views, Media>) {
-  type MediaRels = TaggedRelations<Rels, Media>;
-  const { file, schema, relations, media = {}, cloud } = params;
+  const Stats extends boolean = false,
+>(ctx: QinoContext, params: DefineItemParams<S, F, Rels, Views, Media, Stats>) {
+  type TaggedRels = TaggedRelations<Rels, Media, Stats>;
+  const {
+    file,
+    schema,
+    relations,
+    media = {},
+    markdownStats = false,
+    cloud,
+  } = params;
   assertContentPath(file, "file");
   assertCloudEnabled(ctx, cloud, file);
 
   type Ext = ExtractItemExtension<F>;
   const extension = extractExtension(file) as Ext;
-  const itemRelations = (relations ?? {}) as MediaRels;
+  const itemRelations = (relations ?? {}) as TaggedRels;
   assertMediaConfig({
     media,
     relations: itemRelations,
     extension,
     primitiveId: file,
   });
+  assertMarkdownStatsConfig({ markdownStats, extension, primitiveId: file });
   assertNoRootViewSettings(params);
   const views = buildViews(params.views, "item");
   const defaultResolve = views?.default.resolveRelations ?? false;
@@ -112,11 +128,12 @@ export function defineItem<
       relations: itemRelations,
       resolveRelations: defaultResolve,
       media,
+      markdownStats,
       cloud,
       readEntry,
     },
     getEntry,
-  } as const satisfies Item<S, Ext, MediaRels, ConfiguredViews<Views>>;
+  } as const satisfies Item<S, Ext, TaggedRels, ConfiguredViews<Views>>;
 
   return item;
 
@@ -135,11 +152,11 @@ export function defineItem<
       }),
     };
     return (await resolveEntryMedia({
-      entry,
+      entry: await addEntryStats({ entry, markdownStats }),
       media,
       mediaFolder: ctx.mediaFolder,
       filePath: absoluteFilePath,
-    })) as ResolvedItemView<S, Ext, MediaRels, false>;
+    })) as ResolvedItemView<S, Ext, TaggedRels, false>;
   }
 
   async function getEntry<
@@ -156,7 +173,7 @@ export function defineItem<
     return result as SelectedView<
       S,
       ItemEntryMeta<Ext>,
-      MediaRels,
+      TaggedRels,
       ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;

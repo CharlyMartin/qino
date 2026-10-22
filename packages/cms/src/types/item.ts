@@ -42,6 +42,7 @@ export type ItemMeta<
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
   readonly media: AnyMediaConfig;
+  readonly markdownStats: boolean;
   readonly cloud?: PrimitiveCloudConfig;
   readonly readEntry: () => Promise<ResolvedItemView<Schema, Ext, Rels, false>>;
 };
