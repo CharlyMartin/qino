@@ -1,11 +1,27 @@
 ---
 title: MarkdownStats
-description: The return type of getMarkdownStats.
+description: Word and character counts of a Markdown or MDX body, added as `_stats` by `markdownStats`.
 since: "releases/0.1.0.md"
 ---
 
-```ts title="@qino/cms/utils"
-import type { MarkdownStats } from "@qino/cms/utils";
+Set `markdownStats: true` on a Markdown or MDX collection, tree, or item, and every entry gets a `_stats` field. Related entries get it too when their primitive sets `markdownStats`. JSON primitives can't set it.
+
+```ts title="qino/collections/posts.ts"
+export const postCollection = qino.defineCollection({
+  directory: "posts",
+  extension: ".md",
+  schema: PostSchema,
+  markdownStats: true,
+});
+
+const post = await postCollection.getEntry("hello");
+post._stats.wordCount; // number
+```
+
+## Type
+
+```ts title="@qino/cms"
+import type { MarkdownStats } from "@qino/cms";
 
 type MarkdownStats = {
   wordCount: number;
@@ -16,10 +32,30 @@ type MarkdownStats = {
 
 ## Fields
 
-| Field                  | Description                                                |
-| ---------------------- | ---------------------------------------------------------- |
-| `wordCount`            | Word-like segments in the extracted prose                  |
-| `proseCharacterCount`  | Grapheme count of the prose after whitespace collapsing    |
-| `sourceCharacterCount` | Grapheme count of the raw input, including syntax and code |
+| Field                  | Description                                             |
+| ---------------------- | ------------------------------------------------------- |
+| `wordCount`            | Word-like segments in the extracted prose               |
+| `proseCharacterCount`  | Grapheme count of the prose after whitespace collapsing |
+| `sourceCharacterCount` | Grapheme count of the body, including syntax and code   |
 
-See [getMarkdownStats](/docs/api/utils/get-markdown-stats) for what counts as prose.
+## What counts as prose
+
+The body is parsed with remark, GFM, and MDX. Text nodes are kept. Code blocks, inline code, HTML, MDX expressions, MDX components, and import or export statements are excluded. Link and image URLs are excluded. Line breaks become newlines and block nodes are joined with newlines, then whitespace is collapsed. If MDX parsing fails, such as on an HTML comment, the body is re-parsed as plain Markdown.
+
+Words are segmented with `Intl.Segmenter`, and characters are counted as graphemes rather than UTF-16 code units, so multi-byte scripts and emoji count once each.
+
+The Markdown parsers are only loaded when a primitive sets `markdownStats`.
+
+## Reading time
+
+`_stats` has no reading time. Derive it in a view's `augment`:
+
+```ts title="qino/collections/posts.ts"
+views: (view) => ({
+  default: view({
+    augment: (post) => ({
+      readingMinutes: Math.ceil(post._stats.wordCount / 220),
+    }),
+  }),
+}),
+```

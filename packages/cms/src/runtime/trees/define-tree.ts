@@ -13,6 +13,8 @@ import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
+import { addEntryStats } from "../../lib/stats/add-entry-stats";
+import { assertMarkdownStatsConfig } from "../../lib/stats/assert-markdown-stats-config";
 import { validate } from "../../lib/validate/validate";
 import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
@@ -23,6 +25,7 @@ import type {
   SaveEntryAsConfig,
   TreeCloudConfig,
 } from "../../types/cloud";
+import type { CheckMarkdownStats } from "../../types/markdown-stats";
 import type {
   CheckMediaKeys,
   MediaConfig,
@@ -70,6 +73,7 @@ export type DefineTreeParams<
   SaveEntryAs extends string = never,
   DisplayEntryAs extends string = never,
   Media extends MediaConfig<Schema, Ext> = EmptyObject,
+  Stats extends boolean = false,
 > = {
   directory: Dir & NoInfer<NoLeadingSlash<Dir>>;
   schema: Schema & NoInfer<NoReservedSchemaFields<Schema, Ext>>;
@@ -79,9 +83,11 @@ export type DefineTreeParams<
   relations?: Rels;
   /** Media fields, keyed by path. Image fields are read as `QinoImage`. */
   media?: Media & NoInfer<CheckMediaKeys<Media, Schema, Ext>>;
+  /** Adds `_stats` (word and character counts) from the Markdown body. */
+  markdownStats?: Stats & NoInfer<CheckMarkdownStats<Stats, Ext>>;
   views?: ViewsConfig<
     Views,
-    ViewFactory<Schema, TreeEntryMeta<Ext>, TaggedRelations<Rels, Media>>
+    ViewFactory<Schema, TreeEntryMeta<Ext>, TaggedRelations<Rels, Media, Stats>>
   >;
   cloud?: NoInfer<TreeCloudConfig<Schema>> &
     SaveEntryAsConfig<SaveEntryAs, Schema> &
@@ -98,6 +104,7 @@ export function defineTree<
   const SaveEntryAs extends string = never,
   const DisplayEntryAs extends string = never,
   const Media extends MediaConfig<S, Ext> = EmptyObject,
+  const Stats extends boolean = false,
 >(
   ctx: QinoContext,
   params: DefineTreeParams<
@@ -109,10 +116,11 @@ export function defineTree<
     Views,
     SaveEntryAs,
     DisplayEntryAs,
-    Media
+    Media,
+    Stats
   >,
 ) {
-  type MediaRels = TaggedRelations<Rels, Media>;
+  type TaggedRels = TaggedRelations<Rels, Media, Stats>;
   const {
     directory,
     schema,
@@ -121,15 +129,21 @@ export function defineTree<
     orderFileName,
     relations,
     media = {},
+    markdownStats = false,
     cloud,
   } = params;
   assertContentPath(directory, "directory");
   assertCloudEnabled(ctx, cloud, directory);
 
-  const treeRelations = (relations ?? {}) as MediaRels;
+  const treeRelations = (relations ?? {}) as TaggedRels;
   assertMediaConfig({
     media,
     relations: treeRelations,
+    extension,
+    primitiveId: directory,
+  });
+  assertMarkdownStatsConfig({
+    markdownStats,
     extension,
     primitiveId: directory,
   });
@@ -152,6 +166,7 @@ export function defineTree<
       relations: treeRelations,
       resolveRelations: defaultResolve,
       media,
+      markdownStats,
       cloud,
       readEntry,
     },
@@ -164,7 +179,7 @@ export function defineTree<
     S,
     Ext,
     Title,
-    MediaRels,
+    TaggedRels,
     Dir,
     ConfiguredViews<Views>
   >;
@@ -209,11 +224,11 @@ export function defineTree<
       }),
     };
     return (await resolveEntryMedia({
-      entry,
+      entry: await addEntryStats({ entry, markdownStats }),
       media,
       mediaFolder: ctx.mediaFolder,
       filePath: meta.filePath,
-    })) as ResolvedTreeEntry<S, Ext, MediaRels, false>;
+    })) as ResolvedTreeEntry<S, Ext, TaggedRels, false>;
   }
 
   async function getEntry<
@@ -230,7 +245,7 @@ export function defineTree<
     return result as SelectedView<
       S,
       TreeEntryMeta<Ext>,
-      MediaRels,
+      TaggedRels,
       ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;

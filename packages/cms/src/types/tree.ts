@@ -61,6 +61,7 @@ export type TreeMeta<
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
   readonly media: AnyMediaConfig;
+  readonly markdownStats: boolean;
   readonly cloud?: PrimitiveCloudConfig;
   readonly readEntry: (
     slug: Slug,
@@ -120,6 +121,7 @@ export type AnyTreeMeta = {
   readonly relations: Relations<ObjectSchema>;
   readonly resolveRelations: ResolveOption;
   readonly media: AnyMediaConfig;
+  readonly markdownStats: boolean;
   readonly cloud?: PrimitiveCloudConfig;
   readonly readEntry: (
     slug: Slug,

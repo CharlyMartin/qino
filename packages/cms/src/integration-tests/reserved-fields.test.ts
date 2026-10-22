@@ -29,7 +29,7 @@ describe.each([".md", ".mdx", ".markdown", ".json"] as const)(
         const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
         for (const field of extension == ".json"
           ? ["_meta"]
-          : ["_meta", "markdown", "raw"]) {
+          : ["_meta", "markdown", "raw", "_stats"]) {
           const data = {
             title: "Hello",
             ...(source == "content" ? { [field]: "conflict" } : {}),

@@ -1,4 +1,5 @@
 import type { IMAGE_MEDIA_TYPES, MARKDOWN_MEDIA_KEY } from "../data/globals";
+import type { MarkdownStatsTag } from "./markdown-stats";
 import type { RelationPath } from "./relations";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
 import type { JsonPathArray, SupportedFileExtension } from "./utils";
@@ -90,8 +91,9 @@ export type MediaPathsTag<Paths extends string> = [Paths] extends [never]
   ? unknown
   : { readonly [QinoMediaPaths]?: Paths };
 
-export type TaggedRelations<Rels, Media> = Rels &
-  MediaPathsTag<ImagePaths<Media>>;
+export type TaggedRelations<Rels, Media, Stats extends boolean = false> = Rels &
+  MediaPathsTag<ImagePaths<Media>> &
+  MarkdownStatsTag<Stats>;
 
 // Checks the key itself: erased relations' index signatures would match `?:`.
 type TaggedPaths<Rels> = typeof QinoMediaPaths extends keyof Rels

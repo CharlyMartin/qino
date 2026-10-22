@@ -9,7 +9,8 @@ The canonical qino example is a Next.js App Router site. It lives in the reposit
 
 - **Collections**: `posts` (`.md`), `authors` (`.json`), and `categories` (`.json`).
 - **Relations**: `author` and `categories[*]` on posts; `featured-posts[*]` on the home item.
-- **Views**: a `default` view that resolves relations one level deep, and a `withReadingTime` view that spreads the default and augments with `getMarkdownStats`.
+- **Views**: a `default` view that resolves relations one level deep.
+- **Markdown stats**: `markdownStats` on posts, with a reading time derived from `_stats.wordCount` by a local `getReadingTimes` helper.
 - **Tree**: a `.mdx` docs tree with nested sections, `_order.json` ordering, and prev/next navigation.
 - **Item**: `pages/home.md` with resolved featured posts.
 - **CLI**: `qino build` as the `prebuild` script, with `qino/_generated/` gitignored.
@@ -64,8 +65,6 @@ qino returns raw Markdown. The example renders `.md` posts with `react-markdown`
 
 <Callout type="note">
 The example on Github lives in a monorepo and imports `@qino/cms` from the workspace, which exposes raw TypeScript, so Next.js must transpile it. Apps installing `@qino/cms` from `npm` get compiled JavaScript and don't need to add it to `transpilePackages` in `nextConfig`.
-
-
 
 </Callout>
 

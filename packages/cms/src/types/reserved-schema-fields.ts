@@ -4,6 +4,7 @@ import type {
   MARKDOWN_FIELD_NAME,
   META_FIELD_NAME,
   RAW_FIELD_NAME,
+  STATS_FIELD_NAME,
 } from "../data/globals";
 import type { MarkdownExtension } from "./generated-fields";
 import type { ObjectSchema } from "./schema";
@@ -23,11 +24,15 @@ type DeclaredKeys<Value> = Value extends unknown
     }
   : never;
 
-// Markdown entries also reserve the body and source Qino adds after validation.
+// Markdown entries also reserve the body, source, and stats Qino adds after
+// validation.
 type ReservedKeys<Ext extends SupportedFileExtension> =
   | typeof META_FIELD_NAME
   | (Ext extends MarkdownExtension
-      ? typeof MARKDOWN_FIELD_NAME | typeof RAW_FIELD_NAME
+      ?
+          | typeof MARKDOWN_FIELD_NAME
+          | typeof RAW_FIELD_NAME
+          | typeof STATS_FIELD_NAME
       : never);
 
 type ConflictingKeys<

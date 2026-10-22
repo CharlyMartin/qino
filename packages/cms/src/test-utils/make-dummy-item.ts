@@ -26,6 +26,7 @@ export function makeDummyItem({
       relations: {},
       resolveRelations: false as ResolveOption,
       media: {},
+      markdownStats: false,
       readEntry: async () => data as never,
     },
     getEntry: async () => data as never,

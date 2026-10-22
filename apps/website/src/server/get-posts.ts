@@ -8,13 +8,11 @@ export const getPosts = createServerFn({ method: "GET" })
   .handler(async () => {
     const posts = await postCollection.getEntries();
 
-    return posts.map(
-      ({ _meta, title, description, publishedOn, wordCount }) => ({
-        slug: _meta.slug,
-        title,
-        description,
-        publishedOn,
-        wordCount,
-      }),
-    );
+    return posts.map(({ _meta, _stats, title, description, publishedOn }) => ({
+      slug: _meta.slug,
+      title,
+      description,
+      publishedOn,
+      _stats,
+    }));
   });

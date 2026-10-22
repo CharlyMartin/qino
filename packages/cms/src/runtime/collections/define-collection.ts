@@ -13,6 +13,8 @@ import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { removeExtension } from "../../lib/paths/remove-extension";
+import { addEntryStats } from "../../lib/stats/add-entry-stats";
+import { assertMarkdownStatsConfig } from "../../lib/stats/assert-markdown-stats-config";
 import { validate } from "../../lib/validate/validate";
 import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
@@ -32,6 +34,7 @@ import type {
   CollectionViewDefinition,
   CollectionViewFactory,
 } from "../../types/collection-views";
+import type { CheckMarkdownStats } from "../../types/markdown-stats";
 import type {
   CheckMediaKeys,
   MediaConfig,
@@ -68,6 +71,7 @@ export type DefineCollectionParams<
   SaveEntryAs extends string = never,
   DisplayEntryAs extends string = never,
   Media extends MediaConfig<Schema, Ext> = EmptyObject,
+  Stats extends boolean = false,
 > = {
   directory: Dir & NoInfer<NoLeadingSlash<Dir>>;
   schema: Schema & NoInfer<NoReservedSchemaFields<Schema, Ext>>;
@@ -75,12 +79,14 @@ export type DefineCollectionParams<
   relations?: Rels;
   /** Media fields, keyed by path. Image fields are read as `QinoImage`. */
   media?: Media & NoInfer<CheckMediaKeys<Media, Schema, Ext>>;
+  /** Adds `_stats` (word and character counts) from the Markdown body. */
+  markdownStats?: Stats & NoInfer<CheckMarkdownStats<Stats, Ext>>;
   views?: ViewsConfig<
     Views,
     CollectionViewFactory<
       Schema,
       CollectionEntryMeta<Ext>,
-      TaggedRelations<Rels, Media>
+      TaggedRelations<Rels, Media, Stats>
     >,
     CollectionViewDefinition
   >;
@@ -98,6 +104,7 @@ export function defineCollection<
   const SaveEntryAs extends string = never,
   const DisplayEntryAs extends string = never,
   const Media extends MediaConfig<S, Ext> = EmptyObject,
+  const Stats extends boolean = false,
 >(
   ctx: QinoContext,
   params: DefineCollectionParams<
@@ -108,17 +115,31 @@ export function defineCollection<
     Views,
     SaveEntryAs,
     DisplayEntryAs,
-    Media
+    Media,
+    Stats
   >,
 ) {
-  type MediaRels = TaggedRelations<Rels, Media>;
-  const { directory, schema, extension, relations, media = {}, cloud } = params;
+  type TaggedRels = TaggedRelations<Rels, Media, Stats>;
+  const {
+    directory,
+    schema,
+    extension,
+    relations,
+    media = {},
+    markdownStats = false,
+    cloud,
+  } = params;
   assertContentPath(directory, "directory");
   assertCloudEnabled(ctx, cloud, directory);
-  const collectionRelations = (relations ?? {}) as MediaRels;
+  const collectionRelations = (relations ?? {}) as TaggedRels;
   assertMediaConfig({
     media,
     relations: collectionRelations,
+    extension,
+    primitiveId: directory,
+  });
+  assertMarkdownStatsConfig({
+    markdownStats,
     extension,
     primitiveId: directory,
   });
@@ -138,6 +159,7 @@ export function defineCollection<
       relations: collectionRelations,
       resolveRelations: defaultResolve,
       media,
+      markdownStats,
       cloud,
       readEntries,
       readEntry,
@@ -148,7 +170,7 @@ export function defineCollection<
   } as const satisfies Collection<
     S,
     Ext,
-    MediaRels,
+    TaggedRels,
     Dir,
     ConfiguredViews<Views>
   >;
@@ -181,11 +203,11 @@ export function defineCollection<
       [META_FIELD_NAME]: meta,
     };
     return (await resolveEntryMedia({
-      entry,
+      entry: await addEntryStats({ entry, markdownStats }),
       media,
       mediaFolder: ctx.mediaFolder,
       filePath: meta.filePath,
-    })) as ResolvedCollectionView<S, Ext, MediaRels, false>;
+    })) as ResolvedCollectionView<S, Ext, TaggedRels, false>;
   }
 
   async function readEntries() {
@@ -221,7 +243,7 @@ export function defineCollection<
       SelectedView<
         S,
         CollectionEntryMeta<Ext>,
-        MediaRels,
+        TaggedRels,
         ConfiguredViews<Views>,
         ViewSelection<Args[0]>
       >
@@ -247,7 +269,7 @@ export function defineCollection<
     return result as SelectedView<
       S,
       CollectionEntryMeta<Ext>,
-      MediaRels,
+      TaggedRels,
       ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;

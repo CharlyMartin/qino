@@ -1,3 +1,4 @@
+import type { MarkdownStats } from "@qino/cms";
 import { Link } from "@tanstack/react-router";
 
 import { formatPostDate } from "@/lib/format-post-date";
@@ -7,7 +8,7 @@ type PostCardProps = {
   title: string;
   description: string;
   publishedOn: string;
-  wordCount: number;
+  _stats: MarkdownStats;
 };
 
 export function PostCard({
@@ -15,7 +16,7 @@ export function PostCard({
   title,
   description,
   publishedOn,
-  wordCount,
+  _stats,
 }: PostCardProps) {
   return (
     <Link
@@ -37,7 +38,7 @@ export function PostCard({
           {description}
         </span>
         <span className="font-mono text-label uppercase text-muted-foreground">
-          {wordCount.toLocaleString("en-US")} words
+          {_stats.wordCount.toLocaleString("en-US")} words
         </span>
       </span>
     </Link>

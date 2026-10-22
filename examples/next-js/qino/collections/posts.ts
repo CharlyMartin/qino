@@ -1,5 +1,4 @@
 import type { Infer } from "@qino/cms";
-import { getMarkdownStats } from "@qino/cms/utils";
 import camelcaseKeys from "camelcase-keys";
 import { z } from "zod";
 
@@ -23,6 +22,7 @@ export const postCollection = qino.defineCollection({
   directory: "posts",
   schema: PostSchema,
   extension: ".md",
+  markdownStats: true,
   relations: {
     author: authorCollection,
     "categories[*]": categoryCollection,
@@ -43,23 +43,9 @@ export const postCollection = qino.defineCollection({
     sortableBy: ["title", "created-on"],
     media: { saveFileAs: "posts/{field}/{name}-{hash}" },
   },
-  views: (view) => {
-    const base = view({ resolveRelations: 1 });
-
-    return {
-      default: base,
-      withReadingTime: view({
-        ...base,
-        augment: (post) => {
-          const content = getMarkdownStats(post.markdown);
-          return {
-            ...content,
-            readingMinutes: Math.ceil(content.wordCount / 220),
-          };
-        },
-      }),
-    };
-  },
+  views: (view) => ({
+    default: view({ resolveRelations: 1 }),
+  }),
 });
 
 type PostConfig = Infer<typeof postCollection>;

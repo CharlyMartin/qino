@@ -2,6 +2,7 @@ import {
   MARKDOWN_FIELD_NAME,
   META_FIELD_NAME,
   RAW_FIELD_NAME,
+  STATS_FIELD_NAME,
 } from "../../data/globals";
 
 export function assertNoReservedMarkdownFields(
@@ -10,7 +11,12 @@ export function assertNoReservedMarkdownFields(
 ) {
   if (typeof data != "object" || data == null) return;
 
-  const reservedFields = [META_FIELD_NAME, MARKDOWN_FIELD_NAME, RAW_FIELD_NAME];
+  const reservedFields = [
+    META_FIELD_NAME,
+    MARKDOWN_FIELD_NAME,
+    RAW_FIELD_NAME,
+    STATS_FIELD_NAME,
+  ];
   const conflicts = reservedFields.filter((key) => Object.hasOwn(data, key));
 
   if (conflicts.length > 0) {

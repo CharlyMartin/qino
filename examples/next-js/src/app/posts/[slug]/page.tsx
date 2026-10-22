@@ -6,6 +6,7 @@ import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 
+import { getReadingTimes } from "@/lib/get-reading-times";
 import { postCollection } from "../../../../qino/collections/posts";
 
 type PostPageProps = {
@@ -20,7 +21,7 @@ export async function generateStaticParams() {
 export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params;
 
-  const post = await postCollection.getEntry(slug, { view: "withReadingTime" });
+  const post = await postCollection.getEntry(slug);
 
   return (
     <article className="mx-auto w-full max-w-3xl px-6 py-16">
@@ -49,8 +50,8 @@ export default async function PostPage({ params }: PostPageProps) {
             })}
           </time>
           <span aria-hidden="true">·</span>
-          <span>{post.wordCount} words</span>
-          <span>{post.readingMinutes} min read</span>
+          <span>{post._stats.wordCount} words</span>
+          <span>{getReadingTimes(post._stats.wordCount)} min read</span>
         </div>
         <h1 className="text-4xl font-semibold leading-tight tracking-tight text-zinc-950 dark:text-zinc-50">
           {post.title}

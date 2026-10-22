@@ -93,6 +93,7 @@ export type CollectionMeta<
   readonly relations: Rels;
   readonly resolveRelations: ResolveOption;
   readonly media: AnyMediaConfig;
+  readonly markdownStats: boolean;
   readonly cloud?: PrimitiveCloudConfig;
   readonly readEntries: () => Promise<
     Array<ResolvedCollectionView<Schema, Ext, Rels, false>>
