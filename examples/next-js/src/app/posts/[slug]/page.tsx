@@ -7,7 +7,6 @@ import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 
 import { getReadingTimes } from "@/lib/get-reading-times";
-
 import { postCollection } from "../../../../qino/collections/posts";
 
 type PostPageProps = {
