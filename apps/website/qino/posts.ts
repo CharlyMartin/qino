@@ -1,4 +1,3 @@
-import { getMarkdownStats } from "@qino/cms/utils";
 import camelcaseKeys from "camelcase-keys";
 import { z } from "zod";
 
@@ -15,11 +14,9 @@ export const postCollection = qino.defineCollection({
     })
     .strict()
     .transform((post) => camelcaseKeys(post)),
+  markdownStats: true,
   views: (view) => ({
     default: view({
-      augment: (post) => ({
-        wordCount: getMarkdownStats(post.markdown).wordCount,
-      }),
       sort: (a, b) => b.publishedOn.localeCompare(a.publishedOn),
     }),
   }),

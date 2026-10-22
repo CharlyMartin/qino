@@ -61,13 +61,13 @@ export const Route = createFileRoute("/blog/$slug")({
 });
 
 function BlogPostPage() {
-  const { title, description, publishedOn, wordCount, mdx } =
+  const { title, description, publishedOn, _stats, mdx } =
     Route.useLoaderData();
 
   return (
     <article className="mx-auto max-w-3xl">
       <header className="mb-12 flex flex-col items-start gap-4 border-b pb-8">
-        <PostMeta publishedOn={publishedOn} wordCount={wordCount} />
+        <PostMeta publishedOn={publishedOn} _stats={_stats} />
         <Title as="h1">{title}</Title>
         <Text size="lead">{description}</Text>
       </header>
