@@ -43,9 +43,9 @@ After validation, qino adds two strings to every Markdown entry, like it adds `_
 }
 ```
 
-Don't declare them in the schema; they never reach it, so strict objects work as-is. They are added before views run, so `augment`, `filter`, and `sort` can read them. To derive something from the body, use [`augment`](/docs/concepts/views).
+Don't declare them in the schema; they never reach it, so strict objects work as-is. They are added before views run, so `augment`, `filter`, and `sort` can read them. To derive something from the body, use [`augment`](/docs/concepts/views). For word and character counts, set `markdownStats: true` and qino adds a `_stats` field too. See [MarkdownStats](/docs/api/types/markdown-stats).
 
-In Markdown files, `markdown` and `raw` are reserved at the top level of frontmatter, schema input, and schema output. Declaring them in a schema is a type error, and frontmatter or a transform that introduces them fails at runtime. Augment callbacks cannot add or replace them either. In JSON files, both are ordinary fields.
+In Markdown files, `markdown`, `raw`, and `_stats` are reserved at the top level of frontmatter, schema input, and schema output. Declaring them in a schema is a type error, and frontmatter or a transform that introduces them fails at runtime. Augment callbacks cannot add or replace `markdown` and `raw`, nor `_stats` when `markdownStats` is on. In JSON files, they are ordinary fields.
 
 ## Reserved: \_meta
 

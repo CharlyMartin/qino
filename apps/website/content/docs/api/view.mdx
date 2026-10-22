@@ -59,12 +59,11 @@ A view definition. The factory must return an object with a `default` key and an
 ## Example
 
 ```ts title="qino/collections/posts.ts"
-import { getMarkdownStats } from "@qino/cms/utils";
-
+// With markdownStats: true on the collection.
 views: (view) => {
   const base = view({
-    augment: (post) => ({ stats: getMarkdownStats(post.markdown) }),
-    sort: (a, b) => b.stats.wordCount - a.stats.wordCount,
+    augment: (post) => ({ readingMinutes: post._stats.wordCount / 220 }),
+    sort: (a, b) => b.readingMinutes - a.readingMinutes,
   });
   return {
     default: base,

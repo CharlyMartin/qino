@@ -9,7 +9,7 @@ Every getter builds its entries through the same steps, in the same order. Each 
 
 1. **Parse.** qino reads the file. For Markdown, MDX, and `.markdown`, it parses the frontmatter with js-yaml. For `.json`, it parses the whole file. See [Frontmatter](/docs/guide/frontmatter).
 2. **Validate.** The schema validates the parsed data. Schema transforms run here. Reserved fields are rejected in both the input and the output. See [Schemas](/docs/concepts/schemas).
-3. **Add qino fields.** qino adds `markdown` and `raw` to Markdown entries, and `_meta` to every entry.
+3. **Add qino fields.** qino adds `markdown` and `raw` to Markdown entries, `_stats` when the primitive sets `markdownStats`, and `_meta` to every entry. See [MarkdownStats](/docs/api/types/markdown-stats).
 4. **Read images.** Image fields of `media` are replaced by a `QinoImage`, with their dimensions and a blur placeholder. Reading fails when an image is missing, of another type, or over its `maxSize`. See [Media](/docs/concepts/media).
 5. **Resolve relations.** Relation references are replaced by their target entries, up to the view's `resolveRelations` depth. See [Relations](/docs/concepts/relations).
 6. **Augment.** The view's `augment` adds derived fields.
@@ -69,7 +69,7 @@ A transform must:
 
 - be synchronous. A validator that returns a Promise is rejected.
 - return an object.
-- not add `_meta`, nor `markdown` or `raw` in Markdown entries. qino adds those in step 3.
+- not add `_meta`, nor `markdown`, `raw`, or `_stats` in Markdown entries. qino adds those in step 3.
 
 ## Transform or augment?
 

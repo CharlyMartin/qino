@@ -24,6 +24,7 @@ Thrown when a `define*` call runs, usually at import.
 | `media "<path>" of "<id>" isn't a valid path: <message>`                                                         | Empty or malformed path, such as `"seo..image"`                  | Use the relation path syntax: `"image"`, `"gallery[*]"`, `"seo.image"` |
 | `media "<path>" of "<id>" is also a relation. A field holds either a media URL or a reference.`                  | The same path is in `relations`                                  | Remove it from one of them                                             |
 | `media "markdown" of "<id>" checks the Markdown body, but JSON files have none.`                                 | `markdown` on a JSON primitive                                   | Remove it                                                              |
+| `markdownStats of "<id>" counts the Markdown body, but JSON files have none.`                                    | `markdownStats` on a JSON primitive                              | Remove it                                                              |
 
 ## Getter options
 
@@ -36,20 +37,20 @@ Thrown when a `define*` call runs, usually at import.
 
 ## Parsing and validation
 
-| Message                                                                                                     | Cause                                                                 | Fix                                                                       |
-| ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `YAML frontmatter must contain a single document.`                                                          | Several `---` documents at the top of a file                          | Keep one frontmatter block                                                |
-| `YAML frontmatter must be a mapping of field names to values.`                                              | Frontmatter is a scalar or a list                                     | Use `key: value` pairs                                                    |
-| `Validation failed for <filePath>:` followed by `  <path>: <message>` lines                                 | Schema rejected the entry                                             | Fix the content or the schema                                             |
-| `Fields added by Qino after validation cannot be declared in the schema: <fields>.` (after the issue lines) | A Markdown schema requires `markdown` or `raw`                        | Remove them from the schema                                               |
-| `Schema for <filePath> returned a Promise. Qino requires synchronous Standard Schema validators.`           | Async validator                                                       | Use a synchronous schema                                                  |
-| `<filePath>: fields reserved for Qino cannot appear in content or schema output: _meta.`                    | `_meta` in content, or introduced by a transform                      | Rename the field                                                          |
-| `<filePath>: fields reserved for Qino cannot appear in content or schema output: _meta, markdown, raw.`     | `_meta`, `markdown` or `raw` in Markdown frontmatter or schema output | Remove it; qino supplies `markdown` and `raw`                             |
-| `<filePath>: media "<path>" must be a URL in mediaFolder, starting with "/". Got <value>.`                  | An image field holds an external or relative URL                      | Store the file in `mediaFolder` and use its URL, such as `/images/a.webp` |
-| `<filePath>: media "<path>": "<url>" doesn't exist in "<mediaFolder>".`                                     | An image field points to a missing file                               | Add the file or fix the URL                                               |
-| `<filePath>: media "<path>": "<url>" is <type>, but only <accepted> is accepted.`                           | An image field points to a file of another type                       | Use a file of the accepted type, or change `accepted`                     |
-| `<filePath>: media "<path>": "<url>" is <size>, over the <maxSize> limit.`                                  | An image field points to a file over `maxSize`                        | Use a smaller file, or raise `maxSize`                                    |
-| `<filePath>: media "<path>": "<file>" isn't an image.`                                                      | An image field points to a file of another type                       | Point it to an image                                                      |
+| Message                                                                                                         | Cause                                                                           | Fix                                                                       |
+| --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `YAML frontmatter must contain a single document.`                                                              | Several `---` documents at the top of a file                                    | Keep one frontmatter block                                                |
+| `YAML frontmatter must be a mapping of field names to values.`                                                  | Frontmatter is a scalar or a list                                               | Use `key: value` pairs                                                    |
+| `Validation failed for <filePath>:` followed by `  <path>: <message>` lines                                     | Schema rejected the entry                                                       | Fix the content or the schema                                             |
+| `Fields added by Qino after validation cannot be declared in the schema: <fields>.` (after the issue lines)     | A Markdown schema requires `markdown`, `raw`, or `_stats`                       | Remove them from the schema                                               |
+| `Schema for <filePath> returned a Promise. Qino requires synchronous Standard Schema validators.`               | Async validator                                                                 | Use a synchronous schema                                                  |
+| `<filePath>: fields reserved for Qino cannot appear in content or schema output: _meta.`                        | `_meta` in content, or introduced by a transform                                | Rename the field                                                          |
+| `<filePath>: fields reserved for Qino cannot appear in content or schema output: _meta, markdown, raw, _stats.` | `_meta`, `markdown`, `raw` or `_stats` in Markdown frontmatter or schema output | Remove it; qino supplies `markdown`, `raw`, and `_stats`                  |
+| `<filePath>: media "<path>" must be a URL in mediaFolder, starting with "/". Got <value>.`                      | An image field holds an external or relative URL                                | Store the file in `mediaFolder` and use its URL, such as `/images/a.webp` |
+| `<filePath>: media "<path>": "<url>" doesn't exist in "<mediaFolder>".`                                         | An image field points to a missing file                                         | Add the file or fix the URL                                               |
+| `<filePath>: media "<path>": "<url>" is <type>, but only <accepted> is accepted.`                               | An image field points to a file of another type                                 | Use a file of the accepted type, or change `accepted`                     |
+| `<filePath>: media "<path>": "<url>" is <size>, over the <maxSize> limit.`                                      | An image field points to a file over `maxSize`                                  | Use a smaller file, or raise `maxSize`                                    |
+| `<filePath>: media "<path>": "<file>" isn't an image.`                                                          | An image field points to a file of another type                                 | Point it to an image                                                      |
 
 A `.json` file that is not valid JSON throws the raw `SyntaxError` from `JSON.parse`. A missing file throws the raw Node `ENOENT` error.
 
@@ -80,11 +81,11 @@ A `.json` file that is not valid JSON throws the raw `SyntaxError` from `JSON.pa
 
 ## Augment
 
-| Message                                                                         | Cause                                             | Fix                       |
-| ------------------------------------------------------------------------------- | ------------------------------------------------- | ------------------------- |
-| `<filePath>: augment failed: <message>`                                         | The callback threw                                | Fix the callback          |
-| `<filePath>: augment must return an object.`                                    | Returned a non-object                             | Return an object          |
-| `<filePath>: augment cannot add reserved or overwrite existing fields: <keys>.` | Output overlaps entry fields, `markdown` or `raw` | Rename the derived fields |
+| Message                                                                         | Cause                                                        | Fix                       |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------- |
+| `<filePath>: augment failed: <message>`                                         | The callback threw                                           | Fix the callback          |
+| `<filePath>: augment must return an object.`                                    | Returned a non-object                                        | Return an object          |
+| `<filePath>: augment cannot add reserved or overwrite existing fields: <keys>.` | Output overlaps entry fields, `markdown`, `raw`, or `_stats` | Rename the derived fields |
 
 ## CLI
 
