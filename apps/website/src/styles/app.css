@@ -38,6 +38,7 @@
   /* Warm neutrals: swap stone to retheme the surfaces and text. */
   --background: var(--color-stone-900);
   --surface: var(--color-stone-800);
+  --surface-sunken: var(--color-stone-950);
   --foreground: var(--color-stone-100);
   --foreground-2: var(--color-stone-200);
   --foreground-3: var(--color-stone-300);
@@ -75,6 +76,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-surface-sunken: var(--surface-sunken);
   --color-foreground: var(--foreground);
   --color-foreground-2: var(--foreground-2);
   --color-foreground-3: var(--foreground-3);

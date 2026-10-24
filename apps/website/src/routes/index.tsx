@@ -10,22 +10,25 @@ import { RelationsSection } from "@/components/landing/relations-section";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { SiteHeader } from "@/components/landing/site-header";
 import { SkipLink } from "@/components/landing/skip-link";
+import { StorySection } from "@/components/landing/story-section";
 import { TestimonialsSection } from "@/components/landing/testimonials-section";
 import { externalLinks } from "@/lib/external-links";
 import { getPageHead } from "@/lib/get-page-head";
 import { site } from "@/lib/site";
 import { getProjectStats } from "@/server/get-project-stats";
+import { getSection } from "@/server/get-section";
 import { getSnippets } from "@/server/get-snippets";
 import { getTestimonials } from "@/server/get-testimonials";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
-    const [snippets, testimonials, stats] = await Promise.all([
+    const [snippets, testimonials, stats, story] = await Promise.all([
       getSnippets(),
       getTestimonials(),
       getProjectStats(),
+      getSection({ data: "why-i-built-qino" }),
     ]);
-    return { ...snippets, testimonials, stats };
+    return { ...snippets, testimonials, stats, story };
   },
   head: () =>
     getPageHead({
@@ -59,6 +62,7 @@ function HomePage() {
     relationsPosts,
     testimonials,
     stats,
+    story,
   } = Route.useLoaderData();
 
   return (
@@ -68,6 +72,7 @@ function HomePage() {
       <main id="main-content">
         <Hero stats={stats} />
         <TestimonialsSection testimonials={testimonials} />
+        <StorySection {...story} />
         <Pipeline
           files={pipelineFiles}
           define={pipelineDefine}

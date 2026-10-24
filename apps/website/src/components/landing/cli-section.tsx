@@ -1,24 +1,19 @@
 import { InlineCode } from "./inline-code";
 import { Section } from "./section";
+import { SectionHeading } from "./section-heading";
 import { SpecRow } from "./spec-row";
 import { SpecTable } from "./spec-table";
-import { Text } from "./text";
-import { Title } from "./title";
 
 export function CliSection() {
   return (
     <Section aria-labelledby="cli-heading">
-      <div className="max-w-2xl">
-        <Title id="cli-heading">
-          One command between your content and a broken build.
-        </Title>
-      </div>
-      <div className="mt-4 max-w-xl">
-        <Text>
-          The CLI runs before your framework does, so content errors surface in
-          the terminal instead of at request time.
-        </Text>
-      </div>
+      <SectionHeading
+        id="cli-heading"
+        title="One command between your content and a broken build."
+      >
+        The CLI runs before your framework does, so content errors surface in
+        the terminal instead of at request time.
+      </SectionHeading>
       <SpecTable>
         <SpecRow command label="qino build" title="Generate types">
           Checks every definition, validates every content file against its

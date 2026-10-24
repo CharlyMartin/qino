@@ -16,10 +16,10 @@ export function AgentSection() {
       </Title>
       <div className="mt-5 max-w-lg md:mx-auto">
         <Text>
-          Install the qino skill, then ask your coding agent to add qino. It
+          Install the qino skill, then ask your coding agent to set up qino. It
           models the content you already have into collections, trees, and
-          items, infers schemas, wires <InlineCode>qino{" "}build</InlineCode>{" "}
-          into your build, and keeps going until it passes.
+          items, wires <InlineCode>qino{" "}build</InlineCode> into your build,
+          and keeps going until it passes.
         </Text>
       </div>
       <div className="mt-8 max-w-xl md:mx-auto">

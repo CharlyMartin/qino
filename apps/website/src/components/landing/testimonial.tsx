@@ -1,4 +1,4 @@
-import { ExternalLink } from "./external-link";
+import { Byline } from "./byline";
 import { Text } from "./text";
 
 export type TestimonialProps = {
@@ -24,23 +24,10 @@ export function Testimonial({
       <blockquote className="font-medium italic">
         <Text>{quote}</Text>
       </blockquote>
-      <figcaption className="flex items-center gap-3">
-        <img
-          src={image}
-          alt={name}
-          width={40}
-          height={40}
-          loading="lazy"
-          className="size-10 shrink-0 rounded-full border border-primary p-0.5"
-        />
-        <div>
-          <p className="text-sm font-medium">
-            <ExternalLink href={url}>{name}</ExternalLink>
-          </p>
-          <Text size="small">
-            {title}, {company}
-          </Text>
-        </div>
+      <figcaption>
+        <Byline name={name} image={image} url={url}>
+          {title}, {company}
+        </Byline>
       </figcaption>
     </figure>
   );
