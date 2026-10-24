@@ -4,9 +4,7 @@ created-on: "2024-11-18T11:00:00Z"
 updated-on: "2024-11-18T11:00:00Z"
 image: "/images/tranquil-mountains.webp"
 author: "authors/diego-moreno.json"
-categories:
-  - "categories/philosophy.json"
-  - "categories/markdown.json"
+category: "categories/philosophy.json"
 ---
 
 Frameworks come and go on a roughly five-year cycle. The Markdown you wrote in 2014 still renders today — the framework you wrote *around* it probably doesn't.

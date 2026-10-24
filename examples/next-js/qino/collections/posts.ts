@@ -11,7 +11,7 @@ const PostSchema = z
     title: z.string().min(1).max(120),
     "created-on": z.iso.datetime(),
     "updated-on": z.iso.datetime(),
-    categories: z.array(z.string()).min(1),
+    category: z.string(),
     image: z.string(),
     author: z.string(),
   })
@@ -25,7 +25,7 @@ export const postCollection = qino.defineCollection({
   markdownStats: true,
   relations: {
     author: authorCollection,
-    "categories[*]": categoryCollection,
+    category: categoryCollection,
   },
   media: {
     image: { accepted: "image/webp", maxSize: "5MB" },

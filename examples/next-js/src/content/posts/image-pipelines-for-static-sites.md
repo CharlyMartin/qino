@@ -4,9 +4,7 @@ created-on: "2025-05-09T10:30:00Z"
 updated-on: "2025-05-16T15:00:00Z"
 image: "/images/mountain-river.webp"
 author: "authors/yuki-sato.json"
-categories:
-  - "categories/performance.json"
-  - "categories/tooling.json"
+category: "categories/performance.json"
 ---
 
 Images are the single biggest performance lever on most blogs. Get the pipeline right and you get fast pages, low bandwidth bills, and good Core Web Vitals — all without thinking about it again.

@@ -4,9 +4,7 @@ created-on: "2025-05-21T09:00:00Z"
 updated-on: "2025-05-30T11:30:00Z"
 image: "/images/mountain-rocks.webp"
 author: "authors/camille-laurent.json"
-categories:
-  - "categories/content-modeling.json"
-  - "categories/architecture.json"
+category: "categories/content-modeling.json"
 ---
 
 Localization is the part where flat-file CMSes start to feel their limits. There's no single right answer, but there are two patterns that work.

@@ -4,10 +4,7 @@ created-on: "2024-12-22T17:30:00Z"
 updated-on: "2024-12-22T17:30:00Z"
 image: "/images/fields-at-sunset.webp"
 author: "authors/diego-moreno.json"
-categories:
-  - "categories/philosophy.json"
-  - "categories/editorial.json"
-  - "categories/tooling.json"
+category: "categories/philosophy.json"
 ---
 
 Putting content in Git sounds like an engineering compromise — *we'll let writers learn Git* — but the value flows the other way. Writers benefit from the things engineers have taken for granted for years.

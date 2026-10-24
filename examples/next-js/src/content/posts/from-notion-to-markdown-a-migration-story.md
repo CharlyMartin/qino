@@ -4,9 +4,7 @@ created-on: "2025-08-04T09:00:00Z"
 updated-on: "2025-08-12T14:00:00Z"
 image: "/images/snowy-croplands.webp"
 author: "authors/priya-krishnan.json"
-categories:
-  - "categories/migration.json"
-  - "categories/editorial.json"
+category: "categories/migration.json"
 ---
 
 We had three years of content in Notion. Migrating it took two weeks and one very long Sunday.

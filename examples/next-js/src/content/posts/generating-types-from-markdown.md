@@ -4,9 +4,7 @@ created-on: "2025-09-26T09:00:00Z"
 updated-on: "2025-10-02T11:30:00Z"
 image: "/images/fields-at-sunset.webp"
 author: "authors/lars-eriksson.json"
-categories:
-  - "categories/type-safety.json"
-  - "categories/tooling.json"
+category: "categories/type-safety.json"
 ---
 
 The endgame for a flat-file CMS is *the editor knowing what your content looks like* — not at runtime, but as you type.

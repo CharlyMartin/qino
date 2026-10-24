@@ -4,9 +4,7 @@ created-on: "2025-03-08T11:00:00Z"
 updated-on: "2025-03-15T09:15:00Z"
 image: "/images/rolling-hills.webp"
 author: "authors/camille-laurent.json"
-categories:
-  - "categories/content-modeling.json"
-  - "categories/seo.json"
+category: "categories/content-modeling.json"
 ---
 
 A URL is a promise. Once it's published, breaking it costs you backlinks, search ranking, and the trust of anyone who bookmarked it. Slugs are the load-bearing part of that promise.

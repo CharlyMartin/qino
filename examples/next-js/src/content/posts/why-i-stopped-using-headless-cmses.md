@@ -4,9 +4,7 @@ created-on: "2025-03-19T13:00:00Z"
 updated-on: "2025-03-25T16:30:00Z"
 image: "/images/snowy-croplands.webp"
 author: "authors/priya-krishnan.json"
-categories:
-  - "categories/migration.json"
-  - "categories/philosophy.json"
+category: "categories/migration.json"
 ---
 
 I used a popular headless CMS for three years. The product was good. The vendor lock-in was the problem.

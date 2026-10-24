@@ -4,10 +4,7 @@ created-on: "2026-02-08T09:00:00Z"
 updated-on: "2026-02-14T13:30:00Z"
 image: "/images/mountain-rocks.webp"
 author: "authors/felix-berger.json"
-categories:
-  - "categories/tooling.json"
-  - "categories/markdown.json"
-  - "categories/type-safety.json"
+category: "categories/tooling.json"
 ---
 
 Linting Markdown sounds excessive until you've spent an hour debugging why a heading isn't rendering. Then it sounds like the bare minimum.

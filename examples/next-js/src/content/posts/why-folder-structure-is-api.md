@@ -4,10 +4,7 @@ created-on: "2025-09-17T10:00:00Z"
 updated-on: "2025-09-17T10:00:00Z"
 image: "/images/rolling-hills.webp"
 author: "authors/camille-laurent.json"
-categories:
-  - "categories/architecture.json"
-  - "categories/content-modeling.json"
-  - "categories/philosophy.json"
+category: "categories/architecture.json"
 ---
 
 In a flat-file CMS, the folder structure *is* your data model. Renaming a folder is a breaking change.

@@ -4,9 +4,7 @@ created-on: "2026-03-12T09:30:00Z"
 updated-on: "2026-03-19T14:00:00Z"
 image: "/images/andalusian-countryside.webp"
 author: "authors/hanna-voss.json"
-categories:
-  - "categories/content-modeling.json"
-  - "categories/architecture.json"
+category: "categories/content-modeling.json"
 ---
 
 Most blogs start with `author: "Jane Doe"` in their frontmatter. Six months later, "Jane Doe" needs a bio, an avatar, and a Twitter link — in five hundred posts. That's when the author object pattern earns its keep.
