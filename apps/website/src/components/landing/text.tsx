@@ -5,7 +5,7 @@ const textVariants = cva("text-pretty text-muted-foreground", {
   variants: {
     size: {
       lead: "text-lead font-medium",
-      body: "text-body",
+      body: "text-body font-medium",
       small: "text-sm font-medium",
     },
   },

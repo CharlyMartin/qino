@@ -6,6 +6,8 @@ const iconVariants = cva("w-auto shrink-0 text-foreground-2", {
     size: {
       default: "h-5",
       small: "h-3.5",
+      // Scales with the surrounding text and sits on its baseline.
+      inline: "inline-block h-[0.875em] align-[-0.125em]",
     },
   },
   defaultVariants: { size: "default" },

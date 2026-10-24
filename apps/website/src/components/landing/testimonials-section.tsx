@@ -1,3 +1,4 @@
+import { Section } from "./section";
 import { Testimonial, type TestimonialProps } from "./testimonial";
 
 type TestimonialsSectionProps = {
@@ -8,7 +9,7 @@ export function TestimonialsSection({
   testimonials,
 }: TestimonialsSectionProps) {
   return (
-    <section aria-labelledby="testimonials-heading" className="border-b">
+    <Section aria-labelledby="testimonials-heading" spacing="none" bleed>
       <h2 id="testimonials-heading" className="sr-only">
         What developers say
       </h2>
@@ -23,6 +24,6 @@ export function TestimonialsSection({
           </div>
         ))}
       </div>
-    </section>
+    </Section>
   );
 }

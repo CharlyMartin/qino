@@ -32,6 +32,8 @@ type SectionProps = Omit<ComponentProps<"section">, "className"> &
   VariantProps<typeof sectionVariants> &
   VariantProps<typeof containerVariants> & {
     "aria-labelledby": string;
+    // Skips the inner container so children can span the full width and own their padding.
+    bleed?: boolean;
   };
 
 export function Section({
@@ -39,11 +41,16 @@ export function Section({
   spacing,
   grow,
   align,
+  bleed,
   ...props
 }: SectionProps) {
   return (
     <section className={sectionVariants({ spacing, grow })} {...props}>
-      <div className={containerVariants({ align })}>{children}</div>
+      {bleed ? (
+        children
+      ) : (
+        <div className={containerVariants({ align })}>{children}</div>
+      )}
     </section>
   );
 }
