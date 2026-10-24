@@ -4,9 +4,7 @@ created-on: "2025-12-19T11:00:00Z"
 updated-on: "2025-12-19T11:00:00Z"
 image: "/images/mountain-river.webp"
 author: "authors/hanna-voss.json"
-categories:
-  - "categories/philosophy.json"
-  - "categories/editorial.json"
+category: "categories/philosophy.json"
 ---
 
 The contract between an author and a publication should be simple: *the author owns their words*. The publication owns the venue.

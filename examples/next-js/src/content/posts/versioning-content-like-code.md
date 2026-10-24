@@ -4,10 +4,7 @@ created-on: "2025-04-30T12:00:00Z"
 updated-on: "2025-04-30T12:00:00Z"
 image: "/images/golden-hillside.webp"
 author: "authors/yuki-sato.json"
-categories:
-  - "categories/philosophy.json"
-  - "categories/editorial.json"
-  - "categories/tooling.json"
+category: "categories/philosophy.json"
 ---
 
 `git log` is the most underrated CMS feature in the world.

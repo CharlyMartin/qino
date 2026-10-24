@@ -4,9 +4,7 @@ created-on: "2026-03-23T10:00:00Z"
 updated-on: "2026-03-28T15:00:00Z"
 image: "/images/farm-landscape.webp"
 author: "authors/mei-tanaka.json"
-categories:
-  - "categories/tooling.json"
-  - "categories/editorial.json"
+category: "categories/tooling.json"
 ---
 
 "Preview before publish" is one of the features people miss most when moving to a static site. The good news: you can have it, without giving up static.

@@ -4,9 +4,7 @@ created-on: "2025-06-02T11:00:00Z"
 updated-on: "2025-06-02T11:00:00Z"
 image: "/images/tranquil-mountains.webp"
 author: "authors/camille-laurent.json"
-categories:
-  - "categories/content-modeling.json"
-  - "categories/seo.json"
+category: "categories/content-modeling.json"
 ---
 
 A good slug is short, descriptive, and stable. Two of those are easy. Stability is where most slugs fail.

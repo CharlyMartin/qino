@@ -4,9 +4,7 @@ created-on: "2025-09-05T09:30:00Z"
 updated-on: "2025-09-10T13:00:00Z"
 image: "/images/grass-field-clouds.webp"
 author: "authors/camille-laurent.json"
-categories:
-  - "categories/content-modeling.json"
-  - "categories/architecture.json"
+category: "categories/content-modeling.json"
 ---
 
 Without a database, "join" doesn't really apply. But content has relationships — posts have authors, posts have tags, tags have parent categories. You still need to model them.

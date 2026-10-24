@@ -4,10 +4,7 @@ created-on: "2025-12-09T10:00:00Z"
 updated-on: "2025-12-15T14:00:00Z"
 image: "/images/farm-landscape.webp"
 author: "authors/amara-okonkwo.json"
-categories:
-  - "categories/philosophy.json"
-  - "categories/editorial.json"
-  - "categories/migration.json"
+category: "categories/philosophy.json"
 ---
 
 Page builders feel empowering for the first month. Then you realize you've signed a lease on someone else's tooling.

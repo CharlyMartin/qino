@@ -4,10 +4,7 @@ created-on: "2026-02-19T10:30:00Z"
 updated-on: "2026-02-25T15:00:00Z"
 image: "/images/farm-landscape.webp"
 author: "authors/lars-eriksson.json"
-categories:
-  - "categories/type-safety.json"
-  - "categories/content-modeling.json"
-  - "categories/tooling.json"
+category: "categories/type-safety.json"
 ---
 
 A schema is the bridge between "frontmatter is whatever YAML I happened to type" and "frontmatter is a typed contract". Zod is the easiest way to build that bridge.

@@ -4,10 +4,7 @@ created-on: "2025-06-12T08:30:00Z"
 updated-on: "2025-06-15T14:00:00Z"
 image: "/images/mountain-rocks.webp"
 author: "authors/jane-doe.json"
-categories:
-  - "categories/tooling.json"
-  - "categories/type-safety.json"
-  - "categories/performance.json"
+category: "categories/tooling.json"
 ---
 
 A flat-file CMS without a build step is just a folder. The build step is where it earns the *CMS* part of the name.

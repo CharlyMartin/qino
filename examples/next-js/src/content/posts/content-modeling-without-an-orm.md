@@ -4,9 +4,7 @@ created-on: "2025-02-25T10:30:00Z"
 updated-on: "2025-03-01T14:00:00Z"
 image: "/images/golden-hillside.webp"
 author: "authors/tomas-silva.json"
-categories:
-  - "categories/content-modeling.json"
-  - "categories/architecture.json"
+category: "categories/content-modeling.json"
 ---
 
 When your storage layer is a folder, your data model is the folder structure. That sounds reductive but it's actually the point.

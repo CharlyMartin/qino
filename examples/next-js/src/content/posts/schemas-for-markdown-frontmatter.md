@@ -4,10 +4,7 @@ created-on: "2025-03-29T10:00:00Z"
 updated-on: "2025-03-29T10:00:00Z"
 image: "/images/grass-field-clouds.webp"
 author: "authors/lars-eriksson.json"
-categories:
-  - "categories/type-safety.json"
-  - "categories/content-modeling.json"
-  - "categories/tooling.json"
+category: "categories/type-safety.json"
 ---
 
 Frontmatter without a schema is a JSON blob. Frontmatter *with* a schema is a typed contract — and that's what makes a flat-file CMS feel like a CMS, not a folder.

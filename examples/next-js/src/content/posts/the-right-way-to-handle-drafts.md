@@ -4,9 +4,7 @@ created-on: "2025-08-26T11:00:00Z"
 updated-on: "2025-09-01T15:00:00Z"
 image: "/images/tranquil-mountains.webp"
 author: "authors/mei-tanaka.json"
-categories:
-  - "categories/editorial.json"
-  - "categories/content-modeling.json"
+category: "categories/editorial.json"
 ---
 
 Drafts are deceptively simple. There are at least four reasonable ways to handle them and each has a hidden cost.

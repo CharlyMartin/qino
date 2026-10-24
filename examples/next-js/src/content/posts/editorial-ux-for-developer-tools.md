@@ -4,9 +4,7 @@ created-on: "2025-08-15T10:30:00Z"
 updated-on: "2025-08-15T10:30:00Z"
 image: "/images/mountain-rocks.webp"
 author: "authors/mei-tanaka.json"
-categories:
-  - "categories/editorial.json"
-  - "categories/philosophy.json"
+category: "categories/editorial.json"
 ---
 
 Developer tools tend to optimize for developers — that's the whole point. But content tools sit at a strange intersection: developers build them, *non-developers* use them daily.

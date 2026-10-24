@@ -4,10 +4,7 @@ created-on: "2025-11-29T11:30:00Z"
 updated-on: "2025-12-04T15:00:00Z"
 image: "/images/mountain-rocks.webp"
 author: "authors/raj-patel.json"
-categories:
-  - "categories/seo.json"
-  - "categories/performance.json"
-  - "categories/tooling.json"
+category: "categories/seo.json"
 ---
 
 Sitemaps are unglamorous SEO plumbing. They're also one of the highest-leverage things you can ship for a content-heavy site.

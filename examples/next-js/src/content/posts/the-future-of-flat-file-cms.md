@@ -4,10 +4,7 @@ created-on: "2026-04-18T10:00:00Z"
 updated-on: "2026-04-25T14:30:00Z"
 image: "/images/golden-hillside.webp"
 author: "authors/diego-moreno.json"
-categories:
-  - "categories/philosophy.json"
-  - "categories/architecture.json"
-  - "categories/editorial.json"
+category: "categories/philosophy.json"
 ---
 
 Flat-file CMSes have been around forever — but the version we've had until now was *for developers*. The next version has to be for everyone else, too.

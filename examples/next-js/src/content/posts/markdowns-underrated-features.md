@@ -4,9 +4,7 @@ created-on: "2025-01-26T10:00:00Z"
 updated-on: "2025-01-26T10:00:00Z"
 image: "/images/rolling-hills.webp"
 author: "authors/felix-berger.json"
-categories:
-  - "categories/markdown.json"
-  - "categories/content-modeling.json"
+category: "categories/markdown.json"
 ---
 
 Most people learn Markdown's headings and lists, then stop. The format has more to offer.

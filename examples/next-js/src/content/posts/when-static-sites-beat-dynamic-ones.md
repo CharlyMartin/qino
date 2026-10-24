@@ -4,10 +4,7 @@ created-on: "2025-01-15T14:20:00Z"
 updated-on: "2025-01-21T09:30:00Z"
 image: "/images/grass-field-clouds.webp"
 author: "authors/yuki-sato.json"
-categories:
-  - "categories/architecture.json"
-  - "categories/performance.json"
-  - "categories/philosophy.json"
+category: "categories/architecture.json"
 ---
 
 Static sites aren't a nostalgia trip. For a large class of sites — blogs, docs, marketing pages — they're simply *better*. Faster, cheaper, more reliable.
