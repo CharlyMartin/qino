@@ -4,10 +4,7 @@ created-on: "2025-11-19T10:00:00Z"
 updated-on: "2025-11-19T10:00:00Z"
 image: "/images/golden-hillside.webp"
 author: "authors/raj-patel.json"
-categories:
-  - "categories/seo.json"
-  - "categories/philosophy.json"
-  - "categories/tooling.json"
+category: "categories/seo.json"
 ---
 
 RSS isn't dead. It's just stopped being talked about.

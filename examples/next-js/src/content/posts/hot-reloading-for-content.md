@@ -4,10 +4,7 @@ created-on: "2025-06-23T10:00:00Z"
 updated-on: "2025-06-28T16:00:00Z"
 image: "/images/golden-hillside.webp"
 author: "authors/jane-doe.json"
-categories:
-  - "categories/tooling.json"
-  - "categories/editorial.json"
-  - "categories/performance.json"
+category: "categories/tooling.json"
 ---
 
 Hot reloading isn't a developer feature. It's a *writing* feature.

@@ -22,7 +22,7 @@ const post = {
   title: "Hello",
   "created-on": "2026-02-28T10:00:00Z",
   "updated-on": "2026-03-01T10:00:00.000Z",
-  categories: ["news"],
+  category: "news",
   image: "/posts/cover.webp",
   author: "jane-doe",
 };
@@ -36,7 +36,9 @@ describe("getEntrySchema", () => {
     const schema = setup();
 
     expect(schema.safeParse({ ...post, title: "" }).success).toBe(false);
-    expect(schema.safeParse({ ...post, categories: [] }).success).toBe(false);
+    expect(schema.safeParse({ ...post, category: ["news"] }).success).toBe(
+      false,
+    );
     expect(
       schema.safeParse({ ...post, "created-on": "2026-02-30T10:00:00Z" })
         .success,

@@ -57,26 +57,23 @@ export default async function PostPage({ params }: PostPageProps) {
           {post.title}
         </h1>
         <div className="flex flex-col gap-1 text-sm">
-          <span className="text-zinc-950 dark:text-zinc-50">
+          <Link
+            href={`/posts/authors/${post.author._meta.slug}`}
+            className="self-start text-zinc-950 hover:underline dark:text-zinc-50"
+          >
             {post.author.firstName} {post.author.lastName}
-          </span>
+          </Link>
           <span className="text-zinc-500 dark:text-zinc-400">
             {post.author.title} @ {post.author.company}
           </span>
         </div>
-        {post.categories.length > 0 && (
-          <ul className="flex flex-wrap gap-2">
-            {post.categories.map((category) => (
-              <li
-                key={category._meta.slug}
-                title={category.description}
-                className="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
-              >
-                {category.name}
-              </li>
-            ))}
-          </ul>
-        )}
+        <Link
+          href={`/posts/tags/${post.category._meta.slug}`}
+          title={post.category.description}
+          className="self-start rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs text-zinc-700 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-zinc-700"
+        >
+          {post.category.name}
+        </Link>
       </header>
       <div className="prose prose-zinc max-w-none dark:prose-invert">
         <ReactMarkdown

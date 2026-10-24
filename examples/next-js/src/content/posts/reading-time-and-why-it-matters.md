@@ -4,9 +4,7 @@ created-on: "2026-01-30T10:00:00Z"
 updated-on: "2026-01-30T10:00:00Z"
 image: "/images/fields-at-sunset.webp"
 author: "authors/hanna-voss.json"
-categories:
-  - "categories/tooling.json"
-  - "categories/editorial.json"
+category: "categories/tooling.json"
 ---
 
 "5 min read" is a tiny piece of UI that makes a surprising difference. It tells the reader, *before they commit*, what they're getting into.

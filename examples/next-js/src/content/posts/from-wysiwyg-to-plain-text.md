@@ -4,9 +4,7 @@ created-on: "2024-11-29T08:45:00Z"
 updated-on: "2024-12-04T16:20:00Z"
 image: "/images/tranquil-mountains.webp"
 author: "authors/priya-krishnan.json"
-categories:
-  - "categories/editorial.json"
-  - "categories/markdown.json"
+category: "categories/editorial.json"
 ---
 
 The first time you switch a writer from a WYSIWYG editor to Markdown, they panic. The second time, they ask why nobody told them sooner.

@@ -4,9 +4,7 @@ created-on: "2026-01-08T10:00:00Z"
 updated-on: "2026-01-12T14:00:00Z"
 image: "/images/andalusian-countryside.webp"
 author: "authors/tomas-silva.json"
-categories:
-  - "categories/architecture.json"
-  - "categories/philosophy.json"
+category: "categories/architecture.json"
 ---
 
 What's the *least* a CMS can do and still be a CMS?

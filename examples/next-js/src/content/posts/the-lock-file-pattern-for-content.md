@@ -4,10 +4,7 @@ created-on: "2025-02-14T12:00:00Z"
 updated-on: "2025-02-14T12:00:00Z"
 image: "/images/mountain-river.webp"
 author: "authors/tomas-silva.json"
-categories:
-  - "categories/architecture.json"
-  - "categories/type-safety.json"
-  - "categories/tooling.json"
+category: "categories/architecture.json"
 ---
 
 Package managers solved a hard problem: how do you describe the *exact* state of a dependency tree, in a file, in a way that's both human-readable and machine-stable? The answer is the lock file.

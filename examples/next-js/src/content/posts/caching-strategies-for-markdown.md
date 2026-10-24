@@ -4,9 +4,7 @@ created-on: "2025-07-04T12:00:00Z"
 updated-on: "2025-07-04T12:00:00Z"
 image: "/images/fields-at-sunset.webp"
 author: "authors/jane-doe.json"
-categories:
-  - "categories/performance.json"
-  - "categories/architecture.json"
+category: "categories/performance.json"
 ---
 
 Markdown parsing isn't free. Run it on every request and you'll feel it; run it once and cache the result and you won't.

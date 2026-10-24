@@ -4,10 +4,7 @@ created-on: "2026-03-02T11:00:00Z"
 updated-on: "2026-03-02T11:00:00Z"
 image: "/images/grass-field-clouds.webp"
 author: "authors/amara-okonkwo.json"
-categories:
-  - "categories/editorial.json"
-  - "categories/content-modeling.json"
-  - "categories/seo.json"
+category: "categories/editorial.json"
 ---
 
 Alt text is the most-skipped accessibility feature in the world. It's also the easiest one to fix, and the one with the highest payoff per minute spent.

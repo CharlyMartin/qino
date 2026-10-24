@@ -4,9 +4,7 @@ created-on: "2025-07-14T09:00:00Z"
 updated-on: "2025-07-22T13:30:00Z"
 image: "/images/farm-landscape.webp"
 author: "authors/felix-berger.json"
-categories:
-  - "categories/markdown.json"
-  - "categories/architecture.json"
+category: "categories/markdown.json"
 ---
 
 MDX lets you embed React components in Markdown. That's powerful, and it's also where Markdown stops being portable.

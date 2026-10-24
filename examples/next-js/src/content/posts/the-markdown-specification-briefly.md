@@ -4,9 +4,7 @@ created-on: "2025-10-08T14:00:00Z"
 updated-on: "2025-10-08T14:00:00Z"
 image: "/images/rolling-hills.webp"
 author: "authors/felix-berger.json"
-categories:
-  - "categories/markdown.json"
-  - "categories/philosophy.json"
+category: "categories/markdown.json"
 ---
 
 There's no single Markdown spec. There are several, and they disagree in small but real ways.
