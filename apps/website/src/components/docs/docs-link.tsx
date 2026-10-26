@@ -2,27 +2,30 @@ import { Link } from "@tanstack/react-router";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ReactNode } from "react";
 
-const docsLinkVariants = cva("rounded-sm px-2 py-1 transition-colors", {
-  variants: {
-    level: {
-      section: "font-medium text-foreground hover:bg-surface/50",
-      page: "",
+const docsLinkVariants = cva(
+  "rounded-sm px-2 py-1 font-medium transition-colors",
+  {
+    variants: {
+      level: {
+        section: "text-foreground hover:bg-surface/50",
+        page: "",
+      },
+      active: {
+        true: "bg-surface text-foreground hover:bg-surface",
+        false: "",
+      },
     },
-    active: {
-      true: "bg-surface font-medium text-foreground hover:bg-surface",
-      false: "",
-    },
+    compoundVariants: [
+      {
+        level: "page",
+        active: false,
+        className:
+          "text-muted-foreground hover:bg-surface/50 hover:text-foreground",
+      },
+    ],
+    defaultVariants: { level: "page", active: false },
   },
-  compoundVariants: [
-    {
-      level: "page",
-      active: false,
-      className:
-        "text-muted-foreground hover:bg-surface/50 hover:text-foreground",
-    },
-  ],
-  defaultVariants: { level: "page", active: false },
-});
+);
 
 type DocsLinkProps = VariantProps<typeof docsLinkVariants> & {
   slug: string;
