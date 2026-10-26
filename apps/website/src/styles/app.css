@@ -43,6 +43,12 @@
   --foreground-2: var(--color-stone-200);
   --foreground-3: var(--color-stone-300);
   --muted-foreground: var(--color-stone-400);
+  /* Halfway to stone-500: ~5:1 on the background, above WCAG AA's 4.5:1. */
+  --placeholder: color-mix(
+    in oklab,
+    var(--color-stone-400),
+    var(--color-stone-500)
+  );
   --border: var(--color-stone-800);
   --border-strong: var(--color-stone-700);
   /* Accent palette: replace amber here to change the accent site-wide. */
@@ -81,6 +87,7 @@
   --color-foreground-2: var(--foreground-2);
   --color-foreground-3: var(--foreground-3);
   --color-muted-foreground: var(--muted-foreground);
+  --color-placeholder: var(--placeholder);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-primary: var(--primary);
@@ -158,7 +165,7 @@
     @apply border-border outline-ring/50;
   }
   html {
-    @apply scheme-dark;
+    @apply scheme-dark motion-safe:scroll-smooth;
   }
   body {
     @apply bg-background font-sans text-foreground antialiased;

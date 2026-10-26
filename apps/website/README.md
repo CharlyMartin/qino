@@ -23,6 +23,8 @@ The build prerenders `/` and every documentation page into Nitro's public output
 `/docs` redirects to the first top-level documentation node and is excluded from
 prerendering. The crawler starts at `/docs/guide`; update that seed in
 `vite.config.ts` if the guide is renamed or removed.
+`/migrate-from-contentlayer` is rendered per request instead, so its `?repo=`
+query personalises the HTML; it stays in the sitemap through `pages`.
 
 The docs tree and compiled MDX are also generated during prerendering using
 TanStack's experimental static-server-functions middleware. Production client

@@ -8,6 +8,8 @@ export function getRouter() {
   return createRouter({
     routeTree,
     scrollRestoration: true,
+    // Overrides the page's smooth scrolling, which is meant for in-page anchors, not route changes.
+    scrollRestorationBehavior: "instant",
     defaultPreload: "intent",
     defaultStaleTime: staleTime,
     defaultPreloadStaleTime: staleTime,
