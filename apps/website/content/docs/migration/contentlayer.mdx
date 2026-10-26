@@ -1,0 +1,363 @@
+---
+title: Contentlayer
+description: Replace contentlayer.config.ts, generated imports, and withContentlayer with qino definitions and getters.
+---
+
+Contentlayer and qino solve the same problem: turn a folder of Markdown into typed data. They get there differently.
+
+|                | Contentlayer                                        | qino                                         |
+| -------------- | --------------------------------------------------- | -------------------------------------------- |
+| Config         | `contentlayer.config.ts`                            | `qino/index.ts` plus one file per definition |
+| Schema         | Contentlayer field types                            | Any Standard Schema validator, such as Zod   |
+| Output         | JSON cached in `.contentlayer/generated`            | Files read from disk when a getter runs      |
+| Reading        | `import { allPosts } from "contentlayer/generated"` | `await postCollection.getEntries()`          |
+| Types          | Generated from the config                           | Inferred from the schema, slugs generated    |
+| Body           | Compiled to `html` or MDX `code`                    | Raw `markdown` string, rendered by your app  |
+| References     | Passed through as paths                             | Resolved into entries by a view              |
+| Framework glue | `withContentlayer` in `next.config`                 | `qino build` as a `prebuild` script          |
+
+Your content files mostly stay where they are. The work is in the definitions and the call sites.
+
+## 1. Swap the packages
+
+Remove Contentlayer:
+
+```sh title="Terminal"
+npm uninstall contentlayer next-contentlayer
+```
+
+Then install qino and a validator. See [Installation](/docs/guide/installation).
+
+<InstallBox />
+
+## 2. Undo the Next.js wiring
+
+Unwrap the Next.js config:
+
+```ts title="next.config.ts"
+// Before
+import { withContentlayer } from "next-contentlayer";
+export default withContentlayer(nextConfig);
+
+// After
+export default nextConfig;
+```
+
+Remove the `contentlayer/generated` alias from `tsconfig.json`:
+
+```json title="tsconfig.json"
+{
+  "compilerOptions": {
+    "paths": {
+      "contentlayer/generated": ["./.contentlayer/generated"] // delete
+    }
+  }
+}
+```
+
+Replace `.contentlayer` in `.gitignore` with qino's generated folder, then delete the `.contentlayer` folder:
+
+```txt title=".gitignore"
+qino/_generated/
+```
+
+## 3. Replace makeSource with initQino
+
+`makeSource` points at the content directory and lists document types. `initQino` points at the content folder and the folder that serves media. Definitions are picked up from `qino/` by the CLI, so there is no list to maintain.
+
+```ts title="contentlayer.config.ts"
+export default makeSource({
+  contentDirPath: "content",
+  documentTypes: [Post, Author, Settings],
+});
+```
+
+```ts title="qino/index.ts"
+import { initQino } from "@qino/cms";
+
+export default initQino({
+  contentFolder: "content",
+  mediaFolder: "public",
+});
+```
+
+See [Project structure](/docs/guide/project-structure).
+
+## 4. Pick a primitive per document type
+
+Contentlayer has one `defineDocumentType` and uses `filePathPattern` and `isSingleton` to describe what it holds. qino has three primitives instead:
+
+| Contentlayer document type         | qino                                                               |
+| ---------------------------------- | ------------------------------------------------------------------ |
+| `filePathPattern: "posts/*.md"`    | [Collection](/docs/concepts/collections) with `directory: "posts"` |
+| `filePathPattern: "docs/**/*.mdx"` | [Tree](/docs/concepts/trees) with `directory: "docs"`              |
+| `isSingleton: true`                | [Item](/docs/concepts/items) with `file`                           |
+
+A collection is flat: files in subfolders are ignored. If a `**` pattern only exists to group files that don't form a hierarchy, flatten the folder into a collection. If the folders are the hierarchy, such as a docs sidebar, use a tree. Trees need an anchor file for each folder, so `guides/` needs a sibling `guides.mdx`. See [Content folder](/docs/guide/content-folder#trees).
+
+Two primitives can't own overlapping paths. A single catch-all pattern like `**/*.md` must be split into one definition per folder.
+
+`contentType` maps to the file extension:
+
+| `contentType` | qino                                                                             |
+| ------------- | -------------------------------------------------------------------------------- |
+| `markdown`    | `extension: ".md"`                                                               |
+| `mdx`         | `extension: ".mdx"`                                                              |
+| `data`        | `extension: ".json"`. YAML data files aren't supported yet, convert them to JSON |
+
+## 5. Translate fields into a schema
+
+`fields` becomes a [schema](/docs/concepts/schemas). The examples use Zod.
+
+```ts title="contentlayer.config.ts"
+export const Post = defineDocumentType(() => ({
+  name: "Post",
+  filePathPattern: "posts/*.md",
+  contentType: "markdown",
+  fields: {
+    title: { type: "string", required: true },
+    date: { type: "date", required: true },
+    draft: { type: "boolean", default: false },
+    tags: { type: "list", of: { type: "string" } },
+    author: { type: "reference", of: Author },
+  },
+}));
+```
+
+```ts title="qino/collections/posts.ts"
+import { z } from "zod";
+
+import qino from "../";
+import { authorCollection } from "./authors";
+
+export const postCollection = qino.defineCollection({
+  directory: "posts",
+  extension: ".md",
+  schema: z.object({
+    title: z.string(),
+    date: z.coerce.date(),
+    draft: z.boolean().default(false),
+    tags: z.array(z.string()).optional(),
+    author: z.string().optional(),
+  }),
+  relations: { author: authorCollection },
+});
+```
+
+Contentlayer fields are optional unless `required: true`. Zod fields are required unless `.optional()`. Flip them as you go.
+
+| Contentlayer field          | Zod                                                      |
+| --------------------------- | -------------------------------------------------------- |
+| `string`                    | `z.string()`                                             |
+| `number`                    | `z.number()`                                             |
+| `boolean`                   | `z.boolean()`                                            |
+| `date`                      | `z.iso.date()` or `z.coerce.date()`. See [Dates](#dates) |
+| `enum` with `options`       | `z.enum(["light", "dark"])`                              |
+| `json`                      | `z.unknown()`, or a precise `z.object()`                 |
+| `list` of `string`          | `z.array(z.string())`                                    |
+| `list` of a nested type     | `z.array(z.object({ ... }))`                             |
+| `nested`                    | `z.object({ ... })`                                      |
+| `nested` with several types | `z.discriminatedUnion("type", [ ... ])`                  |
+| `reference`                 | `z.string()` plus an entry in `relations`                |
+| `markdown`, `mdx`           | `z.string()`, rendered by your app                       |
+| `default: value`            | `.default(value)`                                        |
+| `description`               | `.describe("...")`                                       |
+
+`defineNestedType` has no equivalent. A nested type is a schema, so declare it once and reuse it:
+
+```ts title="qino/schemas/seo.ts"
+export const seoSchema = z.object({
+  title: z.string(),
+  image: z.string().optional(),
+});
+```
+
+### Dates
+
+Contentlayer returns `date` fields as ISO strings, such as `2024-01-15T00:00:00.000Z`. qino doesn't convert untagged YAML dates either, but it returns them as written, such as `2024-01-15`. Pick one:
+
+- `z.iso.date()` validates the string and keeps it a string. Code that parses it with `new Date(post.date)` keeps working, but code that relied on the normalized time part may not.
+- `z.coerce.date()` turns it into a `Date`. This changes the output type, so update call sites: `new Date(post.date)` becomes `post.date`.
+
+The examples on this page use `z.coerce.date()`. To get a `Date` without a schema transform, tag the value with `!!timestamp`. See [Frontmatter](/docs/guide/frontmatter#dates).
+
+## 6. Keep your references
+
+Contentlayer stores a reference as a path relative to `contentDirPath`, with the extension. That is exactly a qino [content path](/docs/guide/content-folder#content-paths), so existing values work as is. If you converted YAML data files to JSON in [step 4](#4-pick-a-primitive-per-document-type), update references to them too: qino requires the extension to match the target, so `authors/jane.yaml` becomes `authors/jane.json`.
+
+```yaml title="content/posts/hello-world.md"
+author: "authors/jane.json"
+```
+
+The difference is what you get back. Contentlayer passes the string through and leaves the lookup to you. qino resolves it when a [view](/docs/concepts/views) asks for it:
+
+```ts title="qino/collections/posts.ts"
+views: (view) => ({
+  default: view({ resolveRelations: 1 }),
+}),
+```
+
+`post.author` is now the author entry, typed. Helpers like `allAuthors.find((a) => a._raw.sourceFilePath == post.author)` can go. See [Relations](/docs/concepts/relations).
+
+## 7. Move computed fields
+
+`computedFields` resolves extra values per document. qino has two places for derived data:
+
+- A **schema transform** runs once per file and sees the file's data. Use it to reshape or rename fields.
+- A **view `augment`** runs per view and sees the body, `_meta`, and resolved relations. It may be async. Use it for anything that needs more than the frontmatter.
+
+The common `url` field moves to `augment`:
+
+```ts title="contentlayer.config.ts"
+computedFields: {
+  url: {
+    type: "string",
+    resolve: (post) => `/${post._raw.flattenedPath}`,
+  },
+},
+```
+
+```ts title="qino/collections/posts.ts"
+views: (view) => ({
+  default: view({
+    augment: (post) => ({ url: `/posts/${post._meta.slug}` }),
+  }),
+}),
+```
+
+For reading time or word count, set `markdownStats: true` and derive from `_stats.wordCount`. See [Entry pipeline](/docs/concepts/pipeline#transform-or-augment).
+
+## 8. Map document properties
+
+Every Contentlayer document carries `_id`, `_raw`, `type`, and `body`. Their qino counterparts:
+
+| Contentlayer          | qino                                                                                                                                     |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `_raw.flattenedPath`  | `_meta.slug`. Relative to the directory, not the content root: `hello-world`, not `posts/hello-world`                                    |
+| `_raw.sourceFileName` | `_meta.fileName`                                                                                                                         |
+| `_raw.sourceFilePath` | `_meta.filePath`. Absolute, not relative                                                                                                 |
+| `_id`                 | `_meta.slug`, unique within one definition. `_id` was the path from the content root, so prefix the directory when you need a global key |
+| `type`                | None. The definition you called tells you the type                                                                                       |
+| `body.raw`            | `markdown`                                                                                                                               |
+| `body.html`           | None. Render `markdown` yourself                                                                                                         |
+| `body.code` (MDX)     | None. Compile `markdown` with your MDX renderer                                                                                          |
+
+## 9. Render the body
+
+Contentlayer compiles Markdown to HTML and MDX to a function body, and you render it with `dangerouslySetInnerHTML` or `useMDXComponent`. qino hands you the source and leaves rendering to your app.
+
+```tsx title="Before"
+<div dangerouslySetInnerHTML={{ __html: post.body.html }} />
+```
+
+```tsx title="After"
+import Markdown from "react-markdown";
+
+<Markdown>{post.markdown}</Markdown>;
+```
+
+For MDX, replace `useMDXComponent(post.body.code)` with a runtime compiler such as `next-mdx-remote`. Move your remark and rehype plugins from `makeSource({ markdown, mdx })` to the renderer. The [Next.js example](/docs/examples/next-js#rendering) uses `react-markdown` for `.md` and `next-mdx-remote` for `.mdx`.
+
+## 10. Replace generated imports with getters
+
+Contentlayer exports one array per document type. qino exposes async getters on each definition. They read files with Node.js APIs, so call them from server code: React Server Components, `generateStaticParams`, route handlers. See [Runtime](/docs/guide/installation#runtime).
+
+```tsx title="src/app/posts/page.tsx"
+// Before
+import { allPosts } from "contentlayer/generated";
+
+const posts = allPosts
+  .filter((post) => !post.draft)
+  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+// After
+import { postCollection } from "../../../qino/collections/posts";
+
+const posts = await postCollection.getEntries();
+```
+
+Filtering and sorting move into the definition, so every page gets the same list:
+
+```ts title="qino/collections/posts.ts"
+views: (view) => ({
+  default: view({
+    filter: (post) => !post.draft,
+    sort: (a, b) => b.date.getTime() - a.date.getTime(),
+  }),
+}),
+```
+
+Looking up one document by path becomes `getEntry`:
+
+```tsx title="src/app/posts/[slug]/page.tsx"
+// Before
+const post = allPosts.find(
+  (post) => post._raw.flattenedPath == `posts/${params.slug}`,
+);
+if (!post) notFound();
+
+// After
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  const posts = await postCollection.getEntries();
+  return posts.map((post) => ({ slug: post._meta.slug }));
+}
+
+const { slug } = await params;
+const post = await postCollection.getEntry(slug);
+```
+
+`getEntry` throws when the file is missing or its view filters it out, instead of returning `undefined`. With `dynamicParams = false`, Next.js answers unknown slugs with a 404 before `getEntry` runs, which replaces the `notFound()` check.
+
+Slugs come from `getEntries` rather than [`getAllSlugs`](/docs/api/collection/get-all-slugs), because `getAllSlugs` ignores views and would list drafts the default view filters out.
+
+A singleton becomes `await settingsItem.getEntry()`.
+
+## 11. Replace generated types
+
+Contentlayer generates a type per document type. qino infers it from the definition:
+
+```ts title="src/lib/types.ts"
+// Before
+import type { Post } from "contentlayer/generated";
+
+// After
+import type { Infer } from "@qino/cms";
+import type { postCollection } from "../../qino/collections/posts";
+
+export type Post = Infer<typeof postCollection>["output"];
+```
+
+`output` includes the default view's resolved relations and augmented fields. There is no `allPosts` type to replace; use `Array<Post>`. See [Types](/docs/concepts/types).
+
+## 12. Validate on build
+
+Contentlayer builds content inside `next dev` and `next build`. qino has no build step for content: getters read files on every call, so an edited file shows on the next getter call. Under `next dev`, that means the next page load. In production, prerendered and cached pages don't run their getters on each request, so content changes need a rebuild or a revalidation. Drop `useLiveReload`: the browser no longer refreshes on its own when content changes, so reload the page.
+
+Validation and slug types come from the CLI. Run it before the app builds:
+
+```json title="package.json"
+{
+  "scripts": {
+    "prebuild": "qino build",
+    "build": "next build"
+  }
+}
+```
+
+`qino build` validates every file, so a missing field fails the build, as with Contentlayer. It also writes slug unions, so `getEntry` autocompletes known slugs. See [CLI](/docs/guide/cli).
+
+Contentlayer bundled content into the generated JS. qino reads it from disk, so pages rendered on request need the content folder on the deployed server: list it in `outputFileTracingIncludes`. Fully prerendered sites can skip this. See [Runtime](/docs/guide/installation#runtime).
+
+## Checklist
+
+- `contentlayer` and `next-contentlayer` uninstalled, `withContentlayer` and the `tsconfig.json` alias removed.
+- `.contentlayer/` deleted and unignored, `qino/_generated/` ignored.
+- One collection, tree, or item per document type, with no overlapping paths.
+- Optional fields marked `.optional()`, date fields validated or coerced, call sites updated.
+- Reference fields listed in `relations`, resolved by a view.
+- `computedFields` moved to transforms or `augment`.
+- Bodies rendered from `markdown`.
+- `allX` imports replaced by `getEntries` and `getEntry`, called from server code.
+- `qino build` runs as `prebuild`.
