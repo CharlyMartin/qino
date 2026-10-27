@@ -16,6 +16,7 @@ import { StartSection } from "@/components/marketing/start-section";
 import { getPageHead } from "@/lib/get-page-head";
 import { parseMigrationSearch } from "@/lib/parse-migration-search";
 import { site } from "@/lib/site";
+import { getProjectStats } from "@/server/get-project-stats";
 import { getTestimonials } from "@/server/get-testimonials";
 
 const path = "/contentlayer-exit";
@@ -24,7 +25,13 @@ const description =
 
 export const Route = createFileRoute("/contentlayer-exit")({
   validateSearch: parseMigrationSearch,
-  loader: () => getTestimonials(),
+  loader: async () => {
+    const [testimonials, stats] = await Promise.all([
+      getTestimonials(),
+      getProjectStats(),
+    ]);
+    return { testimonials, stats };
+  },
   head: () =>
     getPageHead({
       title: "Migrate from Contentlayer to Next.js 16 | qino",
@@ -45,7 +52,7 @@ export const Route = createFileRoute("/contentlayer-exit")({
 });
 
 function ContentlayerExitPage() {
-  const testimonials = Route.useLoaderData();
+  const { testimonials, stats } = Route.useLoaderData();
   const { repo } = Route.useSearch();
 
   return (
@@ -61,7 +68,7 @@ function ContentlayerExitPage() {
         <ProcessSection />
         <AboutSection />
         <FaqSection />
-        <ProofSection testimonials={testimonials} />
+        <ProofSection testimonials={testimonials} stats={stats} />
         <StartSection repo={repo} />
       </main>
       <SiteFooter />

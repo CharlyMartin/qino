@@ -6,14 +6,20 @@ import {
   type TestimonialProps,
 } from "@/components/marketing/testimonial";
 import { Title } from "@/components/marketing/title";
+import { useProjectStats } from "@/hooks/use-project-stats";
 import { externalLinks } from "@/lib/external-links";
+import { formatCount } from "@/lib/format-count";
+import type { ProjectStats } from "@/types/project-stats";
 import { BulletList } from "./bullet-list";
 
 type ProofSectionProps = {
   testimonials: Array<TestimonialProps>;
+  stats: ProjectStats;
 };
 
-export function ProofSection({ testimonials }: ProofSectionProps) {
+export function ProofSection({ testimonials, stats }: ProofSectionProps) {
+  const { downloads } = useProjectStats(stats);
+
   return (
     <Section aria-labelledby="proof-heading">
       <Title id="proof-heading">qino already runs content in production.</Title>
@@ -24,6 +30,14 @@ export function ProofSection({ testimonials }: ProofSectionProps) {
             <ExternalLink href={externalLinks.github}>open source</ExternalLink>{" "}
             (MIT).
           </>,
+          downloads != null && (
+            <>
+              Downloaded{" "}
+              <span className="tabular-nums">{formatCount(downloads)}</span>{" "}
+              times on <ExternalLink href={externalLinks.npm}>npm</ExternalLink>{" "}
+              in the last 30 days.
+            </>
+          ),
           <>
             It runs the content on several websites with non-developer editors,
             including the{" "}
@@ -36,7 +50,7 @@ export function ProofSection({ testimonials }: ProofSectionProps) {
             </ExternalLink>
             .
           </>,
-        ]}
+        ].filter(Boolean)}
       />
 
       {testimonials.length > 0 && (
