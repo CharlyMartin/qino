@@ -8,7 +8,7 @@ export function ProblemSection() {
     <Section aria-labelledby="problem-heading">
       <SectionHeading
         id="problem-heading"
-        title="Why you can't just bump the version"
+        title="Why you can't just bump the version."
       >
         Upgrading Next.js means replacing Contentlayer first. That's the part
         nobody on the team has a spare week for.

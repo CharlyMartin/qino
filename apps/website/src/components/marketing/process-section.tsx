@@ -6,7 +6,7 @@ import { SpecTable } from "@/components/marketing/spec-table";
 export function ProcessSection() {
   return (
     <Section aria-labelledby="process-heading">
-      <SectionHeading id="process-heading" title="How it works">
+      <SectionHeading id="process-heading" title="How it works.">
         Four steps, and only one of them needs your time.
       </SectionHeading>
       <SpecTable>

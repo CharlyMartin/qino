@@ -34,10 +34,10 @@ export function MigrationHero({ repo }: MigrationHeroProps) {
                 <span className="wrap-anywhere underline decoration-primary/50 decoration-2 underline-offset-[0.12em]">
                   {repo}
                 </span>{" "}
-                off Contentlayer
+                off Contentlayer.
               </>
             ) : (
-              "Get off Contentlayer and onto Next.js 16 this week"
+              "Get off Contentlayer and onto Next.js 16 this week."
             )}
           </Title>
         </div>

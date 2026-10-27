@@ -16,7 +16,7 @@ const terms = [
 export function PricingSection() {
   return (
     <Section aria-labelledby="pricing-heading" id="pricing" align="center">
-      <Title id="pricing-heading">One fixed price</Title>
+      <Title id="pricing-heading">One fixed price.</Title>
       <div className="mt-10 max-w-md rounded-sm border border-border-strong bg-surface p-7 text-left md:mx-auto md:p-9">
         <p className="font-mono text-label text-primary uppercase">
           Contentlayer exit

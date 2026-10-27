@@ -9,7 +9,7 @@ export function InlineCta() {
       <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div className="space-y-2">
           <Title as="h2" size="row" id="inline-cta-heading">
-            Get off contentlayer in 3 working days
+            Get off Contentlayer in 3 working days.
           </Title>
           <PriceNote />
         </div>
