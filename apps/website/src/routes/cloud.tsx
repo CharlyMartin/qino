@@ -1,15 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-import { DotSeparator } from "../components/landing/dot-separator";
-import { Eyebrow } from "../components/landing/eyebrow";
-import { NewsletterForm } from "../components/landing/newsletter-form";
-import { Section } from "../components/landing/section";
-import { SiteFooter } from "../components/landing/site-footer";
-import { SiteHeader } from "../components/landing/site-header";
-import { SkipLink } from "../components/landing/skip-link";
-import { TestimonialsSection } from "../components/landing/testimonials-section";
-import { Text } from "../components/landing/text";
-import { Title } from "../components/landing/title";
+import { DotSeparator } from "../components/marketing/dot-separator";
+import { Eyebrow } from "../components/marketing/eyebrow";
+import { NewsletterForm } from "../components/marketing/newsletter-form";
+import { Section } from "../components/marketing/section";
+import { SiteFooter } from "../components/marketing/site-footer";
+import { SiteHeader } from "../components/marketing/site-header";
+import { SkipLink } from "../components/marketing/skip-link";
+import { TestimonialsSection } from "../components/marketing/testimonials-section";
+import { Text } from "../components/marketing/text";
+import { Title } from "../components/marketing/title";
 import { getPageHead } from "../lib/get-page-head";
 import { getTestimonials } from "../server/get-testimonials";
 

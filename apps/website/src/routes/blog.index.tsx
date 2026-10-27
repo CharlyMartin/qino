@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { PostCard } from "../components/blog/post-card";
-import { Text } from "../components/landing/text";
-import { Title } from "../components/landing/title";
+import { Text } from "../components/marketing/text";
+import { Title } from "../components/marketing/title";
 import { getPageHead } from "../lib/get-page-head";
 import { site } from "../lib/site";
 import { getPosts } from "../server/get-posts";

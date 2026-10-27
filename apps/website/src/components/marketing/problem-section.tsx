@@ -1,14 +1,14 @@
-import { Section } from "@/components/landing/section";
-import { SectionHeading } from "@/components/landing/section-heading";
-import { SpecRow } from "@/components/landing/spec-row";
-import { SpecTable } from "@/components/landing/spec-table";
+import { Section } from "@/components/marketing/section";
+import { SectionHeading } from "@/components/marketing/section-heading";
+import { SpecRow } from "@/components/marketing/spec-row";
+import { SpecTable } from "@/components/marketing/spec-table";
 
 export function ProblemSection() {
   return (
     <Section aria-labelledby="problem-heading">
       <SectionHeading
         id="problem-heading"
-        title="Why you can't just bump the version"
+        title="Why you can't just bump the version."
       >
         Upgrading Next.js means replacing Contentlayer first. That's the part
         nobody on the team has a spare week for.

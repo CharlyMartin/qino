@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
-import { Text } from "../landing/text";
-import { Title } from "../landing/title";
+import { Text } from "../marketing/text";
+import { Title } from "../marketing/title";
 
 export function DocsNotFound() {
   return (

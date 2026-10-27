@@ -1,7 +1,7 @@
 import { CheckCircleIcon } from "@phosphor-icons/react/ssr";
 import { type SubmitEvent, startTransition, useActionState } from "react";
 
-import { Callout } from "@/components/landing/callout";
+import { Callout } from "@/components/marketing/callout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { githubRepoPattern } from "@/lib/github-repo-pattern";

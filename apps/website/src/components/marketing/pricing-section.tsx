@@ -1,14 +1,14 @@
 import { CheckIcon } from "@phosphor-icons/react/ssr";
 
-import { ExternalButtonLink } from "@/components/landing/external-button-link";
-import { Section } from "@/components/landing/section";
-import { Text } from "@/components/landing/text";
-import { Title } from "@/components/landing/title";
+import { ExternalButtonLink } from "@/components/marketing/external-button-link";
+import { Section } from "@/components/marketing/section";
+import { Text } from "@/components/marketing/text";
+import { Title } from "@/components/marketing/title";
 
 const terms = [
   "Contentlayer replaced with qino",
   "Upgrade to Next.js 16",
-  "One green pull request in five working days",
+  "One green pull request in three working days",
   "Half on signing, half when the PR is approved",
   "qino Cloud beta pricing forever",
 ];
@@ -16,17 +16,17 @@ const terms = [
 export function PricingSection() {
   return (
     <Section aria-labelledby="pricing-heading" id="pricing" align="center">
-      <Title id="pricing-heading">One fixed price</Title>
+      <Title id="pricing-heading">One fixed price.</Title>
       <div className="mt-10 max-w-md rounded-sm border border-border-strong bg-surface p-7 text-left md:mx-auto md:p-9">
         <p className="font-mono text-label text-primary uppercase">
           Contentlayer exit
         </p>
         <p className="mt-4 flex items-baseline gap-3">
           <span className="text-5xl font-extrabold tracking-tighter text-foreground">
-            $1,499
+            $799
           </span>
           <s className="text-xl font-bold text-muted-foreground">
-            <span className="sr-only">was </span>$1,999
+            <span className="sr-only">was </span>$999
           </s>
         </p>
         <div className="mt-3">
@@ -49,13 +49,6 @@ export function PricingSection() {
         </ul>
         <div className="mt-8 grid">
           <ExternalButtonLink href="#start">Get unblocked</ExternalButtonLink>
-        </div>
-        <div className="mt-5">
-          <Text size="small">
-            Not included: packages outside qino that block the upgrade, like one
-            that doesn't support React 19 yet. If I hit one, I'll tell you
-            first. Fixing it is $800/day, only if you say yes.
-          </Text>
         </div>
       </div>
     </Section>

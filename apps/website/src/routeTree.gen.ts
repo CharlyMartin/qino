@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as CloudRouteImport } from './routes/cloud'
+import { Route as ContentlayerExitRouteImport } from './routes/contentlayer-exit'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
 import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
@@ -34,6 +35,11 @@ const BlogRoute = BlogRouteImport.update({
 const CloudRoute = CloudRouteImport.update({
   id: '/cloud',
   path: '/cloud',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContentlayerExitRoute = ContentlayerExitRouteImport.update({
+  id: '/contentlayer-exit',
+  path: '/contentlayer-exit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocsRoute = DocsRouteImport.update({
@@ -81,6 +87,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/blog': typeof BlogRouteWithChildren
   '/cloud': typeof CloudRoute
+  '/contentlayer-exit': typeof ContentlayerExitRoute
   '/docs': typeof DocsRouteWithChildren
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
@@ -93,6 +100,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cloud': typeof CloudRoute
+  '/contentlayer-exit': typeof ContentlayerExitRoute
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
   '/migrate-from-contentlayer': typeof MigrateFromContentlayerRoute
@@ -106,6 +114,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/blog': typeof BlogRouteWithChildren
   '/cloud': typeof CloudRoute
+  '/contentlayer-exit': typeof ContentlayerExitRoute
   '/docs': typeof DocsRouteWithChildren
   '/llms-full.txt': typeof LlmsFullDottxtRoute
   '/llms.txt': typeof LlmsDottxtRoute
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/'
     | '/blog'
     | '/cloud'
+    | '/contentlayer-exit'
     | '/docs'
     | '/llms-full.txt'
     | '/llms.txt'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/cloud'
+    | '/contentlayer-exit'
     | '/llms-full.txt'
     | '/llms.txt'
     | '/migrate-from-contentlayer'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/'
     | '/blog'
     | '/cloud'
+    | '/contentlayer-exit'
     | '/docs'
     | '/llms-full.txt'
     | '/llms.txt'
@@ -159,6 +171,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BlogRoute: typeof BlogRouteWithChildren
   CloudRoute: typeof CloudRoute
+  ContentlayerExitRoute: typeof ContentlayerExitRoute
   DocsRoute: typeof DocsRouteWithChildren
   LlmsFullDottxtRoute: typeof LlmsFullDottxtRoute
   LlmsDottxtRoute: typeof LlmsDottxtRoute
@@ -186,6 +199,13 @@ declare module '@tanstack/react-router' {
       path: '/cloud'
       fullPath: '/cloud'
       preLoaderRoute: typeof CloudRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contentlayer-exit': {
+      id: '/contentlayer-exit'
+      path: '/contentlayer-exit'
+      fullPath: '/contentlayer-exit'
+      preLoaderRoute: typeof ContentlayerExitRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/docs': {
@@ -275,6 +295,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BlogRoute: BlogRouteWithChildren,
   CloudRoute: CloudRoute,
+  ContentlayerExitRoute: ContentlayerExitRoute,
   DocsRoute: DocsRouteWithChildren,
   LlmsFullDottxtRoute: LlmsFullDottxtRoute,
   LlmsDottxtRoute: LlmsDottxtRoute,

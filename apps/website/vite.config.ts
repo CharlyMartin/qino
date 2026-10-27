@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
       pages: [
         { path: "/docs/guide" },
         // Rendered per request so `?repo=` personalises the HTML; listed here for the sitemap.
-        { path: "/migrate-from-contentlayer", prerender: { enabled: false } },
+        { path: "/contentlayer-exit", prerender: { enabled: false } },
         { path: "/llms.txt", sitemap: { exclude: true } },
         { path: "/llms-full.txt", sitemap: { exclude: true } },
       ],

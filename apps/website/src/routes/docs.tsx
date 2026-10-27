@@ -3,9 +3,9 @@ import { createFileRoute, Outlet, useParams } from "@tanstack/react-router";
 
 import { DocsMobileNav } from "../components/docs/docs-mobile-nav";
 import { DocsSidebar } from "../components/docs/docs-sidebar";
-import { SiteFooter } from "../components/landing/site-footer";
-import { SiteHeader } from "../components/landing/site-header";
-import { SkipLink } from "../components/landing/skip-link";
+import { SiteFooter } from "../components/marketing/site-footer";
+import { SiteHeader } from "../components/marketing/site-header";
+import { SkipLink } from "../components/marketing/skip-link";
 import { getDocsTree } from "../server/get-docs-tree";
 
 export const Route = createFileRoute("/docs")({

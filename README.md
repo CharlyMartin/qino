@@ -43,6 +43,12 @@ npx skills add CharlyMartin/qino --skill set-up-qino-cms
 
 Run `npx skills update set-up-qino-cms` to refresh it.
 
+Moving off Contentlayer? The read-only exit check sizes the migration before you start:
+
+```sh
+npx skills add CharlyMartin/qino --skill contentlayer-exit-check
+```
+
 ## Quick start
 
 Create a Qino instance pointing at your content and media folders:

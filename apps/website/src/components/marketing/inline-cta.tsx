@@ -1,7 +1,7 @@
-import { ExternalButtonLink } from "@/components/landing/external-button-link";
-import { Section } from "@/components/landing/section";
-import { Text } from "@/components/landing/text";
-import { Title } from "@/components/landing/title";
+import { ExternalButtonLink } from "@/components/marketing/external-button-link";
+import { Section } from "@/components/marketing/section";
+import { Title } from "@/components/marketing/title";
+import { PriceNote } from "./price-note";
 
 export function InlineCta() {
   return (
@@ -9,11 +9,9 @@ export function InlineCta() {
       <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div className="space-y-2">
           <Title as="h2" size="row" id="inline-cta-heading">
-            One green PR, in five working days
+            Get off Contentlayer in 3 working days.
           </Title>
-          <Text size="small">
-            $1,499 fixed for the first 5 teams · half up front
-          </Text>
+          <PriceNote />
         </div>
         <ExternalButtonLink href="#start">
           Get unblocked this week

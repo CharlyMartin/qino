@@ -1,12 +1,12 @@
-import { Section } from "@/components/landing/section";
-import { SectionHeading } from "@/components/landing/section-heading";
-import { SpecRow } from "@/components/landing/spec-row";
-import { SpecTable } from "@/components/landing/spec-table";
+import { Section } from "@/components/marketing/section";
+import { SectionHeading } from "@/components/marketing/section-heading";
+import { SpecRow } from "@/components/marketing/spec-row";
+import { SpecTable } from "@/components/marketing/spec-table";
 
 export function ProcessSection() {
   return (
     <Section aria-labelledby="process-heading">
-      <SectionHeading id="process-heading" title="How it works">
+      <SectionHeading id="process-heading" title="How it works.">
         Four steps, and only one of them needs your time.
       </SectionHeading>
       <SpecTable>
@@ -15,7 +15,8 @@ export function ProcessSection() {
           falls outside it before you commit.
         </SpecRow>
         <SpecRow label="Step 2" title="Sign and pay half">
-          A short agreement and a 50% deposit, then I book your five days.
+          A short agreement and a 50% deposit, then I book your three working
+          days.
         </SpecRow>
         <SpecRow label="Step 3" title="Review the pull request">
           I work on a branch and share progress as I go. You get one green PR at
