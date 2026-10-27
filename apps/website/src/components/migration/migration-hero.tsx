@@ -1,3 +1,4 @@
+import { TerminalSplit } from "@/components/contentlayer/terminal-split";
 import { DotSeparator } from "@/components/landing/dot-separator";
 import { ExternalButtonLink } from "@/components/landing/external-button-link";
 import { Eyebrow } from "@/components/landing/eyebrow";
@@ -5,6 +6,7 @@ import { InlineCode } from "@/components/landing/inline-code";
 import { Section } from "@/components/landing/section";
 import { Text } from "@/components/landing/text";
 import { Title } from "@/components/landing/title";
+import { PriceNote } from "./price-note";
 
 type MigrationHeroProps = {
   /** The visitor's repo, as `owner/name`. */
@@ -13,15 +15,17 @@ type MigrationHeroProps = {
 
 export function MigrationHero({ repo }: MigrationHeroProps) {
   return (
-    <Section aria-labelledby="hero-heading" spacing="hero" align="center">
-      <div className="flex flex-wrap items-center gap-2 md:justify-center">
-        <Eyebrow tone="accent">Contentlayer migration</Eyebrow>
+    <Section aria-labelledby="hero-heading" spacing="hero">
+      <div className="flex flex-wrap items-center gap-2">
+        <Eyebrow tone="accent">Contentlayer exit</Eyebrow>
         <DotSeparator />
-        <Eyebrow>Fixed price · 5 days</Eyebrow>
+        <Eyebrow>Fixed price</Eyebrow>
+        <DotSeparator />
+        <Eyebrow>3 days</Eyebrow>
       </div>
 
-      <div className="mt-8 mb-16 space-y-8">
-        <div className="max-w-3xl md:mx-auto">
+      <div className="mt-6 space-y-8">
+        <div className="max-w-4xl">
           <Title as="h1" size="display" id="hero-heading">
             {repo ? (
               <>
@@ -33,12 +37,12 @@ export function MigrationHero({ repo }: MigrationHeroProps) {
                 off Contentlayer
               </>
             ) : (
-              "Get off Contentlayer and onto Next.js 16 in a week"
+              "Get off Contentlayer and onto Next.js 16 this week"
             )}
           </Title>
         </div>
 
-        <div className="max-w-xl text-balance md:mx-auto">
+        <div className="max-w-xl text-balance">
           <Text size="lead">
             {repo ? (
               <>
@@ -58,15 +62,17 @@ export function MigrationHero({ repo }: MigrationHeroProps) {
         </div>
 
         <div className="space-y-4">
-          <div className="flex flex-col gap-3 md:flex-row md:justify-center">
+          <div className="flex flex-col gap-3 md:flex-row">
             <ExternalButtonLink href="#start">Get unblocked</ExternalButtonLink>
             <ExternalButtonLink href="#pricing" variant="outline">
               See what's included
             </ExternalButtonLink>
           </div>
-          <Text size="small">
-            $1,499 fixed for the first 5 teams · half up front
-          </Text>
+          <PriceNote />
+        </div>
+
+        <div className="max-w-4xl">
+          <TerminalSplit />
         </div>
       </div>
     </Section>

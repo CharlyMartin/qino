@@ -8,7 +8,7 @@ import { Title } from "@/components/landing/title";
 const terms = [
   "Contentlayer replaced with qino",
   "Upgrade to Next.js 16",
-  "One green pull request in five working days",
+  "One green pull request in three working days",
   "Half on signing, half when the PR is approved",
   "qino Cloud beta pricing forever",
 ];
@@ -23,10 +23,10 @@ export function PricingSection() {
         </p>
         <p className="mt-4 flex items-baseline gap-3">
           <span className="text-5xl font-extrabold tracking-tighter text-foreground">
-            $1,499
+            $799
           </span>
           <s className="text-xl font-bold text-muted-foreground">
-            <span className="sr-only">was </span>$1,999
+            <span className="sr-only">was </span>$999
           </s>
         </p>
         <div className="mt-3">
@@ -49,13 +49,6 @@ export function PricingSection() {
         </ul>
         <div className="mt-8 grid">
           <ExternalButtonLink href="#start">Get unblocked</ExternalButtonLink>
-        </div>
-        <div className="mt-5">
-          <Text size="small">
-            Not included: packages outside qino that block the upgrade, like one
-            that doesn't support React 19 yet. If I hit one, I'll tell you
-            first. Fixing it is $800/day, only if you say yes.
-          </Text>
         </div>
       </div>
     </Section>

@@ -15,7 +15,8 @@ export function ProcessSection() {
           falls outside it before you commit.
         </SpecRow>
         <SpecRow label="Step 2" title="Sign and pay half">
-          A short agreement and a 50% deposit, then I book your five days.
+          A short agreement and a 50% deposit, then I book your three working
+          days.
         </SpecRow>
         <SpecRow label="Step 3" title="Review the pull request">
           I work on a branch and share progress as I go. You get one green PR at

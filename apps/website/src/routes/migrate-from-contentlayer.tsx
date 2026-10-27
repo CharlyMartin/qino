@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { ProofSection } from "@/components/contentlayer/proof-section";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { SiteHeader } from "@/components/landing/site-header";
 import { SkipLink } from "@/components/landing/skip-link";
-import { TestimonialsSection } from "@/components/landing/testimonials-section";
 import { AboutSection } from "@/components/migration/about-section";
 import { FaqSection } from "@/components/migration/faq-section";
 import { InlineCta } from "@/components/migration/inline-cta";
@@ -20,7 +20,7 @@ import { getTestimonials } from "@/server/get-testimonials";
 
 const path = "/migrate-from-contentlayer";
 const description =
-  "Stuck on Contentlayer and can't upgrade Next.js? I'll replace it with qino and upgrade you to Next.js 16 in one green pull request, in five days, for a fixed $1,499.";
+  "Stuck on Contentlayer and can't upgrade Next.js? I'll replace it with qino and upgrade you to Next.js 16 in one green pull request, in three days, for a fixed $999.";
 
 export const Route = createFileRoute("/migrate-from-contentlayer")({
   validateSearch: parseMigrationSearch,
@@ -37,7 +37,7 @@ export const Route = createFileRoute("/migrate-from-contentlayer")({
           url: `${site.url}${path}`,
           description,
           provider: { "@type": "Person", ...site.author },
-          offers: { "@type": "Offer", price: "1499", priceCurrency: "USD" },
+          offers: { "@type": "Offer", price: "999", priceCurrency: "USD" },
         },
       ],
     }),
@@ -61,7 +61,7 @@ function MigrateFromContentlayerPage() {
         <ProcessSection />
         <AboutSection />
         <FaqSection />
-        <TestimonialsSection testimonials={testimonials} />
+        <ProofSection testimonials={testimonials} />
         <StartSection repo={repo} />
       </main>
       <SiteFooter />

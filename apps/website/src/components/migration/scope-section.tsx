@@ -29,7 +29,7 @@ export function ScopeSection() {
           Pages render as before, and broken references between documents now
           fail the build instead of shipping.
         </SpecRow>
-        <SpecRow label="Deliver" title="Five working days">
+        <SpecRow label="Deliver" title="Three working days">
           One site, one branch, CI green, with a preview deploy if your host
           makes one.
         </SpecRow>
