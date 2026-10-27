@@ -1,6 +1,6 @@
-import { Section } from "@/components/landing/section";
-import { Text } from "@/components/landing/text";
-import { Title } from "@/components/landing/title";
+import { Section } from "@/components/marketing/section";
+import { Text } from "@/components/marketing/text";
+import { Title } from "@/components/marketing/title";
 import { MigrationForm } from "./migration-form";
 
 type StartSectionProps = {

@@ -1,11 +1,11 @@
-import { ExternalLink } from "@/components/landing/external-link";
-import { Eyebrow } from "@/components/landing/eyebrow";
-import { Section } from "@/components/landing/section";
+import { ExternalLink } from "@/components/marketing/external-link";
+import { Eyebrow } from "@/components/marketing/eyebrow";
+import { Section } from "@/components/marketing/section";
 import {
   Testimonial,
   type TestimonialProps,
-} from "@/components/landing/testimonial";
-import { Title } from "@/components/landing/title";
+} from "@/components/marketing/testimonial";
+import { Title } from "@/components/marketing/title";
 import { externalLinks } from "@/lib/external-links";
 import { BulletList } from "./bullet-list";
 

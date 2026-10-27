@@ -1,8 +1,8 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 
-import { SiteFooter } from "../components/landing/site-footer";
-import { SiteHeader } from "../components/landing/site-header";
-import { SkipLink } from "../components/landing/skip-link";
+import { SiteFooter } from "../components/marketing/site-footer";
+import { SiteHeader } from "../components/marketing/site-header";
+import { SkipLink } from "../components/marketing/skip-link";
 
 export const Route = createFileRoute("/blog")({
   component: BlogLayout,

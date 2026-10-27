@@ -1,9 +1,9 @@
 import { CheckIcon } from "@phosphor-icons/react/ssr";
 
-import { ExternalButtonLink } from "@/components/landing/external-button-link";
-import { Section } from "@/components/landing/section";
-import { Text } from "@/components/landing/text";
-import { Title } from "@/components/landing/title";
+import { ExternalButtonLink } from "@/components/marketing/external-button-link";
+import { Section } from "@/components/marketing/section";
+import { Text } from "@/components/marketing/text";
+import { Title } from "@/components/marketing/title";
 
 const terms = [
   "Contentlayer replaced with qino",

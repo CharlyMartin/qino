@@ -1,8 +1,8 @@
-import { Byline } from "@/components/landing/byline";
-import { ExternalLink } from "@/components/landing/external-link";
-import { Section } from "@/components/landing/section";
-import { Text } from "@/components/landing/text";
-import { Title } from "@/components/landing/title";
+import { Byline } from "@/components/marketing/byline";
+import { ExternalLink } from "@/components/marketing/external-link";
+import { Section } from "@/components/marketing/section";
+import { Text } from "@/components/marketing/text";
+import { Title } from "@/components/marketing/title";
 import { site } from "@/lib/site";
 
 export function AboutSection() {

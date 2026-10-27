@@ -1,7 +1,7 @@
-import { Section } from "@/components/landing/section";
-import { SectionHeading } from "@/components/landing/section-heading";
-import { SpecRow } from "@/components/landing/spec-row";
-import { SpecTable } from "@/components/landing/spec-table";
+import { Section } from "@/components/marketing/section";
+import { SectionHeading } from "@/components/marketing/section-heading";
+import { SpecRow } from "@/components/marketing/spec-row";
+import { SpecTable } from "@/components/marketing/spec-table";
 
 export function ProcessSection() {
   return (

@@ -1,12 +1,12 @@
-import { TerminalSplit } from "@/components/contentlayer/terminal-split";
-import { DotSeparator } from "@/components/landing/dot-separator";
-import { ExternalButtonLink } from "@/components/landing/external-button-link";
-import { Eyebrow } from "@/components/landing/eyebrow";
-import { InlineCode } from "@/components/landing/inline-code";
-import { Section } from "@/components/landing/section";
-import { Text } from "@/components/landing/text";
-import { Title } from "@/components/landing/title";
+import { DotSeparator } from "@/components/marketing/dot-separator";
+import { ExternalButtonLink } from "@/components/marketing/external-button-link";
+import { Eyebrow } from "@/components/marketing/eyebrow";
+import { InlineCode } from "@/components/marketing/inline-code";
+import { Section } from "@/components/marketing/section";
+import { Text } from "@/components/marketing/text";
+import { Title } from "@/components/marketing/title";
 import { PriceNote } from "./price-note";
+import { TerminalSplit } from "./terminal-split";
 
 type MigrationHeroProps = {
   /** The visitor's repo, as `owner/name`. */

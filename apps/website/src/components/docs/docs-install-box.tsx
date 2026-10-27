@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 
-import { InstallBox } from "../landing/install-box";
+import { InstallBox } from "../marketing/install-box";
 
 type DocsInstallBoxProps = ComponentProps<typeof InstallBox>;
 

@@ -1,6 +1,6 @@
 import { FileMdIcon } from "@phosphor-icons/react/ssr";
 
-import { ExternalButtonLink } from "../landing/external-button-link";
+import { ExternalButtonLink } from "../marketing/external-button-link";
 
 type ViewMarkdownLinkProps = {
   slug: string;

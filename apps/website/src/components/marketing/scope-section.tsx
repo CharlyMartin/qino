@@ -1,9 +1,9 @@
-import { ExternalLink } from "@/components/landing/external-link";
-import { Section } from "@/components/landing/section";
-import { SectionHeading } from "@/components/landing/section-heading";
-import { SpecRow } from "@/components/landing/spec-row";
-import { SpecTable } from "@/components/landing/spec-table";
-import { TextLink } from "@/components/landing/text-link";
+import { ExternalLink } from "@/components/marketing/external-link";
+import { Section } from "@/components/marketing/section";
+import { SectionHeading } from "@/components/marketing/section-heading";
+import { SpecRow } from "@/components/marketing/spec-row";
+import { SpecTable } from "@/components/marketing/spec-table";
+import { TextLink } from "@/components/marketing/text-link";
 import { externalLinks } from "@/lib/external-links";
 
 export function ScopeSection() {

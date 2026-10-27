@@ -1,6 +1,6 @@
-import { ExternalButtonLink } from "@/components/landing/external-button-link";
-import { Section } from "@/components/landing/section";
-import { Title } from "@/components/landing/title";
+import { ExternalButtonLink } from "@/components/marketing/external-button-link";
+import { Section } from "@/components/marketing/section";
+import { Title } from "@/components/marketing/title";
 import { PriceNote } from "./price-note";
 
 export function InlineCta() {

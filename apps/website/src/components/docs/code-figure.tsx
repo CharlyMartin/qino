@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react";
 
-import { CopyButton } from "@/components/landing/copy-button";
+import { CopyButton } from "@/components/marketing/copy-button";
 import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
 
 type CodeFigureProps = ComponentProps<"figure"> & {

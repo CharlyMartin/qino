@@ -1,7 +1,7 @@
-import { Faq, type FaqItem } from "@/components/landing/faq";
-import { Section } from "@/components/landing/section";
-import { SectionHeading } from "@/components/landing/section-heading";
-import { TextLink } from "@/components/landing/text-link";
+import { Faq, type FaqItem } from "@/components/marketing/faq";
+import { Section } from "@/components/marketing/section";
+import { SectionHeading } from "@/components/marketing/section-heading";
+import { TextLink } from "@/components/marketing/text-link";
 
 const faqs: Array<FaqItem> = [
   {
