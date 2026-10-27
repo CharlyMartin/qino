@@ -46,18 +46,20 @@ export function MigrationHero({ repo }: MigrationHeroProps) {
           <Text size="lead">
             {repo ? (
               <>
-                <InlineCode>{repo}</InlineCode> still runs on Contentlayer,
-                which hasn't shipped since 2023, and it's keeping the site on a
-                Next.js that no longer gets security patches.
+                <InlineCode>{repo}</InlineCode> still runs on Contentlayer and
+                it's keeping the site on a Next.js that no longer gets security
+                patches.
               </>
             ) : (
               <>
-                Contentlayer hasn't shipped since 2023, and it's keeping you on
-                a Next.js that no longer gets security patches.
+                <InlineCode>contentlayer</InlineCode> hasn't shipped since 2023,
+                and it's keeping you on a Next.js that no longer gets security
+                patches.
               </>
             )}{" "}
-            I'll replace it and upgrade you to Next.js 16 in one green pull
-            request, for a fixed price.
+            I'll replace it with <InlineCode>{`@qino/cms`}</InlineCode> and
+            upgrade you to Next.js 16 in one green pull request, for a fixed
+            price.
           </Text>
         </div>
 
