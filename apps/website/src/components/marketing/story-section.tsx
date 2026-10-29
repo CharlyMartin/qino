@@ -5,6 +5,7 @@ import { Brand } from "./brand";
 import { Byline } from "./byline";
 import { Section } from "./section";
 import { Title } from "./title";
+import { Underline } from "./underline";
 
 type Signature = {
   name: string;
@@ -25,7 +26,10 @@ export function StorySection({ title, signature, mdx }: StorySectionProps) {
       <div className="mx-auto max-w-2xl">
         <Title id="story-heading">{title}</Title>
         <div className="prose prose-invert mt-8 max-w-none">
-          <MDXRemote {...mdx} components={{ ...mdxComponents, Brand }} />
+          <MDXRemote
+            {...mdx}
+            components={{ ...mdxComponents, Brand, Underline }}
+          />
         </div>
         <div className="mt-8">
           <Byline

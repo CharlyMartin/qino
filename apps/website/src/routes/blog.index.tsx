@@ -7,7 +7,8 @@ import { getPageHead } from "../lib/get-page-head";
 import { site } from "../lib/site";
 import { getPosts } from "../server/get-posts";
 
-const description = "Notes on building qino, a flat-file Markdown CMS.";
+const description =
+  "Notes on building qino, a type-safe content pipeline for Markdown.";
 
 export const Route = createFileRoute("/blog/")({
   loader: () => getPosts(),

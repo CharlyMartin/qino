@@ -7,26 +7,31 @@ signature:
   url: https://github.com/CharlyMartin
 ---
 
-At my last company, we ran several websites on Markdown.
+At my last company, we ran several websites on Markdown content: blogs, event listings, and landing pages.
+
+Markdown is great until you need non-developers to publish updates. Then we developers become the bottleneck.
 
 We were looking for CMS tools that plug into our existing sites, instead of forcing our code into their framework.
 
-We first tried <Brand icon="decap">Decap</Brand>. It made us maintain a long `config.yml` that got harder to read with every new content type. Then we still had to fetch and validate the Markdown ourselves, with no type safety out of the box. The editor worked, but it had minor bugs and looked dated.
+We first tried <Brand icon="decap">Decap CMS</Brand>: it's free and open-source, but the setup gave us some headaches. We had to maintain a long `config.yml` that got harder to read with every new content type. And we still had to fetch and validate the Markdown ourselves, with no type safety out of the box. The editor worked, but it had minor bugs and looked dated.
 
-Then we gave <Brand icon="tina">TinaCMS</Brand> a try. It solved the data problem but added new ones. We had to query our own files through a GraphQL API, which always felt like overkill. Its editorial and git workflows also confused everyone on the team, developers and editors alike.
+Then we gave <Brand icon="tina">TinaCMS</Brand> a try. It solved the fetching and typing problem but added new ones. We had to query our own files through a GraphQL API, which always felt like overkill. Its editorial and git workflows also confused everyone on the team, developers and editors alike.
 
 Two tools, same result: more time spent on the CMS than on the content.
 
-I still believed in the idea behind them. Markdown is a great content source, and owning your content layer matters more than ever now that AI agents work alongside you in the codebase.
+I still believed in Markdown as a content source. And <Underline>owning your content layer matters more than ever</Underline> now that AI agents work alongside you in the codebase.
 
-I just wanted it to be simpler. So I built qino, and it comes with:
+**I just wanted it to be simpler.**
+
+So I built <Brand icon="qino">qino</Brand>, and it comes with:
 
 1. **Type-safe content.** Define your content with Zod schemas. Types hold from end to end.
 2. **No config file to maintain.** qino generates it from your schemas and settings.
-3. **Any content shape.** Collections, standalone pages, or full documentation sites.
-4. **A cloud editor.** Non-developers [edit content](/cloud) without touching code.
-5. **A CLI for agents.** AI agents edit content safely.
+3. **No framework lock-in.** qino plugs into the site you already have.
+4. **Any content shape.** Collections, standalone pages, or full documentation sites.
+5. **A cloud editor, soon.** Non-developers [edit content](/cloud) without touching code.
+6. **A CLI for agents.** `qino check` validates every edit against your schemas.
 
-Today, qino runs the content on several websites. Managing Markdown takes a fraction of the work it used to.
+You can use `@qino/cms` as a [standalone](https://www.npmjs.com/package/@qino/cms) content pipeline for your files, or pair it with the Cloud editor for a full CMS experience once it ships.
 
-**Try it on your next project!**
+**Give qino a try!** [Read the docs](/docs) or let your agent [set it up](https://www.skills.sh/charlymartin/qino/set-up-qino-cms).
