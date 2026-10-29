@@ -14,7 +14,7 @@ const iconVariants = cva("w-auto shrink-0 text-foreground-2", {
 });
 
 type SimpleIconProps = VariantProps<typeof iconVariants> & {
-  icon: Icon;
+  icon: Pick<Icon, "path">;
   /** Crop to the glyph bounds so icons can share a height. */
   viewBox?: string;
 };

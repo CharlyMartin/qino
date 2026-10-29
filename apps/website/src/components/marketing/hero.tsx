@@ -6,6 +6,7 @@ import { InstallBox } from "./install-box";
 import { Section } from "./section";
 import { Text } from "./text";
 import { Title } from "./title";
+import { Underline } from "./underline";
 
 type HeroProps = {
   stats: ProjectStats;
@@ -14,7 +15,7 @@ type HeroProps = {
 export function Hero({ stats }: HeroProps) {
   return (
     <Section aria-labelledby="hero-heading" spacing="hero" align="center">
-      <Eyebrow tone="accent">Headless flat-file CMS</Eyebrow>
+      <Eyebrow tone="accent">Type-safe content pipeline</Eyebrow>
       <div className="mt-4">
         <HeroStats stats={stats} />
       </div>
@@ -30,9 +31,9 @@ export function Hero({ stats }: HeroProps) {
 
         <div className="max-w-xl md:mx-auto text-balance">
           <Text size="lead">
-            Point qino at a content folder, hand it a schema, and you're
-            laughing! You can now query your file system like an API, nothing to
-            deploy.
+            Point qino at your content folder and hand it a schema. You -{" "}
+            <Underline>and your agents</Underline> - get typed, validated
+            content. Nothing to deploy!
           </Text>
         </div>
 
