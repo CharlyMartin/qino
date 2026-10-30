@@ -1,5 +1,19 @@
 # @qino/cms
 
+## 0.17.0
+
+### Minor Changes
+
+- [#278](https://github.com/CharlyMartin/qino/pull/278) [`091c7ed`](https://github.com/CharlyMartin/qino/commit/091c7ed59ba12d38fd415d7d35914931e63c46fe) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Adds `getEntries` and `getAncestorNodes` to trees. `getEntries` reads every entry in reading order with the selected view, for sitemaps, search indexes, and feeds. `getAncestorNodes` returns the nodes above a slug, from the root down, for breadcrumbs:
+
+  ```ts
+  const entries = await docsTree.getEntries();
+  const ancestors = await docsTree.getAncestorNodes(
+    "guides/mutations/optimistic",
+  );
+  // TreeNodes for "guides" and "guides/mutations"
+  ```
+
 ## 0.16.0
 
 ### Minor Changes
