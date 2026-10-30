@@ -16,19 +16,20 @@ export const getDocsPage = createServerFn({ method: "GET" })
     const node = flat.find((candidate) => candidate.slug == slug);
     if (!node) throw notFound();
 
-    const [entry, previousNode, nextNode, links] = await Promise.all([
-      docsTree.getEntry(node.slug),
-      docsTree.getPreviousNode(node.slug),
-      docsTree.getNextNode(node.slug),
-      getDocsLinks(node),
-    ]);
+    const [entry, ancestors, previousNode, nextNode, links] = await Promise.all(
+      [
+        docsTree.getEntry(node.slug),
+        docsTree.getAncestors(node.slug),
+        docsTree.getPreviousNode(node.slug),
+        docsTree.getNextNode(node.slug),
+        getDocsLinks(node),
+      ],
+    );
 
-    // Ancestors are the slug's prefixes: "api/tree/get-entry" → "api", "api/tree".
-    const breadcrumbs = slug.split("/").map((_, index, parts) => {
-      const crumbSlug = parts.slice(0, index + 1).join("/");
-      const crumb = flat.find((candidate) => candidate.slug == crumbSlug);
-      return { slug: crumbSlug, title: crumb?.title ?? crumbSlug };
-    });
+    const breadcrumbs = [...ancestors, node].map(({ slug, title }) => ({
+      slug,
+      title,
+    }));
 
     const mdx = await serializeMdx(entry.markdown);
 
