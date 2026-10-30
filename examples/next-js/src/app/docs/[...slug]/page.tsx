@@ -6,6 +6,7 @@ import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 
 import { docsTree } from "../../../../qino/trees/docs";
+import { DocsBreadcrumbs } from "../docs-breadcrumbs";
 import { DocsSidebar } from "../docs-sidebar";
 import { mdxComponents } from "../mdx-components";
 
@@ -22,9 +23,10 @@ export default async function DocsPage({ params }: DocsPageProps) {
   const { slug } = await params;
   const fullSlug = slug.join("/");
 
-  const [nodes, entry, previousNode, nextNode] = await Promise.all([
+  const [nodes, entry, ancestors, previousNode, nextNode] = await Promise.all([
     docsTree.getTree(),
     docsTree.getEntry(fullSlug),
+    docsTree.getAncestors(fullSlug),
     docsTree.getPreviousNode(fullSlug),
     docsTree.getNextNode(fullSlug),
   ]);
@@ -38,12 +40,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
         <DocsSidebar nodes={nodes} activeSlug={fullSlug} />
       </aside>
       <article className="flex-1">
-        <Link
-          href="/docs"
-          className="mb-8 inline-block text-sm text-zinc-500 hover:underline dark:text-zinc-400"
-        >
-          {"< Docs"}
-        </Link>
+        <DocsBreadcrumbs ancestors={ancestors} title={entry.title} />
         <header className="mb-8">
           <h1 className="text-4xl font-semibold leading-tight tracking-tight text-zinc-950 dark:text-zinc-50">
             {entry.title}

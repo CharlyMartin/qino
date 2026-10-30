@@ -1,10 +1,14 @@
 import Link from "next/link";
 
 import { docsTree } from "../../../qino/trees/docs";
+import { getExcerpt } from "../../lib/get-excerpt";
 import { DocsSidebar } from "./docs-sidebar";
 
 export default async function DocsIndex() {
-  const nodes = await docsTree.getTree();
+  const [nodes, entries] = await Promise.all([
+    docsTree.getTree(),
+    docsTree.getEntries(),
+  ]);
 
   return (
     <main className="mx-auto flex w-full max-w-5xl gap-12 px-6 py-16">
@@ -27,6 +31,27 @@ export default async function DocsIndex() {
         <p className="mb-8 text-zinc-600 dark:text-zinc-400">
           Pick a page from the sidebar to get started.
         </p>
+
+        <section className="mb-12">
+          <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+            Every page, in reading order (getEntries)
+          </h2>
+          <ol className="flex flex-col divide-y divide-zinc-200 dark:divide-zinc-800">
+            {entries.map((entry) => (
+              <li key={entry._meta.slug} className="py-3">
+                <Link
+                  href={`/docs/${entry._meta.slug}`}
+                  className="font-medium text-zinc-950 hover:underline dark:text-zinc-50"
+                >
+                  {entry.title}
+                </Link>
+                <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+                  {getExcerpt(entry.markdown)}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </section>
 
         <section>
           <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
