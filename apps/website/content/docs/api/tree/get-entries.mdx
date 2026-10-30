@@ -1,0 +1,41 @@
+---
+title: getEntries
+description: Read every node's content in reading order.
+---
+
+Walks the tree, reads every file, validates it, and applies the selected view. Entries come back in reading order, the same order as [getFlatTree](/docs/api/tree/get-flat-tree).
+
+```ts title="src/app/sitemap.ts"
+const entries = await docsTree.getEntries();
+entries.map((entry) => `/docs/${entry._meta.slug}`);
+```
+
+## Signature
+
+```ts title="@qino/cms"
+tree.getEntries(options?: { view?: ViewName }): Promise<Array<Entry>>;
+```
+
+## Parameters
+
+| Name           | Type      | Required | Default     | Description                                     |
+| -------------- | --------- | -------- | ----------- | ----------------------------------------------- |
+| `options.view` | view name | no       | `"default"` | A view declared in `views`. Unknown names throw |
+
+## Returns
+
+`Promise<Array<Entry>>`, where `Entry` is the schema output, `_meta` (`slug`, `fileName`, `filePath`), resolved relations at the view's depth, and the awaited augment output. No `children` and no navigation data.
+
+Order is depth-first: each node, then its children, following `_order.json`. Trees have no `filter` or `sort`.
+
+## Throws
+
+- `Unknown view "<name>". Available views: <names>.`
+- The walk errors listed on [getTree](/docs/api/tree/get-tree).
+- Getter option errors, validation, relation, and augment errors for any entry. See [Errors](/docs/api/errors).
+
+## See also
+
+- [getFlatTree](/docs/api/tree/get-flat-tree) for structure without validating bodies
+- [getEntry](/docs/api/tree/get-entry)
+- [Views](/docs/concepts/views)

@@ -1,0 +1,46 @@
+---
+title: getAncestors
+description: The nodes above a slug, from the root down.
+---
+
+Returns the ancestors of a node, from the root down to its parent. The node itself is not included.
+
+```ts title="src/app/docs/[...slug]/page.tsx"
+const ancestors = await docsTree.getAncestors("guides/mutations/optimistic");
+// TreeNodes for "guides" and "guides/mutations"
+```
+
+## Signature
+
+```ts title="@qino/cms"
+tree.getAncestors(slug: Slug): Promise<Array<TreeNode>>;
+```
+
+## Parameters
+
+| Name   | Type     | Required | Description              |
+| ------ | -------- | -------- | ------------------------ |
+| `slug` | `string` | yes      | Slug of the current node |
+
+## Returns
+
+`Promise<Array<TreeNode>>`. Empty for a root-level node.
+
+## Throws
+
+- `Tree entry "<slug>" not found in tree "<directory>".`
+- The walk errors listed on [getTree](/docs/api/tree/get-tree).
+
+## Example
+
+```tsx title="src/app/docs/[...slug]/page.tsx"
+const ancestors = await docsTree.getAncestors(slug);
+
+<nav aria-label="Breadcrumb">
+  {ancestors.map((node) => (
+    <a key={node.slug} href={`/docs/${node.slug}`}>
+      {node.title}
+    </a>
+  ))}
+</nav>;
+```

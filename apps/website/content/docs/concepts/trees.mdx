@@ -54,7 +54,7 @@ A tree exposes two kinds of data.
 
 **Nodes** describe structure. `getTree()` returns nested `TreeNode` objects with `slug`, `title`, `fileName`, `filePath`, and `children`. Nodes carry no schema fields and no augment output, so building a sidebar never validates a body.
 
-**Entries** carry content. `getEntry(slug)` reads, validates, and applies the selected view to one file, returning the schema output plus `_meta`.
+**Entries** carry content. `getEntry(slug)` reads, validates, and applies the selected view to one file, returning the schema output plus `_meta`. `getEntries()` does the same for every file, in reading order, for sitemaps, search indexes, and feeds.
 
 ```ts title="src/app/docs/[...slug]/page.tsx"
 const nodes = await docsTree.getTree(); // sidebar
@@ -63,7 +63,7 @@ const entry = await docsTree.getEntry("guides/setup"); // page
 
 ## Navigation
 
-The tree order is also the reading order. `getFlatTree()` returns nodes depth-first, and `getNextNode(slug)` and `getPreviousNode(slug)` walk that flat list, returning `null` at either end.
+The tree order is also the reading order. `getFlatTree()` returns nodes depth-first, and `getNextNode(slug)` and `getPreviousNode(slug)` walk that flat list, returning `null` at either end. `getAncestors(slug)` returns the nodes above a slug, from the root down, for breadcrumbs.
 
 ```ts title="src/app/docs/[...slug]/page.tsx"
 export async function generateStaticParams() {

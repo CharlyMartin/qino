@@ -29,7 +29,7 @@ Steps 5 to 8 come from the selected view. See [Views](/docs/concepts/views).
 
 Some reads never run views:
 
-- `getTree`, `getFlatTree`, `getNextNode`, and `getPreviousNode` stop after validation. They read `titleField` from the schema output.
+- `getTree`, `getFlatTree`, `getAncestors`, `getNextNode`, and `getPreviousNode` stop after validation. They read `titleField` from the schema output.
 - `qino check` runs steps 1 to 4 on every file, then checks media fields and body images against their `media` rules.
 - Resolved relation targets go through steps 1 to 4, then resolve their own relations to the remaining depth. Their own views never run.
 
