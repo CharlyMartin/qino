@@ -2,6 +2,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { MDXRemote } from "next-mdx-remote";
 
 import { CopyMarkdownButton } from "../components/docs/copy-markdown-button";
+import { DocsBreadcrumbs } from "../components/docs/docs-breadcrumbs";
 import { DocsNotFound } from "../components/docs/docs-not-found";
 import { DocsPagination } from "../components/docs/docs-pagination";
 import { mdxComponents } from "../components/docs/mdx-components";
@@ -97,14 +98,27 @@ export const Route = createFileRoute("/docs/$")({
 });
 
 function DocsPage() {
-  const { slug, title, description, since, raw, mdx, previousNode, nextNode } =
-    Route.useLoaderData();
+  const {
+    slug,
+    title,
+    description,
+    since,
+    raw,
+    mdx,
+    breadcrumbs,
+    previousNode,
+    nextNode,
+  } = Route.useLoaderData();
   // Top-level pages are section landings with only a link grid to copy.
   const isSectionLanding = !slug.includes("/");
 
   return (
     <article>
       <header className="mb-12 flex flex-col items-start gap-4 border-b pb-8">
+        {/* A lone crumb only repeats the page title. */}
+        {breadcrumbs.length > 1 ? (
+          <DocsBreadcrumbs breadcrumbs={breadcrumbs} />
+        ) : null}
         {since ? <Eyebrow tone="accent">Since {since.version}</Eyebrow> : null}
         <Title as="h1">{title}</Title>
         <Text size="lead">{description}</Text>

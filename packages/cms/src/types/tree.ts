@@ -80,6 +80,19 @@ export type Tree<
   getTree(): Promise<Array<TreeNode>>;
   getTree(slug: SlugFor<Dir>): Promise<TreeNode>;
   getFlatTree(): Promise<Array<TreeNode>>;
+  getEntries<Args extends ViewArguments<Views> = []>(
+    ...args: Args
+  ): Promise<
+    Array<
+      SelectedView<
+        Schema,
+        TreeEntryMeta<Ext>,
+        Rels,
+        Views,
+        ViewSelection<Args[0]>
+      >
+    >
+  >;
   getEntry<Args extends ViewArguments<Views> = []>(
     slug: SlugFor<Dir>,
     ...args: Args
@@ -92,6 +105,7 @@ export type Tree<
       ViewSelection<Args[0]>
     >
   >;
+  getAncestorNodes(slug: SlugFor<Dir>): Promise<Array<TreeNode>>;
   getNextNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
   getPreviousNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
 };
@@ -135,12 +149,20 @@ export type AnyTree = {
   getTree(): Promise<Array<TreeNode>>;
   getTree(slug: Slug): Promise<TreeNode>;
   getFlatTree(): Promise<Array<TreeNode>>;
+  getEntries(
+    options?: GetterOptions<undefined>,
+  ): Promise<
+    Array<
+      Record<string, unknown> & { [K in typeof META_FIELD_NAME]: TreeEntryMeta }
+    >
+  >;
   getEntry(
     slug: Slug,
     options?: GetterOptions<undefined>,
   ): Promise<
     Record<string, unknown> & { [K in typeof META_FIELD_NAME]: TreeEntryMeta }
   >;
+  getAncestorNodes(slug: Slug): Promise<Array<TreeNode>>;
   getNextNode(slug: Slug): Promise<TreeNode | null>;
   getPreviousNode(slug: Slug): Promise<TreeNode | null>;
 };

@@ -81,6 +81,9 @@ test("public factory types support reusable views with inferred getter results",
   expectTypeOf(
     (await tree.getEntry("hello", { view: "preview" })).source,
   ).toEqualTypeOf<string>();
+  expectTypeOf(await tree.getEntries({ view: "preview" }))
+    .items.toHaveProperty("source")
+    .toEqualTypeOf<string>();
   expectTypeOf(
     (await home.getEntry({ view: "preview" })).source,
   ).toEqualTypeOf<`${string}.json`>();

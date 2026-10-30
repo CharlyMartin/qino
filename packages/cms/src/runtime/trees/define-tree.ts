@@ -58,6 +58,7 @@ import type {
   ViewsConfig,
 } from "../../types/views";
 import type { QinoContext } from "../qino/init-qino";
+import { findAncestorNodes } from "./find-ancestor-nodes";
 import { findNode } from "./find-node";
 import { flattenTree } from "./flatten-tree";
 import { getNeighborNode } from "./get-neighbor-node";
@@ -172,7 +173,9 @@ export function defineTree<
     },
     getTree,
     getFlatTree,
+    getEntries,
     getEntry,
+    getAncestorNodes,
     getNextNode,
     getPreviousNode,
   } as const satisfies Tree<
@@ -249,6 +252,35 @@ export function defineTree<
       ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;
+  }
+
+  async function getEntries<
+    Args extends ViewArguments<ConfiguredViews<Views>> = [],
+  >(...[options]: Args) {
+    const view = selectView(views, options);
+    const nodes = await getFlatTree();
+    const entries = await Promise.all(
+      nodes.map((node) => readEntry(node.slug)),
+    );
+    const results = await applyView(
+      entries,
+      view,
+      treeRelations,
+      ctx.instanceId,
+    );
+    return results as Array<
+      SelectedView<
+        S,
+        TreeEntryMeta<Ext>,
+        TaggedRels,
+        ConfiguredViews<Views>,
+        ViewSelection<Args[0]>
+      >
+    >;
+  }
+
+  async function getAncestorNodes(slug: Slug) {
+    return findAncestorNodes({ tree: await getTree(), slug, directory });
   }
 
   async function getNextNode(slug: Slug) {

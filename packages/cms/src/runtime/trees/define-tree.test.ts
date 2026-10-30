@@ -347,6 +347,154 @@ describe("defineTree", () => {
       );
     });
   });
+
+  describe("getEntries", () => {
+    test("returns every entry in depth-first order", async () => {
+      const docs = nodePath.join(tmp, "docs");
+      await fs.mkdir(docs);
+      await writeMd(docs, "introduction", "Introduction");
+      await writeMd(docs, "guides", "Guides");
+      const guidesDir = nodePath.join(docs, "guides");
+      await fs.mkdir(guidesDir);
+      await writeMd(guidesDir, "queries", "Queries", "Fetching data");
+      await writeMd(docs, "reference", "Reference");
+      await fs.writeFile(
+        nodePath.join(docs, "_order.json"),
+        JSON.stringify(["introduction.md", "guides.md", "reference.md"]),
+      );
+
+      const tree = defineTree({
+        directory: "docs",
+        schema: Schema,
+        extension: ".md",
+        titleField: "title",
+      });
+
+      const entries = await tree.getEntries();
+      expect(entries.map((entry) => entry._meta.slug)).toEqual([
+        "introduction",
+        "guides",
+        "guides/queries",
+        "reference",
+      ]);
+      expect(entries[2]?.title).toBe("Queries");
+      expect(entries[2]?.[MARKDOWN_FIELD_NAME].trim()).toBe("Fetching data");
+    });
+
+    test("applies the selected view to every entry", async () => {
+      const docs = nodePath.join(tmp, "docs");
+      await fs.mkdir(docs);
+      await writeMd(docs, "intro", "Introduction", "One two");
+      await writeMd(docs, "setup", "Setup", "One");
+
+      const tree = defineTree({
+        directory: "docs",
+        schema: Schema,
+        extension: ".md",
+        titleField: "title",
+        views: (view) => ({
+          default: view({}),
+          counted: view({
+            augment: ({ markdown }) => ({
+              words: markdown.trim().split(/\s+/u).length,
+            }),
+          }),
+        }),
+      });
+
+      const entries = await tree.getEntries({ view: "counted" });
+      expect(entries.map((entry) => entry.words)).toEqual([2, 1]);
+    });
+
+    test("returns an empty array for an empty tree", async () => {
+      await fs.mkdir(nodePath.join(tmp, "docs"));
+
+      const tree = defineTree({
+        directory: "docs",
+        schema: Schema,
+        extension: ".md",
+        titleField: "title",
+      });
+
+      await expect(tree.getEntries()).resolves.toEqual([]);
+    });
+
+    test("throws on an unknown view", async () => {
+      await fs.mkdir(nodePath.join(tmp, "docs"));
+
+      const tree = defineTree({
+        directory: "docs",
+        schema: Schema,
+        extension: ".md",
+        titleField: "title",
+      });
+
+      await expect(tree.getEntries({ view: "nope" } as never)).rejects.toThrow(
+        /Unknown view "nope"/,
+      );
+    });
+  });
+
+  describe("getAncestorNodes", () => {
+    test("returns the ancestors of a nested node from the root down", async () => {
+      const docs = nodePath.join(tmp, "docs");
+      await fs.mkdir(docs);
+      await writeMd(docs, "guides", "Guides");
+      const guidesDir = nodePath.join(docs, "guides");
+      await fs.mkdir(guidesDir);
+      await writeMd(guidesDir, "mutations", "Mutations");
+      const mutationsDir = nodePath.join(guidesDir, "mutations");
+      await fs.mkdir(mutationsDir);
+      await writeMd(mutationsDir, "optimistic", "Optimistic updates");
+
+      const tree = defineTree({
+        directory: "docs",
+        schema: Schema,
+        extension: ".md",
+        titleField: "title",
+      });
+
+      const ancestors = await tree.getAncestorNodes(
+        "guides/mutations/optimistic",
+      );
+      expect(ancestors.map(({ slug, title }) => ({ slug, title }))).toEqual([
+        { slug: "guides", title: "Guides" },
+        { slug: "guides/mutations", title: "Mutations" },
+      ]);
+    });
+
+    test("returns an empty array for a root-level node", async () => {
+      const docs = nodePath.join(tmp, "docs");
+      await fs.mkdir(docs);
+      await writeMd(docs, "introduction", "Introduction");
+
+      const tree = defineTree({
+        directory: "docs",
+        schema: Schema,
+        extension: ".md",
+        titleField: "title",
+      });
+
+      await expect(tree.getAncestorNodes("introduction")).resolves.toEqual([]);
+    });
+
+    test("throws when slug does not exist", async () => {
+      const docs = nodePath.join(tmp, "docs");
+      await fs.mkdir(docs);
+      await writeMd(docs, "introduction", "Introduction");
+
+      const tree = defineTree({
+        directory: "docs",
+        schema: Schema,
+        extension: ".md",
+        titleField: "title",
+      });
+
+      await expect(tree.getAncestorNodes("guides/nope")).rejects.toThrow(
+        /Tree entry "guides\/nope" not found in tree "docs"/,
+      );
+    });
+  });
 });
 
 test("relations load nested Markdown tree entries without navigation or target augment", async () => {

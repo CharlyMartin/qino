@@ -1,7 +1,9 @@
 [
   "get-tree.mdx",
   "get-flat-tree.mdx",
+  "get-entries.mdx",
   "get-entry.mdx",
+  "get-ancestor-nodes.mdx",
   "get-next-node.mdx",
   "get-previous-node.mdx"
 ]

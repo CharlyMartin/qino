@@ -40,10 +40,12 @@ type Tree<
   getTree(): Promise<Array<TreeNode>>;
   getTree(slug: SlugFor<Dir>): Promise<TreeNode>;
   getFlatTree(): Promise<Array<TreeNode>>;
+  getEntries(options?: { view?: keyof Views }): Promise<Array<Entry>>;
   getEntry(
     slug: SlugFor<Dir>,
     options?: { view?: keyof Views },
   ): Promise<Entry>;
+  getAncestorNodes(slug: SlugFor<Dir>): Promise<Array<TreeNode>>;
   getNextNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
   getPreviousNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
 };
