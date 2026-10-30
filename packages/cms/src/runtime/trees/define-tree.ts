@@ -58,9 +58,9 @@ import type {
   ViewsConfig,
 } from "../../types/views";
 import type { QinoContext } from "../qino/init-qino";
+import { findAncestorNodes } from "./find-ancestor-nodes";
 import { findNode } from "./find-node";
 import { flattenTree } from "./flatten-tree";
-import { getAncestorNodes } from "./get-ancestor-nodes";
 import { getNeighborNode } from "./get-neighbor-node";
 import { walkTree } from "./walk-tree";
 
@@ -175,7 +175,7 @@ export function defineTree<
     getFlatTree,
     getEntries,
     getEntry,
-    getAncestors,
+    getAncestorNodes,
     getNextNode,
     getPreviousNode,
   } as const satisfies Tree<
@@ -279,8 +279,8 @@ export function defineTree<
     >;
   }
 
-  async function getAncestors(slug: Slug) {
-    return getAncestorNodes({ tree: await getTree(), slug, directory });
+  async function getAncestorNodes(slug: Slug) {
+    return findAncestorNodes({ tree: await getTree(), slug, directory });
   }
 
   async function getNextNode(slug: Slug) {

@@ -26,7 +26,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
   const [nodes, entry, ancestors, previousNode, nextNode] = await Promise.all([
     docsTree.getTree(),
     docsTree.getEntry(fullSlug),
-    docsTree.getAncestors(fullSlug),
+    docsTree.getAncestorNodes(fullSlug),
     docsTree.getPreviousNode(fullSlug),
     docsTree.getNextNode(fullSlug),
   ]);

@@ -105,7 +105,7 @@ export type Tree<
       ViewSelection<Args[0]>
     >
   >;
-  getAncestors(slug: SlugFor<Dir>): Promise<Array<TreeNode>>;
+  getAncestorNodes(slug: SlugFor<Dir>): Promise<Array<TreeNode>>;
   getNextNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
   getPreviousNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
 };
@@ -162,7 +162,7 @@ export type AnyTree = {
   ): Promise<
     Record<string, unknown> & { [K in typeof META_FIELD_NAME]: TreeEntryMeta }
   >;
-  getAncestors(slug: Slug): Promise<Array<TreeNode>>;
+  getAncestorNodes(slug: Slug): Promise<Array<TreeNode>>;
   getNextNode(slug: Slug): Promise<TreeNode | null>;
   getPreviousNode(slug: Slug): Promise<TreeNode | null>;
 };

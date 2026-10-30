@@ -1,19 +1,21 @@
 ---
-title: getAncestors
+title: getAncestorNodes
 description: The nodes above a slug, from the root down.
 ---
 
 Returns the ancestors of a node, from the root down to its parent. The node itself is not included.
 
 ```ts title="src/app/docs/[...slug]/page.tsx"
-const ancestors = await docsTree.getAncestors("guides/mutations/optimistic");
+const ancestors = await docsTree.getAncestorNodes(
+  "guides/mutations/optimistic",
+);
 // TreeNodes for "guides" and "guides/mutations"
 ```
 
 ## Signature
 
 ```ts title="@qino/cms"
-tree.getAncestors(slug: Slug): Promise<Array<TreeNode>>;
+tree.getAncestorNodes(slug: Slug): Promise<Array<TreeNode>>;
 ```
 
 ## Parameters
@@ -34,7 +36,7 @@ tree.getAncestors(slug: Slug): Promise<Array<TreeNode>>;
 ## Example
 
 ```tsx title="src/app/docs/[...slug]/page.tsx"
-const ancestors = await docsTree.getAncestors(slug);
+const ancestors = await docsTree.getAncestorNodes(slug);
 
 <nav aria-label="Breadcrumb">
   {ancestors.map((node) => (

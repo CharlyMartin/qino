@@ -50,7 +50,7 @@ export function makeDummyTree({
     getEntry: (async () => {
       throw new Error("not implemented");
     }) as never,
-    getAncestors: async () => [],
+    getAncestorNodes: async () => [],
     getNextNode: async () => null,
     getPreviousNode: async () => null,
   } as AnyTree;

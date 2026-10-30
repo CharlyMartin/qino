@@ -45,7 +45,7 @@ type Tree<
     slug: SlugFor<Dir>,
     options?: { view?: keyof Views },
   ): Promise<Entry>;
-  getAncestors(slug: SlugFor<Dir>): Promise<Array<TreeNode>>;
+  getAncestorNodes(slug: SlugFor<Dir>): Promise<Array<TreeNode>>;
   getNextNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
   getPreviousNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
 };

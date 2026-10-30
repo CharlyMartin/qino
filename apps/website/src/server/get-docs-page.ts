@@ -19,7 +19,7 @@ export const getDocsPage = createServerFn({ method: "GET" })
     const [entry, ancestors, previousNode, nextNode, links] = await Promise.all(
       [
         docsTree.getEntry(node.slug),
-        docsTree.getAncestors(node.slug),
+        docsTree.getAncestorNodes(node.slug),
         docsTree.getPreviousNode(node.slug),
         docsTree.getNextNode(node.slug),
         getDocsLinks(node),

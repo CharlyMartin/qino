@@ -64,7 +64,7 @@ describe("typed slugs", () => {
     expectTypeOf(typedGuides.getEntry)
       .parameter(0)
       .toEqualTypeOf<"intro" | "advanced">();
-    expectTypeOf(typedGuides.getAncestors)
+    expectTypeOf(typedGuides.getAncestorNodes)
       .parameter(0)
       .toEqualTypeOf<"intro" | "advanced">();
     expectTypeOf(typedGuides.getNextNode)

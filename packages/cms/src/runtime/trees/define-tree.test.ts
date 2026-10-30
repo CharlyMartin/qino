@@ -435,7 +435,7 @@ describe("defineTree", () => {
     });
   });
 
-  describe("getAncestors", () => {
+  describe("getAncestorNodes", () => {
     test("returns the ancestors of a nested node from the root down", async () => {
       const docs = nodePath.join(tmp, "docs");
       await fs.mkdir(docs);
@@ -454,7 +454,9 @@ describe("defineTree", () => {
         titleField: "title",
       });
 
-      const ancestors = await tree.getAncestors("guides/mutations/optimistic");
+      const ancestors = await tree.getAncestorNodes(
+        "guides/mutations/optimistic",
+      );
       expect(ancestors.map(({ slug, title }) => ({ slug, title }))).toEqual([
         { slug: "guides", title: "Guides" },
         { slug: "guides/mutations", title: "Mutations" },
@@ -473,7 +475,7 @@ describe("defineTree", () => {
         titleField: "title",
       });
 
-      await expect(tree.getAncestors("introduction")).resolves.toEqual([]);
+      await expect(tree.getAncestorNodes("introduction")).resolves.toEqual([]);
     });
 
     test("throws when slug does not exist", async () => {
@@ -488,7 +490,7 @@ describe("defineTree", () => {
         titleField: "title",
       });
 
-      await expect(tree.getAncestors("guides/nope")).rejects.toThrow(
+      await expect(tree.getAncestorNodes("guides/nope")).rejects.toThrow(
         /Tree entry "guides\/nope" not found in tree "docs"/,
       );
     });

@@ -2,17 +2,17 @@ import type { TreeNode } from "../../types/tree";
 import type { ContentPath, Slug } from "../../types/utils";
 import { findNode } from "./find-node";
 
-type GetAncestorNodesParams = {
+type FindAncestorNodesParams = {
   tree: Array<TreeNode>;
   slug: Slug;
   directory: ContentPath;
 };
 
-export function getAncestorNodes({
+export function findAncestorNodes({
   tree,
   slug,
   directory,
-}: GetAncestorNodesParams) {
+}: FindAncestorNodesParams) {
   // Throws with the requested slug, so every prefix below is known to exist.
   findNode(tree, slug, directory);
 

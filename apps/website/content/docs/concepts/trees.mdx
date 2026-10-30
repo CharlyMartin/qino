@@ -63,7 +63,7 @@ const entry = await docsTree.getEntry("guides/setup"); // page
 
 ## Navigation
 
-The tree order is also the reading order. `getFlatTree()` returns nodes depth-first, and `getNextNode(slug)` and `getPreviousNode(slug)` walk that flat list, returning `null` at either end. `getAncestors(slug)` returns the nodes above a slug, from the root down, for breadcrumbs.
+The tree order is also the reading order. `getFlatTree()` returns nodes depth-first, and `getNextNode(slug)` and `getPreviousNode(slug)` walk that flat list, returning `null` at either end. `getAncestorNodes(slug)` returns the nodes above a slug, from the root down, for breadcrumbs.
 
 ```ts title="src/app/docs/[...slug]/page.tsx"
 export async function generateStaticParams() {
