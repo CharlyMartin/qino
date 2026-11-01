@@ -1,0 +1,34 @@
+---
+title: Why another Content Management System?
+description: Coding agents work best with content they can read. Why I think it belongs in your repo, and why I built qino.
+published-on: "2026-11-01"
+author: "authors/charly.json"
+---
+
+There's a trend in software right now: companies are building their own tools instead of paying for someone else's. The dreaded SaaSpocalypse.
+
+Coding agents are the obvious reason. They've made building your own tools cheap enough to be worth it. But I think there's a less obvious one: data ownership. LLMs are only as useful as the data you give them, and when it comes to content and copy, that data is your content. <Underline>The best way to give them access is to keep it local.</Underline>
+
+Sure, APIs and MCP servers let agents reach content stored on someone else's servers. But they're still someone else's servers. They can rate limit you, go down, lock you out, or charge you for access. And sometimes you're just offline.
+
+Lee Robinson recently [wrote about](https://leerob.com/agents) moving Cursor's blog from a CMS to local Markdown files. He was classy enough not to name the CMS, but [Sanity replied anyway](https://www.sanity.io/blog/you-should-never-build-a-cms).
+
+I've used Sanity before, and it's a great tool. It just runs on someone else's servers.
+
+Keeping content in local Markdown isn't new, and it comes with its own problem. At my last company, we ran several websites that way: blogs, event listings, landing pages. It worked great, right up until non-developers needed to publish updates. Every change went through us, and we developers became the bottleneck.
+
+So we went looking for a CMS that would plug into our existing sites, rather than force our code into its framework.
+
+We tried Decap CMS, then TinaCMS. Both made us bend our content to fit their rules: a growing config file in one, a GraphQL API in the other. Our files sat right next to our code, yet working with them felt like calling an external service, not like owning our content.
+
+Two tools, same result: we spent more time on the CMS than on the content.
+
+That's why I built qino, and why now. Local content matters more than ever now that agents work alongside you in the codebase, and working with it should be simple.
+
+qino sits on top of your local content and lets you query it like an API, typed by your Zod schemas. No need to wire someone else's API into your workflow. It works with any framework and any LLM, and `qino check` validates every edit your agents make against those schemas.
+
+Editors don't need a local dev environment either. The [cloud editor](/cloud) reads content straight from GitHub, or wherever it's hosted, so they can publish without touching code, following the workflow you define.
+
+So, why another CMS? Because the others treat your content as something to host for you. <Underline>qino treats it as yours</Underline>: in your repo, next to your code, ready for your agents.
+
+[Read the docs](/docs) to get started, or let your agent [set it up](https://www.skills.sh/charlymartin/qino/set-up-qino-cms) for you.
