@@ -6,7 +6,7 @@ import { Text } from "./text";
 type BylineProps = {
   name: string;
   image: string;
-  url: string;
+  url?: string;
   children: ReactNode;
 };
 
@@ -23,7 +23,7 @@ export function Byline({ name, image, url, children }: BylineProps) {
       />
       <div>
         <p className="text-sm font-medium">
-          <ExternalLink href={url}>{name}</ExternalLink>
+          {url ? <ExternalLink href={url}>{name}</ExternalLink> : name}
         </p>
         <Text size="small">{children}</Text>
       </div>
