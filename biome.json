@@ -53,6 +53,12 @@
   },
   "overrides": [
     {
+      "includes": ["**/*.md", "**/*.mdx"],
+      "formatter": {
+        "enabled": false
+      }
+    },
+    {
       "includes": [
         "packages/cms/src/index.ts",
         "packages/cms/src/utils/index.ts",
