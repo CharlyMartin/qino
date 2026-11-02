@@ -2,6 +2,7 @@ import { ArrowLeftIcon } from "@phosphor-icons/react/ssr";
 import { createFileRoute } from "@tanstack/react-router";
 import { MDXRemote } from "next-mdx-remote";
 
+import { PostAuthor } from "../components/blog/post-author";
 import { PostMeta } from "../components/blog/post-meta";
 import { PostNotFound } from "../components/blog/post-not-found";
 import { mdxComponents } from "../components/docs/mdx-components";
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/blog/$slug")({
   head: ({ loaderData, params }) => {
     if (!loaderData) return { meta: notFoundMeta };
 
-    const { title, description, publishedOn } = loaderData;
+    const { title, description, publishedOn, author } = loaderData;
     const path = `/blog/${params.slug}`;
     const head = getPageHead({
       title: `${title} | qino`,
@@ -37,7 +38,13 @@ export const Route = createFileRoute("/blog/$slug")({
           url: `${site.url}${path}`,
           image: `${site.url}${site.ogImage}`,
           datePublished: publishedOn,
-          author: { "@type": "Person", ...site.author },
+          author: {
+            "@type": "Person",
+            name: author.name,
+            image: `${site.url}${author.image.src}`,
+            jobTitle: author.role,
+            worksFor: { "@type": "Organization", name: author.company },
+          },
           publisher: {
             "@type": "Organization",
             name: site.name,
@@ -51,7 +58,7 @@ export const Route = createFileRoute("/blog/$slug")({
       ...head,
       meta: [
         ...head.meta,
-        { name: "author", content: site.author.name },
+        { name: "author", content: author.name },
         { property: "article:published_time", content: publishedOn },
       ],
     };
@@ -61,15 +68,18 @@ export const Route = createFileRoute("/blog/$slug")({
 });
 
 function BlogPostPage() {
-  const { title, description, publishedOn, _stats, mdx } =
+  const { title, description, publishedOn, author, _stats, mdx } =
     Route.useLoaderData();
 
   return (
     <article className="mx-auto max-w-3xl">
-      <header className="mb-12 flex flex-col items-start gap-4 border-b pb-8">
+      <header className="mb-12 flex flex-col items-start gap-3 border-b pb-8">
         <PostMeta publishedOn={publishedOn} _stats={_stats} />
         <Title as="h1">{title}</Title>
         <Text size="lead">{description}</Text>
+        <div className="pt-6">
+          <PostAuthor {...author} />
+        </div>
       </header>
       <div className="prose prose-invert max-w-none">
         <MDXRemote {...mdx} components={mdxComponents} />
