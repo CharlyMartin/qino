@@ -1,5 +1,5 @@
 ---
-title: Why I built qino
+title: Why I built qino, and why now?
 signature:
   name: Charly Martin
   title: Creator of qino
@@ -7,21 +7,19 @@ signature:
   url: https://github.com/CharlyMartin
 ---
 
-At my last company, we ran several websites on Markdown content: blogs, event listings, and landing pages.
-
-Markdown is great until you need non-developers to publish updates. Then we developers become the bottleneck.
+At my last company, we ran several websites on Markdown content: blogs, event listings, and landing pages. Markdown is great until you need non-developers to publish updates. Then we developers become the bottleneck.
 
 We were looking for CMS tools that plug into our existing sites, instead of forcing our code into their framework.
 
-We first tried <Brand icon="decap">Decap CMS</Brand>: it's free and open-source, but the setup gave us some headaches. We had to maintain a long `config.yml` that got harder to read with every new content type. And we still had to fetch and validate the Markdown ourselves, with no type safety out of the box. The editor worked, but it had minor bugs and looked dated.
+We first tried <Brand icon="decap">Decap CMS</Brand>. It's free and open-source, but we had to maintain a `config.yml` that grew with every content type, and still fetch and validate the Markdown ourselves, with no type safety.
 
-Then we gave <Brand icon="tina">TinaCMS</Brand> a try. It solved the fetching and typing problem but added new ones. We had to query our own files through a GraphQL API, which always felt like overkill. Its editorial and git workflows also confused everyone on the team, developers and editors alike.
+Then we gave <Brand icon="tina">TinaCMS</Brand> a try. It handled fetching and typing, but made us query our own files through GraphQL, and its git workflow confused developers and editors alike.
 
-Two tools, same result: more time spent on the CMS than on the content.
+Two tools, same result: more time spent on the CMS than on the content. **I just wanted it to be simpler.**
 
-I still believed in Markdown as a content source. And <Underline>owning your content layer matters more than ever</Underline> now that AI agents work alongside you in the codebase.
+I still believed in Markdown as a content source, and the timing made the case even stronger. AI agents now work alongside you in the codebase, and they're only as useful as the content they can read. A hosted CMS keeps that content on someone else's servers, behind APIs that can rate limit you, go down, or charge for access.
 
-**I just wanted it to be simpler.**
+<Underline>The best way to give agents your content is to keep it local</Underline>, in your repo, right next to your code. Owning your content layer has never mattered more.
 
 So I built <Brand icon="qino">qino</Brand>, and it comes with:
 
@@ -32,6 +30,6 @@ So I built <Brand icon="qino">qino</Brand>, and it comes with:
 5. **A cloud editor, soon.** Non-developers [edit content](/cloud) without touching code.
 6. **A CLI for agents.** `qino check` validates every edit against your schemas.
 
-You can use `@qino/cms` as a [standalone](https://www.npmjs.com/package/@qino/cms) content pipeline for your files, or pair it with the Cloud editor for a full CMS experience once it ships.
+You can use `@qino/cms` as a [standalone](https://www.npmjs.com/package/@qino/cms) content pipeline for your files, or pair it with the cloud UI for a full CMS experience once it ships.
 
 **Give qino a try!** [Read the docs](/docs) or let your agent [set it up](https://www.skills.sh/charlymartin/qino/set-up-qino-cms).

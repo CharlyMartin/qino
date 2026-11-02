@@ -34,7 +34,7 @@ export function PostCard({
         <span className="text-lg font-extrabold tracking-tight text-foreground sm:text-xl">
           {title}
         </span>
-        <span className="text-pretty text-body text-muted-foreground">
+        <span className="text-pretty text-body text-muted-foreground font-medium">
           {description}
         </span>
         <span className="font-mono text-label uppercase text-muted-foreground">
