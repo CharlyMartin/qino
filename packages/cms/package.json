@@ -45,7 +45,7 @@
   "dependencies": {
     "@standard-schema/spec": "1.1.0",
     "consola": "3.4.2",
-    "es-toolkit": "1.52.0",
+    "es-toolkit": "1.53.0",
     "gray-matter": "4.0.3",
     "htmlparser2": "12.0.0",
     "jiti": "2.7.0",
