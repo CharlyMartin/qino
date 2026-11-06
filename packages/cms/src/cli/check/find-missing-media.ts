@@ -24,6 +24,8 @@ export async function findMissingMedia({
   const files = await glob(`**/*.{${contentExtensions.join(",")}}`, {
     cwd: contentFolder,
     absolute: true,
+    // A contentFolder of "." would otherwise scan every dependency.
+    ignore: ["**/node_modules/**"],
   });
 
   // Many entries share the same asset, so only stat each path once.
