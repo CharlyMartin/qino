@@ -48,6 +48,9 @@ async function walkFolder({
       const name = dirent.name.slice(0, -params.extension.length);
       fileMap.set(name, nodePath.join(absFolder, dirent.name));
     } else if (dirent.isDirectory()) {
+      // A tree at the project root would otherwise walk dependencies and tooling folders.
+      if (dirent.name == "node_modules" || dirent.name.startsWith("."))
+        continue;
       const childRel = relFromRoot
         ? `${relFromRoot}/${dirent.name}`
         : dirent.name;

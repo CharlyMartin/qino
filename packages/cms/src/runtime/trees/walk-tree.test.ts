@@ -162,4 +162,26 @@ describe("walkTree", () => {
 
     expect(nodes.map((n) => n.slug)).toEqual(["introduction"]);
   });
+
+  test("skips node_modules and dot-folders", async () => {
+    await writeMd(tmp, "a", "A");
+
+    const pkgDir = nodePath.join(tmp, "node_modules/pkg");
+    await fs.mkdir(pkgDir, { recursive: true });
+    await writeMd(pkgDir, "index", "Index");
+
+    const gitDir = nodePath.join(tmp, ".git");
+    await fs.mkdir(gitDir);
+    await writeMd(gitDir, "x", "X");
+
+    const nodes = await walkTree({
+      directoryPath: tmp,
+      schema: Schema,
+      extension: ".md",
+      titleField: "title",
+      orderFileName: "_order.json",
+    });
+
+    expect(nodes.map((n) => n.slug)).toEqual(["a"]);
+  });
 });
