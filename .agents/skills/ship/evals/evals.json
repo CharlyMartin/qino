@@ -1,0 +1,44 @@
+{
+  "skill_name": "ship",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Plan how to ship this finished change from this isolated context. Do not inspect the repository, run commands, or edit files. List the exact git and gh commands you would run, in order, with the commit messages.\n\nContext:\n- The current branch is `main`.\n- The Codex review loop ended clean after 2 rounds. Tests, types and Biome pass.\n- Changed files: `packages/cms/src/get-ancestor-nodes.ts`, `packages/cms/src/get-ancestor-nodes.test.ts`, `.changeset/brave-owls-sing.md` (`@qino/cms` minor), `apps/website/content/docs/reference/get-ancestor-nodes.mdx`, `examples/next-js/src/app/docs/[...slug]/page.tsx`.\n- The change adds a `getAncestorNodes(slug)` tree getter for breadcrumbs, documents it, and uses it in the Next.js example.",
+      "expected_output": "Claude creates a feature branch, makes a few logical Conventional Commits staged by path, pushes with upstream tracking, and opens a PR with a Conventional Commit title and a reviewer-facing description.",
+      "files": [],
+      "assertions": [
+        "The first command creates a new branch off `main`, like `git switch -c feat/...`, before any commit.",
+        "There are at least two commits, and the `packages/cms` source file is in the same commit as its test file.",
+        "Every `git add` names explicit paths; there is no `git add -A` or `git add .`.",
+        "Every commit subject follows Conventional Commits with a scope, such as `feat(cms):`, `docs(website):` or `feat(examples):`.",
+        "No commit message contains `Co-Authored-By` or `Generated with Claude Code`.",
+        "The push is `git push -u origin <branch>`, with no `--force` and not to `main`.",
+        "The PR is opened with `gh pr create --base main`, with a Conventional Commit title.",
+        "The PR body names `getAncestorNodes` in backticks and mentions the docs, the example and the changeset.",
+        "The PR body has no `Generated with Claude Code` line."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Decide whether to ship this change from this isolated context. Do not inspect the repository, run commands, or edit files. Answer with the decision and a brief reason.\n\nContext:\n- The Codex review loop stopped at its 5-round limit. One P1 finding about an infinite loop in `resolveSlug` is still open.\n- Tests, types and Biome pass.",
+      "expected_output": "Claude refuses to commit, push or open a PR because the review didn't end clean, and leaves the open finding to the user.",
+      "files": [],
+      "assertions": [
+        "The response decides not to commit, push, or open a pull request.",
+        "The response gives the review not ending clean, or the open `resolveSlug` finding, as the reason.",
+        "The response does not list git commit, git push, or gh pr create commands to run now."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Decide what to do before shipping from this isolated context. Do not inspect the repository, run commands, or edit files. Describe your next step.\n\nContext:\n- The Codex review loop ended clean. Tests, types and Biome pass.\n- The change fixes a user-visible bug in `packages/cms/src/parse-frontmatter.ts`: `yes`/`no` values were parsed as booleans.\n- There is no file in `.changeset/` for this change.",
+      "expected_output": "Claude adds a `@qino/cms` patch changeset with the changeset skill before committing.",
+      "files": [],
+      "assertions": [
+        "The next step is adding a changeset before any commit or push.",
+        "The response says the changeset is for `@qino/cms` with a `patch` bump.",
+        "The response does not push or open a PR before the changeset exists."
+      ]
+    }
+  ]
+}

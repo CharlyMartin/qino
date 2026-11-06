@@ -1,0 +1,77 @@
+{
+  "skill_name": "codex-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "You are in round 1 of a Codex review. Triage the findings below from this isolated context. Do not inspect the repository, run commands, or edit files. For each finding, say whether you apply or skip it, with a brief reason.\n\nContext:\n- The diff adds `packages/cms/src/get-previous-node.ts`, which exports `getPreviousNode(nodes: Node[], index: number)`.\n- The function body is `if (index == 0) return null; return nodes[index - 1];`.\n- `lint`, `check-types` and `test` pass.\n\nCodex output:\n1. [P1] `getPreviousNode` returns `undefined` instead of `null` when `index` is past the end of `nodes`. Callers check `=== null`, so they treat it as a valid node.\n2. [P3] Add an explicit return type `Node | null` to `getPreviousNode` for clarity.\n3. [P3] Use `===` instead of `==` in `index == 0`. Both sides are numbers.",
+      "expected_output": "Finding 1 is applied as a real bug. Findings 2 and 3 are skipped because they contradict the AGENTS.md conventions on inferred return types and on `==` for values of the same type.",
+      "files": [],
+      "assertions": [
+        "The response applies finding 1, the out-of-range `undefined` bug.",
+        "The response skips finding 2 and says AGENTS.md prefers inferred return types.",
+        "The response skips finding 3 and says AGENTS.md prefers `==` when both types match.",
+        "The response does not propose adding a `Node | null` return type annotation.",
+        "The response gives a reason for each skipped finding."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Continue a Codex review run from this isolated context. Do not inspect the repository or edit files. Describe the next action you take, including any exact command you would run.\n\nContext:\n- Round 2 just finished. It ran `codex review --uncommitted` on uncommitted work.\n- Round 2 reported two findings. You applied one, a missing null check in `packages/cms/src/flatten-tree.ts`. You skipped the other, a request for an explicit return type, because AGENTS.md prefers inferred return types.\n- `pnpm test`, `pnpm check-types` and `pnpm biome check .` pass again.",
+      "expected_output": "Claude starts round 3 right away. It runs `codex review --uncommitted` with a follow-up prompt that lists the rejected return-type finding, without asking the user or ending the turn first.",
+      "files": [],
+      "assertions": [
+        "The next action is running `codex review --uncommitted` again.",
+        "The command ends with `2>/dev/null`.",
+        "The prompt says this is a follow-up review of applied fixes.",
+        "The prompt lists the rejected explicit-return-type finding so Codex doesn't raise it again.",
+        "The response does not ask the user whether to run another review.",
+        "The response does not present a final report before the next review has run."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Continue a Codex review run from this isolated context. Do not inspect the repository, run commands, or edit files. Describe what you do next.\n\nContext:\n- This is the fifth round of the review loop. Every earlier round led to fixes.\n- Round 5 just finished with one finding: [P1] `resolveSlug` can loop forever when two entries point at each other through `redirect` frontmatter. A fix needs a design decision on how to report cycles to users.\n- `pnpm test`, `pnpm check-types` and `pnpm biome check .` pass.\n- After the review, the workflow says to commit, push and open a PR.",
+      "expected_output": "Claude doesn't start a sixth review and doesn't commit, push or open a PR. It reports all five rounds and leaves the open cycle issue to the user.",
+      "files": [],
+      "assertions": [
+        "The response does not run or propose a sixth `codex review`.",
+        "The response does not commit, push, or open a pull request, and does not propose doing so now.",
+        "The response reports the `resolveSlug` cycle issue as open for the user to decide.",
+        "The response says the loop stopped at its 5-round limit without a clean review.",
+        "The response states the status of the checks."
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Run the Codex review skill from this isolated context. Do not inspect the repository or edit files. Describe what you do, including any command you would run.\n\nContext:\n- `git status --porcelain` prints nothing.\n- The current branch is `main`, level with `origin/main`.",
+      "expected_output": "Claude says there is nothing to review and does not call Codex.",
+      "files": [],
+      "assertions": [
+        "The response states that there are no changes to review.",
+        "The response does not run or propose running `codex review`."
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Continue a Codex review run from this isolated context. Do not inspect the repository or edit files. Describe what you do next.\n\nContext:\n- Round 2 ran `codex review --uncommitted`.\n- Codex returned two findings. You skipped both: one asked for explicit return types, the other asked to inline a named type. No files changed in this round.\n- `pnpm test`, `pnpm check-types` and `pnpm biome check .` pass.",
+      "expected_output": "Claude treats the review as clean because every finding was skipped, ends the loop without a third round, and reports.",
+      "files": [],
+      "assertions": [
+        "The response does not run a third `codex review`.",
+        "The response says the review is clean, or the loop is over, because every finding was skipped and nothing changed.",
+        "The response reports both round 2 findings as skipped, with reasons tied to AGENTS.md."
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Decide whether to run a Codex review from this isolated context. Do not inspect the repository, run commands, or edit files. Answer with the decision and a brief reason.\n\nContext:\n- The only changed file is `apps/website/content/docs/guide/cli.mdx`, where a typo was fixed.\n- No file under `packages/` or `examples/` changed.",
+      "expected_output": "Claude skips the Codex review because the change is docs-only.",
+      "files": [],
+      "assertions": [
+        "The response decides not to run a Codex review.",
+        "The response says the change is docs-only or trivial.",
+        "The response does not run or propose running `codex review`."
+      ]
+    }
+  ]
+}
