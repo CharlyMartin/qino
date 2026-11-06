@@ -1,5 +1,11 @@
 # @qino/cms
 
+## 0.17.1
+
+### Patch Changes
+
+- [#286](https://github.com/CharlyMartin/qino/pull/286) [`9fc3bbb`](https://github.com/CharlyMartin/qino/commit/9fc3bbbb5402a52475cb51b8e974a000d6f76ba7) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Fixes `qino check` scanning `node_modules` for media references when `contentFolder` is `"."`. Trees also skip `node_modules` and dot-folders such as `.git`
+
 ## 0.17.0
 
 ### Minor Changes
