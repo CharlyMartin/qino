@@ -42,6 +42,16 @@ No test runner is configured yet — pick one when introducing the first package
 3. Only use `===` when necessary, when types don't match and you want to avoid coercion, for instance. When types match, use `==`.
 4. Don't inline types. Declare them as named types outside the function (e.g. `type CheckOptions = { … }`) and reference them in the signature or body, for readability.
 
+## Definition of done
+
+A code change is done once it's in an open pull request. Go through these steps in order, without asking the user between them:
+
+1. Write the code, and fix it until `pnpm test`, `pnpm check-types` and `pnpm biome check .` pass.
+2. Run the `codex-review` skill. It has Codex review the diff, applies the relevant findings, and repeats until a review is clean.
+3. Run the `ship` skill. It commits the work in small logical commits, pushes the branch and opens a PR with a description.
+
+If the review loop hits its round limit with findings still open, stop before step 3 and report to the user. Skip steps 2 and 3 for docs-only or trivial changes, or when the user asked for something else, like a change to try out without committing.
+
 <!-- BEGIN:turborepo-agent-rules -->
 
 # This is NOT the Turborepo you know

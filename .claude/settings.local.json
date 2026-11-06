@@ -18,7 +18,12 @@
       "Bash(gh pr *)",
       "Bash(git ls-tree *)",
       "Bash(npm view *)",
-      "Bash(npm diff *)"
+      "Bash(npm diff *)",
+      "Bash(codex review *)",
+      "Bash(git switch *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }
