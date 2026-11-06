@@ -81,6 +81,26 @@ describe("findMissingMedia", () => {
     ).toEqual([]);
   });
 
+  test("ignores node_modules", async () => {
+    const pkg = nodePath.join(contentFolder, "node_modules/pkg");
+    await fs.mkdir(pkg, { recursive: true });
+    await fs.writeFile(
+      nodePath.join(pkg, "README.md"),
+      "![](/images/missing.png)\n",
+    );
+    await fs.writeFile(
+      nodePath.join(contentFolder, "posts/hello.md"),
+      "![](/images/a.png)\n",
+    );
+
+    expect(
+      await findMissingMedia({
+        contentFolder,
+        mediaFolder: folder,
+      }),
+    ).toEqual([]);
+  });
+
   test("names the MDX file when it cannot be parsed", async () => {
     const mdx = nodePath.join(contentFolder, "broken.mdx");
     await fs.writeFile(mdx, "<Image src=");
