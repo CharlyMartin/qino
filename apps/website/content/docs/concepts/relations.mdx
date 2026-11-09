@@ -87,7 +87,7 @@ relations: {
 
 Return `undefined` to read the value as a content path as is, so values that already follow the convention, like those the [cloud UI](/docs/guide/cloud) writes, keep working.
 
-`ctx`, the second argument, holds `sourceFilePath`, the file the value is written in, the relation's `path`, and `target`, where the target's files live. Take a vault set up with `initQino({ contentFolder: "vault", mediaFolder: "vault/attachments" })` and this post:
+`ctx`, the second argument, holds `sourceFilePath`, the file the value is written in, `fieldPath`, the relation's path as declared, and `target`, where the target's files live. Take a vault set up with `initQino({ contentFolder: "vault", mediaFolder: "vault/attachments" })` and this post:
 
 ```md title="vault/posts/Hello World.md"
 ---
@@ -105,7 +105,7 @@ Reading `author` takes four steps:
    ```ts
    {
      sourceFilePath: "vault/posts/Hello World.md", // where the link is written
-     path: "author",
+     fieldPath: "author", // the field that holds it
      target: {
        is: "collection",
        contentFolder: "vault",
@@ -120,12 +120,12 @@ Reading `author` takes four steps:
 
 A wikilink only needs `target`. `sourceFilePath` is there for values relative to the file they're written in, such as `"../authors/jane.md"`, and for error messages.
 
-`"categories[*]"`, a tree, calls `parse` once per element, with `"[[Design]]"` then `"[[Tooling]]"`. `path` is the declared path, not the element's index:
+`"categories[*]"`, a tree, calls `parse` once per element, with `"[[Design]]"` then `"[[Tooling]]"`. `fieldPath` is the declared path, not the element's index:
 
 ```ts
 {
   sourceFilePath: "vault/posts/Hello World.md",
-  path: "categories[*]",
+  fieldPath: "categories[*]",
   target: {
     is: "tree",
     contentFolder: "vault",
@@ -140,7 +140,7 @@ A wikilink only needs `target`. `sourceFilePath` is there for values relative to
 ```ts
 {
   sourceFilePath: "vault/posts/Hello World.md",
-  path: "site",
+  fieldPath: "site",
   target: { is: "item", contentFolder: "vault", file: "settings.json" },
 }
 ```

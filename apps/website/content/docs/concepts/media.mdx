@@ -67,7 +67,7 @@ media: {
 
 The URL it returns replaces the value: it's the `src` of an image field, and the string of any other media field. Rules and `qino check` apply to it. Return `undefined` to keep the value as is. The `MediaParse` type types a callback declared on its own. `markdown` rules have no `parse`: body images are read as written.
 
-`ctx`, the second argument, holds `sourceFilePath`, the file the value is written in, the field's `path`, and `mediaFolder`, where the files live. For this post, with `initQino({ contentFolder: "vault", mediaFolder: "vault/attachments" })` and a `parse` on `cover` and `"gallery[*]"`:
+`ctx`, the second argument, holds `sourceFilePath`, the file the value is written in, `fieldPath`, the field's path as declared, and `mediaFolder`, where the files live. For this post, with `initQino({ contentFolder: "vault", mediaFolder: "vault/attachments" })` and a `parse` on `cover` and `"gallery[*]"`:
 
 ```md title="vault/posts/Hello World.md"
 ---
@@ -84,7 +84,7 @@ Reading `cover` takes four steps:
    ```ts
    {
      sourceFilePath: "vault/posts/Hello World.md", // where the embed is written
-     path: "cover",
+     fieldPath: "cover", // the field that holds it
      mediaFolder: "vault/attachments",
    }
    ```
@@ -92,12 +92,12 @@ Reading `cover` takes four steps:
 3. `parse` returns `"/cover.png"`, the URL the file is served at.
 4. qino reads `vault/attachments/cover.png`, checks it against the rule, and `post.cover` is its `QinoImage`, with `src: "/cover.png"`.
 
-`parse` for `"gallery[*]"` runs once per element, with `"[[one.png]]"` then `"[[two.png]]"`. `path` is the declared path, not the element's index:
+`parse` for `"gallery[*]"` runs once per element, with `"[[one.png]]"` then `"[[two.png]]"`. `fieldPath` is the declared path, not the element's index:
 
 ```ts
 {
   sourceFilePath: "vault/posts/Hello World.md",
-  path: "gallery[*]",
+  fieldPath: "gallery[*]",
   mediaFolder: "vault/attachments",
 }
 ```
