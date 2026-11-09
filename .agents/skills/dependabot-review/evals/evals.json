@@ -1,0 +1,43 @@
+{
+  "skill_name": "dependabot-review",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Review this Dependabot PR from this isolated context. Do not inspect the repository, run commands, or edit files. Write the review you would give the user.\n\nContext:\n- PR #301: `build(deps): bump js-yaml from 5.5.0 to 5.6.0`.\n- Changed files: `packages/cms/package.json` (`dependencies`), `pnpm-lock.yaml`.\n- Release notes: `fix: quote strings that look like numbers when dumping (#940)`; `feat: add a maxAliasCount option to load (#935)`.\n- `@qino/cms` calls `yaml.load` in `packages/cms/src/parse-frontmatter.ts` and never calls `dump`.\n- CI is green and Vercel deployed a preview.",
+      "expected_output": "Claude recommends merge with no checks, rates the risk low or none, says `dump` is unused, and doesn't ask for a changeset.",
+      "files": [],
+      "assertions": [
+        "The recommendation is `merge`.",
+        "The risk for js-yaml is `low` or `none`.",
+        "The dump fix is marked as not affecting Qino because `dump` is unused.",
+        "There are no manual checks.",
+        "The response does not require a changeset.",
+        "The response does not merge, approve or comment on the PR."
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Review this Dependabot PR from this isolated context. Do not inspect the repository, run commands, or edit files. Write the review you would give the user.\n\nContext:\n- PR #302: `build(deps): bump picomatch from 4.0.7 to 4.0.8`.\n- Changed files: `packages/cms/package.json` (`dependencies`), `pnpm-lock.yaml`.\n- Release notes: `security: fix ReDoS in brace expansion (GHSA-xxxx-yyyy-zzzz)`.\n- `@qino/cms` matches user-supplied collection globs with `picomatch` in `packages/cms/src/match-files.ts`.\n- CI is green.",
+      "expected_output": "Claude flags a security fix in a code path Qino uses, asks for a `@qino/cms` patch changeset naming the GHSA, and doesn't recommend a plain merge.",
+      "files": [],
+      "assertions": [
+        "The recommendation is `merge-verify` or `investigate`, not `merge`.",
+        "The change is recorded as `security` with the GHSA ID.",
+        "The response says a `@qino/cms` patch changeset is needed and that it should mention the GHSA.",
+        "The response names `packages/cms/src/match-files.ts` as where the package is used."
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Review this Dependabot PR from this isolated context. Do not inspect the repository, run commands, or edit files. Write the review you would give the user.\n\nContext:\n- PR #303: `build(deps-dev): bump vitest from 5.0.5 to 5.1.0`.\n- Changed files: `packages/cms/package.json`, `packages/tooling/package.json`, `apps/website/package.json` (all `devDependencies`), `pnpm-lock.yaml`.\n- The `test` CI check failed: 3 tests in `packages/cms` time out.\n- Release notes: `feat: lower the default testTimeout from 5000ms to 2000ms`.",
+      "expected_output": "Claude recommends investigate because CI failed, ties the failure to the new default timeout, and gives a concrete next step.",
+      "files": [],
+      "assertions": [
+        "The recommendation is `investigate`.",
+        "The failing `test` check is given as the reason.",
+        "The response links the timeouts to the lowered default `testTimeout`.",
+        "The response does not ask for a changeset."
+      ]
+    }
+  ]
+}
