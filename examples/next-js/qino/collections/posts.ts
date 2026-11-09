@@ -43,9 +43,6 @@ export const postCollection = qino.defineCollection({
     sortableBy: ["title", "created-on"],
     media: { saveFileAs: "posts/{field}/{name}-{hash}" },
   },
-  views: (view) => ({
-    default: view({ resolveRelations: 1 }),
-  }),
 });
 
 type PostConfig = Infer<typeof postCollection>;
