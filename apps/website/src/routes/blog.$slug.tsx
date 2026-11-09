@@ -5,6 +5,7 @@ import { MDXRemote } from "next-mdx-remote";
 import { PostAuthor } from "../components/blog/post-author";
 import { PostMeta } from "../components/blog/post-meta";
 import { PostNotFound } from "../components/blog/post-not-found";
+import { PostUpdatedOn } from "../components/blog/post-updated-on";
 import { mdxComponents } from "../components/docs/mdx-components";
 import { ButtonLink } from "../components/marketing/button-link";
 import { Text } from "../components/marketing/text";
@@ -23,7 +24,7 @@ export const Route = createFileRoute("/blog/$slug")({
   head: ({ loaderData, params }) => {
     if (!loaderData) return { meta: notFoundMeta };
 
-    const { title, description, publishedOn, author } = loaderData;
+    const { title, description, publishedOn, updatedOn, author } = loaderData;
     const path = `/blog/${params.slug}`;
     const head = getPageHead({
       title: `${title} | qino`,
@@ -38,6 +39,7 @@ export const Route = createFileRoute("/blog/$slug")({
           url: `${site.url}${path}`,
           image: `${site.url}${site.ogImage}`,
           datePublished: publishedOn,
+          dateModified: updatedOn ?? publishedOn,
           author: {
             "@type": "Person",
             name: author.name,
@@ -60,6 +62,9 @@ export const Route = createFileRoute("/blog/$slug")({
         ...head.meta,
         { name: "author", content: author.name },
         { property: "article:published_time", content: publishedOn },
+        ...(updatedOn
+          ? [{ property: "article:modified_time", content: updatedOn }]
+          : []),
       ],
     };
   },
@@ -68,7 +73,7 @@ export const Route = createFileRoute("/blog/$slug")({
 });
 
 function BlogPostPage() {
-  const { title, description, publishedOn, author, _stats, mdx } =
+  const { title, description, publishedOn, updatedOn, author, _stats, mdx } =
     Route.useLoaderData();
 
   return (
@@ -84,11 +89,12 @@ function BlogPostPage() {
       <div className="prose prose-invert max-w-none">
         <MDXRemote {...mdx} components={mdxComponents} />
       </div>
-      <footer className="mt-12 border-t pt-8">
+      <footer className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t pt-8">
         <ButtonLink to="/blog" variant="outline" size="sm">
           <ArrowLeftIcon className="size-4" aria-hidden="true" />
           All Posts
         </ButtonLink>
+        {updatedOn && <PostUpdatedOn updatedOn={updatedOn} />}
       </footer>
     </article>
   );

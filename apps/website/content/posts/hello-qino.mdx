@@ -2,6 +2,7 @@
 title: hello-world.md
 description: Announcing qino, the flat-file CMS that turns Markdown into TypeScript.
 published-on: "2026-10-07"
+updated-on: "2026-11-09"
 author: "authors/charly.json"
 ---
 
@@ -29,7 +30,7 @@ You describe your content once:
 
 ```ts
 const postCollection = qino.defineCollection({
-  directory: "/posts",
+  directory: "posts",
   extension: ".md",
   schema: z.object({
     title: z.string(),
@@ -40,9 +41,6 @@ const postCollection = qino.defineCollection({
     author: authorCollection,
     "categories[*]": categoryCollection,
   },
-  views: (view) => ({
-    default: view({ resolveRelations: 1 }),
-  }),
 });
 ```
 
