@@ -13,13 +13,21 @@ export const getPost = createServerFn({ method: "GET" })
     const slugs = await postCollection.getAllSlugs();
     if (!slugs.includes(slug)) throw notFound();
 
-    const { title, description, publishedOn, author, markdown, _stats } =
-      await postCollection.getEntry(slug);
+    const {
+      title,
+      description,
+      publishedOn,
+      updatedOn,
+      author,
+      markdown,
+      _stats,
+    } = await postCollection.getEntry(slug);
 
     return {
       title,
       description,
       publishedOn,
+      updatedOn,
       author,
       _stats,
       mdx: await serializeMdx(markdown),

@@ -12,6 +12,7 @@ export const postCollection = qino.defineCollection({
       title: z.string(),
       description: z.string(),
       "published-on": z.iso.date(),
+      "updated-on": z.iso.date().optional(),
       author: z.string(),
     })
     .strict()

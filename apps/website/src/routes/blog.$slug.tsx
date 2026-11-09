@@ -23,7 +23,7 @@ export const Route = createFileRoute("/blog/$slug")({
   head: ({ loaderData, params }) => {
     if (!loaderData) return { meta: notFoundMeta };
 
-    const { title, description, publishedOn, author } = loaderData;
+    const { title, description, publishedOn, updatedOn, author } = loaderData;
     const path = `/blog/${params.slug}`;
     const head = getPageHead({
       title: `${title} | qino`,
@@ -38,6 +38,7 @@ export const Route = createFileRoute("/blog/$slug")({
           url: `${site.url}${path}`,
           image: `${site.url}${site.ogImage}`,
           datePublished: publishedOn,
+          dateModified: updatedOn ?? publishedOn,
           author: {
             "@type": "Person",
             name: author.name,
@@ -60,6 +61,9 @@ export const Route = createFileRoute("/blog/$slug")({
         ...head.meta,
         { name: "author", content: author.name },
         { property: "article:published_time", content: publishedOn },
+        ...(updatedOn
+          ? [{ property: "article:modified_time", content: updatedOn }]
+          : []),
       ],
     };
   },
@@ -68,13 +72,17 @@ export const Route = createFileRoute("/blog/$slug")({
 });
 
 function BlogPostPage() {
-  const { title, description, publishedOn, author, _stats, mdx } =
+  const { title, description, publishedOn, updatedOn, author, _stats, mdx } =
     Route.useLoaderData();
 
   return (
     <article className="mx-auto max-w-3xl">
       <header className="mb-12 flex flex-col items-start gap-3 border-b pb-8">
-        <PostMeta publishedOn={publishedOn} _stats={_stats} />
+        <PostMeta
+          publishedOn={publishedOn}
+          updatedOn={updatedOn}
+          _stats={_stats}
+        />
         <Title as="h1">{title}</Title>
         <Text size="lead">{description}</Text>
         <div className="pt-6">
