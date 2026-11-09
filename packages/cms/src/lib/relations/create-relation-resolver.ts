@@ -38,6 +38,7 @@ export function createRelationResolver(cache: ResolveCache) {
       path: relationKey,
       target: resolvedTarget,
       resolveDepth,
+      parse,
     } of getRelationTargets(relations)) {
       const viewDepth =
         viewDepths && Object.hasOwn(viewDepths, relationKey)
@@ -67,6 +68,7 @@ export function createRelationResolver(cache: ResolveCache) {
         setLeaf: async (leaf) => {
           return resolveRelationLeaf(leaf, {
             ...errorCtx,
+            parse,
             targetMeta: resolvedTarget[QinoPrimitiveMarker],
             resolveTargetReference: (slug) => {
               return resolveTargetReference(

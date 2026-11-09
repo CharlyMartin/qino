@@ -134,4 +134,84 @@ describe("resolveEntryMedia", () => {
       `posts/a.md: media "cover": "/images/missing.png" doesn't exist in "${tmp}".`,
     );
   });
+
+  describe("parse", () => {
+    const wikilink = (value: string) => {
+      const name = /^\[\[(.+)\]\]$/.exec(value)?.[1];
+      return name ? `/images/${encodeURIComponent(name)}` : undefined;
+    };
+
+    test("reads the URL parse returns and uses it as src", async () => {
+      const resolved = await resolve(
+        { cover: "[[my image.png]]", gallery: ["[[a.png]]", "/images/b.png"] },
+        {
+          cover: { ...image, parse: wikilink },
+          "gallery[*]": { ...image, parse: wikilink },
+        },
+      );
+
+      expect(resolved).toMatchObject({
+        cover: { src: "/images/my%20image.png", width: 16 },
+        gallery: [{ src: "/images/a.png" }, { src: "/images/b.png" }],
+      });
+    });
+
+    test("passes the file, path, and media folder", async () => {
+      const calls: Array<unknown> = [];
+      await resolve(
+        { cover: "/images/a.png" },
+        {
+          cover: {
+            ...image,
+            parse: (...args) => {
+              calls.push(args);
+              return undefined;
+            },
+          },
+        },
+      );
+
+      expect(calls).toEqual([
+        [
+          "/images/a.png",
+          {
+            sourceFilePath: "posts/a.md",
+            fieldPath: "cover",
+            mediaFolder: tmp,
+          },
+        ],
+      ]);
+    });
+
+    test("replaces the value of fields that aren't images", async () => {
+      expect(
+        await resolve(
+          { attachment: "[[guide.pdf]]", other: null },
+          {
+            attachment: {
+              accepted: "application/pdf",
+              maxSize: "1MB",
+              parse: wikilink,
+            },
+            other: {
+              accepted: "application/pdf",
+              maxSize: "1MB",
+              parse: wikilink,
+            },
+          },
+        ),
+      ).toEqual({ attachment: "/images/guide.pdf", other: null });
+    });
+
+    test("names the raw value when the parsed URL is missing", async () => {
+      await expect(
+        resolve(
+          { cover: "[[missing.png]]" },
+          { cover: { ...image, parse: wikilink } },
+        ),
+      ).rejects.toThrow(
+        /media "cover" \(parsed from "\[\[missing\.png\]\]"\): "\/images\/missing\.png" doesn't exist/,
+      );
+    });
+  });
 });

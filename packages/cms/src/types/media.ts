@@ -20,11 +20,33 @@ export type ImageMediaType = (typeof IMAGE_MEDIA_TYPES)[number];
 /** An exact MIME type, such as `"image/webp"` or `"application/pdf"`. */
 export type MediaType = ImageMediaType | (string & {});
 
-export type MediaFieldConfig = {
+export type MediaRule = {
   /** The one MIME type the field accepts, e.g. `"image/webp"`. */
   readonly accepted: MediaType;
   /** Maximum file size, e.g. `"5MB"` or `"600KB"`. */
   readonly maxSize: MediaSize;
+};
+
+export type MediaParseContext = {
+  /** The file the value was written in, not the file it points to. */
+  sourceFilePath: string;
+  /** The field's path as declared in `media`, e.g. `"gallery[*]"`, not the element's index. */
+  fieldPath: string;
+  mediaFolder: string;
+};
+
+/**
+ * Turns a raw value into a URL in `mediaFolder`, e.g. `"[[cover.jpg]]"` into
+ * `"/attachments/cover.jpg"`. Return `undefined` to read the value as a URL as
+ * is.
+ */
+export type MediaParse = (
+  value: string,
+  ctx: MediaParseContext,
+) => string | undefined;
+
+export type MediaFieldConfig = MediaRule & {
+  readonly parse?: MediaParse;
 };
 
 type MarkdownKey = typeof MARKDOWN_MEDIA_KEY;
@@ -45,7 +67,7 @@ export type MediaConfig<
   >]?: MediaFieldConfig;
 } & ([Ext] extends [".json"]
   ? unknown
-  : { readonly [K in MarkdownKey]?: ReadonlyArray<MediaFieldConfig> });
+  : { readonly [K in MarkdownKey]?: ReadonlyArray<MediaRule> });
 
 /** Flags keys of `media` that aren't paths to string fields. */
 export type CheckMediaKeys<
@@ -135,6 +157,6 @@ export type WithImages<T, Rels> = [TaggedPaths<Rels>] extends [never]
 export type AnyMediaConfig = {
   readonly [path: string]:
     | MediaFieldConfig
-    | ReadonlyArray<MediaFieldConfig>
+    | ReadonlyArray<MediaRule>
     | undefined;
 };

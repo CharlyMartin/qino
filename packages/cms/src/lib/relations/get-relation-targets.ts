@@ -10,14 +10,18 @@ export function getRelationTargets(relations: AnyRelations) {
   return Object.entries(relations).flatMap(([path, decl]) => {
     if (!decl) return [];
 
-    const { target, resolveDepth = DEFAULT_RESOLVE_DEPTH } =
-      "target" in decl ? decl : { target: decl };
+    const {
+      target,
+      resolveDepth = DEFAULT_RESOLVE_DEPTH,
+      parse,
+    } = "target" in decl ? decl : { target: decl, parse: undefined };
 
     return [
       {
         path,
         target: typeof target == "function" ? target() : target,
         resolveDepth,
+        parse,
       },
     ];
   });

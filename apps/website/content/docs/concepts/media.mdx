@@ -48,6 +48,62 @@ gallery:
 attachment: /files/guide.pdf
 ```
 
+## Custom formats
+
+When content can't store URLs, such as an Obsidian vault embedding `"[[cover.png]]"`, a field's `parse` turns each value into one. Point `mediaFolder` at the folder that holds the files:
+
+```ts title="qino/collections/posts.ts"
+media: {
+  cover: {
+    accepted: "image/png",
+    maxSize: "5MB",
+    parse: (value) => {
+      const name = /^\[\[(.+)\]\]$/.exec(value)?.[1];
+      return name ? `/${encodeURIComponent(name)}` : undefined; // "/cover.png"
+    },
+  },
+},
+```
+
+The URL it returns replaces the value: it's the `src` of an image field, and the string of any other media field. Rules and `qino check` apply to it. Return `undefined` to keep the value as is. The `MediaParse` type types a callback declared on its own. `markdown` rules have no `parse`: body images are read as written.
+
+`ctx`, the second argument, holds `sourceFilePath`, the file the value is written in, `fieldPath`, the field's path as declared, and `mediaFolder`, where the files live. For this post, with `initQino({ contentFolder: "vault", mediaFolder: "vault/attachments" })` and a `parse` on `cover` and `"gallery[*]"`:
+
+```md title="vault/posts/Hello World.md"
+---
+cover: "[[cover.png]]"
+gallery: ["[[one.png]]", "[[two.png]]"]
+---
+```
+
+Reading `cover` takes four steps:
+
+1. qino reads `vault/posts/Hello World.md` and finds `cover: "[[cover.png]]"`.
+2. It calls `parse("[[cover.png]]", ctx)`, with `ctx`:
+
+   ```ts
+   {
+     sourceFilePath: "vault/posts/Hello World.md", // where the embed is written
+     fieldPath: "cover", // the field that holds it
+     mediaFolder: "vault/attachments",
+   }
+   ```
+
+3. `parse` returns `"/cover.png"`, the URL the file is served at.
+4. qino reads `vault/attachments/cover.png`, checks it against the rule, and `post.cover` is its `QinoImage`, with `src: "/cover.png"`.
+
+`parse` for `"gallery[*]"` runs once per element, with `"[[one.png]]"` then `"[[two.png]]"`. `fieldPath` is the declared path, not the element's index:
+
+```ts
+{
+  sourceFilePath: "vault/posts/Hello World.md",
+  fieldPath: "gallery[*]",
+  mediaFolder: "vault/attachments",
+}
+```
+
+Paths are relative to the working directory, as passed to `initQino`. `parse` runs each time an entry is read, and when `qino check` checks media.
+
 ## Image fields
 
 A field is an image field when it accepts a type Next imports as an image: `image/png`, `image/jpeg`, `image/gif`, `image/webp`, `image/avif`, or `image/svg+xml`. BMP and ICO files stay strings: sharp can't read them. When an entry is read, qino reads the image from `mediaFolder` and replaces its URL with a `QinoImage`:

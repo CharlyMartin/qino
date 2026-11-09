@@ -1,6 +1,11 @@
 import type { Depth } from "./resolve";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
-import type { AnyPrimitive, JsonPathArray } from "./utils";
+import type {
+  AnyPrimitive,
+  ContentPath,
+  JsonPathArray,
+  SupportedFileExtension,
+} from "./utils";
 
 export type RelationPath<T, Prefix extends string = ""> =
   NonNullable<T> extends string
@@ -18,10 +23,39 @@ export type RelationPath<T, Prefix extends string = ""> =
 
 export type RelationTarget = AnyPrimitive | (() => AnyPrimitive);
 
+/** Where a relation's target lives, to build a content path from. */
+export type RelationParseTarget =
+  | {
+      is: "collection" | "tree";
+      contentFolder: string;
+      directory: ContentPath;
+      extension: SupportedFileExtension;
+    }
+  | { is: "item"; contentFolder: string; file: ContentPath };
+
+export type RelationParseContext = {
+  /** The file the value was written in, not the file it points to. */
+  sourceFilePath: string;
+  /** The field's path as declared in `relations`, e.g. `"categories[*]"`, not the element's index. */
+  fieldPath: string;
+  target: RelationParseTarget;
+};
+
+/**
+ * Turns a raw value into a content path, e.g. `"[[Jane Doe]]"` into
+ * `"authors/Jane Doe.md"`. Return `undefined` to read the value as a content
+ * path as is.
+ */
+export type RelationParse = (
+  value: string,
+  ctx: RelationParseContext,
+) => string | undefined;
+
 export type RelationConfig = {
   target: RelationTarget;
   /** Hops this relation resolves when a view uses each relation's own depth. Defaults to 1; 0 keeps the string. */
   resolveDepth?: Depth;
+  parse?: RelationParse;
 };
 
 /** A target, or a target with options. */

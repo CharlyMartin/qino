@@ -5,6 +5,7 @@ import { lookup } from "mrmime";
 
 import { MARKDOWN_MEDIA_KEY } from "../../data/globals";
 import type { AnyMediaConfig, MediaFieldConfig } from "../../types/media";
+import { applyParse } from "../parse/apply-parse";
 import { parsePath } from "../relations/parse-path";
 import { walkAndSet } from "../relations/walk-and-set";
 import { describeMediaMismatch } from "./describe-media-mismatch";
@@ -25,7 +26,7 @@ type ResolveEntryMediaParams<Entry> = {
  * Replaces the URL of each image field with its `QinoImage`: dimensions and a
  * blur placeholder, read from `mediaFolder`. Fails when the file isn't of the
  * field's `accepted` type or is over its `maxSize`. Other media fields stay
- * strings.
+ * strings. A field's `parse` runs first, and its URL replaces the raw value.
  */
 export async function resolveEntryMedia<Entry>({
   entry,
@@ -39,8 +40,27 @@ export async function resolveEntryMedia<Entry>({
     // `markdown` is the only list; it checks the body in `qino check`.
     if (path == MARKDOWN_MEDIA_KEY || config == undefined) continue;
 
-    const { accepted, maxSize } = config as MediaFieldConfig;
-    if (!isImageMediaType(accepted)) continue;
+    const { accepted, maxSize, parse } = config as MediaFieldConfig;
+    const segments = parsePath(path);
+    const parseLeaf = (leaf: string) =>
+      applyParse({
+        value: leaf,
+        parse,
+        ctx: { sourceFilePath: filePath, fieldPath: path, mediaFolder },
+        owner: `${filePath}: media "${path}"`,
+      });
+
+    if (!isImageMediaType(accepted)) {
+      if (parse) {
+        value = await walkAndSet({
+          value,
+          segments,
+          setLeaf: async (leaf) =>
+            typeof leaf == "string" ? parseLeaf(leaf) : leaf,
+        });
+      }
+      continue;
+    }
 
     const maxBytes = parseSize(maxSize);
     if (maxBytes == undefined) {
@@ -51,18 +71,21 @@ export async function resolveEntryMedia<Entry>({
 
     value = await walkAndSet({
       value,
-      segments: parsePath(path),
+      segments,
       async setLeaf(leaf) {
         if (leaf == null) return leaf;
 
-        const prefix = `${filePath}: media "${path}"`;
-        if (typeof leaf != "string" || !isLocalMediaUrl(leaf)) {
+        const url = typeof leaf == "string" ? parseLeaf(leaf) : leaf;
+        const parsedFrom =
+          url == leaf ? "" : ` (parsed from ${JSON.stringify(leaf)})`;
+        const prefix = `${filePath}: media "${path}"${parsedFrom}`;
+        if (typeof url != "string" || !isLocalMediaUrl(url)) {
           throw new Error(
-            `${prefix} must be a URL in mediaFolder, starting with "/". Got ${JSON.stringify(leaf)}.`,
+            `${prefix} must be a URL in mediaFolder, starting with "/". Got ${JSON.stringify(url)}.`,
           );
         }
 
-        const mediaPath = normalizeMediaUrl(leaf);
+        const mediaPath = normalizeMediaUrl(url);
         const absolutePath = nodePath.join(mediaFolder, mediaPath);
         let mismatch: string | undefined;
 
@@ -73,18 +96,18 @@ export async function resolveEntryMedia<Entry>({
             size,
             rules: [{ accepted, maxSize: maxBytes }],
           });
-          if (!mismatch) return await getImageData(absolutePath, leaf);
+          if (!mismatch) return await getImageData(absolutePath, url);
         } catch (cause) {
           const message =
             (cause as NodeJS.ErrnoException)?.code == "ENOENT"
-              ? `"${leaf}" doesn't exist in "${mediaFolder}".`
+              ? `"${url}" doesn't exist in "${mediaFolder}".`
               : cause instanceof Error
                 ? cause.message
                 : String(cause);
           throw new Error(`${prefix}: ${message}`, { cause });
         }
 
-        throw new Error(`${prefix}: "${leaf}" ${mismatch}`);
+        throw new Error(`${prefix}: "${url}" ${mismatch}`);
       },
     });
   }
