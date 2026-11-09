@@ -48,6 +48,25 @@ gallery:
 attachment: /files/guide.pdf
 ```
 
+## Custom formats
+
+When content can't store URLs, such as an Obsidian vault embedding `"[[cover.png]]"`, a field's `parse` turns each value into one. Point `mediaFolder` at the folder that holds the files:
+
+```ts title="qino/collections/posts.ts"
+media: {
+  cover: {
+    accepted: "image/png",
+    maxSize: "5MB",
+    parse: (value) => {
+      const name = /^\[\[(.+)\]\]$/.exec(value)?.[1];
+      return name ? `/${encodeURIComponent(name)}` : undefined; // "/cover.png"
+    },
+  },
+},
+```
+
+The URL it returns replaces the value: it's the `src` of an image field, and the string of any other media field. Rules and `qino check` apply to it. Return `undefined` to keep the value as is. `ctx`, the second argument, holds `filePath`, the field's `path`, and `mediaFolder`. The `MediaParse` type types a callback declared on its own. `markdown` rules have no `parse`: body images are read as written.
+
 ## Image fields
 
 A field is an image field when it accepts a type Next imports as an image: `image/png`, `image/jpeg`, `image/gif`, `image/webp`, `image/avif`, or `image/svg+xml`. BMP and ICO files stay strings: sharp can't read them. When an entry is read, qino reads the image from `mediaFolder` and replaces its URL with a `QinoImage`:

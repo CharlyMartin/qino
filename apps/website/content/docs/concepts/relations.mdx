@@ -48,10 +48,11 @@ relations: {
 },
 ```
 
-| Option         | Type                           | Default | Description                                                  |
-| -------------- | ------------------------------ | ------- | ------------------------------------------------------------ |
-| `target`       | primitive or `() => primitive` |         | The primitive the field points at                            |
-| `resolveDepth` | `0` to `6`                     | `1`     | Hops this relation resolves. `0` keeps the string. See below |
+| Option         | Type                                  | Default | Description                                                           |
+| -------------- | ------------------------------------- | ------- | --------------------------------------------------------------------- |
+| `target`       | primitive or `() => primitive`        |         | The primitive the field points at                                     |
+| `resolveDepth` | `0` to `6`                            | `1`     | Hops this relation resolves. `0` keeps the string. See below          |
+| `parse`        | `(value, ctx) => string \| undefined` |         | Reads values in another format. See [Custom formats](#custom-formats) |
 
 All related primitives must come from the same `initQino` instance.
 
@@ -66,6 +67,33 @@ categories:
 ```
 
 The directory and extension must match the target. Item targets must equal the item's `file`. Bare slugs and leading slashes are rejected with a message that names the expected value. Root paths that go through the content folder, such as `src/content/authors/camille-laurent.json`, are accepted too. See [Content paths](/docs/guide/content-folder#content-paths).
+
+## Custom formats
+
+When content can't store content paths, such as an Obsidian vault linking notes with `"[[Jane Doe]]"`, `parse` turns each value into one. qino then checks and reads the path it returns as usual:
+
+```ts title="qino/collections/posts.ts"
+relations: {
+  author: {
+    target: authorCollection,
+    parse: (value, { target }) => {
+      const name = /^\[\[(.+)\]\]$/.exec(value)?.[1];
+      if (!name || target.is == "item") return undefined;
+      return `${target.directory}/${name}${target.extension}`; // "authors/Jane Doe.md"
+    },
+  },
+},
+```
+
+Return `undefined` to read the value as a content path as is, so values that already follow the convention, like those the [cloud UI](/docs/guide/cloud) writes, keep working.
+
+`ctx` holds:
+
+- `filePath`: the file the value was read from.
+- `path`: the relation's path, such as `"categories[*]"`.
+- `target`: where the target lives. `{ is, contentFolder, directory, extension }` for a collection or tree, `{ is: "item", contentFolder, file }` for an item.
+
+`parse` runs when the relation resolves. A relation that stays a string keeps the raw value, such as `"[[Jane Doe]]"`. Errors about the returned path name the raw value too. The `RelationParse` type types a callback declared on its own.
 
 ## Resolving
 
