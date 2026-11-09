@@ -1,6 +1,6 @@
 ---
 name: dependabot-review
-description: Review Dependabot PRs in the Qino monorepo and say, for every bumped package, whether merging needs any action beyond clicking merge. Use when asked to review, triage or check Dependabot PRs or dependency bumps.
+description: Dependabot PR review. Use when asked to review Dependabot PRs or dependency bumps.
 metadata:
   internal: true
 ---
@@ -26,17 +26,19 @@ gh pr view <n> --json title,body,files,statusCheckRollup,comments
 gh pr diff <n>
 ```
 
+Done when you have the context and diff of every PR in scope.
+
 ## 2. Identify the packages being bumped
 
-Parse `{ name, from, to }` from the title and body. `.github/dependabot.yml` groups `react`/`react-dom` and `@tanstack/*`, so a group PR bumps several packages: review each one. `@types/node` is ignored on purpose.
+Parse `{ name, from, to }` from the title, the body and the diff. `.github/dependabot.yml` groups `react`/`react-dom` and `@tanstack/*`, so a group PR bumps several packages. With `versioning-strategy: increase`, Dependabot can also rewrite a range, such as `@qino/tooling`'s `zod` peer dependency.
 
-The diff shows which `package.json` changed. With `versioning-strategy: increase`, Dependabot can also rewrite a range, such as `@qino/tooling`'s `zod` peer dependency.
+Done when every package the diff bumps has a `{ name, from, to }`.
 
 ## 3. Extract what changed
 
-Dependabot puts release notes, changelogs and commits in the PR body. Use them first. When they're missing or cut off, try `gh release view <tag> --repo <owner>/<repo>`, then `npm view <name>@<to>`. If there's still nothing, record no changes.
+Dependabot puts release notes, changelogs and commits in the PR body. Use them first. When they're missing or cut off, try `gh release view <tag> --repo <owner>/<repo>`, then `npm view <name>@<to>`.
 
-Record only changes that could matter to a consumer, each with a kind:
+Record the changes that could matter to Qino, each with a kind:
 
 | Kind       | Use for                                                         |
 | ---------- | --------------------------------------------------------------- |
@@ -46,11 +48,13 @@ Record only changes that could matter to a consumer, each with a kind:
 | `fix`      | Bug fixes, especially ones that change output Qino relies on    |
 | `feature`  | New exports, methods, or options                                |
 
-Skip internal refactors, CI, tests, docs, and type-only changes that don't change emitted JS.
+A type-only change counts only when it changes emitted JS.
+
+Done when every package has its changes recorded, or "no changes" once every source came up empty.
 
 ## 4. Find how Qino uses each package
 
-**Don't skip this step.** Where the bump lands decides who it reaches:
+Where the bump lands decides who it reaches:
 
 | Where                              | Who it reaches                                                         |
 | ---------------------------------- | ---------------------------------------------------------------------- |
@@ -62,7 +66,9 @@ Skip internal refactors, CI, tests, docs, and type-only changes that don't chang
 | Root `package.json`                | Repo tooling: `turbo`, `biome`, `prettier`, `changesets`, `typescript` |
 | `pnpm-lock.yaml` only (transitive) | Whoever pulls it in: find out with `pnpm why <name> -r`                |
 
-Then find the callsites: `grep -rn "<name>" --include="*.ts" --include="*.tsx" packages apps examples`, skipping `node_modules`. For each recorded change, decide whether it touches an API or code path Qino actually calls.
+Then find the callsites with `grep -rn "<name>" --include="*.ts" --include="*.tsx" packages apps examples`, and decide for each recorded change whether it touches an API or code path Qino actually calls.
+
+Done when every recorded change has an "affects us" answer backed by a file path, or by a search that found no callsite.
 
 ## 5. Rate the risk of each package
 
@@ -75,28 +81,39 @@ Rate the **change**, not the package. `unified` parses every entry, but a bump i
 | `medium` | A used API changed behavior: parsed entries from `@qino/cms`, the website's rendered pages, or `dist/` |
 | `high`   | A breaking change hits an API Qino uses, or a security fix in a code path Qino uses                    |
 
-CI runs on every PR: `pnpm install --frozen-lockfile`, `pnpm build` (which runs `qino build` and builds the website and the example), `pnpm check-types`, `pnpm biome check .`, `check-dist` for both packages (`publint`, `attw`, importing `dist/`), and `pnpm test`. Vercel deploys a preview of the website. Don't raise the risk for problems these catch. Raise it only for problems they can't, such as:
+CI runs on every PR: `pnpm install --frozen-lockfile`, `pnpm build` (which runs `qino build` and builds the website and the example), `pnpm check-types`, `pnpm biome check .`, `check-dist` for both packages (`publint`, `attw`, importing `dist/`), and `pnpm test`. Vercel deploys a preview of the website. Raise the risk only for CI's **blind spots**:
 
 - Different output for the same content: parsed Markdown/MDX, frontmatter values, glob matches, image metadata
 - What visitors see on the website: highlighting, headings, links, styles
 - Markdown formatting from a `prettier` bump: CI doesn't run `pnpm format:check`
 - A `peerDependencies` range that changed what users must install
 
-Check the CI status in `statusCheckRollup`. If a check failed, read its log with `gh run view <run-id> --log-failed`: a failing PR is `investigate`, with the failure as the reason. One failure is expected: `pnpm install` rejects versions younger than `minimumReleaseAge` (3 days, in `pnpm-workspace.yaml`). Dependabot's cooldown keeps version updates past it, but a fresh security update fails there; suggest adding the package to `minimumReleaseAgeExclude`.
+Check the CI status in `statusCheckRollup`. If a check failed, read its log with `gh run view <run-id> --log-failed`. One failure is expected: `pnpm install` rejects versions younger than `minimumReleaseAge` (3 days, in `pnpm-workspace.yaml`). Dependabot's cooldown keeps version updates past it, but a fresh security update fails there; suggest adding the package to `minimumReleaseAgeExclude`.
+
+Done when every package has a risk and every PR's CI status is known.
 
 ## 6. Decide on a changeset
 
-Dependabot never adds one. A bump in `packages/*` `dependencies` usually needs none: it ships with the next release, like `es-toolkit` in #284. Add a `@qino/cms` patch changeset, with the `changeset` skill, only when users would notice the bump: a security fix (name the GHSA/CVE), a behavior change in parsed output, or a changed peer range. Then it's a check.
+Dependabot never adds one. A bump in `packages/*` `dependencies` usually needs none: it ships with the next release, like `es-toolkit` in #284. Add a `@qino/cms` patch changeset, with the `changeset` skill, only when users would notice the bump: a security fix (name the GHSA/CVE), a behavior change in parsed output, or a changed peer range.
 
-## 7. Choose the checks
+Done when every PR touching `packages/*` has a changeset decision.
 
-Checks are manual steps a human must do before merging, for problems CI can't catch. Each names the package, a concrete action, and where: a website route (`/docs/…`, `/blog/…`) on the Vercel preview from the PR comments, or a command.
+## 7. Choose the checks and the verdict
 
-- Good: "Open a docs page with a TypeScript code block, confirm highlighting kept its colors", where: `/docs/concepts/collections` on the preview
-- Good: "Run `pnpm format:check`, confirm no Markdown file is reformatted", where: repo root
-- Bad: "Spot-check pages", where: "the site"
+A check is a manual step that covers a blind spot from step 5. Each names the package, a concrete action, and where: a website route (`/docs/…`, `/blog/…`) on the Vercel preview from the PR comments, or a command.
 
-Leave the checks empty for `merge`. Don't add checks to be safe.
+- "Open a docs page with a TypeScript code block, confirm highlighting kept its colors", where: `/docs/concepts/collections` on the preview
+- "Run `pnpm format:check`, confirm no Markdown file is reformatted", where: repo root
+
+Each PR gets one verdict:
+
+| Verdict        | When                                                    |
+| -------------- | ------------------------------------------------------- |
+| `merge`        | No checks and no changeset                              |
+| `merge-verify` | At least one check, or a changeset to add first         |
+| `investigate`  | A `high` risk, or failing CI other than the release age |
+
+Done when every PR has a verdict, and every check names a package, an action and a where.
 
 ## 8. Report
 
@@ -114,25 +131,17 @@ One block per PR, most risky first:
 - `behavior`: `dts.entry` only filters entries (rolldown/tsdown#<n>). Affects us: No: `dts.entry` unset
 ```
 
-The recommendation is one of:
-
-| Recommendation | When                                                   |
-| -------------- | ------------------------------------------------------ |
-| `merge`        | No manual step needed; no checks                       |
-| `merge-verify` | Likely safe, but at least one check or changeset first |
-| `investigate`  | A high-risk change or failing CI; test before merging  |
-
 List the checks under the changes, as a checklist. End with a one-line summary across PRs, such as "4 merge, 1 merge-verify".
 
-Write fragments, not sentences. Reviewers scan this:
+Reviewers scan this, so write fragments that state facts:
 
 - Headline under 20 words: the verdict and the single reason for it
 - Why: 3 to 8 words. Each change: under 15 words, with the upstream PR number if known
-- Affects us: one concrete repo fact, or `No: <API> unused`
+- Affects us: one concrete repo fact, such as `No: compile() unused`
 - Used in: up to 3 file paths
 - At most 5 changes per package; keep the ones that matter most
-- Don't restate package names or versions outside the table. Don't hedge
+- Package names and versions live in the table only
 
-Good affects us: `No: compile() unused`. Bad: "This repository does not appear to use this API, so the change should not matter."
+Done when every PR has a block and every bumped package has a row.
 
 The report stays in the chat. Post it as a PR comment (`gh pr comment <n> --body-file -`), approve, or merge only when the user asks. Merging is squash-only: `gh pr merge <n> --squash`.
