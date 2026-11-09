@@ -4,4 +4,4 @@ packages:
   - "packages/*"
 allowBuilds:
   esbuild: true
-minimumReleaseAge: 10080 # 7 days, matching the Dependabot cooldown
+minimumReleaseAge: 4320 # 3 days, matching the Dependabot cooldown
