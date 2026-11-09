@@ -16,7 +16,7 @@
         "The PR is opened with `gh pr create --base main`, with a Conventional Commit title.",
         "The PR body names `getAncestorNodes` in backticks and mentions the docs, the example and the changeset.",
         "The PR body has no `Generated with Claude Code` line.",
-        "The PR is opened with `--body-file` pointing to a file, not with the body inline via `--body`.",
+        "The PR body is passed with `--body-file`, from a file or a quoted heredoc, not inline via `--body`.",
         "The PR body has no testing, verification or process section, and doesn't mention test runs or Codex review rounds.",
         "The final message to the user gives the PR URL, the list of commits, and the branch name."
       ]

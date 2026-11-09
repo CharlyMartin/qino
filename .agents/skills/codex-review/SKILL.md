@@ -1,76 +1,59 @@
 ---
 name: codex-review
-description: Use after finishing a code change in the Qino monorepo, once tests, types and Biome pass, to have Codex review the diff and apply the relevant findings, repeating until the review is clean. Also use when asked for a Codex review or a second opinion on a diff.
+description: Second-opinion review from Codex on a finished, green diff. Use at the end of a code change, or when asked for a Codex review.
 metadata:
   internal: true
 ---
 
 # Codex review
 
-Codex reviews the diff as a second opinion. You decide which findings are worth applying. Then Codex reviews again, and the loop repeats until a review is clean.
+Codex reviews the diff, you triage its findings, and the loop repeats until a review is clean. Run the rounds back to back: the report comes once, when the loop ends.
 
-**Do not end your turn, report back, or ask the user between rounds.** Go from one round to the next without stopping. Report only once the loop is over.
+## 1. Run Codex
 
-## When to skip
-
-- **Clean tree:** `git status --porcelain` is empty and the branch isn't ahead of `main`. Say there's nothing to review and don't call Codex.
-- **Docs-only or trivial changes:** for example `apps/website` content, a typo or a comment. There's no code worth reviewing.
-
-## Checks
-
-These must pass before the first round and after every round of fixes:
-
-- `pnpm test`
-- `pnpm check-types`
-- `pnpm biome check .`
-
-Fix any failures before calling Codex: it shouldn't spend time on problems the checks already catch.
-
-## Running Codex
+The checks from AGENTS.md are green before every round.
 
 Pick the scope:
 
 - Uncommitted work: `codex review --uncommitted "<prompt>" 2>/dev/null`
 - Committed work on a feature branch: `codex review --base main "<prompt>" 2>/dev/null`
 
-`2>/dev/null` drops Codex's progress logs, so only the review itself is left. It also hides errors: if the output is empty, run the command again without the redirect to see what went wrong.
+`2>/dev/null` drops Codex's progress logs, and its errors with them: if the output is empty, run the command again without the redirect to see the error.
 
-Use a Bash timeout of `600000`, because a review can take several minutes. Prompt for round 1:
+Use a Bash timeout of `600000`. Prompt for round 1:
 
 ```
-Focus on correctness bugs first: wrong behavior, missed edge cases, missing tests for important functions. Then check the conventions in AGENTS.md: one function per file named after it, inferred return types, `==` unless types differ, named types instead of inline ones.
+Focus on correctness bugs first: wrong behavior, missed edge cases, missing tests for important functions. Then check the AGENTS.md conventions.
 ```
 
-## Triage
-
-Check every finding against the code before you act on it. Codex can be wrong.
-
-- **Apply:** real bugs, missed edge cases, AGENTS.md violations, missing tests.
-- **Skip:** suggestions that go against AGENTS.md (adding explicit return types, swapping `==` for `===` when the types match, inlining types), speculative refactors, changes outside the task's scope, and claims you couldn't confirm.
-
-Give a short reason for every finding you skip. For convention suggestions, name the AGENTS.md rule they break.
-
-Apply the accepted fixes, then run the checks again until they pass.
-
-## The loop
-
-After each round of fixes, run Codex again right away with the round 1 prompt plus:
+From round 2 on, add:
 
 ```
 This is review round <n>, a follow-up review. Findings from earlier reviews were applied. Check that the fixes are correct and didn't introduce regressions. These findings were already considered and rejected, don't raise them again: <one line per skipped finding, with the reason>.
 ```
 
-**The review is clean** when Codex reports no findings, or when you skip every finding it reports. Since nothing changed in that round, another review would see the same diff. Stop the loop there.
+## 2. Triage
 
-**Stop after 5 rounds anyway.** If the review still isn't clean, it's probably going in circles: fixes are causing new findings, or Codex keeps raising the same point. Don't start a sixth round. List the open findings in the report and **don't continue to the next step of the workflow (committing and opening a PR)**. The user decides. Don't suggest shipping anyway as an option, for example with the finding handled in a follow-up: the user can ask for that themselves.
+Every finding gets **Applied** or **Skipped**, with a reason.
 
-## Report
+- **Apply:** bugs, missed edge cases, AGENTS.md violations, missing tests.
+- **Skip:** false positives, out-of-scope changes, and suggestions that contradict AGENTS.md, such as explicit return types, `===` on matching types or inline types. For those, name the AGENTS.md rule.
 
-Give one table per round:
+Apply the fixes, then get the checks green again.
+
+## 3. Loop until clean
+
+The review is **clean** when a round ends with nothing applied: Codex found nothing, or you skipped every finding. Then stop.
+
+The loop has a limit of 5 rounds. If round 5 isn't clean, stop there and report the review as **not clean**, with its open findings. The next move is the user's.
+
+## 4. Report
+
+One table per round:
 
 | Finding | Decision | Reason |
 | ------- | -------- | ------ |
 | …       | Applied  | …      |
 | …       | Skipped  | …      |
 
-End with the number of rounds, whether the review ended clean, and the final status of the checks.
+End with the number of rounds, **clean** or **not clean** (and, if not clean, that the 5-round limit was hit), and the status of the checks.

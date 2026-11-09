@@ -1,43 +1,33 @@
 ---
 name: ship
-description: Use in the Qino monorepo once a change is finished and its Codex review is clean, to commit the work in small logical commits, push the branch and open a pull request with a description. Also use when asked to commit, push, open a PR, or ship a change.
+description: Ship finished, reviewed work as a pull request. Use when a change is ready for a PR, or when asked to ship or open a PR.
 metadata:
   internal: true
 ---
 
 # Ship
 
-Turns finished work into a pull request: a branch, a few focused commits, a push, and a PR with a description.
+Ship when the checks from AGENTS.md are green and the Codex review is clean. If the change touches a published package in a way users notice, add a changeset first with the `changeset` skill.
 
-## Preconditions
+## 1. Branch
 
-- `pnpm test`, `pnpm check-types` and `pnpm biome check .` pass.
-- The `codex-review` loop ended clean. If it stopped at its round limit with open findings, don't ship: tell the user.
-- If the change touches a published package (`packages/*`) in a way users notice, a changeset exists. Use the `changeset` skill to add one first.
-
-## Branch
-
-Never commit to `main`. If you're on `main`, create a branch first:
+Work on a feature branch. If you're on `main`, create one named after the main change, in kebab case:
 
 ```sh
-git switch -c <type>/<short-slug>
+git switch -c <type>/<short-slug>   # e.g. feat/tree-get-entries-ancestors
 ```
 
-Use the type of the main change and a few words in kebab case, for example `feat/tree-get-entries-ancestors` or `fix/nested-folder-anchor`.
+## 2. Commit
 
-## Commits
-
-Split the work into small logical commits, each one a coherent step that would make sense to review on its own. For example:
+Make atomic commits. A typical split:
 
 1. The core change in `packages/*`, with its tests and changeset
 2. Docs in `apps/website`
 3. Usage in `examples/*`
 
-Don't split a function from its test, and don't make a commit that breaks the build. If the whole change is small, one commit is fine.
+A small change is one commit. Stage by path (`git add <paths>`). You're done when `git status` shows nothing from the task.
 
-Stage files by path (`git add <paths>`), never `git add -A` or `git add .`, so stray files don't slip in. Check `git status` after the last commit: nothing from the task should be left over.
-
-Commit messages follow Conventional Commits with a scope, matching the history:
+Subjects are Conventional Commits with a scope, like the history:
 
 ```
 feat(cms): add getEntries and getAncestors to trees
@@ -46,29 +36,31 @@ docs(website): document getEntries
 feat(examples): breadcrumbs on doc pages
 ```
 
-Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`. Scopes: `cms`, `tooling`, `website`, `examples`. Mark breaking changes with `!`, as in `feat(cms)!: …`. Use the imperative mood, lowercase, no trailing period. Add a body only when the why isn't obvious from the subject.
+Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`. Scopes: `cms`, `tooling`, `website`, `examples`. Breaking changes take `!`, as in `feat(cms)!: …`. Imperative, lowercase, no trailing period. Add a body only when the why isn't obvious from the subject.
 
-Don't add `Co-Authored-By` trailers or "Generated with Claude Code" lines to commits or PRs.
+Commit messages and PRs carry no `Co-Authored-By` trailers or "Generated with Claude Code" lines.
 
-## Push
+## 3. Push
 
 ```sh
 git push -u origin <branch>
 ```
 
-Never force push, and never push to `main`.
+Push without `--force`. If the push is rejected, stop and tell the user.
 
-## Pull request
+## 4. Open the PR
 
 ```sh
-gh pr create --base main --title "<title>" --body-file <file>
+gh pr create --base main --title "<title>" --body-file - <<'EOF'
+<body>
+EOF
 ```
 
-Write the body to a file in the scratchpad first, so Markdown and backticks survive the shell.
+The quoted heredoc keeps backticks in the body from running as shell commands.
 
-**Title:** a Conventional Commit subject for the whole PR, like `feat(cms): add getEntries and getAncestors to trees`. PRs are squash-merged, so the title becomes the commit on `main`.
+**Title:** a Conventional Commit subject for the whole PR. PRs are squash-merged, so it becomes the commit on `main`.
 
-**Body:** written for a reviewer. Lead with what the PR adds or fixes and why, naming the public APIs in backticks. Then a bullet list of the other changes. Example:
+**Body:** for a reviewer, about the change itself. Lead with what the PR adds or fixes and why, naming the public APIs in backticks, then list the other changes:
 
 ```md
 Adds two tree getters:
@@ -83,8 +75,8 @@ Also:
 - Changeset: `@qino/cms` minor.
 ```
 
-Add a short "Review" line when the Codex review led to fixes worth knowing about, or rejected findings a reviewer might raise again. Leave out test runs and process details.
+When the Codex review changed something worth knowing, or rejected a finding a reviewer might raise again, add a one-line "Review" note.
 
-## Report
+## 5. Report
 
-Give the user the PR URL, the list of commits, and the branch name.
+The PR URL, the list of commits, and the branch name.
