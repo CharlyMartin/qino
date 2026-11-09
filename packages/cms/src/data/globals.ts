@@ -48,6 +48,7 @@ export const BLURRABLE_MEDIA_TYPES = [
 export const BLUR_SIZE = 8;
 export const BLUR_QUALITY = 70;
 export const MAX_RESOLVE_DEPTH = 6;
+export const DEFAULT_RESOLVE_DEPTH = 1;
 export const SUPPORTED_CODE_EXTENSIONS = [
   ".ts",
   ".tsx",

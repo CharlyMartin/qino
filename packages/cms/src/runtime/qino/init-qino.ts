@@ -50,7 +50,7 @@ export function initQino(config: QinoConfig) {
     defineCollection<
       S extends ObjectSchema,
       Ext extends SupportedFileExtension,
-      Rels extends Relations<S> = object,
+      const Rels extends Relations<S> = object,
       Dir extends ContentPath = ContentPath,
       const Views extends object = object,
       const SaveEntryAs extends string = never,
@@ -81,7 +81,7 @@ export function initQino(config: QinoConfig) {
     defineItem<
       S extends ObjectSchema,
       F extends ItemFile,
-      Rels extends Relations<S> = object,
+      const Rels extends Relations<S> = object,
       const Views extends object = object,
       const Media extends MediaConfig<S, ExtractItemExtension<F>> = EmptyObject,
       const Stats extends boolean = false,
@@ -99,7 +99,7 @@ export function initQino(config: QinoConfig) {
       S extends ObjectSchema,
       Ext extends SupportedFileExtension,
       Title extends StringKeys<S>,
-      Rels extends Relations<S> = object,
+      const Rels extends Relations<S> = object,
       Dir extends ContentPath = ContentPath,
       const Views extends object = object,
       const SaveEntryAs extends string = never,

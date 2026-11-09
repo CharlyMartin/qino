@@ -5,13 +5,12 @@ import type {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../data/globals";
-import type { AugmentOutput } from "./augment";
 import type { PrimitiveCloudConfig } from "./cloud";
 import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
 import type { AnyMediaConfig } from "./media";
 import type { Relations } from "./relations";
-import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
+import type { ResolveDepths, ResolveEntry, UnresolvedMode } from "./resolve";
 import type { ObjectSchema } from "./schema";
 import type { SlugFor } from "./slug-registry";
 import type {
@@ -67,16 +66,14 @@ export type Collection<
   >;
 };
 
+// An entry as read, before a view resolves its relations.
 export type ResolvedCollectionView<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema>,
-  R extends ResolveOption,
-  Derived extends AugmentOutput = EmptyObject,
 > = Simplify<
   GeneratedFields<CollectionEntryMeta<Ext>> &
-    ResolveEntry<Schema, Rels, NormalizeDepth<R>> &
-    Derived
+    ResolveEntry<Schema, Rels, EmptyObject, UnresolvedMode>
 >;
 
 export type CollectionMeta<
@@ -91,16 +88,16 @@ export type CollectionMeta<
   readonly directory: ContentPath;
   readonly extension: Ext;
   readonly relations: Rels;
-  readonly resolveRelations: ResolveOption;
+  readonly resolveDepth: ResolveDepths;
   readonly media: AnyMediaConfig;
   readonly markdownStats: boolean;
   readonly cloud?: PrimitiveCloudConfig;
   readonly readEntries: () => Promise<
-    Array<ResolvedCollectionView<Schema, Ext, Rels, false>>
+    Array<ResolvedCollectionView<Schema, Ext, Rels>>
   >;
   readonly readEntry: (
     slug: Slug,
-  ) => Promise<ResolvedCollectionView<Schema, Ext, Rels, false>>;
+  ) => Promise<ResolvedCollectionView<Schema, Ext, Rels>>;
 };
 
 type AnyCollectionEntry = Record<string, unknown> & {

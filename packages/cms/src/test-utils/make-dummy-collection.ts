@@ -1,7 +1,7 @@
 import { QinoPrimitiveMarker, QinoPrimitives } from "../data/globals";
 import type { AnyCollection } from "../types/collection";
-import type { RelationTarget } from "../types/relations";
-import type { ResolveOption } from "../types/resolve";
+import type { AnyRelations } from "../types/relations";
+import type { ResolveDepths } from "../types/resolve";
 import type {
   AnyEntry,
   ContentPath,
@@ -14,7 +14,7 @@ type MakeDummyCollectionOptions = {
   directory: ContentPath;
   extension: SupportedFileExtension;
   store?: Map<string, AnyEntry>;
-  relations?: Record<string, RelationTarget | undefined>;
+  relations?: AnyRelations;
   instanceId?: symbol;
 };
 
@@ -34,7 +34,7 @@ export function makeDummyCollection({
       directory,
       extension,
       relations,
-      resolveRelations: false as ResolveOption,
+      resolveDepth: {} as ResolveDepths,
       media: {},
       markdownStats: false,
       readEntries: async () => Array.from(store.values()) as never,

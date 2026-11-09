@@ -50,7 +50,7 @@ Type names are the directory PascalCased with only the last segment singularized
 
 ## Relation depth in types
 
-The `resolveRelations` depth is reflected in the type. At depth `1`, `post.author` is the author entry and `post.author.company` stays a string if it is itself a relation. At depth `2`, it resolves too. Optional and nullable relation fields keep their optionality.
+Relation depth is reflected in the type, whether it comes from a relation's `resolveDepth` or the view's. At depth `1`, `post.author` is the author entry and `post.author.company` stays a string if it is itself a relation. At depth `2`, it resolves too. Optional and nullable relation fields keep their optionality.
 
 ## Augment constraints
 

@@ -1,5 +1,6 @@
-import type { ResolveOption } from "./resolve";
+import type { ResolveDepths } from "./resolve";
 import type { ObjectSchema } from "./schema";
+import type { EmptyObject } from "./utils";
 import type { ViewEntry } from "./views";
 
 export type AugmentOutput = Record<string, unknown>;
@@ -14,7 +15,7 @@ export type EntryAugment<
   Meta,
   Output extends AugmentOutput,
   Rels = object,
-  R extends ResolveOption = false,
+  R extends ResolveDepths = EmptyObject,
 > = (
   entry: Readonly<ViewEntry<Schema, Meta, Rels, R>>,
 ) => Awaitable<NoConflictingKeys<ViewEntry<Schema, Meta, Rels, R>, Output>>;

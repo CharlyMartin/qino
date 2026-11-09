@@ -23,18 +23,18 @@ collection.getEntries(options?: { view?: ViewName }): Promise<Array<Entry>>;
 | -------------- | --------- | -------- | ----------- | ----------------------------------------------- |
 | `options.view` | view name | no       | `"default"` | A view declared in `views`. Unknown names throw |
 
-`view` is the only accepted option. Passing `resolveRelations`, `filter`, or `sort` throws. An explicit `undefined` for `view` is treated as omitted.
+`view` is the only accepted option. Passing `resolveDepth`, `filter`, or `sort` throws. An explicit `undefined` for `view` is treated as omitted.
 
 ## Returns
 
-`Promise<Array<Entry>>`, where `Entry` is the schema output, `_meta` (`slug`, `fileName`, `filePath`), resolved relations at the view's depth, and the awaited augment output.
+`Promise<Array<Entry>>`, where `Entry` is the schema output, `_meta` (`slug`, `fileName`, `filePath`), relations resolved to the view's depths, and the awaited augment output.
 
 Order is discovery order unless the view has `sort`. Entries the view's `filter` rejects are dropped.
 
 ## Pipeline
 
 1. Read and validate every file.
-2. Resolve relations to the view's depth.
+2. Resolve relations to the view's depths.
 3. Run `augment`.
 4. Apply `filter`.
 5. Apply `sort` with `toSorted` semantics, so ties keep their relative order.
@@ -42,7 +42,7 @@ Order is discovery order unless the view has `sort`. Entries the view's `filter`
 ## Throws
 
 - `Unknown view "<name>". Available views: <names>.`
-- `Getter resolveRelations is no longer supported. Configure it in a view and select that view instead.`
+- `Getter resolveDepth is not supported. Configure resolveDepth in a view and select that view instead.`
 - `Getter filter and sort are not supported. Configure them in a collection view instead.`
 - Validation, relation, and augment errors for any entry. See [Errors](/docs/api/errors).
 

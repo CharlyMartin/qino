@@ -99,7 +99,7 @@ export function defineTree<
   S extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Title extends StringKeys<S>,
-  Rels extends Relations<S> = object,
+  const Rels extends Relations<S> = object,
   Dir extends ContentPath = ContentPath,
   const Views extends object = object,
   const SaveEntryAs extends string = never,
@@ -149,8 +149,8 @@ export function defineTree<
     primitiveId: directory,
   });
   assertNoRootViewSettings(params);
-  const views = buildViews(params.views, "tree");
-  const defaultResolve = views?.default.resolveRelations ?? false;
+  const views = buildViews(params.views, "tree", treeRelations);
+  const defaultResolveDepth = views?.default.resolveDepth ?? {};
   const resolvedOrderFileName = orderFileName ?? DEFAULT_ORDER_FILE_NAME;
   const directoryPath = nodePath.join(ctx.contentFolder, directory);
 
@@ -165,7 +165,7 @@ export function defineTree<
       titleField,
       orderFileName: resolvedOrderFileName,
       relations: treeRelations,
-      resolveRelations: defaultResolve,
+      resolveDepth: defaultResolveDepth,
       media,
       markdownStats,
       cloud,
@@ -231,7 +231,7 @@ export function defineTree<
       media,
       mediaFolder: ctx.mediaFolder,
       filePath: meta.filePath,
-    })) as ResolvedTreeEntry<S, Ext, TaggedRels, false>;
+    })) as ResolvedTreeEntry<S, Ext, TaggedRels>;
   }
 
   async function getEntry<

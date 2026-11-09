@@ -15,10 +15,7 @@ export const homeItem = qino.defineItem({
   file: "pages/home.md",
   schema: HomeSchema,
   relations: {
-    "featured-posts[*]": postCollection,
+    "featured-posts[*]": { target: postCollection, resolveDepth: 2 },
   },
   cloud: { displayAs: "Home page" },
-  views: (view) => ({
-    default: view({ resolveRelations: true }),
-  }),
 });

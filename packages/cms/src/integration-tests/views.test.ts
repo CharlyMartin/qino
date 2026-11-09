@@ -68,7 +68,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
           }),
         });
         const authorConfigView = {
-          resolveRelations: false,
+          resolveDepth: { lead: 0 } as const,
           augment: targetAugment,
         };
         const authorConfig = {
@@ -119,6 +119,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
           }),
         );
         const configView = {
+          resolveDepth: { author: 0 } as const,
           augment: defaultAugment,
         };
         const config = {
@@ -129,10 +130,10 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
           ...config,
           views: (view) => ({
             default: view({ ...configView }),
-            raw: view({ augment: rawAugment }),
-            shallow: view({ resolveRelations: 1 as const }),
+            raw: view({ resolveDepth: { author: 0 }, augment: rawAugment }),
+            shallow: view({ resolveDepth: { author: 1 } }),
             detail: view({
-              resolveRelations: 2 as const,
+              resolveDepth: { author: 2 },
               augment: detailAugment,
             }),
             baseline: view({}),
@@ -144,10 +145,10 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
           ...config,
           views: (view) => ({
             default: view({ ...configView }),
-            raw: view({ augment: rawAugment }),
-            shallow: view({ resolveRelations: 1 as const }),
+            raw: view({ resolveDepth: { author: 0 }, augment: rawAugment }),
+            shallow: view({ resolveDepth: { author: 1 } }),
             detail: view({
-              resolveRelations: 2 as const,
+              resolveDepth: { author: 2 },
               augment: detailAugment,
             }),
             baseline: view({}),
@@ -160,10 +161,10 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
           ...config,
           views: (view) => ({
             default: view({ ...configView }),
-            raw: view({ augment: rawAugment }),
-            shallow: view({ resolveRelations: 1 as const }),
+            raw: view({ resolveDepth: { author: 0 }, augment: rawAugment }),
+            shallow: view({ resolveDepth: { author: 1 } }),
             detail: view({
-              resolveRelations: 2 as const,
+              resolveDepth: { author: 2 },
               augment: detailAugment,
             }),
             baseline: view({}),
@@ -208,7 +209,9 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
         expect(detail[0]).not.toHaveProperty("defaultSlug");
         expect(detailAugment).toHaveBeenCalledTimes(detail.length);
         const baseline = await read({ view: "baseline" });
-        expect(baseline[0]).toMatchObject({ author: "authors/alice.json" });
+        expect(baseline[0]).toMatchObject({
+          author: { name: "Alice", lead: "senior.json" },
+        });
         expect(baseline[0]).not.toHaveProperty("label");
         expect(baseline[0]).not.toHaveProperty("defaultSlug");
         expect(defaultAugment).toHaveBeenCalledTimes(defaultEntries.length);
@@ -222,7 +225,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
         expect(await read({ view: "default" })).toEqual(defaultEntries);
         await expect(
           read({ resolveRelations: false } as never),
-        ).rejects.toThrow(/no longer supported/);
+        ).rejects.toThrow(/not supported/);
         expect(await tree.getFlatTree()).toEqual([
           expect.objectContaining({
             slug: "hello",
@@ -236,7 +239,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
   );
 });
 
-test("default getters preserve references and run augment without loading targets", async () => {
+test("default views without resolution preserve references and run augment without loading targets", async () => {
   const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const authors = qino.defineCollection({
     directory: "authors",
@@ -245,6 +248,7 @@ test("default getters preserve references and run augment without loading target
   });
   await fs.unlink(path.join(tmp, "authors/alice.json"));
   const configView = {
+    resolveDepth: { author: 0 } as const,
     augment: (entry: { author: string }) => ({ reference: entry.author }),
   };
   const config = {
@@ -307,7 +311,6 @@ test("collection listing callbacks receive resolved augmented entries and bypass
     views: (view) => ({
       default: view({}),
       listing: view({
-        resolveRelations: true,
         augment: async (entry) => ({
           label: `${entry.author.name}: ${entry.title}`,
         }),
@@ -348,7 +351,6 @@ test("explicit resolution on the default runs before augmenting on every primiti
     schema: z.object({ name: z.string() }),
   });
   const configView = {
-    resolveRelations: true as const,
     augment: (entry: { author: { name: string } }) => ({
       name: entry.author.name,
     }),
@@ -359,20 +361,29 @@ test("explicit resolution on the default runs before augmenting on every primiti
   };
   const collection = qino.defineCollection({
     ...config,
-    views: (view) => ({ default: view({ ...configView }), raw: view({}) }),
+    views: (view) => ({
+      default: view({ ...configView }),
+      raw: view({ resolveDepth: { author: 0 } }),
+    }),
     directory: "posts",
     extension: ".json",
   });
   const tree = qino.defineTree({
     ...config,
-    views: (view) => ({ default: view({ ...configView }), raw: view({}) }),
+    views: (view) => ({
+      default: view({ ...configView }),
+      raw: view({ resolveDepth: { author: 0 } }),
+    }),
     directory: "docs",
     extension: ".json",
     titleField: "title",
   });
   const item = qino.defineItem({
     ...config,
-    views: (view) => ({ default: view({ ...configView }), raw: view({}) }),
+    views: (view) => ({
+      default: view({ ...configView }),
+      raw: view({ resolveDepth: { author: 0 } }),
+    }),
     file: "home.json",
   });
   for (const entry of [
@@ -405,7 +416,6 @@ test("CLI validation and slug generation skip views and relation resolution", as
     throw new Error("Should not run");
   });
   const configView = {
-    resolveRelations: true as const,
     augment,
   };
   const config = {
@@ -539,7 +549,7 @@ test.each(["collection", "tree", "item"] as const)(
     for (const views of [() => ({}), () => ({ default: {} })]) {
       expect(() => create({ views })).toThrow(/default/);
     }
-    for (const key of ["resolveRelations", "augment", "filter", "sort"]) {
+    for (const key of ["resolveDepth", "augment", "filter", "sort"]) {
       for (const options of [
         {},
         {

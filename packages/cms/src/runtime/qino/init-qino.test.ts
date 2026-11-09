@@ -110,21 +110,11 @@ describe("initQino definition reloads", () => {
     const qino = initQino({ contentFolder: "c", mediaFolder: "p" });
     const UpdatedSchema = Schema.extend({ description: z.string() });
     const original = qino.defineCollection({
-      views: (view) => ({
-        default: view({
-          resolveRelations: true,
-        }),
-      }),
       directory: "posts",
       extension: ".md",
       schema: Schema,
     });
     const reloaded = qino.defineCollection({
-      views: (view) => ({
-        default: view({
-          resolveRelations: false,
-        }),
-      }),
       directory: "posts",
       extension: ".md",
       schema: UpdatedSchema,
@@ -135,29 +125,17 @@ describe("initQino definition reloads", () => {
     expect(reloaded).not.toBe(original);
     expect(after.instanceId).toBe(before.instanceId);
     expect(after.schema).toBe(UpdatedSchema);
-    expect(after.resolveRelations).toBe(false);
     expect(before.schema).toBe(Schema);
-    expect(before.resolveRelations).toBe(true);
   });
 
   test("recreates an item with updated metadata on the same instance", () => {
     const qino = initQino({ contentFolder: "c", mediaFolder: "p" });
     const UpdatedSchema = Schema.extend({ description: z.string() });
     const original = qino.defineItem({
-      views: (view) => ({
-        default: view({
-          resolveRelations: true,
-        }),
-      }),
       file: "settings.json",
       schema: Schema,
     });
     const reloaded = qino.defineItem({
-      views: (view) => ({
-        default: view({
-          resolveRelations: false,
-        }),
-      }),
       file: "settings.json",
       schema: UpdatedSchema,
     });
@@ -167,31 +145,19 @@ describe("initQino definition reloads", () => {
     expect(reloaded).not.toBe(original);
     expect(after.instanceId).toBe(before.instanceId);
     expect(after.schema).toBe(UpdatedSchema);
-    expect(after.resolveRelations).toBe(false);
     expect(before.schema).toBe(Schema);
-    expect(before.resolveRelations).toBe(true);
   });
 
   test("recreates a tree with updated metadata on the same instance", () => {
     const qino = initQino({ contentFolder: "c", mediaFolder: "p" });
     const UpdatedSchema = Schema.extend({ description: z.string() });
     const original = qino.defineTree({
-      views: (view) => ({
-        default: view({
-          resolveRelations: true,
-        }),
-      }),
       directory: "docs",
       extension: ".md",
       titleField: "title",
       schema: Schema,
     });
     const reloaded = qino.defineTree({
-      views: (view) => ({
-        default: view({
-          resolveRelations: false,
-        }),
-      }),
       directory: "docs",
       extension: ".md",
       titleField: "title",
@@ -203,9 +169,7 @@ describe("initQino definition reloads", () => {
     expect(reloaded).not.toBe(original);
     expect(after.instanceId).toBe(before.instanceId);
     expect(after.schema).toBe(UpdatedSchema);
-    expect(after.resolveRelations).toBe(false);
     expect(before.schema).toBe(Schema);
-    expect(before.resolveRelations).toBe(true);
   });
 
   test("allows a directory change and reuse of the previous directory", () => {

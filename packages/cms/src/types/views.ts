@@ -3,7 +3,12 @@ import type { Simplify } from "type-fest";
 import type { QinoViewMarker } from "../data/globals";
 import type { AugmentOutput, Awaitable, EntryAugment } from "./augment";
 import type { GeneratedFields } from "./generated-fields";
-import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
+import type {
+  RelationPath,
+  ResolveDepths,
+  ResolveEntry,
+  ViewResolveDepth,
+} from "./resolve";
 import type { ObjectSchema } from "./schema";
 import type { EmptyObject, GetterOptions } from "./utils";
 
@@ -11,28 +16,44 @@ export type ViewEntry<
   S extends ObjectSchema,
   Meta,
   Rels,
-  R extends ResolveOption,
-> = Simplify<GeneratedFields<Meta> & ResolveEntry<S, Rels, NormalizeDepth<R>>>;
+  R extends ResolveDepths,
+> = Simplify<GeneratedFields<Meta> & ResolveEntry<S, Rels, R>>;
+
+// Only the primitive's relation paths: an unknown one is a typo.
+type CheckResolveDepthKeys<R, Rels> = Record<
+  Exclude<keyof R, RelationPath<Rels>>,
+  never
+>;
 
 export type ViewConfig<
   S extends ObjectSchema,
   Meta,
   Rels,
-  R extends ResolveOption,
+  R extends ResolveDepths,
   Derived extends AugmentOutput,
 > = {
-  resolveRelations?: R;
-  augment?: EntryAugment<S, Meta, Derived, Rels, R>;
+  /** Hops for some relations, by path. Others resolve their own `resolveDepth`. */
+  resolveDepth?: R;
+  augment?: EntryAugment<S, Meta, Derived, Rels, NoInfer<R>>;
+} & NoInfer<ResolveDepthCheck<R, Rels>>;
+
+// Checked apart from `resolveDepth?: R`, so a union-typed config infers whole.
+type ResolveDepthCheck<R, Rels> = {
+  resolveDepth?: ViewResolveDepth<Rels> & CheckResolveDepthKeys<R, Rels>;
 };
 
-export type DefinedView<Config, R extends ResolveOption> = Config & {
+// Drops the config's checked `resolveDepth` so the view reads back as `R`.
+export type DefinedView<Config, R extends ResolveDepths> = Omit<
+  Config,
+  "resolveDepth"
+> & {
   readonly [QinoViewMarker]: true;
-  resolveRelations: R;
+  resolveDepth: R;
 };
 
 // Keep inference local to each helper call rather than its enclosing factory.
 export type ViewFactory<S extends ObjectSchema, Meta, Rels> = <
-  R extends ResolveOption = false,
+  const R extends ResolveDepths = EmptyObject,
   Derived extends AugmentOutput = EmptyObject,
 >(
   config: ViewConfig<S, Meta, Rels, R, Derived>,
@@ -45,7 +66,7 @@ export type ViewFactory<S extends ObjectSchema, Meta, Rels> = <
 
 export type ViewDefinition = {
   readonly [QinoViewMarker]: true;
-  resolveRelations: ResolveOption;
+  resolveDepth: ResolveDepths;
   augment?: (entry: never) => Awaitable<AugmentOutput>;
 };
 
@@ -86,21 +107,21 @@ export type SelectedView<S extends ObjectSchema, Meta, Rels, Views, Name> = (
         Meta,
         Rels,
         Views[Selected] extends {
-          resolveRelations: infer R extends ResolveOption;
+          resolveDepth: infer R extends ResolveDepths;
         }
           ? R
-          : false
+          : EmptyObject
       > &
         (Views[Selected] extends {
           augment?: (...args: never[]) => infer Output;
         }
           ? Awaited<Output>
           : object)
-    : ViewEntry<S, Meta, Rels, false>
+    : ViewEntry<S, Meta, Rels, EmptyObject>
   : never;
 
 export type RootViewSettings = {
-  resolveRelations?: never;
+  resolveDepth?: never;
   augment?: never;
   filter?: never;
   sort?: never;

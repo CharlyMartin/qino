@@ -42,16 +42,15 @@ const posts = qino.defineCollection({
   relations: { author: () => authors },
   views: (view) => ({
     default: view({
-      resolveRelations: true,
       augment: async (entry) => ({ authorName: entry.author.name }),
     }),
-    raw: view({}),
+    raw: view({ resolveDepth: { author: 0 } }),
     highlight: view({
-      resolveRelations: 1,
+      resolveDepth: { author: 1 },
       augment: (entry) => ({ label: entry.author.name }),
     }),
-    deep: view({ resolveRelations: 2 }),
-    full: view({ resolveRelations: true }),
+    deep: view({ resolveDepth: { author: 2 } }),
+    full: view({ resolveDepth: { author: 6 } }),
   }),
 });
 
@@ -121,10 +120,9 @@ test("item inference matches getters and item metadata", async () => {
         augment: (entry) => ({ length: entry.markdown.length }),
       }),
       highlight: view({
-        resolveRelations: true,
         augment: async (entry) => ({ label: entry.author.name }),
       }),
-      raw: view({}),
+      raw: view({ resolveDepth: { author: 0 } }),
     }),
   });
   type HomeTypes = Infer<typeof home>;
@@ -137,7 +135,8 @@ test("item inference matches getters and item metadata", async () => {
   >();
   expectTypeOf<HomeTypes["views"]["raw"]>().toEqualTypeOf<typeof raw>();
   expectTypeOf<HomeTypes["output"]["length"]>().toEqualTypeOf<number>();
-  expectTypeOf<HomeTypes["output"]["author"]>().toEqualTypeOf<string>();
+  expectTypeOf<HomeTypes["output"]["author"]["name"]>().toEqualTypeOf<string>();
+  expectTypeOf<HomeTypes["views"]["raw"]["author"]>().toEqualTypeOf<string>();
   expectTypeOf<
     HomeTypes["views"]["highlight"]["label"]
   >().toEqualTypeOf<string>();
@@ -158,13 +157,13 @@ test("tree inference describes content entries and their views", async () => {
     relations: { author: authors },
     views: (view) => ({
       default: view({
-        resolveRelations: 1,
+        resolveDepth: { author: 1 },
         augment: async (entry) => ({ label: entry.author.name }),
       }),
       highlight: view({
         augment: (entry) => ({ length: entry.markdown.length }),
       }),
-      full: view({ resolveRelations: true }),
+      full: view({}),
     }),
   });
   type DocTypes = Infer<typeof docs>;
@@ -178,7 +177,7 @@ test("tree inference describes content entries and their views", async () => {
   expectTypeOf<DocTypes["views"]["full"]>().toEqualTypeOf<typeof full>();
   expectTypeOf<DocTypes["output"]["label"]>().toEqualTypeOf<string>();
   expectTypeOf<
-    DocTypes["views"]["highlight"]["author"]
+    DocTypes["views"]["highlight"]["author"]["site"]
   >().toEqualTypeOf<string>();
   expectTypeOf<
     DocTypes["views"]["highlight"]["length"]

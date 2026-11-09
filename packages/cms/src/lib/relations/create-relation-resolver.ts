@@ -1,16 +1,22 @@
 import { META_FIELD_NAME, QinoPrimitiveMarker } from "../../data/globals";
-import type { RelationTarget } from "../../types/relations";
+import type { AnyRelations } from "../../types/relations";
+import type { ResolveDepths } from "../../types/resolve";
 import type { AnyEntry, AnyPrimitive, Slug } from "../../types/utils";
 import { isItem } from "../guards/is-item";
 import type { ResolveCache } from "./create-resolve-cache";
 import { fetchTargetEntry } from "./fetch-target-entry";
+import { getRelationTargets } from "./get-relation-targets";
 import { parsePath } from "./parse-path";
 import { resolveRelationLeaf } from "./resolve-relation-leaf";
 import { walkAndSet } from "./walk-and-set";
 
 type ResolveEntryContext = {
-  relations: Record<string, RelationTarget | undefined>;
+  relations: AnyRelations;
   depth: number;
+  /** When false, each relation resolves at most its own `resolveDepth`. */
+  override: boolean;
+  /** The view's depths by relation path, overriding the branch below each. */
+  viewDepths?: ResolveDepths;
   sourceInstanceId: symbol;
 };
 
@@ -23,15 +29,24 @@ export function createRelationResolver(cache: ResolveCache) {
   return { resolveEntry };
 
   async function resolveEntry(entry: AnyEntry, ctx: ResolveEntryContext) {
-    const { relations, depth, sourceInstanceId } = ctx;
+    const { relations, depth, override, viewDepths, sourceInstanceId } = ctx;
     if (depth <= 0) return entry;
 
     let result: Record<string, unknown> = entry;
 
-    for (const [relationKey, target] of Object.entries(relations)) {
-      if (!target) continue;
-
-      const resolvedTarget = typeof target == "function" ? target() : target;
+    for (const {
+      path: relationKey,
+      target: resolvedTarget,
+      resolveDepth,
+    } of getRelationTargets(relations)) {
+      const viewDepth =
+        viewDepths && Object.hasOwn(viewDepths, relationKey)
+          ? viewDepths[relationKey]
+          : undefined;
+      const branchOverride = override || viewDepth != undefined;
+      const hops =
+        viewDepth ?? (override ? depth : Math.min(depth, resolveDepth));
+      if (hops <= 0) continue;
 
       if (resolvedTarget[QinoPrimitiveMarker].instanceId != sourceInstanceId) {
         throw new Error(
@@ -57,7 +72,7 @@ export function createRelationResolver(cache: ResolveCache) {
               return resolveTargetReference(
                 resolvedTarget,
                 slug,
-                depth - 1,
+                { depth: hops - 1, override: branchOverride },
                 sourceInstanceId,
                 errorCtx,
               );
@@ -73,7 +88,7 @@ export function createRelationResolver(cache: ResolveCache) {
   async function resolveTargetReference(
     target: AnyPrimitive,
     slug: Slug,
-    depth: number,
+    { depth, override }: Pick<ResolveEntryContext, "depth" | "override">,
     sourceInstanceId: symbol,
     ctx: RelationErrorContext,
   ) {
@@ -82,6 +97,7 @@ export function createRelationResolver(cache: ResolveCache) {
     return resolveEntry(raw, {
       relations: target[QinoPrimitiveMarker].relations,
       depth,
+      override,
       sourceInstanceId,
     });
   }

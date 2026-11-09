@@ -22,7 +22,6 @@ export const postCollection = qino.defineCollection({
   },
   views: (view) => ({
     default: view({
-      resolveRelations: 1,
       sort: (a, b) => b.publishedOn.localeCompare(a.publishedOn),
     }),
   }),

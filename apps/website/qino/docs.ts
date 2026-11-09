@@ -17,7 +17,4 @@ export const docsTree = qino.defineTree({
   relations: {
     since: releaseCollection,
   },
-  views: (view) => ({
-    default: view({ resolveRelations: 1 }),
-  }),
 });

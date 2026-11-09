@@ -50,7 +50,7 @@ const postCollection = defineCollection({
   views: (view) => ({
     default: view({}),
     resolved: view({
-      resolveRelations: 1,
+      resolveDepth: { author: 1 },
       augment: (post) => {
         expectTypeOf(post.cover).toEqualTypeOf<QinoImage>();
         expectTypeOf(post.author.avatar).toEqualTypeOf<QinoImage>();
@@ -83,7 +83,7 @@ describe("image fields", () => {
   test("apply to getters and related entries", async () => {
     const post = await postCollection.getEntry("hello");
     expectTypeOf(post.cover).toEqualTypeOf<QinoImage>();
-    expectTypeOf(post.author).toEqualTypeOf<string>();
+    expectTypeOf(post.author.avatar).toEqualTypeOf<QinoImage>();
 
     const resolved = await postCollection.getEntry("hello", {
       view: "resolved",

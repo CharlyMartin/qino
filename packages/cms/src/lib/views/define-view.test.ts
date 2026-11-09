@@ -10,28 +10,36 @@ test("constructs a marked view without mutating config or running callbacks", ()
   const config = { augment: callback, filter: callback, sort: callback };
   expect(defineView(config, "collection")).toEqual({
     ...config,
-    resolveRelations: false,
+    resolveDepth: {},
     [QinoViewMarker]: true,
   });
-  expect(config).not.toHaveProperty("resolveRelations");
+  expect(config).not.toHaveProperty("resolveDepth");
   expect(Object.hasOwn(config, QinoViewMarker)).toBe(false);
   expect(callback).not.toHaveBeenCalled();
 });
 
 test.each(["collection", "tree", "item"] as const)(
-  "preserves explicit resolution for %s",
+  "preserves explicit depths for %s",
   (primitive) => {
     expect(
-      defineView({ resolveRelations: 2 }, primitive).resolveRelations,
-    ).toBe(2);
+      defineView({ resolveDepth: { author: 2 } }, primitive).resolveDepth,
+    ).toEqual({ author: 2 });
   },
 );
+
+test("rejects resolveRelations with a pointer to resolveDepth", () => {
+  for (const value of [true, false, { depth: 2 }]) {
+    expect(() =>
+      defineView({ resolveRelations: value } as never, "collection"),
+    ).toThrow(/no longer takes resolveRelations.*resolveDepth/);
+  }
+});
 
 test.each(["tree", "item"] as const)(
   "treats undefined collection-only options as omitted for %s",
   (primitive) => {
     const omitted = { filter: undefined, sort: undefined };
-    expect(defineView({ ...omitted }, primitive).resolveRelations).toBe(false);
+    expect(defineView({ ...omitted }, primitive).resolveDepth).toEqual({});
   },
 );
 

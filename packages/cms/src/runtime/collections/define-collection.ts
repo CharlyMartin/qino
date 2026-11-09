@@ -98,7 +98,7 @@ export type DefineCollectionParams<
 export function defineCollection<
   S extends ObjectSchema,
   Ext extends SupportedFileExtension,
-  Rels extends Relations<S> = object,
+  const Rels extends Relations<S> = object,
   Dir extends ContentPath = ContentPath,
   const Views extends object = object,
   const SaveEntryAs extends string = never,
@@ -144,8 +144,8 @@ export function defineCollection<
     primitiveId: directory,
   });
   assertNoRootViewSettings(params);
-  const views = buildViews(params.views, "collection");
-  const defaultResolve = views?.default.resolveRelations ?? false;
+  const views = buildViews(params.views, "collection", collectionRelations);
+  const defaultResolveDepth = views?.default.resolveDepth ?? {};
   const collectionDirectory = nodePath.join(ctx.contentFolder, directory);
 
   const collection = {
@@ -157,7 +157,7 @@ export function defineCollection<
       directory,
       extension,
       relations: collectionRelations,
-      resolveRelations: defaultResolve,
+      resolveDepth: defaultResolveDepth,
       media,
       markdownStats,
       cloud,
@@ -207,7 +207,7 @@ export function defineCollection<
       media,
       mediaFolder: ctx.mediaFolder,
       filePath: meta.filePath,
-    })) as ResolvedCollectionView<S, Ext, TaggedRels, false>;
+    })) as ResolvedCollectionView<S, Ext, TaggedRels>;
   }
 
   async function readEntries() {

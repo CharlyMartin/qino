@@ -47,7 +47,6 @@ The CLI supports `compilerOptions.paths` aliases from the nearest `tsconfig.json
 - `posts/*.md`: `title`, `date`, `author`, `categories`, body
 - `authors/*.json` and `categories/*.json`, linked from posts as relations (see "Shared entities and relations")
 - `pages/home.md` item with `title` and `tagline`
-- A default view with `resolveRelations: 1` on posts
 - Two or three sample files per collection
 
 ## 2. Install and create the instance
@@ -150,11 +149,10 @@ When several files repeat the same entity (e.g. `author_name` + `author_title` o
 
 1. Create one JSON file per distinct entity: `authors/jane-doe.json` → `{ "name": "Jane Doe", "title": "Editor" }`. If the same entity has conflicting values across files, flag them instead of picking one.
 2. Replace the fields in each file with a content path: `author: "authors/jane-doe.json"`.
-3. Declare the relation and a view that resolves it; without one, getters return the path string:
+3. Declare the relation. Getters resolve it to the target entry, one hop deep by default:
 
    ```ts
    relations: { author: authorCollection, "categories[*]": categoryCollection },
-   views: (view) => ({ default: view({ resolveRelations: 1 }) }),
    ```
 
 Do this directly for new content. For existing content, offer it first and list the app code that reads the old fields. If the user declines, keep the fields as they are. Values that are already content paths can be linked as relations without restructuring. Bare slugs (`author: jane`) stay `z.string()`.

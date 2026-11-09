@@ -1,6 +1,6 @@
 import { QinoPrimitiveMarker, QinoPrimitives } from "../data/globals";
 import type { AnyItem } from "../types/item";
-import type { ResolveOption } from "../types/resolve";
+import type { ResolveDepths } from "../types/resolve";
 import type { ContentPath } from "../types/utils";
 import { DUMMY_CONTENT_FOLDER, DUMMY_INSTANCE_ID } from "./dummy-config";
 
@@ -24,7 +24,7 @@ export function makeDummyItem({
       file,
       extension: ".json" as const,
       relations: {},
-      resolveRelations: false as ResolveOption,
+      resolveDepth: {} as ResolveDepths,
       media: {},
       markdownStats: false,
       readEntry: async () => data as never,

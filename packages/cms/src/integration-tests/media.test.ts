@@ -61,7 +61,7 @@ function setup() {
       cover: { accepted: "image/webp", maxSize: "5MB" },
       file: { accepted: "application/pdf", maxSize: "5MB" },
     },
-    views: (view) => ({ default: view({ resolveRelations: 1 }) }),
+    views: (view) => ({ default: view({}) }),
   });
 
   return { authors, posts };

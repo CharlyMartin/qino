@@ -81,7 +81,7 @@ export type DefineItemParams<
 export function defineItem<
   S extends ObjectSchema,
   F extends ItemFile,
-  Rels extends Relations<S> = object,
+  const Rels extends Relations<S> = object,
   const Views extends object = object,
   const Media extends MediaConfig<S, ExtractItemExtension<F>> = EmptyObject,
   const Stats extends boolean = false,
@@ -109,8 +109,8 @@ export function defineItem<
   });
   assertMarkdownStatsConfig({ markdownStats, extension, primitiveId: file });
   assertNoRootViewSettings(params);
-  const views = buildViews(params.views, "item");
-  const defaultResolve = views?.default.resolveRelations ?? false;
+  const views = buildViews(params.views, "item", itemRelations);
+  const defaultResolveDepth = views?.default.resolveDepth ?? {};
 
   const absoluteFilePath = nodePath.join(
     ctx.contentFolder,
@@ -126,7 +126,7 @@ export function defineItem<
       file,
       extension,
       relations: itemRelations,
-      resolveRelations: defaultResolve,
+      resolveDepth: defaultResolveDepth,
       media,
       markdownStats,
       cloud,
@@ -156,7 +156,7 @@ export function defineItem<
       media,
       mediaFolder: ctx.mediaFolder,
       filePath: absoluteFilePath,
-    })) as ResolvedItemView<S, Ext, TaggedRels, false>;
+    })) as ResolvedItemView<S, Ext, TaggedRels>;
   }
 
   async function getEntry<

@@ -14,8 +14,8 @@ export const postCollection = qino.defineCollection({
   views: (view) => ({
     default: view({}),
     detail: view({
-      resolveRelations: 1,
-      augment: (post) => ({ authorName: post.author.name }),
+      resolveDepth: { author: 2 },
+      augment: (post) => ({ companyName: post.author.company.name }),
     }),
   }),
 });
@@ -28,22 +28,22 @@ const post = await postCollection.getEntry("hello", { view: "detail" });
 
 `views` is a function that receives a `view` helper and synchronously returns an object of named views. Every value must be created with `view({ ... })`, and the object must contain `default`. The factory runs once when the primitive is defined. Object-form views and unwrapped definitions are rejected.
 
-Without `views`, getters return validated entries with raw relation references and nothing else.
+Without `views`, getters return validated entries with each relation resolved to its own [`resolveDepth`](/docs/concepts/relations#resolving), and nothing else.
 
 ## Options
 
-| Option             | Collection | Tree | Item | Meaning                                               |
-| ------------------ | ---------- | ---- | ---- | ----------------------------------------------------- |
-| `resolveRelations` | yes        | yes  | yes  | `false`, `true`, or depth `1` to `6`. Default `false` |
-| `augment`          | yes        | yes  | yes  | Derive extra fields, may be async                     |
-| `filter`           | yes        | no   | no   | Keep entries where the predicate is true              |
-| `sort`             | yes        | no   | no   | Comparator for `getEntries`                           |
+| Option         | Collection | Tree | Item | Meaning                                                       |
+| -------------- | ---------- | ---- | ---- | ------------------------------------------------------------- |
+| `resolveDepth` | yes        | yes  | yes  | Hops by relation path, `0` to `6`. Others use their own depth |
+| `augment`      | yes        | yes  | yes  | Derive extra fields, may be async                             |
+| `filter`       | yes        | no   | no   | Keep entries where the predicate is true                      |
+| `sort`         | yes        | no   | no   | Comparator for `getEntries`                                   |
 
 Tree and item helpers reject `filter` and `sort` in TypeScript and at runtime.
 
 ## Pipeline
 
-For each getter call: read and validate, resolve relations at the view's depth, run `augment`, then for collections `filter`, then for `getEntries` `sort`. Augment receives resolved relations when the view resolves them. Filter and sort receive augmented entries. See [Entry pipeline](/docs/concepts/pipeline) for every step, from parsing to sorting.
+For each getter call: read and validate, resolve relations to the view's depths, run `augment`, then for collections `filter`, then for `getEntries` `sort`. Augment receives resolved relations when the view resolves them. Filter and sort receive augmented entries. See [Entry pipeline](/docs/concepts/pipeline) for every step, from parsing to sorting.
 
 `augment` must return an object. It cannot overwrite an existing field, and cannot add `markdown` or `raw` to a Markdown entry.
 
@@ -71,7 +71,7 @@ Spreading copies settings; it does not compose callbacks. Set `filter: undefined
 
 - Omit `view`, or pass `{ view: "default" }`, to use the default.
 - Unknown names fail in TypeScript and at runtime.
-- Passing `resolveRelations`, `filter`, or `sort` to a getter throws. Configure them in a view.
+- Passing `resolveDepth`, `filter`, or `sort` to a getter throws. Configure them in a view.
 - An explicit `undefined` in getter options is treated as omitted.
 
 ## Inferring the output

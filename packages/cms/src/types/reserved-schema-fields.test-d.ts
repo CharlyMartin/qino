@@ -230,7 +230,6 @@ test("resolved Markdown targets expose markdown in getters and view callbacks", 
     relations: { post: posts, home, doc: docs },
     views: (view) => ({
       default: view({
-        resolveRelations: true,
         augment: (entry) => {
           expectTypeOf(entry.post.markdown).toEqualTypeOf<string>();
           expectTypeOf(entry.home.raw).toEqualTypeOf<string>();

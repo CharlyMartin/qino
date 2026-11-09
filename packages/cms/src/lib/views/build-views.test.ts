@@ -7,19 +7,19 @@ describe.each(["collection", "tree", "item"] as const)(
   "%s view construction",
   (primitive) => {
     test("allows omitted views and evaluates the factory once", () => {
-      expect(buildViews(undefined, primitive)).toBeUndefined();
+      expect(buildViews(undefined, primitive, {})).toBeUndefined();
       const factory = vi.fn((view: (config: object) => object) => ({
         default: view({}),
         empty: view({}),
       }));
-      expect(buildViews(factory, primitive)?.empty?.resolveRelations).toBe(
-        false,
+      expect(buildViews(factory, primitive, {})?.empty?.resolveDepth).toEqual(
+        {},
       );
       expect(factory).toHaveBeenCalledTimes(1);
     });
 
     test("rejects legacy object form with migration guidance", () => {
-      expect(() => buildViews({ detail: {} }, primitive)).toThrow(
+      expect(() => buildViews({ detail: {} }, primitive, {})).toThrow(
         /views: \(view\) =>/,
       );
     });
@@ -27,7 +27,7 @@ describe.each(["collection", "tree", "item"] as const)(
     test.each([undefined, null, [], Promise.resolve({})])(
       "rejects an invalid factory result %s",
       (result) => {
-        expect(() => buildViews(() => result, primitive)).toThrow(
+        expect(() => buildViews(() => result, primitive, {})).toThrow(
           /synchronously return an object/,
         );
       },
@@ -38,9 +38,10 @@ describe.each(["collection", "tree", "item"] as const)(
         buildViews(
           () => ({ default: defineView({}, primitive), detail: {} }),
           primitive,
+          {},
         ),
       ).toThrow('View "detail" must be created with view({ ... }).');
-      expect(() => buildViews(() => ({ default: {} }), primitive)).toThrow(
+      expect(() => buildViews(() => ({ default: {} }), primitive, {})).toThrow(
         /View "default" must be created/,
       );
     });
@@ -64,6 +65,7 @@ test.each(["tree", "item"] as const)(
             detail: collectionView,
           }),
           primitive,
+          {},
         ),
       ).toThrow(/does not support filter or sort/);
     }
@@ -79,16 +81,27 @@ test.each(["tree", "item"] as const)(
       sort: undefined,
     };
     expect(
-      buildViews(() => ({ default: detail, detail }), primitive)?.detail,
+      buildViews(() => ({ default: detail, detail }), primitive, {})?.detail,
     ).toBe(detail);
   },
 );
+
+test("checks each view's resolveDepth against the relations", () => {
+  const relations = { author: {} as never };
+  const factory = (view: (config: object) => object) => ({
+    default: view({ resolveDepth: { author: 2 } }),
+    detail: view({ resolveDepth: { autor: 1 } }),
+  });
+  expect(() => buildViews(factory, "collection", relations)).toThrow(
+    'View "detail": resolveDepth sets "autor", which isn\'t a relation.',
+  );
+});
 
 test.each(["collection", "tree", "item"] as const)(
   "%s requires an own default view",
   (primitive) => {
     for (const result of [{}, { detail: defineView({}, primitive) }]) {
-      expect(() => buildViews(() => result, primitive)).toThrow(
+      expect(() => buildViews(() => result, primitive, {})).toThrow(
         /must return a "default" view/,
       );
     }

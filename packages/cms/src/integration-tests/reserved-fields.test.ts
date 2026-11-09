@@ -105,7 +105,7 @@ test("resolved Markdown targets retain their markdown and raw", async () => {
     file: "links.json",
     schema: z.object({ post: z.string(), home: z.string(), doc: z.string() }),
     relations: { post: posts, home, doc: docs },
-    views: (view) => ({ default: view({ resolveRelations: true }) }),
+    views: (view) => ({ default: view({}) }),
   });
   const entry = await links.getEntry();
   for (const target of [entry.post, entry.home, entry.doc]) {

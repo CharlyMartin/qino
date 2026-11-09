@@ -28,7 +28,7 @@ export type EmptyObject = Record<never, never>;
 
 export type GetterOptions<View extends string | undefined = string> = {
   view?: View;
-  resolveRelations?: never;
+  resolveDepth?: never;
   filter?: never;
   sort?: never;
 };

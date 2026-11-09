@@ -17,8 +17,5 @@ const postCollection = qino.defineCollection({
     "categories[*]": categoryCollection,
     "tags[*]": tagCollection,
   },
-  views: (view) => ({
-    default: view({ resolveRelations: 1 }),
-  }),
 });
 ```

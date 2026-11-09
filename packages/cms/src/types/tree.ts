@@ -5,13 +5,12 @@ import type {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../data/globals";
-import type { AugmentOutput } from "./augment";
 import type { PrimitiveCloudConfig } from "./cloud";
 import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
 import type { AnyMediaConfig } from "./media";
 import type { Relations } from "./relations";
-import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
+import type { ResolveDepths, ResolveEntry, UnresolvedMode } from "./resolve";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
 import type { SlugFor } from "./slug-registry";
 import type {
@@ -59,13 +58,13 @@ export type TreeMeta<
   readonly titleField: Title;
   readonly orderFileName: string;
   readonly relations: Rels;
-  readonly resolveRelations: ResolveOption;
+  readonly resolveDepth: ResolveDepths;
   readonly media: AnyMediaConfig;
   readonly markdownStats: boolean;
   readonly cloud?: PrimitiveCloudConfig;
   readonly readEntry: (
     slug: Slug,
-  ) => Promise<ResolvedTreeEntry<Schema, Ext, Rels, false>>;
+  ) => Promise<ResolvedTreeEntry<Schema, Ext, Rels>>;
 };
 
 export type Tree<
@@ -110,16 +109,14 @@ export type Tree<
   getPreviousNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
 };
 
+// An entry as read, before a view resolves its relations.
 export type ResolvedTreeEntry<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema>,
-  R extends ResolveOption,
-  Derived extends AugmentOutput = EmptyObject,
 > = Simplify<
   GeneratedFields<TreeEntryMeta<Ext>> &
-    ResolveEntry<Schema, Rels, NormalizeDepth<R>> &
-    Derived
+    ResolveEntry<Schema, Rels, EmptyObject, UnresolvedMode>
 >;
 
 // Check types
@@ -133,7 +130,7 @@ export type AnyTreeMeta = {
   readonly titleField: string;
   readonly orderFileName: string;
   readonly relations: Relations<ObjectSchema>;
-  readonly resolveRelations: ResolveOption;
+  readonly resolveDepth: ResolveDepths;
   readonly media: AnyMediaConfig;
   readonly markdownStats: boolean;
   readonly cloud?: PrimitiveCloudConfig;
