@@ -17,3 +17,7 @@ updates:
       tanstack:
         patterns:
           - "@tanstack/*"
+      tailwind:
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
