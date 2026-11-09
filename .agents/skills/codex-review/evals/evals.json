@@ -22,7 +22,7 @@
       "assertions": [
         "The next action is running `codex review --uncommitted` again.",
         "The command ends with `2>/dev/null`.",
-        "The prompt says this is a follow-up review of applied fixes.",
+        "The prompt says this is review round 3, a follow-up review of applied fixes.",
         "The prompt lists the rejected explicit-return-type finding so Codex doesn't raise it again.",
         "The response does not ask the user whether to run another review.",
         "The response does not present a final report before the next review has run."
@@ -36,6 +36,7 @@
       "assertions": [
         "The response does not run or propose a sixth `codex review`.",
         "The response does not commit, push, or open a pull request, and does not propose doing so now.",
+        "The response does not offer shipping now, with the open finding tracked as a known issue or follow-up, as an option.",
         "The response reports the `resolveSlug` cycle issue as open for the user to decide.",
         "The response says the loop stopped at its 5-round limit without a clean review.",
         "The response states the status of the checks."
@@ -71,6 +72,52 @@
         "The response decides not to run a Codex review.",
         "The response says the change is docs-only or trivial.",
         "The response does not run or propose running `codex review`."
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "You are in round 1 of a Codex review. Triage the finding below from this isolated context. Do not run commands or edit files. Say whether you apply or skip it, with a brief reason.\n\nContext:\n- The diff adds `packages/cms/src/get-sibling-nodes.ts`:\n\n```ts\nexport function getSiblingNodes(nodes: Node[], slug: string) {\n  const node = nodes.find((n) => n.slug == slug);\n  if (!node) return [];\n  return nodes.filter((n) => n.parent == node.parent && n.slug != slug);\n}\n```\n\nCodex output:\n1. [P1] `getSiblingNodes` throws a TypeError when `slug` matches no node, because `node.parent` is read on `undefined`.",
+      "expected_output": "Claude checks the claim against the code, sees the `if (!node) return [];` guard, and skips the finding as incorrect.",
+      "files": [],
+      "assertions": [
+        "The response skips the finding.",
+        "The response points to the `if (!node) return [];` guard as the reason the claim is wrong.",
+        "The response does not propose adding another null check or optional chaining."
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "You are in round 1 of a Codex review. Triage the findings below from this isolated context. Do not inspect the repository, run commands, or edit files. For each finding, say whether you apply or skip it, with a brief reason.\n\nContext:\n- The task was to add a `getSiblingNodes(slug)` tree getter in `packages/cms/src/get-sibling-nodes.ts`, with a test.\n- `pnpm test`, `pnpm check-types` and `pnpm biome check .` pass.\n\nCodex output:\n1. [P2] `get-sibling-nodes.test.ts` doesn't cover a slug at the root level, where `parent` is `undefined`.\n2. [P3] `packages/cms/src/flatten-tree.ts` (unchanged in this diff) rebuilds its node map on every call. Consider caching it in a module-level `Map`.",
+      "expected_output": "Claude applies the missing root-level test and skips the caching refactor as out of scope for this task.",
+      "files": [],
+      "assertions": [
+        "The response applies finding 1 by adding a root-level test case.",
+        "The response skips finding 2.",
+        "The reason for skipping finding 2 is that it's out of scope, or a speculative refactor of code this task didn't change.",
+        "The response does not propose editing `flatten-tree.ts`."
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Start a Codex review from this isolated context. Do not inspect the repository or edit files. Give the exact command you would run first.\n\nContext:\n- The current branch is `feat/sibling-nodes`, three commits ahead of `main`.\n- `git status --porcelain` prints nothing: all the work is committed.\n- `pnpm test`, `pnpm check-types` and `pnpm biome check .` pass.",
+      "expected_output": "Claude runs `codex review --base main` with the round 1 prompt and `2>/dev/null`, not `--uncommitted`.",
+      "files": [],
+      "assertions": [
+        "The command is `codex review --base main` with a prompt.",
+        "The command does not use `--uncommitted`.",
+        "The command ends with `2>/dev/null`.",
+        "The prompt asks Codex to focus on correctness bugs first, then the AGENTS.md conventions."
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Continue a Codex review run from this isolated context. Do not inspect the repository or edit files. Describe your next action, including any exact command.\n\nContext:\n- You just ran `codex review --uncommitted \"<round 1 prompt>\" 2>/dev/null` for round 1.\n- The command exited and printed nothing.",
+      "expected_output": "Claude doesn't treat the empty output as a clean review. It runs the same command again without `2>/dev/null` to see the error.",
+      "files": [],
+      "assertions": [
+        "The response does not treat the empty output as a clean review or as having no findings.",
+        "The next action is running the same `codex review --uncommitted` command again without `2>/dev/null`.",
+        "The response does not continue to committing or opening a PR."
       ]
     }
   ]

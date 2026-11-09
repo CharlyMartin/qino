@@ -57,12 +57,12 @@ Apply the accepted fixes, then run the checks again until they pass.
 After each round of fixes, run Codex again right away with the round 1 prompt plus:
 
 ```
-This is follow-up review number <n>. Findings from earlier reviews were applied. Check that the fixes are correct and didn't introduce regressions. These findings were already considered and rejected, don't raise them again: <one line per skipped finding, with the reason>.
+This is review round <n>, a follow-up review. Findings from earlier reviews were applied. Check that the fixes are correct and didn't introduce regressions. These findings were already considered and rejected, don't raise them again: <one line per skipped finding, with the reason>.
 ```
 
 **The review is clean** when Codex reports no findings, or when you skip every finding it reports. Since nothing changed in that round, another review would see the same diff. Stop the loop there.
 
-**Stop after 5 rounds anyway.** If the review still isn't clean, it's probably going in circles: fixes are causing new findings, or Codex keeps raising the same point. Don't start a sixth round. List the open findings in the report and **don't continue to the next step of the workflow (committing and opening a PR)**. The user decides.
+**Stop after 5 rounds anyway.** If the review still isn't clean, it's probably going in circles: fixes are causing new findings, or Codex keeps raising the same point. Don't start a sixth round. List the open findings in the report and **don't continue to the next step of the workflow (committing and opening a PR)**. The user decides. Don't suggest shipping anyway as an option, for example with the finding handled in a follow-up: the user can ask for that themselves.
 
 ## Report
 
