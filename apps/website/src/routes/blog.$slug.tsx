@@ -5,6 +5,7 @@ import { MDXRemote } from "next-mdx-remote";
 import { PostAuthor } from "../components/blog/post-author";
 import { PostMeta } from "../components/blog/post-meta";
 import { PostNotFound } from "../components/blog/post-not-found";
+import { PostUpdatedOn } from "../components/blog/post-updated-on";
 import { mdxComponents } from "../components/docs/mdx-components";
 import { ButtonLink } from "../components/marketing/button-link";
 import { Text } from "../components/marketing/text";
@@ -78,11 +79,7 @@ function BlogPostPage() {
   return (
     <article className="mx-auto max-w-3xl">
       <header className="mb-12 flex flex-col items-start gap-3 border-b pb-8">
-        <PostMeta
-          publishedOn={publishedOn}
-          updatedOn={updatedOn}
-          _stats={_stats}
-        />
+        <PostMeta publishedOn={publishedOn} _stats={_stats} />
         <Title as="h1">{title}</Title>
         <Text size="lead">{description}</Text>
         <div className="pt-6">
@@ -92,11 +89,12 @@ function BlogPostPage() {
       <div className="prose prose-invert max-w-none">
         <MDXRemote {...mdx} components={mdxComponents} />
       </div>
-      <footer className="mt-12 border-t pt-8">
+      <footer className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t pt-8">
         <ButtonLink to="/blog" variant="outline" size="sm">
           <ArrowLeftIcon className="size-4" aria-hidden="true" />
           All Posts
         </ButtonLink>
+        {updatedOn && <PostUpdatedOn updatedOn={updatedOn} />}
       </footer>
     </article>
   );
