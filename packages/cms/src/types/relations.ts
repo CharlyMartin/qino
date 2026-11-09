@@ -36,8 +36,8 @@ export type RelationParseTarget =
 export type RelationParseContext = {
   /** The file the value was written in, not the file it points to. */
   sourceFilePath: string;
-  /** The relation's path, e.g. `"categories[*]"`. */
-  path: string;
+  /** The field's path as declared in `relations`, e.g. `"categories[*]"`, not the element's index. */
+  fieldPath: string;
   target: RelationParseTarget;
 };
 

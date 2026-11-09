@@ -174,7 +174,11 @@ describe("resolveEntryMedia", () => {
       expect(calls).toEqual([
         [
           "/images/a.png",
-          { sourceFilePath: "posts/a.md", path: "cover", mediaFolder: tmp },
+          {
+            sourceFilePath: "posts/a.md",
+            fieldPath: "cover",
+            mediaFolder: tmp,
+          },
         ],
       ]);
     });

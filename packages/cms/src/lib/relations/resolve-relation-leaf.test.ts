@@ -130,7 +130,7 @@ describe("resolveRelationLeaf", () => {
       });
       expect(parse).toHaveBeenCalledWith("authors/alice.md", {
         sourceFilePath: "/fixtures/post.json",
-        path: "author",
+        fieldPath: "author",
         target: {
           is: "collection",
           contentFolder: targetMeta.contentFolder,

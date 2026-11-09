@@ -46,7 +46,7 @@ export async function resolveEntryMedia<Entry>({
       applyParse({
         value: leaf,
         parse,
-        ctx: { sourceFilePath: filePath, path, mediaFolder },
+        ctx: { sourceFilePath: filePath, fieldPath: path, mediaFolder },
         owner: `${filePath}: media "${path}"`,
       });
 

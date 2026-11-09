@@ -30,7 +30,7 @@ export async function resolveRelationLeaf(leaf: unknown, ctx: Context) {
     parse: ctx.parse,
     ctx: {
       sourceFilePath: ctx.sourceFilePath,
-      path: ctx.relationKey,
+      fieldPath: ctx.relationKey,
       target: toRelationParseTarget(ctx.targetMeta),
     },
     owner: `Relation "${ctx.relationKey}" in ${ctx.sourceFilePath}`,

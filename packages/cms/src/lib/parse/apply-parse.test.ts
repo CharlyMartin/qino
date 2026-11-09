@@ -13,7 +13,7 @@ describe("applyParse", () => {
 
   test("replaces the value with the returned string", () => {
     const parse = vi.fn((value: string) => value.toUpperCase());
-    const ctx = { path: "author" };
+    const ctx = { fieldPath: "author" };
 
     expect(applyParse({ value: "a", parse, ctx, owner })).toBe("A");
     expect(parse).toHaveBeenCalledWith("a", ctx);
