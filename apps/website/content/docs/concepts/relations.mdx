@@ -87,11 +87,65 @@ relations: {
 
 Return `undefined` to read the value as a content path as is, so values that already follow the convention, like those the [cloud UI](/docs/guide/cloud) writes, keep working.
 
-`ctx` holds:
+`ctx`, the second argument, holds `sourceFilePath`, the file the value is written in, the relation's `path`, and `target`, where the target's files live. Take a vault set up with `initQino({ contentFolder: "vault", mediaFolder: "vault/attachments" })` and this post:
 
-- `filePath`: the file the value was read from.
-- `path`: the relation's path, such as `"categories[*]"`.
-- `target`: where the target lives. `{ is, contentFolder, directory, extension }` for a collection or tree, `{ is: "item", contentFolder, file }` for an item.
+```md title="vault/posts/Hello World.md"
+---
+author: "[[Jane Doe]]"
+categories: ["[[Design]]", "[[Tooling]]"]
+site: "[[Settings]]"
+---
+```
+
+Reading `author` takes four steps:
+
+1. qino reads `vault/posts/Hello World.md` and finds `author: "[[Jane Doe]]"`.
+2. It calls `parse("[[Jane Doe]]", ctx)`, with `ctx`:
+
+   ```ts
+   {
+     sourceFilePath: "vault/posts/Hello World.md", // where the link is written
+     path: "author",
+     target: {
+       is: "collection",
+       contentFolder: "vault",
+       directory: "authors",
+       extension: ".md",
+     },
+   }
+   ```
+
+3. `parse` returns `"authors/Jane Doe.md"`, built from the link and `target`.
+4. qino reads `vault/authors/Jane Doe.md`, and `post.author` is that entry.
+
+A wikilink only needs `target`. `sourceFilePath` is there for values relative to the file they're written in, such as `"../authors/jane.md"`, and for error messages.
+
+`"categories[*]"`, a tree, calls `parse` once per element, with `"[[Design]]"` then `"[[Tooling]]"`. `path` is the declared path, not the element's index:
+
+```ts
+{
+  sourceFilePath: "vault/posts/Hello World.md",
+  path: "categories[*]",
+  target: {
+    is: "tree",
+    contentFolder: "vault",
+    directory: "categories",
+    extension: ".md",
+  },
+}
+```
+
+`site`, an item, gets `"[[Settings]]"`. An item target has `file` instead of `directory` and `extension`:
+
+```ts
+{
+  sourceFilePath: "vault/posts/Hello World.md",
+  path: "site",
+  target: { is: "item", contentFolder: "vault", file: "settings.json" },
+}
+```
+
+Paths are relative to the working directory, as passed to `initQino`. When the author's own relations resolve, `sourceFilePath` is the author's file, `vault/authors/Jane Doe.md`, since that's where their links are written.
 
 `parse` runs when the relation resolves. A relation that stays a string keeps the raw value, such as `"[[Jane Doe]]"`. Errors about the returned path name the raw value too. The `RelationParse` type types a callback declared on its own.
 

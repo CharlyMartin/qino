@@ -65,7 +65,44 @@ media: {
 },
 ```
 
-The URL it returns replaces the value: it's the `src` of an image field, and the string of any other media field. Rules and `qino check` apply to it. Return `undefined` to keep the value as is. `ctx`, the second argument, holds `filePath`, the field's `path`, and `mediaFolder`. The `MediaParse` type types a callback declared on its own. `markdown` rules have no `parse`: body images are read as written.
+The URL it returns replaces the value: it's the `src` of an image field, and the string of any other media field. Rules and `qino check` apply to it. Return `undefined` to keep the value as is. The `MediaParse` type types a callback declared on its own. `markdown` rules have no `parse`: body images are read as written.
+
+`ctx`, the second argument, holds `sourceFilePath`, the file the value is written in, the field's `path`, and `mediaFolder`, where the files live. For this post, with `initQino({ contentFolder: "vault", mediaFolder: "vault/attachments" })` and a `parse` on `cover` and `"gallery[*]"`:
+
+```md title="vault/posts/Hello World.md"
+---
+cover: "[[cover.png]]"
+gallery: ["[[one.png]]", "[[two.png]]"]
+---
+```
+
+Reading `cover` takes four steps:
+
+1. qino reads `vault/posts/Hello World.md` and finds `cover: "[[cover.png]]"`.
+2. It calls `parse("[[cover.png]]", ctx)`, with `ctx`:
+
+   ```ts
+   {
+     sourceFilePath: "vault/posts/Hello World.md", // where the embed is written
+     path: "cover",
+     mediaFolder: "vault/attachments",
+   }
+   ```
+
+3. `parse` returns `"/cover.png"`, the URL the file is served at.
+4. qino reads `vault/attachments/cover.png`, checks it against the rule, and `post.cover` is its `QinoImage`, with `src: "/cover.png"`.
+
+`parse` for `"gallery[*]"` runs once per element, with `"[[one.png]]"` then `"[[two.png]]"`. `path` is the declared path, not the element's index:
+
+```ts
+{
+  sourceFilePath: "vault/posts/Hello World.md",
+  path: "gallery[*]",
+  mediaFolder: "vault/attachments",
+}
+```
+
+Paths are relative to the working directory, as passed to `initQino`. `parse` runs each time an entry is read, and when `qino check` checks media.
 
 ## Image fields
 
