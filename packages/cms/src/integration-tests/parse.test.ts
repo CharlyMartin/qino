@@ -97,6 +97,41 @@ describe("parse", () => {
     });
   });
 
+  test("sourceFilePath is the file holding the value, not the target", async () => {
+    await fs.writeFile(
+      nodePath.join(vault, "authors", "Jane Doe.md"),
+      '---\nname: Jane Doe\nmentor: "[[camille]]"\n---\n',
+    );
+    const sources: Array<[string, string]> = [];
+    const recordNote: RelationParse = (value, ctx) => {
+      sources.push([value, ctx.sourceFilePath]);
+      return parseNote(value, ctx);
+    };
+    const qino = initQino({ contentFolder: vault, mediaFolder: attachments });
+    const authors = qino.defineCollection({
+      directory: "authors",
+      extension: ".md",
+      schema: z.object({ name: z.string(), mentor: z.string().optional() }),
+      relations: { mentor: { target: () => authors, parse: recordNote } },
+    });
+    const posts = qino.defineCollection({
+      directory: "posts",
+      extension: ".md",
+      schema: z.object({ title: z.string(), author: z.string() }),
+      relations: {
+        author: { target: authors, parse: recordNote, resolveDepth: 2 },
+      },
+    });
+
+    expect(await posts.getEntry("hello")).toMatchObject({
+      author: { name: "Jane Doe", mentor: { name: "Camille" } },
+    });
+    expect(sources).toEqual([
+      ["[[Jane Doe]]", nodePath.join(vault, "posts", "hello.md")],
+      ["[[camille]]", nodePath.join(vault, "authors", "Jane Doe.md")],
+    ]);
+  });
+
   test("still reads values in qino's format", async () => {
     const { posts } = setup();
 

@@ -28,8 +28,8 @@ export type MediaRule = {
 };
 
 export type MediaParseContext = {
-  /** The file the value was read from. */
-  filePath: string;
+  /** The file the value was written in, not the file it points to. */
+  sourceFilePath: string;
   /** The media field's path, e.g. `"gallery[*]"`. */
   path: string;
   mediaFolder: string;

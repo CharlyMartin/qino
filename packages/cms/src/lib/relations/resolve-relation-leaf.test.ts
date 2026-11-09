@@ -129,7 +129,7 @@ describe("resolveRelationLeaf", () => {
         parse,
       });
       expect(parse).toHaveBeenCalledWith("authors/alice.md", {
-        filePath: "/fixtures/post.json",
+        sourceFilePath: "/fixtures/post.json",
         path: "author",
         target: {
           is: "collection",

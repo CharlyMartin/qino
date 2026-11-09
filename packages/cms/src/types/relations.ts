@@ -34,8 +34,8 @@ export type RelationParseTarget =
   | { is: "item"; contentFolder: string; file: ContentPath };
 
 export type RelationParseContext = {
-  /** The file the value was read from. */
-  filePath: string;
+  /** The file the value was written in, not the file it points to. */
+  sourceFilePath: string;
   /** The relation's path, e.g. `"categories[*]"`. */
   path: string;
   target: RelationParseTarget;
