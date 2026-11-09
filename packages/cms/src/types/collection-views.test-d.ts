@@ -22,7 +22,6 @@ test("infers post-augment inputs independently for default and named views", asy
     relations: { author: authors },
     views: (view) => ({
       default: view({
-        resolveRelations: true,
         augment: async (entry) => ({ label: entry.author.name }),
         filter: (entry) => {
           expectTypeOf(entry.label).toEqualTypeOf<string>();
@@ -35,7 +34,7 @@ test("infers post-augment inputs independently for default and named views", asy
         sort: (a, b) => a.label.localeCompare(b.label),
       }),
       raw: view({
-        resolveRelations: false,
+        resolveDepth: { author: 0 },
         augment: (entry) => ({ length: entry.author.length }),
         filter: (entry) => {
           expectTypeOf(entry.author).toEqualTypeOf<string>();
@@ -47,7 +46,7 @@ test("infers post-augment inputs independently for default and named views", asy
         sort: (a, b) => b.length - a.length,
       }),
       resolved: view({
-        resolveRelations: { depth: 1 },
+        resolveDepth: { author: 1 },
         augment: async (entry) => ({ name: entry.author.name }),
         filter: (entry) => entry.name == entry.author.name,
         sort: (a, b) => a.name.localeCompare(b.name),

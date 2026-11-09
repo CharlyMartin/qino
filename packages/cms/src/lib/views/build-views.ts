@@ -1,12 +1,15 @@
 import { QinoViewMarker } from "../../data/globals";
 import type { CollectionViewDefinition } from "../../types/collection-views";
+import type { AnyRelations } from "../../types/relations";
 import type { AnyPrimitiveMeta } from "../../types/utils";
 import { assertViewNames } from "./assert-view-names";
+import { assertViewResolveDepth } from "./assert-view-resolve-depth";
 import { defineView } from "./define-view";
 
 export function buildViews(
   factory: unknown,
   primitive: AnyPrimitiveMeta["is"],
+  relations: AnyRelations,
 ) {
   if (typeof factory == "undefined") return undefined;
   if (typeof factory != "function") {
@@ -52,6 +55,12 @@ export function buildViews(
         `${primitive} view "${name}" does not support filter or sort.`,
       );
     }
+
+    assertViewResolveDepth(
+      name,
+      Reflect.get(config, "resolveDepth"),
+      relations,
+    );
   }
 
   return views as Record<string, CollectionViewDefinition> & {

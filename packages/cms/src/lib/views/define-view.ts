@@ -4,9 +4,9 @@ import type { AnyPrimitiveMeta } from "../../types/utils";
 
 type Config = Omit<
   CollectionViewDefinition,
-  typeof QinoViewMarker | "resolveRelations"
+  typeof QinoViewMarker | "resolveDepth"
 > & {
-  resolveRelations?: CollectionViewDefinition["resolveRelations"];
+  resolveDepth?: CollectionViewDefinition["resolveDepth"];
 };
 
 export function defineView(config: Config, primitive: AnyPrimitiveMeta["is"]) {
@@ -21,9 +21,15 @@ export function defineView(config: Config, primitive: AnyPrimitiveMeta["is"]) {
     throw new Error(`${primitive} views do not support filter or sort.`);
   }
 
+  if (typeof Reflect.get(config, "resolveRelations") != "undefined") {
+    throw new Error(
+      "view() no longer takes resolveRelations. Set depths by relation with resolveDepth, such as { author: 2 }.",
+    );
+  }
+
   return {
     ...config,
-    resolveRelations: config.resolveRelations ?? true,
+    resolveDepth: config.resolveDepth ?? {},
     [QinoViewMarker]: true as const,
   };
 }

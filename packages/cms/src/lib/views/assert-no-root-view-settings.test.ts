@@ -2,7 +2,7 @@ import { expect, test } from "vitest";
 
 import { assertNoRootViewSettings } from "./assert-no-root-view-settings";
 
-test.each(["resolveRelations", "augment", "filter", "sort"])(
+test.each(["resolveDepth", "augment", "filter", "sort"])(
   "rejects root %s settings",
   (key) => {
     for (const value of [null, false, () => ({})]) {

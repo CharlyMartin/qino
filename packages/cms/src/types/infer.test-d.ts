@@ -42,16 +42,15 @@ const posts = qino.defineCollection({
   relations: { author: () => authors },
   views: (view) => ({
     default: view({
-      resolveRelations: true,
       augment: async (entry) => ({ authorName: entry.author.name }),
     }),
-    raw: view({ resolveRelations: false }),
+    raw: view({ resolveDepth: { author: 0 } }),
     highlight: view({
-      resolveRelations: { depth: 1 },
+      resolveDepth: { author: 1 },
       augment: (entry) => ({ label: entry.author.name }),
     }),
-    deep: view({ resolveRelations: { depth: 2 } }),
-    full: view({ resolveRelations: { depth: 6 } }),
+    deep: view({ resolveDepth: { author: 2 } }),
+    full: view({ resolveDepth: { author: 6 } }),
   }),
 });
 
@@ -121,10 +120,9 @@ test("item inference matches getters and item metadata", async () => {
         augment: (entry) => ({ length: entry.markdown.length }),
       }),
       highlight: view({
-        resolveRelations: true,
         augment: async (entry) => ({ label: entry.author.name }),
       }),
-      raw: view({ resolveRelations: false }),
+      raw: view({ resolveDepth: { author: 0 } }),
     }),
   });
   type HomeTypes = Infer<typeof home>;
@@ -159,13 +157,13 @@ test("tree inference describes content entries and their views", async () => {
     relations: { author: authors },
     views: (view) => ({
       default: view({
-        resolveRelations: { depth: 1 },
+        resolveDepth: { author: 1 },
         augment: async (entry) => ({ label: entry.author.name }),
       }),
       highlight: view({
         augment: (entry) => ({ length: entry.markdown.length }),
       }),
-      full: view({ resolveRelations: true }),
+      full: view({}),
     }),
   });
   type DocTypes = Infer<typeof docs>;

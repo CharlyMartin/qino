@@ -32,8 +32,8 @@ test("spreads locally inferred views and selects the declared default", async ()
             return a.highlight;
           },
         }),
-        // No relations: changing depth preserves callback compatibility.
-        deep: view({ ...base, resolveRelations: { depth: 2 } }),
+        // No relations: an empty resolveDepth preserves callback compatibility.
+        deep: view({ ...base, resolveDepth: {} }),
         plain: view({}),
       };
     },
@@ -79,23 +79,22 @@ test("checks spread callbacks against changed relation shapes", () => {
     relations: { author: authors },
     views: (view) => {
       const base = view({
-        resolveRelations: { depth: 1 },
+        resolveDepth: { author: 1 },
         augment: (entry) => ({ lead: entry.author.lead.toUpperCase() }),
       });
       // @ts-expect-error At depth two, lead is an object, incompatible with the inherited callback input.
-      view({ ...base, resolveRelations: { depth: 2 } });
+      view({ ...base, resolveDepth: { author: 2 } });
       const listing = view({
-        resolveRelations: { depth: 1 },
         filter: (entry) => entry.author.lead.length > 0,
         sort: (a, b) => a.author.lead.localeCompare(b.author.lead),
       });
       // @ts-expect-error Filter and sort also require the original relation shape.
-      view({ ...listing, resolveRelations: { depth: 2 } });
+      view({ ...listing, resolveDepth: { author: 2 } });
       return {
         default: base,
         deep: view({
           ...base,
-          resolveRelations: { depth: 2 },
+          resolveDepth: { author: 2 },
           filter: undefined,
           sort: undefined,
           augment: (entry) => ({ lead: entry.author.lead.name }),
@@ -153,13 +152,13 @@ test("Collection requires default only when views exist", async () => {
   );
 });
 
-test("Collection rejects root resolveRelations with and without views", () => {
+test("Collection rejects root resolveDepth with and without views", () => {
   qino.defineCollection({
     directory: "plain",
     extension: ".json",
     schema,
     // @ts-expect-error View settings are forbidden at the root.
-    resolveRelations: true,
+    resolveDepth: {},
   });
   qino.defineCollection({
     directory: "plain",
@@ -167,7 +166,7 @@ test("Collection rejects root resolveRelations with and without views", () => {
     schema,
     views: (view) => ({ default: view({}) }),
     // @ts-expect-error Declaring views does not permit root settings.
-    resolveRelations: true,
+    resolveDepth: {},
   });
 });
 
@@ -279,14 +278,14 @@ test("Tree requires default only when views exist", async () => {
   );
 });
 
-test("Tree rejects root resolveRelations with and without views", () => {
+test("Tree rejects root resolveDepth with and without views", () => {
   qino.defineTree({
     directory: "docs",
     extension: ".json",
     titleField: "title",
     schema,
     // @ts-expect-error View settings are forbidden at the root.
-    resolveRelations: true,
+    resolveDepth: {},
   });
   qino.defineTree({
     directory: "docs",
@@ -295,7 +294,7 @@ test("Tree rejects root resolveRelations with and without views", () => {
     schema,
     views: (view) => ({ default: view({}) }),
     // @ts-expect-error Declaring views does not permit root settings.
-    resolveRelations: true,
+    resolveDepth: {},
   });
 });
 
@@ -400,19 +399,19 @@ test("Item requires default only when views exist", async () => {
   );
 });
 
-test("Item rejects root resolveRelations with and without views", () => {
+test("Item rejects root resolveDepth with and without views", () => {
   qino.defineItem({
     file: "home.json",
     schema,
     // @ts-expect-error View settings are forbidden at the root.
-    resolveRelations: true,
+    resolveDepth: {},
   });
   qino.defineItem({
     file: "home.json",
     schema,
     views: (view) => ({ default: view({}) }),
     // @ts-expect-error Declaring views does not permit root settings.
-    resolveRelations: true,
+    resolveDepth: {},
   });
 });
 

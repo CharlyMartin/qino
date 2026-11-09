@@ -1,5 +1,6 @@
 import { META_FIELD_NAME, QinoPrimitiveMarker } from "../../data/globals";
 import type { AnyRelations } from "../../types/relations";
+import type { ResolveDepths } from "../../types/resolve";
 import type { AnyEntry, AnyPrimitive, Slug } from "../../types/utils";
 import { isItem } from "../guards/is-item";
 import type { ResolveCache } from "./create-resolve-cache";
@@ -14,6 +15,8 @@ type ResolveEntryContext = {
   depth: number;
   /** When false, each relation resolves at most its own `resolveDepth`. */
   override: boolean;
+  /** The view's depths by relation path, overriding the branch below each. */
+  viewDepths?: ResolveDepths;
   sourceInstanceId: symbol;
 };
 
@@ -26,7 +29,7 @@ export function createRelationResolver(cache: ResolveCache) {
   return { resolveEntry };
 
   async function resolveEntry(entry: AnyEntry, ctx: ResolveEntryContext) {
-    const { relations, depth, override, sourceInstanceId } = ctx;
+    const { relations, depth, override, viewDepths, sourceInstanceId } = ctx;
     if (depth <= 0) return entry;
 
     let result: Record<string, unknown> = entry;
@@ -36,7 +39,13 @@ export function createRelationResolver(cache: ResolveCache) {
       target: resolvedTarget,
       resolveDepth,
     } of getRelationTargets(relations)) {
-      const hops = override ? depth : Math.min(depth, resolveDepth);
+      const viewDepth =
+        viewDepths && Object.hasOwn(viewDepths, relationKey)
+          ? viewDepths[relationKey]
+          : undefined;
+      const branchOverride = override || viewDepth != undefined;
+      const hops =
+        viewDepth ?? (override ? depth : Math.min(depth, resolveDepth));
       if (hops <= 0) continue;
 
       if (resolvedTarget[QinoPrimitiveMarker].instanceId != sourceInstanceId) {
@@ -63,7 +72,7 @@ export function createRelationResolver(cache: ResolveCache) {
               return resolveTargetReference(
                 resolvedTarget,
                 slug,
-                { depth: hops - 1, override },
+                { depth: hops - 1, override: branchOverride },
                 sourceInstanceId,
                 errorCtx,
               );

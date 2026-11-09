@@ -50,7 +50,7 @@ const postCollection = defineCollection({
   views: (view) => ({
     default: view({}),
     resolved: view({
-      resolveRelations: { depth: 1 },
+      resolveDepth: { author: 1 },
       augment: (post) => {
         expectTypeOf(post.cover).toEqualTypeOf<QinoImage>();
         expectTypeOf(post.author.avatar).toEqualTypeOf<QinoImage>();

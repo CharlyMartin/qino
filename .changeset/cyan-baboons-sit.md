@@ -2,11 +2,11 @@
 "@qino/cms": minor
 ---
 
-Changes how relations resolve: declared relations now resolve by default, and each relation can set its own depth. This is a breaking change.
+Changes how relations resolve: declared relations now resolve by default, each relation sets its own depth, and views set depths by relation with `resolveDepth`, which replaces `resolveRelations`. This is a breaking change.
 
 #### Relations resolve by default
 
-Views used to leave relations as strings unless they set `resolveRelations`. Now every view, including the implicit default, resolves each relation to its `resolveDepth`, which defaults to `1`: `post.author` is the author entry, and the author's own relations stay strings. To keep the old behavior in a view, set `resolveRelations: false`.
+Views used to leave relations as strings unless they set `resolveRelations`. Now every view, including the implicit default, resolves each relation to its `resolveDepth`, which defaults to `1`: `post.author` is the author entry, and the author's own relations stay strings. To keep a relation a string everywhere, declare it with `resolveDepth: 0`.
 
 #### `resolveDepth` on relations
 
@@ -21,13 +21,17 @@ relations: {
 
 A nested relation never resolves further than the hops left from its parent.
 
-#### `resolveRelations` takes `{ depth }`
+#### `resolveDepth` in views replaces `resolveRelations`
 
-A view's `resolveRelations` now takes `true` (the default: each relation uses its `resolveDepth`), `false` (nothing resolves), or `{ depth }` from `0` to `6`, which sets the depth of every relation. Bare numbers are no longer accepted, and `true` no longer means depth `6`:
+A view sets the depth of the relations it lists, keyed by relation path. Relations it leaves out use their own `resolveDepth`, and a depth the view sets applies to the whole branch below that relation. A path that isn't a relation, or a depth outside `0` to `6`, is a type error and throws at definition:
 
 ```diff
 - detail: view({ resolveRelations: 2 }),
-+ detail: view({ resolveRelations: { depth: 2 } }),
++ detail: view({ resolveDepth: { author: 2 } }),
+- raw: view({ resolveRelations: false }),
++ raw: view({ resolveDepth: { author: 0, "categories[*]": 0 } }),
 - full: view({ resolveRelations: true }),
-+ full: view({ resolveRelations: { depth: 6 } }),
++ full: view({ resolveDepth: { author: 6, "categories[*]": 6 } }),
 ```
+
+`view()` throws when given `resolveRelations`, and getters throw on `resolveDepth` as they did on `resolveRelations`: select a view instead.

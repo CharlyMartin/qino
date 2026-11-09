@@ -79,7 +79,7 @@ describe("defineTree", () => {
     expect(meta.titleField).toBe("title");
     expect(meta.orderFileName).toBe("_order.json");
     expect(meta.relations).toEqual({});
-    expect(meta.resolveRelations).toBe(true);
+    expect(meta.resolveDepth).toEqual({});
   });
 
   test("honours a custom orderFileName", () => {
@@ -227,7 +227,7 @@ describe("defineTree", () => {
       titleField: "title",
       views: (view) => ({
         default: view({}),
-        raw: view({ resolveRelations: false }),
+        raw: view({}),
       }),
     });
 
@@ -524,9 +524,7 @@ test("relations load nested Markdown tree entries without navigation or target a
   );
   const home = qino.defineItem({
     views: (view) => ({
-      default: view({
-        resolveRelations: true,
-      }),
+      default: view({}),
     }),
     file: "home.json",
     schema: z.object({ doc: z.string() }),

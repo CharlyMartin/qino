@@ -5,17 +5,12 @@ import type {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../data/globals";
-import type { AugmentOutput } from "./augment";
 import type { PrimitiveCloudConfig } from "./cloud";
 import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
 import type { AnyMediaConfig } from "./media";
 import type { Relations } from "./relations";
-import type {
-  NormalizeResolveOption,
-  ResolveEntry,
-  ResolveOption,
-} from "./resolve";
+import type { ResolveDepths, ResolveEntry, UnresolvedMode } from "./resolve";
 import type { ObjectSchema } from "./schema";
 import type {
   ContentPath,
@@ -44,11 +39,11 @@ export type ItemMeta<
   readonly file: ContentPath;
   readonly extension: Ext;
   readonly relations: Rels;
-  readonly resolveRelations: ResolveOption;
+  readonly resolveDepth: ResolveDepths;
   readonly media: AnyMediaConfig;
   readonly markdownStats: boolean;
   readonly cloud?: PrimitiveCloudConfig;
-  readonly readEntry: () => Promise<ResolvedItemView<Schema, Ext, Rels, false>>;
+  readonly readEntry: () => Promise<ResolvedItemView<Schema, Ext, Rels>>;
 };
 
 // Erased entries, so typed items compare structurally, not by variance.
@@ -103,14 +98,12 @@ export type ExtractItemExtension<F extends string> = F extends `${string}.json`
         ? ".md"
         : never;
 
+// An entry as read, before a view resolves its relations.
 export type ResolvedItemView<
   Schema extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Rels extends Relations<Schema>,
-  R extends ResolveOption,
-  Derived extends AugmentOutput = EmptyObject,
 > = Simplify<
   GeneratedFields<ItemEntryMeta<Ext>> &
-    ResolveEntry<Schema, Rels, NormalizeResolveOption<R>> &
-    Derived
+    ResolveEntry<Schema, Rels, EmptyObject, UnresolvedMode>
 >;

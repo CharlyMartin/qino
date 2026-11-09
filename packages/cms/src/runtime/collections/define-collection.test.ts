@@ -170,10 +170,9 @@ describe("getAllSlugs", () => {
       relations: { author: relation },
       views: (view) => ({
         default: view({
-          resolveRelations: true,
           augment,
         }),
-        detail: view({ resolveRelations: true, augment }),
+        detail: view({ augment }),
       }),
     });
     const readFile = vi

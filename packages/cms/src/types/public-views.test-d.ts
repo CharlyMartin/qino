@@ -39,14 +39,14 @@ function withReadingTime(view: CollectionView) {
 
 function treePreview(view: TreeView) {
   expectTypeOf<keyof Parameters<typeof view>[0]>().toEqualTypeOf<
-    "resolveRelations" | "augment"
+    "resolveDepth" | "augment"
   >();
   return view({ augment: (entry) => ({ source: entry._meta.slug }) });
 }
 
 function itemPreview(view: ItemView) {
   expectTypeOf<keyof Parameters<typeof view>[0]>().toEqualTypeOf<
-    "resolveRelations" | "augment"
+    "resolveDepth" | "augment"
   >();
   return view({ augment: (entry) => ({ source: entry._meta.filePath }) });
 }
@@ -73,7 +73,7 @@ test("public factory types support reusable views with inferred getter results",
   const omitted = {
     filter: undefined,
     sort: undefined,
-    resolveRelations: undefined,
+    resolveDepth: undefined,
   };
   expectTypeOf(await posts.getEntries({ view: "reading", ...omitted }))
     .items.toHaveProperty("readingMinutes")

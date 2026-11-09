@@ -13,12 +13,25 @@ import type { WithStats } from "./markdown-stats";
 import type { WithImages } from "./media";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
 import type { TreeEntryMeta } from "./tree";
-import type { JsonPathArray, SupportedFileExtension } from "./utils";
+import type {
+  EmptyObject,
+  JsonPathArray,
+  SupportedFileExtension,
+} from "./utils";
 
 export type MaxDepth = typeof MAX_RESOLVE_DEPTH;
 type DefaultResolveDepth = typeof DEFAULT_RESOLVE_DEPTH;
 export type Depth = IntClosedRange<0, MaxDepth>;
-export type ResolveOption = boolean | { depth: Depth };
+
+/** A view's `resolveDepth`: hops for some relations, keyed by path. */
+export type ResolveDepths = { readonly [path: string]: Depth | undefined };
+
+/** The relation paths of a primitive, without media and stats tags. */
+export type RelationPath<Rels> = Extract<keyof Rels, string>;
+
+export type ViewResolveDepth<Rels> = {
+  readonly [P in RelationPath<Rels>]?: Depth;
+};
 
 /**
  * How far relations resolve: `depth` hops left, and whether that depth
@@ -26,13 +39,25 @@ export type ResolveOption = boolean | { depth: Depth };
  */
 export type ResolveMode = { depth: Depth; override: boolean };
 
-export type NormalizeResolveOption<R extends ResolveOption> = R extends true
-  ? { depth: MaxDepth; override: false }
-  : R extends false
-    ? { depth: 0; override: true }
-    : R extends { depth: infer D extends Depth }
-      ? { depth: D; override: true }
-      : never;
+/** Each relation resolves its own `resolveDepth`. */
+type RootMode = { depth: MaxDepth; override: false };
+
+/** Relations stay strings: entries as read, before a view applies. */
+export type UnresolvedMode = { depth: 0; override: true };
+
+// A depth the view sets overrides the whole branch below that relation.
+// Distributes over `R`: each alternative of a union config sets its own keys.
+type ModeAt<P extends string, R, M extends ResolveMode> = R extends unknown
+  ? P extends keyof R
+    ?
+        | (Extract<R[P], Depth> extends infer D extends Depth
+            ? D extends unknown
+              ? { depth: D; override: true }
+              : never
+            : never)
+        | (undefined extends R[P] ? M : never)
+    : M
+  : never;
 
 type Dec<D extends Depth> = Subtract<D, 1> extends Depth ? Subtract<D, 1> : 0;
 
@@ -77,22 +102,25 @@ type ResolveValue<
   T,
   Rels,
   PathPrefix extends string,
+  R,
   M extends ResolveMode,
 > = PathPrefix extends keyof Rels & string
-  ? (T & (undefined | null)) | ResolveTarget<NonNullable<Rels[PathPrefix]>, M>
+  ?
+      | (T & (undefined | null))
+      | ResolveTarget<NonNullable<Rels[PathPrefix]>, ModeAt<PathPrefix, R, M>>
   : HasRelationBelow<PathPrefix, Rels> extends true
     ? T extends ReadonlyArray<infer U>
-      ? Array<ResolveValue<U, Rels, `${PathPrefix}${JsonPathArray}`, M>>
+      ? Array<ResolveValue<U, Rels, `${PathPrefix}${JsonPathArray}`, R, M>>
       : T extends object
         ? {
             [K in keyof T]: K extends string
-              ? ResolveValue<T[K], Rels, JoinPath<PathPrefix, K>, M>
+              ? ResolveValue<T[K], Rels, JoinPath<PathPrefix, K>, R, M>
               : T[K];
           }
         : T
     : T;
 
-// Distributes over `M`: a view whose `resolveRelations` is a union resolves either way.
+// Distributes over `M`: a view depth typed as a union resolves either way.
 type ResolveTarget<Decl, M extends ResolveMode> = M extends ResolveMode
   ? Hops<Decl, M> extends infer H extends Depth
     ? H extends 0
@@ -121,7 +149,7 @@ type ResolveRelationTarget<C, Next extends ResolveMode> = C extends {
               ? TreeEntryMeta<Ext>
               : CollectionEntryMeta<Ext>
           > &
-            ResolveEntry<S, Rels, Next>
+            ResolveEntry<S, Rels, EmptyObject, Next>
         >
       : never
     : never
@@ -136,21 +164,27 @@ type ResolveRelationTarget<C, Next extends ResolveMode> = C extends {
     ? Ext extends SupportedFileExtension
       ? S extends ObjectSchema
         ? Simplify<
-            GeneratedFields<ItemEntryMeta<Ext>> & ResolveEntry<S, Rels, Next>
+            GeneratedFields<ItemEntryMeta<Ext>> &
+              ResolveEntry<S, Rels, EmptyObject, Next>
           >
         : never
       : never
     : never;
 
+/**
+ * An entry with its relations resolved: `R` holds the view's depths by
+ * relation path, `M` the mode of relations it leaves out.
+ */
 export type ResolveEntry<
   S extends ObjectSchema,
   Rels,
-  M extends ResolveMode,
+  R = EmptyObject,
+  M extends ResolveMode = RootMode,
 > = WithStats<
   WithImages<
     M["depth"] extends 0
       ? ValidatedOutput<S>
-      : ResolveValue<ValidatedOutput<S>, Rels, "", M>,
+      : ResolveValue<ValidatedOutput<S>, Rels, "", R, M>,
     Rels
   >,
   Rels

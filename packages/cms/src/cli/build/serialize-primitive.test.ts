@@ -34,7 +34,7 @@ describe("serializePrimitive", () => {
       schema: z.object({ title: z.string(), author: z.string() }),
       extension: ".md",
       relations: { author: authors },
-      views: (view) => ({ default: view({ resolveRelations: true }) }),
+      views: (view) => ({ default: view({}) }),
     });
 
     expect(serializePrimitive(posts)).toEqual({

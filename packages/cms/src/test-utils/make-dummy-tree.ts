@@ -1,6 +1,6 @@
 import { QinoPrimitiveMarker, QinoPrimitives } from "../data/globals";
 import type { AnyRelations } from "../types/relations";
-import type { ResolveOption } from "../types/resolve";
+import type { ResolveDepths } from "../types/resolve";
 import type { AnyTree } from "../types/tree";
 import type {
   AnyEntry,
@@ -35,7 +35,7 @@ export function makeDummyTree({
       titleField: "title",
       orderFileName: "_order.json",
       relations,
-      resolveRelations: false as ResolveOption,
+      resolveDepth: {} as ResolveDepths,
       media: {},
       markdownStats: false,
       readEntry: async (slug: string) => {

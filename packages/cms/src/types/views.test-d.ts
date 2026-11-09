@@ -36,19 +36,18 @@ const posts = qino.defineCollection({
   relations: { author: () => authors },
   views: (view) => ({
     default: view({
-      resolveRelations: true,
       augment: (entry) => ({ defaultName: entry.author.name }),
     }),
     raw: view({
-      resolveRelations: false,
+      resolveDepth: { author: 0 },
       augment: (entry) => ({ slugLength: entry.author.length }),
     }),
     shallow: view({
-      resolveRelations: { depth: 1 },
+      resolveDepth: { author: 1 },
       augment: (entry) => ({ leadSlug: entry.author.lead }),
     }),
     detail: view({
-      resolveRelations: { depth: 2 },
+      resolveDepth: { author: 2 },
       augment: async (entry) => ({ leadName: entry.author.lead.name }),
     }),
     empty: view({}),
@@ -65,11 +64,10 @@ const tree = qino.defineTree({
   views: (view) => ({
     default: view({}),
     raw: view({
-      resolveRelations: false,
+      resolveDepth: { author: 0 },
       augment: (entry) => ({ authorSlug: entry.author }),
     }),
     detail: view({
-      resolveRelations: true,
       augment: (entry) => ({
         authorName: entry.author.name,
         source: entry._meta.slug,
@@ -83,15 +81,14 @@ const home = qino.defineItem({
   relations: { author: authors },
   views: (view) => ({
     default: view({
-      resolveRelations: false,
+      resolveDepth: { author: 0 },
       augment: (entry) => ({ defaultSlug: entry.author }),
     }),
     raw: view({
-      resolveRelations: false,
+      resolveDepth: { author: 0 },
       augment: (entry) => ({ authorSlug: entry.author }),
     }),
     detail: view({
-      resolveRelations: true,
       augment: async (entry) => ({ authorName: entry.author.name }),
     }),
   }),
@@ -106,7 +103,7 @@ describe("views inference", () => {
       schema,
       views: (view) => {
         expectTypeOf<keyof Parameters<typeof view>[0]>().toEqualTypeOf<
-          "resolveRelations" | "augment"
+          "resolveDepth" | "augment"
         >();
         // @ts-expect-error Tree views cannot sort.
         view({ sort: () => 0 });
@@ -118,7 +115,7 @@ describe("views inference", () => {
       schema,
       views: (view) => {
         expectTypeOf<keyof Parameters<typeof view>[0]>().toEqualTypeOf<
-          "resolveRelations" | "augment"
+          "resolveDepth" | "augment"
         >();
         // @ts-expect-error Item views cannot filter.
         view({ filter: () => true });
@@ -131,7 +128,7 @@ describe("views inference", () => {
       schema,
       views: (view) => {
         expectTypeOf<keyof Parameters<typeof view>[0]>().toEqualTypeOf<
-          "resolveRelations" | "augment" | "filter" | "sort"
+          "resolveDepth" | "augment" | "filter" | "sort"
         >();
         return { default: view({}), empty: view({}) };
       },
@@ -165,7 +162,7 @@ describe("views inference", () => {
       extension: ".md",
       schema,
       // @ts-expect-error Each definition must come from the helper.
-      views: () => ({ detail: { resolveRelations: false } }),
+      views: () => ({ detail: { resolveDepth: {} } }),
     });
     qino.defineTree({
       directory: "docs",
@@ -173,13 +170,13 @@ describe("views inference", () => {
       titleField: "title",
       schema,
       // @ts-expect-error Each definition must come from the helper.
-      views: () => ({ detail: { resolveRelations: false } }),
+      views: () => ({ detail: { resolveDepth: {} } }),
     });
     qino.defineItem({
       file: "home.json",
       schema,
       // @ts-expect-error Each definition must come from the helper.
-      views: () => ({ detail: { resolveRelations: false } }),
+      views: () => ({ detail: { resolveDepth: {} } }),
     });
     qino.defineItem({
       file: "home.json",
@@ -254,7 +251,7 @@ describe("views inference", () => {
       },
       views: (view) => ({
         default: view({}),
-        flat: view({ resolveRelations: { depth: 1 } }),
+        flat: view({ resolveDepth: { author: 1, editor: 1 } }),
       }),
     });
     const entry = await collection.getEntry("hello");
@@ -347,11 +344,11 @@ describe("views inference", () => {
     // @ts-expect-error Unknown view.
     posts.getEntry("hello", { view: "missing" });
     // @ts-expect-error Per-call resolution has been removed.
-    posts.getEntries({ resolveRelations: false });
+    posts.getEntries({ resolveDepth: { author: 0 } });
     // @ts-expect-error Selecting a view cannot override its fixed depth.
-    posts.getEntries({ view: "detail", resolveRelations: false });
+    posts.getEntries({ view: "detail", resolveDepth: { author: 0 } });
     // @ts-expect-error Per-call resolution is also removed without views.
-    authors.getEntry("alice", { resolveRelations: false });
+    authors.getEntry("alice", { resolveDepth: { lead: 0 } });
     // @ts-expect-error Tree view names are restricted.
     tree.getEntry("hello", { view: "missing" });
     // @ts-expect-error Item view names are restricted.

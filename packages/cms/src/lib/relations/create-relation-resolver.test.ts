@@ -7,6 +7,7 @@ import { makeDummyEntry } from "../../test-utils/make-dummy-entry";
 import { makeDummyItem } from "../../test-utils/make-dummy-item";
 import { makeDummyTree } from "../../test-utils/make-dummy-tree";
 import type { AnyRelations, RelationTarget } from "../../types/relations";
+import type { ResolveDepths } from "../../types/resolve";
 import { createRelationResolver } from "./create-relation-resolver";
 import { createResolveCache } from "./create-resolve-cache";
 
@@ -582,6 +583,105 @@ describe("createRelationResolver", () => {
       expect(result.author).toMatchObject({
         avatar: { url: "https://example.com/portrait.png" },
       });
+    });
+  });
+
+  describe("view depths", () => {
+    const portrait = makeDummyEntry({
+      slug: "portrait",
+      extension: ".json",
+      fields: { url: "https://example.com/portrait.png" },
+    });
+    const media = makeDummyCollection({
+      directory: "media",
+      extension: ".json",
+      store: new Map([["portrait", portrait]]),
+    });
+    const alice = makeDummyEntry({
+      slug: "alice",
+      extension: ".json",
+      fields: { name: "Alice", avatar: "media/portrait.json" },
+    });
+    const post = makeDummyEntry({
+      slug: "post",
+      extension: ".json",
+      fields: { author: "authors/alice.json", cover: "media/portrait.json" },
+    });
+
+    function resolve(relations: AnyRelations, viewDepths: ResolveDepths) {
+      return createRelationResolver(createResolveCache()).resolveEntry(post, {
+        relations,
+        depth: MAX_RESOLVE_DEPTH,
+        override: false,
+        viewDepths,
+        sourceInstanceId,
+      });
+    }
+
+    function makeAuthors(relations: AnyRelations) {
+      return makeDummyCollection({
+        directory: "authors",
+        extension: ".json",
+        store: new Map([["alice", alice]]),
+        relations,
+      });
+    }
+
+    test("overrides the whole branch below the relation", async () => {
+      const authors = makeAuthors({
+        avatar: { target: media, resolveDepth: 0 },
+      });
+
+      const result = await resolve(
+        { author: { target: authors, resolveDepth: 0 } },
+        { author: 2 },
+      );
+
+      expect(result.author).toMatchObject({
+        avatar: { url: "https://example.com/portrait.png" },
+      });
+    });
+
+    test("keeps the string at 0", async () => {
+      const result = await resolve({ author: makeAuthors({}) }, { author: 0 });
+
+      expect(result.author).toBe("authors/alice.json");
+    });
+
+    test("leaves relations it doesn't set at their own resolveDepth", async () => {
+      const result = await resolve(
+        {
+          author: makeAuthors({ avatar: media }),
+          cover: { target: media, resolveDepth: 0 },
+        },
+        { author: 2, cover: undefined },
+      );
+
+      expect(result.cover).toBe("media/portrait.json");
+      expect(result.author).toMatchObject({
+        avatar: { url: "https://example.com/portrait.png" },
+      });
+    });
+
+    test("applies to the root entry only", async () => {
+      // `avatar` here is the author's relation, not the post's.
+      const result = await resolve(
+        { author: makeAuthors({ avatar: media }) },
+        { avatar: 0 },
+      );
+
+      expect(result.author).toMatchObject({
+        avatar: "media/portrait.json",
+      });
+    });
+
+    test("ignores inherited keys", async () => {
+      const result = await resolve(
+        { author: makeAuthors({}) },
+        Object.create({ author: 0 }),
+      );
+
+      expect(result.author).toMatchObject({ name: "Alice" });
     });
   });
 });

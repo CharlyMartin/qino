@@ -1,5 +1,5 @@
 import type { AugmentOutput } from "./augment";
-import type { ResolveOption } from "./resolve";
+import type { ResolveDepths } from "./resolve";
 import type { ObjectSchema } from "./schema";
 import type { EmptyObject } from "./utils";
 import type {
@@ -18,7 +18,7 @@ export type CollectionViewConfig<
   S extends ObjectSchema,
   Meta,
   Rels,
-  R extends ResolveOption,
+  R extends ResolveDepths,
   Derived extends AugmentOutput,
 > = ViewConfig<S, Meta, Rels, R, Derived> &
   CollectionCallbacks<ViewEntry<S, Meta, Rels, NoInfer<R>> & NoInfer<Derived>>;
@@ -26,7 +26,7 @@ export type CollectionViewConfig<
 // Infer each helper call from its config, without the factory return context
 // widening relation depth or augmented fields.
 export type CollectionViewFactory<S extends ObjectSchema, Meta, Rels> = <
-  const R extends ResolveOption = true,
+  const R extends ResolveDepths = EmptyObject,
   Derived extends AugmentOutput = EmptyObject,
 >(
   config: CollectionViewConfig<S, Meta, Rels, R, Derived>,

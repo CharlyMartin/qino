@@ -1,7 +1,7 @@
 import { QinoPrimitiveMarker, QinoPrimitives } from "../data/globals";
 import type { AnyCollection } from "../types/collection";
 import type { AnyRelations } from "../types/relations";
-import type { ResolveOption } from "../types/resolve";
+import type { ResolveDepths } from "../types/resolve";
 import type {
   AnyEntry,
   ContentPath,
@@ -34,7 +34,7 @@ export function makeDummyCollection({
       directory,
       extension,
       relations,
-      resolveRelations: false as ResolveOption,
+      resolveDepth: {} as ResolveDepths,
       media: {},
       markdownStats: false,
       readEntries: async () => Array.from(store.values()) as never,
