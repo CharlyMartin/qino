@@ -10,7 +10,7 @@ since: "releases/0.1.0.md"
 views: (view) => ({
   default: view({}),
   detail: view({
-    resolveRelations: { depth: 2 },
+    resolveDepth: { author: 2 },
     augment: (entry) => ({ companyName: entry.author.company.name }),
   }),
 }),
@@ -20,7 +20,7 @@ views: (view) => ({
 
 ```ts title="@qino/cms"
 view(config: {
-  resolveRelations?: boolean | { depth: 0 | 1 | 2 | 3 | 4 | 5 | 6 };
+  resolveDepth?: { [relationPath]?: 0 | 1 | 2 | 3 | 4 | 5 | 6 };
   augment?: (entry: Entry) => Derived | Promise<Derived>;
   filter?: (entry: Entry) => boolean; // collections only
   sort?: (a: Entry, b: Entry) => number; // collections only
@@ -29,14 +29,18 @@ view(config: {
 
 ## Parameters
 
-| Name               | Type                                   | Required | Default | Collection | Tree | Item | Description                                                                        |
-| ------------------ | -------------------------------------- | -------- | ------- | ---------- | ---- | ---- | ---------------------------------------------------------------------------------- |
-| `resolveRelations` | `boolean \| { depth: 0..6 }`           | no       | `true`  | yes        | yes  | yes  | `true` uses each relation's `resolveDepth`. `{ depth }` sets it for every relation |
-| `augment`          | `(entry) => object \| Promise<object>` | no       |         | yes        | yes  | yes  | Adds fields. Receives resolved relations. May not overwrite existing fields        |
-| `filter`           | `(entry) => boolean`                   | no       |         | yes        | no   | no   | Synchronous predicate, runs after augment. Applies to `getEntries` and `getEntry`  |
-| `sort`             | `(a, b) => number`                     | no       |         | yes        | no   | no   | Synchronous comparator, runs after filter. Applies to `getEntries` only            |
+| Name           | Type                                   | Required | Default | Collection | Tree | Item | Description                                                                                       |
+| -------------- | -------------------------------------- | -------- | ------- | ---------- | ---- | ---- | ------------------------------------------------------------------------------------------------- |
+| `resolveDepth` | `{ [relationPath]?: 0..6 }`            | no       | `{}`    | yes        | yes  | yes  | Hops for the relations it lists. Others use their own `resolveDepth`. See [Resolving](#resolving) |
+| `augment`      | `(entry) => object \| Promise<object>` | no       |         | yes        | yes  | yes  | Adds fields. Receives resolved relations. May not overwrite existing fields                       |
+| `filter`       | `(entry) => boolean`                   | no       |         | yes        | no   | no   | Synchronous predicate, runs after augment. Applies to `getEntries` and `getEntry`                 |
+| `sort`         | `(a, b) => number`                     | no       |         | yes        | no   | no   | Synchronous comparator, runs after filter. Applies to `getEntries` only                           |
 
 The helper for trees and items omits `filter` and `sort` from autocomplete and rejects them at runtime.
+
+## Resolving
+
+`resolveDepth` keys are the primitive's relation paths, as declared in `relations`, such as `author` or `"categories[*]"`. A depth set in the view applies to the whole branch: `{ author: 2 }` also resolves the author's own relations, even those the author's primitive declares with `resolveDepth: 0`. `0` keeps the relation a string. See [Relations](/docs/concepts/relations#resolving).
 
 ## Returns
 
@@ -48,11 +52,14 @@ A view definition. The factory must return an object with a `default` key and an
 - Views are independent. Nothing is inherited from `default`.
 - Reuse by spreading: `view({ ...base, filter: (entry) => entry.featured })`. Spread replaces callbacks, it does not compose them. Clear a copied callback with `filter: undefined`.
 - `augment` runs after relation resolution. Entries a relation resolves to never include their own augment fields.
-- Root-level `resolveRelations`, `augment`, `filter`, or `sort` on the primitive are rejected.
+- Root-level `resolveDepth`, `augment`, `filter`, or `sort` on the primitive are rejected.
 
 ## Throws
 
 - `view() requires a configuration object.`
+- `view() no longer takes resolveRelations. Set depths by relation with resolveDepth, such as { author: 2 }.`
+- `View "<name>": resolveDepth sets "<path>", which isn't a relation. Relations: <paths>.`
+- `View "<name>": resolveDepth of "<path>" must be a whole number from 0 to 6, got <value>.`
 - `tree views do not support filter or sort.` and `item views do not support filter or sort.`
 - At augment time: `<filePath>: augment failed: <message>`, `<filePath>: augment must return an object.`, and `<filePath>: augment cannot add reserved or overwrite existing fields: <keys>.`
 

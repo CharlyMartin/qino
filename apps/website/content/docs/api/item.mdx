@@ -19,9 +19,6 @@ export const homeItem = qino.defineItem({
     "featured-posts": z.array(z.string()),
   }),
   relations: { "featured-posts[*]": postCollection },
-  views: (view) => ({
-    default: view({ resolveRelations: true }),
-  }),
 });
 ```
 
@@ -48,7 +45,7 @@ qino.defineItem(params: {
 | `relations`     | `Record<path, primitive \| () => primitive>`          | no       | `{}`    | Same grammar as collections                                                                                                                                                                                                     |
 | `media`         | `Record<path, { accepted; maxSize }> & { markdown? }` | no       | `{}`    | Media fields, keyed by path to a string field, with the one MIME type each accepts and its max size. Image fields are read as `QinoImage`. `markdown` lists the rules body images must match. See [Media](/docs/concepts/media) |
 | `markdownStats` | `boolean`                                             | no       | `false` | Adds `_stats`, the word and character counts of the body. Markdown and MDX only. See [MarkdownStats](/docs/api/types/markdown-stats)                                                                                            |
-| `views`         | `(view) => { default: View; [name]: View }`           | no       |         | Helper offers `resolveRelations` and `augment` only                                                                                                                                                                             |
+| `views`         | `(view) => { default: View; [name]: View }`           | no       |         | Helper offers `resolveDepth` and `augment` only                                                                                                                                                                                 |
 | `cloud`         | `{ displayAs?; hiddenFields?; media? }`               | no       |         | Cloud UI name, hidden fields, and where uploads are saved. Requires `cloud` on `initQino`. See [Cloud](/docs/guide/cloud#primitives)                                                                                            |
 
 There is no `extension` option and no slug.

@@ -23,7 +23,7 @@ export const postCollection = qino.defineCollection({
   relations: { author: authorCollection },
   views: (view) => ({
     default: view({ filter: (post) => !post.draft }),
-    detail: view({ resolveRelations: { depth: 2 } }),
+    detail: view({ resolveDepth: { author: 2 } }),
   }),
 });
 ```
@@ -56,7 +56,7 @@ qino.defineCollection(params: {
 | `views`         | `(view) => { default: View; [name]: View }`                                                        | no       |         | Factory run once at definition. Must return a `default` view made with the helper                                                                                                                                               |
 | `cloud`         | `{ displayAs?; displayEntryAs?; saveEntryAs?; searchableBy?; sortableBy?; hiddenFields?; media? }` | no       |         | Cloud UI names, entry labels and naming, search, sort, hidden fields, and where uploads are saved. Requires `cloud` on `initQino`. See [Cloud](/docs/guide/cloud#primitives)                                                    |
 
-`resolveRelations`, `augment`, `filter`, and `sort` are rejected at the root. Put them inside a view. See [view](/docs/api/view).
+`resolveDepth`, `augment`, `filter`, and `sort` are rejected at the root. Put them inside a view. See [view](/docs/api/view).
 
 ## Returns
 

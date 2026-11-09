@@ -73,17 +73,17 @@ Declared relations resolve by default. Each one resolves to its `resolveDepth`, 
 
 A nested relation never goes further than the hops left: if `author` has `resolveDepth: 1`, the author's own relations stay strings even when they set a higher `resolveDepth`.
 
-A view can change this with `resolveRelations`:
+A view can set the depth of some relations with `resolveDepth`, keyed by relation path:
 
 ```ts title="qino/collections/posts.ts"
 views: (view) => ({
-  default: view({}), // each relation resolves to its resolveDepth
-  raw: view({ resolveRelations: false }), // author stays "authors/camille-laurent.json"
-  detail: view({ resolveRelations: { depth: 2 } }), // every relation resolves 2 hops
+  default: view({}), // each relation resolves to its own resolveDepth
+  card: view({ resolveDepth: { author: 0 } }), // author stays "authors/camille-laurent.json"
+  detail: view({ resolveDepth: { author: 2 } }), // author and the author's relations resolve
 }),
 ```
 
-`true`, the default, uses each relation's `resolveDepth`. `false` keeps every relation a string. `{ depth }`, from `0` to `6`, sets the depth of every relation and ignores their `resolveDepth`.
+Relations the view leaves out keep their own `resolveDepth`. A depth the view sets applies to the whole branch below that relation: with `{ author: 2 }`, the author's relations resolve even when the author's primitive declares them with `resolveDepth: 0`. A path that isn't a relation, or a depth outside `0` to `6`, is a type error and throws when the primitive is defined.
 
 Keep depths low. Each hop reads the target files of every entry returned, and a self-relation such as `related: () => postCollection` can reach most of the collection within a few hops. Resolved entries are plain objects, so a deep graph also repeats the same entries in what a page sends to the client.
 
@@ -94,4 +94,4 @@ A nullable or optional relation field stays nullable after resolution. Within on
 ## Where relations are and are not checked
 
 - `getEntries` and `getEntry`, unless the view or the relation turns resolution off: the reference is validated and the target is read. A bad reference throws.
-- Views with `resolveRelations: false`, relations with `resolveDepth: 0`, `getAllSlugs`, and `qino check`: the reference is an ordinary string and is not followed.
+- Relations at depth `0`, from their own `resolveDepth` or the view's, `getAllSlugs`, and `qino check`: the reference is an ordinary string and is not followed.

@@ -21,9 +21,6 @@ export const homeItem = qino.defineItem({
   relations: {
     "featured-posts[*]": postCollection,
   },
-  views: (view) => ({
-    default: view({ resolveRelations: true }),
-  }),
 });
 ```
 
@@ -47,7 +44,7 @@ home._meta.fileName; // "home.md"
 
 ## Views
 
-Items support `resolveRelations` and `augment` in views, but not `filter` or `sort`. See [Views](/docs/concepts/views).
+Items support `resolveDepth` and `augment` in views, but not `filter` or `sort`. See [Views](/docs/concepts/views).
 
 ## As a relation target
 
