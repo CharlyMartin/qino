@@ -18,7 +18,7 @@
     "@tanstack/react-start": "1.169.4",
     "@tanstack/start-static-server-functions": "1.167.44",
     "@vercel/analytics": "2.0.1",
-    "@vercel/speed-insights": "2.0.0",
+    "@vercel/speed-insights": "2.1.0",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "forminit": "0.2.4",
