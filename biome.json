@@ -60,6 +60,23 @@
     },
     {
       "includes": [
+        ".agents/skills/**",
+        "!.agents/skills/changeset/**",
+        "!.agents/skills/codex-review/**",
+        "!.agents/skills/ship/**"
+      ],
+      "formatter": {
+        "enabled": false
+      },
+      "linter": {
+        "enabled": false
+      },
+      "assist": {
+        "enabled": false
+      }
+    },
+    {
+      "includes": [
         "packages/cms/src/index.ts",
         "packages/cms/src/utils/index.ts",
         "packages/cms/src/cli/index.ts",
