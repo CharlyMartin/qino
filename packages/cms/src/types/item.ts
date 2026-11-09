@@ -11,7 +11,11 @@ import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
 import type { AnyMediaConfig } from "./media";
 import type { Relations } from "./relations";
-import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
+import type {
+  NormalizeResolveOption,
+  ResolveEntry,
+  ResolveOption,
+} from "./resolve";
 import type { ObjectSchema } from "./schema";
 import type {
   ContentPath,
@@ -107,6 +111,6 @@ export type ResolvedItemView<
   Derived extends AugmentOutput = EmptyObject,
 > = Simplify<
   GeneratedFields<ItemEntryMeta<Ext>> &
-    ResolveEntry<Schema, Rels, NormalizeDepth<R>> &
+    ResolveEntry<Schema, Rels, NormalizeResolveOption<R>> &
     Derived
 >;

@@ -13,7 +13,7 @@ describe.each(["collection", "tree", "item"] as const)(
         empty: view({}),
       }));
       expect(buildViews(factory, primitive)?.empty?.resolveRelations).toBe(
-        false,
+        true,
       );
       expect(factory).toHaveBeenCalledTimes(1);
     });

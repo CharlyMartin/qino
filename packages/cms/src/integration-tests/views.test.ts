@@ -119,6 +119,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
           }),
         );
         const configView = {
+          resolveRelations: false as const,
           augment: defaultAugment,
         };
         const config = {
@@ -129,10 +130,10 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
           ...config,
           views: (view) => ({
             default: view({ ...configView }),
-            raw: view({ augment: rawAugment }),
-            shallow: view({ resolveRelations: 1 as const }),
+            raw: view({ resolveRelations: false, augment: rawAugment }),
+            shallow: view({ resolveRelations: { depth: 1 } as const }),
             detail: view({
-              resolveRelations: 2 as const,
+              resolveRelations: { depth: 2 } as const,
               augment: detailAugment,
             }),
             baseline: view({}),
@@ -144,10 +145,10 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
           ...config,
           views: (view) => ({
             default: view({ ...configView }),
-            raw: view({ augment: rawAugment }),
-            shallow: view({ resolveRelations: 1 as const }),
+            raw: view({ resolveRelations: false, augment: rawAugment }),
+            shallow: view({ resolveRelations: { depth: 1 } as const }),
             detail: view({
-              resolveRelations: 2 as const,
+              resolveRelations: { depth: 2 } as const,
               augment: detailAugment,
             }),
             baseline: view({}),
@@ -160,10 +161,10 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
           ...config,
           views: (view) => ({
             default: view({ ...configView }),
-            raw: view({ augment: rawAugment }),
-            shallow: view({ resolveRelations: 1 as const }),
+            raw: view({ resolveRelations: false, augment: rawAugment }),
+            shallow: view({ resolveRelations: { depth: 1 } as const }),
             detail: view({
-              resolveRelations: 2 as const,
+              resolveRelations: { depth: 2 } as const,
               augment: detailAugment,
             }),
             baseline: view({}),
@@ -208,7 +209,9 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
         expect(detail[0]).not.toHaveProperty("defaultSlug");
         expect(detailAugment).toHaveBeenCalledTimes(detail.length);
         const baseline = await read({ view: "baseline" });
-        expect(baseline[0]).toMatchObject({ author: "authors/alice.json" });
+        expect(baseline[0]).toMatchObject({
+          author: { name: "Alice", lead: "senior.json" },
+        });
         expect(baseline[0]).not.toHaveProperty("label");
         expect(baseline[0]).not.toHaveProperty("defaultSlug");
         expect(defaultAugment).toHaveBeenCalledTimes(defaultEntries.length);
@@ -236,7 +239,7 @@ describe.each(["collection", "tree", "item"])("%s target", (targetKind) => {
   );
 });
 
-test("default getters preserve references and run augment without loading targets", async () => {
+test("default views without resolution preserve references and run augment without loading targets", async () => {
   const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   const authors = qino.defineCollection({
     directory: "authors",
@@ -245,6 +248,7 @@ test("default getters preserve references and run augment without loading target
   });
   await fs.unlink(path.join(tmp, "authors/alice.json"));
   const configView = {
+    resolveRelations: false as const,
     augment: (entry: { author: string }) => ({ reference: entry.author }),
   };
   const config = {
@@ -359,20 +363,29 @@ test("explicit resolution on the default runs before augmenting on every primiti
   };
   const collection = qino.defineCollection({
     ...config,
-    views: (view) => ({ default: view({ ...configView }), raw: view({}) }),
+    views: (view) => ({
+      default: view({ ...configView }),
+      raw: view({ resolveRelations: false }),
+    }),
     directory: "posts",
     extension: ".json",
   });
   const tree = qino.defineTree({
     ...config,
-    views: (view) => ({ default: view({ ...configView }), raw: view({}) }),
+    views: (view) => ({
+      default: view({ ...configView }),
+      raw: view({ resolveRelations: false }),
+    }),
     directory: "docs",
     extension: ".json",
     titleField: "title",
   });
   const item = qino.defineItem({
     ...config,
-    views: (view) => ({ default: view({ ...configView }), raw: view({}) }),
+    views: (view) => ({
+      default: view({ ...configView }),
+      raw: view({ resolveRelations: false }),
+    }),
     file: "home.json",
   });
   for (const entry of [

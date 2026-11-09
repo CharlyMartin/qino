@@ -11,7 +11,11 @@ import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
 import type { AnyMediaConfig } from "./media";
 import type { Relations } from "./relations";
-import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
+import type {
+  NormalizeResolveOption,
+  ResolveEntry,
+  ResolveOption,
+} from "./resolve";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
 import type { SlugFor } from "./slug-registry";
 import type {
@@ -118,7 +122,7 @@ export type ResolvedTreeEntry<
   Derived extends AugmentOutput = EmptyObject,
 > = Simplify<
   GeneratedFields<TreeEntryMeta<Ext>> &
-    ResolveEntry<Schema, Rels, NormalizeDepth<R>> &
+    ResolveEntry<Schema, Rels, NormalizeResolveOption<R>> &
     Derived
 >;
 

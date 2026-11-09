@@ -14,7 +14,7 @@ export type EntryAugment<
   Meta,
   Output extends AugmentOutput,
   Rels = object,
-  R extends ResolveOption = false,
+  R extends ResolveOption = true,
 > = (
   entry: Readonly<ViewEntry<Schema, Meta, Rels, R>>,
 ) => Awaitable<NoConflictingKeys<ViewEntry<Schema, Meta, Rels, R>, Output>>;

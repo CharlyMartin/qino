@@ -21,12 +21,12 @@ export type CollectionViewConfig<
   R extends ResolveOption,
   Derived extends AugmentOutput,
 > = ViewConfig<S, Meta, Rels, R, Derived> &
-  CollectionCallbacks<ViewEntry<S, Meta, Rels, R> & NoInfer<Derived>>;
+  CollectionCallbacks<ViewEntry<S, Meta, Rels, NoInfer<R>> & NoInfer<Derived>>;
 
 // Infer each helper call from its config, without the factory return context
 // widening relation depth or augmented fields.
 export type CollectionViewFactory<S extends ObjectSchema, Meta, Rels> = <
-  R extends ResolveOption = false,
+  const R extends ResolveOption = true,
   Derived extends AugmentOutput = EmptyObject,
 >(
   config: CollectionViewConfig<S, Meta, Rels, R, Derived>,

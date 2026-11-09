@@ -35,6 +35,7 @@ test("infers post-augment inputs independently for default and named views", asy
         sort: (a, b) => a.label.localeCompare(b.label),
       }),
       raw: view({
+        resolveRelations: false,
         augment: (entry) => ({ length: entry.author.length }),
         filter: (entry) => {
           expectTypeOf(entry.author).toEqualTypeOf<string>();
@@ -46,14 +47,14 @@ test("infers post-augment inputs independently for default and named views", asy
         sort: (a, b) => b.length - a.length,
       }),
       resolved: view({
-        resolveRelations: 1,
+        resolveRelations: { depth: 1 },
         augment: async (entry) => ({ name: entry.author.name }),
         filter: (entry) => entry.name == entry.author.name,
         sort: (a, b) => a.name.localeCompare(b.name),
       }),
       plain: view({
         filter: (entry) => entry.title.length > 0,
-        sort: (a, b) => a.author.localeCompare(b.author),
+        sort: (a, b) => a.author.name.localeCompare(b.author.name),
       }),
       empty: view({}),
     }),
@@ -69,6 +70,7 @@ test("infers post-augment inputs independently for default and named views", asy
     .toEqualTypeOf<string>();
   expectTypeOf(await posts.getEntries({ view: "empty" }))
     .items.toHaveProperty("author")
+    .toHaveProperty("name")
     .toEqualTypeOf<string>();
   type Options = NonNullable<Parameters<typeof posts.getEntries>[0]>;
   expectTypeOf<Options["view"]>().toEqualTypeOf<

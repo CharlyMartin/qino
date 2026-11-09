@@ -26,7 +26,7 @@ const postCollection = defineCollection({
   views: (view) => ({
     default: view({}),
     resolved: view({
-      resolveRelations: 1,
+      resolveRelations: { depth: 1 },
       augment: (post) => {
         expectTypeOf(post._stats).toEqualTypeOf<MarkdownStats>();
         expectTypeOf(post.author._stats).toEqualTypeOf<MarkdownStats>();

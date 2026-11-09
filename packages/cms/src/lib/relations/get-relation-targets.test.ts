@@ -17,8 +17,20 @@ describe("getRelationTargets", () => {
     expect(
       getRelationTargets({ author: authors, "tags[*]": () => authors }),
     ).toEqual([
-      { path: "author", target: authors },
-      { path: "tags[*]", target: authors },
+      { path: "author", target: authors, resolveDepth: 1 },
+      { path: "tags[*]", target: authors, resolveDepth: 1 },
+    ]);
+  });
+
+  test("unwraps { target } declarations with their resolveDepth", () => {
+    expect(
+      getRelationTargets({
+        author: { target: authors, resolveDepth: 3 },
+        "tags[*]": { target: () => authors },
+      }),
+    ).toEqual([
+      { path: "author", target: authors, resolveDepth: 3 },
+      { path: "tags[*]", target: authors, resolveDepth: 1 },
     ]);
   });
 

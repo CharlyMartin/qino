@@ -50,6 +50,20 @@ describe("serializeRelations", () => {
     ]);
   });
 
+  test("writes { target } declarations like bare targets, without resolveDepth", () => {
+    expect(
+      serializeRelations({
+        author: { target: () => authors, resolveDepth: 3 },
+      }),
+    ).toEqual([
+      {
+        path: "author",
+        target: { kind: "collection", id: "authors" },
+        cardinality: "one",
+      },
+    ]);
+  });
+
   test("resolves lazy targets", () => {
     expect(serializeRelations({ "meta.authors[*]": () => authors })).toEqual([
       {

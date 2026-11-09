@@ -81,7 +81,7 @@ export type DefineItemParams<
 export function defineItem<
   S extends ObjectSchema,
   F extends ItemFile,
-  Rels extends Relations<S> = object,
+  const Rels extends Relations<S> = object,
   const Views extends object = object,
   const Media extends MediaConfig<S, ExtractItemExtension<F>> = EmptyObject,
   const Stats extends boolean = false,
@@ -110,7 +110,7 @@ export function defineItem<
   assertMarkdownStatsConfig({ markdownStats, extension, primitiveId: file });
   assertNoRootViewSettings(params);
   const views = buildViews(params.views, "item");
-  const defaultResolve = views?.default.resolveRelations ?? false;
+  const defaultResolve = views?.default.resolveRelations ?? true;
 
   const absoluteFilePath = nodePath.join(
     ctx.contentFolder,

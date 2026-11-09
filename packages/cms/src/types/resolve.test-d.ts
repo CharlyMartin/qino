@@ -45,8 +45,8 @@ const postCollection = defineCollection({
   views: (view) => ({
     default: view({}),
     raw: view({ resolveRelations: false }),
-    shallow: view({ resolveRelations: 1 }),
-    deep: view({ resolveRelations: 2 }),
+    shallow: view({ resolveRelations: { depth: 1 } }),
+    deep: view({ resolveRelations: { depth: 2 } }),
     full: view({ resolveRelations: true }),
   }),
   directory: "posts",
@@ -116,7 +116,7 @@ describe("non-relation subtrees are left untouched", () => {
       default: view({}),
       raw: view({ resolveRelations: false }),
       shallow: view({
-        resolveRelations: 1,
+        resolveRelations: { depth: 1 },
         sort: (x, y) => compareDates(x.dates, y.dates),
       }),
       full: view({
@@ -199,7 +199,7 @@ describe("resolveRelations type behaviour", () => {
       .toEqualTypeOf<string>();
   });
 
-  test("true defaults to MaxDepth and resolves relations", async () => {
+  test("true resolves each relation to its own depth", async () => {
     const posts = await postCollection.getEntries({ view: "full" });
     expectTypeOf(posts)
       .items.toHaveProperty("author")
@@ -211,12 +211,16 @@ describe("resolveRelations type behaviour", () => {
       .toEqualTypeOf<string>();
   });
 
-  test("default (no option) keeps raw references", async () => {
+  test("default (no option) resolves each relation one hop", async () => {
     const posts = await postCollection.getEntries();
-    expectTypeOf(posts).items.toHaveProperty("author").toEqualTypeOf<string>();
+    expectTypeOf(posts)
+      .items.toHaveProperty("author")
+      .toHaveProperty("name")
+      .toEqualTypeOf<string>();
     expectTypeOf(posts)
       .items.toHaveProperty("categories")
-      .toEqualTypeOf<Array<string>>();
+      .items.toHaveProperty("name")
+      .toEqualTypeOf<string>();
   });
 
   test("getEntry mirrors getEntries behaviour", async () => {
@@ -238,8 +242,8 @@ describe("collection-level default", () => {
         resolveRelations: false,
       }),
       raw: view({ resolveRelations: false }),
-      shallow: view({ resolveRelations: 1 }),
-      deep: view({ resolveRelations: 2 }),
+      shallow: view({ resolveRelations: { depth: 1 } }),
+      deep: view({ resolveRelations: { depth: 2 } }),
       full: view({ resolveRelations: true }),
     }),
     directory: "posts-raw",
@@ -293,8 +297,8 @@ describe("transitive depth (chained collections)", () => {
     views: (view) => ({
       default: view({}),
       raw: view({ resolveRelations: false }),
-      shallow: view({ resolveRelations: 1 }),
-      deep: view({ resolveRelations: 2 }),
+      shallow: view({ resolveRelations: { depth: 1 } }),
+      deep: view({ resolveRelations: { depth: 2 } }),
       full: view({ resolveRelations: true }),
     }),
     directory: "chained-posts",
@@ -312,6 +316,132 @@ describe("transitive depth (chained collections)", () => {
     expectTypeOf(posts)
       .items.toHaveProperty("editor")
       .toHaveProperty("lead")
+      .toEqualTypeOf<string>();
+  });
+
+  test("own depths: editor.lead stays string by default", async () => {
+    const posts = await chainedPostCollection.getEntries();
+    expectTypeOf(posts)
+      .items.toHaveProperty("editor")
+      .toHaveProperty("lead")
+      .toEqualTypeOf<string>();
+  });
+
+  test("own depths: resolveDepth 2 resolves editor.lead too", async () => {
+    const deepPosts = defineCollection({
+      directory: "deep-chained-posts",
+      schema: ChainedPostSchema,
+      extension: ".md",
+      relations: { editor: { target: editorCollection, resolveDepth: 2 } },
+    });
+    const posts = await deepPosts.getEntries();
+    expectTypeOf(posts)
+      .items.toHaveProperty("editor")
+      .toHaveProperty("lead")
+      .toHaveProperty("name")
+      .toEqualTypeOf<string>();
+  });
+
+  test("own depths: resolveDepth 0 keeps the string", async () => {
+    const rawPosts = defineCollection({
+      directory: "raw-chained-posts",
+      schema: ChainedPostSchema,
+      extension: ".md",
+      relations: { editor: { target: editorCollection, resolveDepth: 0 } },
+      views: (view) => ({
+        default: view({}),
+        deep: view({ resolveRelations: { depth: 2 } }),
+      }),
+    });
+    expectTypeOf(
+      (await rawPosts.getEntry("hello")).editor,
+    ).toEqualTypeOf<string>();
+    expectTypeOf(
+      (await rawPosts.getEntry("hello", { view: "deep" })).editor.lead.name,
+    ).toEqualTypeOf<string>();
+  });
+
+  test("own depths: a nested resolveDepth can't exceed the hops left", async () => {
+    const leadEditors = defineCollection({
+      directory: "lead-editors",
+      schema: EditorSchema,
+      extension: ".json",
+      relations: { lead: { target: seniorCollection, resolveDepth: 6 } },
+    });
+    const cappedPosts = defineCollection({
+      directory: "capped-posts",
+      schema: ChainedPostSchema,
+      extension: ".md",
+      relations: { editor: leadEditors },
+    });
+    expectTypeOf(
+      (await cappedPosts.getEntry("hello")).editor.lead,
+    ).toEqualTypeOf<string>();
+  });
+
+  test("own depths: an optional resolveDepth includes every value it can hold", async () => {
+    const editor: { target: typeof editorCollection; resolveDepth?: 0 | 2 } = {
+      target: editorCollection,
+    };
+    const looseEditors = defineCollection({
+      directory: "loose-posts",
+      schema: ChainedPostSchema,
+      extension: ".md",
+      relations: { editor },
+    });
+    const entry = await looseEditors.getEntry("hello");
+    expectTypeOf(entry.editor).extract<string>().toEqualTypeOf<string>();
+    expectTypeOf(entry.editor)
+      .exclude<string>()
+      .toHaveProperty("lead")
+      .extract<string>()
+      .toEqualTypeOf<string>();
+    expectTypeOf(entry.editor)
+      .exclude<string>()
+      .toHaveProperty("lead")
+      .exclude<string>()
+      .toHaveProperty("name")
+      .toEqualTypeOf<string>();
+  });
+
+  test("own depths: a union declaration keeps each alternative's depth", async () => {
+    const mixedEditors = defineCollection({
+      directory: "mixed-editor-posts",
+      schema: ChainedPostSchema,
+      extension: ".md",
+      relations: {
+        editor:
+          Math.random() > 0.5
+            ? editorCollection
+            : { target: editorCollection, resolveDepth: 0 as const },
+      },
+    });
+    const { editor } = await mixedEditors.getEntry("hello");
+    expectTypeOf(editor).extract<string>().toEqualTypeOf<string>();
+    expectTypeOf(editor)
+      .exclude<string>()
+      .toHaveProperty("name")
+      .toEqualTypeOf<string>();
+  });
+
+  test("a union resolveRelations resolves either way", async () => {
+    const pickDeep = Math.random() > 0.5;
+    const mixedPosts = defineCollection({
+      directory: "mixed-posts",
+      schema: ChainedPostSchema,
+      extension: ".md",
+      relations: { editor: editorCollection },
+      views: (view) => ({
+        default: view({
+          resolveRelations: pickDeep ? true : { depth: 2 },
+        }),
+      }),
+    });
+    const { editor } = await mixedPosts.getEntry("hello");
+    expectTypeOf(editor.lead).extract<string>().toEqualTypeOf<string>();
+    expectTypeOf(editor.lead)
+      .exclude<string>()
+      .toHaveProperty("name")
       .toEqualTypeOf<string>();
   });
 
@@ -341,8 +471,8 @@ describe("items", () => {
     views: (view) => ({
       default: view({}),
       raw: view({ resolveRelations: false }),
-      shallow: view({ resolveRelations: 1 }),
-      deep: view({ resolveRelations: 2 }),
+      shallow: view({ resolveRelations: { depth: 1 } }),
+      deep: view({ resolveRelations: { depth: 2 } }),
       full: view({ resolveRelations: true }),
     }),
     file: "pages/home.md",
@@ -392,8 +522,8 @@ describe("collection → item relation", () => {
     views: (view) => ({
       default: view({}),
       raw: view({ resolveRelations: false }),
-      shallow: view({ resolveRelations: 1 }),
-      deep: view({ resolveRelations: 2 }),
+      shallow: view({ resolveRelations: { depth: 1 } }),
+      deep: view({ resolveRelations: { depth: 2 } }),
       full: view({ resolveRelations: true }),
     }),
     directory: "foos",
@@ -460,9 +590,9 @@ describe("all primitive relation pairs", () => {
     ...config,
     views: (view) => ({
       default: view({}),
-      raw: view({}),
-      shallow: view({ resolveRelations: 1 as const }),
-      deep: view({ resolveRelations: 2 as const }),
+      raw: view({ resolveRelations: false }),
+      shallow: view({ resolveRelations: { depth: 1 } as const }),
+      deep: view({ resolveRelations: { depth: 2 } as const }),
     }),
     directory: "related-posts",
     extension: ".json",
@@ -471,9 +601,9 @@ describe("all primitive relation pairs", () => {
     ...config,
     views: (view) => ({
       default: view({}),
-      raw: view({}),
-      shallow: view({ resolveRelations: 1 as const }),
-      deep: view({ resolveRelations: 2 as const }),
+      raw: view({ resolveRelations: false }),
+      shallow: view({ resolveRelations: { depth: 1 } as const }),
+      deep: view({ resolveRelations: { depth: 2 } as const }),
     }),
     directory: "related-docs",
     extension: ".json",
@@ -483,9 +613,9 @@ describe("all primitive relation pairs", () => {
     ...config,
     views: (view) => ({
       default: view({}),
-      raw: view({}),
-      shallow: view({ resolveRelations: 1 as const }),
-      deep: view({ resolveRelations: 2 as const }),
+      raw: view({ resolveRelations: false }),
+      shallow: view({ resolveRelations: { depth: 1 } as const }),
+      deep: view({ resolveRelations: { depth: 2 } as const }),
     }),
     file: "related-home.json",
   });

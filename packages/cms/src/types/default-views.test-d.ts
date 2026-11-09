@@ -33,7 +33,7 @@ test("spreads locally inferred views and selects the declared default", async ()
           },
         }),
         // No relations: changing depth preserves callback compatibility.
-        deep: view({ ...base, resolveRelations: 2 }),
+        deep: view({ ...base, resolveRelations: { depth: 2 } }),
         plain: view({}),
       };
     },
@@ -79,23 +79,23 @@ test("checks spread callbacks against changed relation shapes", () => {
     relations: { author: authors },
     views: (view) => {
       const base = view({
-        resolveRelations: 1,
+        resolveRelations: { depth: 1 },
         augment: (entry) => ({ lead: entry.author.lead.toUpperCase() }),
       });
       // @ts-expect-error At depth two, lead is an object, incompatible with the inherited callback input.
-      view({ ...base, resolveRelations: 2 });
+      view({ ...base, resolveRelations: { depth: 2 } });
       const listing = view({
-        resolveRelations: 1,
+        resolveRelations: { depth: 1 },
         filter: (entry) => entry.author.lead.length > 0,
         sort: (a, b) => a.author.lead.localeCompare(b.author.lead),
       });
       // @ts-expect-error Filter and sort also require the original relation shape.
-      view({ ...listing, resolveRelations: 2 });
+      view({ ...listing, resolveRelations: { depth: 2 } });
       return {
         default: base,
         deep: view({
           ...base,
-          resolveRelations: 2,
+          resolveRelations: { depth: 2 },
           filter: undefined,
           sort: undefined,
           augment: (entry) => ({ lead: entry.author.lead.name }),

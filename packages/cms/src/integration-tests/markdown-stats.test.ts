@@ -48,7 +48,7 @@ function setup() {
     relations: { author: authors },
     markdownStats: true,
     views: (view) => ({
-      default: view({ resolveRelations: 1 }),
+      default: view({ resolveRelations: { depth: 1 } }),
       reading: view({
         augment: (post) => ({
           readingMinutes: Math.ceil(post._stats.wordCount / 220),

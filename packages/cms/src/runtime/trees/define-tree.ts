@@ -99,7 +99,7 @@ export function defineTree<
   S extends ObjectSchema,
   Ext extends SupportedFileExtension,
   Title extends StringKeys<S>,
-  Rels extends Relations<S> = object,
+  const Rels extends Relations<S> = object,
   Dir extends ContentPath = ContentPath,
   const Views extends object = object,
   const SaveEntryAs extends string = never,
@@ -150,7 +150,7 @@ export function defineTree<
   });
   assertNoRootViewSettings(params);
   const views = buildViews(params.views, "tree");
-  const defaultResolve = views?.default.resolveRelations ?? false;
+  const defaultResolve = views?.default.resolveRelations ?? true;
   const resolvedOrderFileName = orderFileName ?? DEFAULT_ORDER_FILE_NAME;
   const directoryPath = nodePath.join(ctx.contentFolder, directory);
 

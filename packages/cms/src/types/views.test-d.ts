@@ -44,15 +44,15 @@ const posts = qino.defineCollection({
       augment: (entry) => ({ slugLength: entry.author.length }),
     }),
     shallow: view({
-      resolveRelations: 1,
+      resolveRelations: { depth: 1 },
       augment: (entry) => ({ leadSlug: entry.author.lead }),
     }),
     detail: view({
-      resolveRelations: 2,
+      resolveRelations: { depth: 2 },
       augment: async (entry) => ({ leadName: entry.author.lead.name }),
     }),
     empty: view({}),
-    augmented: view({ augment: (entry) => ({ name: entry.author }) }),
+    augmented: view({ augment: (entry) => ({ name: entry.author.name }) }),
   }),
 });
 
@@ -65,6 +65,7 @@ const tree = qino.defineTree({
   views: (view) => ({
     default: view({}),
     raw: view({
+      resolveRelations: false,
       augment: (entry) => ({ authorSlug: entry.author }),
     }),
     detail: view({
@@ -82,9 +83,11 @@ const home = qino.defineItem({
   relations: { author: authors },
   views: (view) => ({
     default: view({
+      resolveRelations: false,
       augment: (entry) => ({ defaultSlug: entry.author }),
     }),
     raw: view({
+      resolveRelations: false,
       augment: (entry) => ({ authorSlug: entry.author }),
     }),
     detail: view({
@@ -186,14 +189,14 @@ describe("views inference", () => {
     });
   });
 
-  test("omitted top-level resolution gives every augment raw references", async () => {
+  test("omitted top-level resolution resolves each relation one hop", async () => {
     const collection = qino.defineCollection({
       views: (view) => ({
         default: view({
-          augment: (entry) => ({ authorSlug: entry.author.toUpperCase() }),
+          augment: (entry) => ({ authorName: entry.author.name }),
         }),
       }),
-      directory: "raw-posts",
+      directory: "own-posts",
       extension: ".json",
       schema,
       relations: { author: authors },
@@ -201,10 +204,10 @@ describe("views inference", () => {
     const docs = qino.defineTree({
       views: (view) => ({
         default: view({
-          augment: (entry) => ({ authorSlug: entry.author.toUpperCase() }),
+          augment: (entry) => ({ authorName: entry.author.name }),
         }),
       }),
-      directory: "raw-docs",
+      directory: "own-docs",
       extension: ".json",
       titleField: "title",
       schema,
@@ -213,25 +216,53 @@ describe("views inference", () => {
     const page = qino.defineItem({
       views: (view) => ({
         default: view({
-          augment: (entry) => ({ authorSlug: entry.author.toUpperCase() }),
+          augment: (entry) => ({ authorName: entry.author.name }),
         }),
       }),
-      file: "raw-home.json",
+      file: "own-home.json",
       schema,
       relations: { author: authors },
     });
     expectTypeOf(
-      (await collection.getEntry("hello")).author,
+      (await collection.getEntry("hello")).author.lead,
     ).toEqualTypeOf<string>();
     expectTypeOf(await collection.getEntries())
-      .items.toHaveProperty("authorSlug")
+      .items.toHaveProperty("authorName")
       .toEqualTypeOf<string>();
-    expectTypeOf((await docs.getEntry("hello")).author).toEqualTypeOf<string>();
     expectTypeOf(
-      (await docs.getEntry("hello")).authorSlug,
+      (await docs.getEntry("hello")).author.lead,
     ).toEqualTypeOf<string>();
-    expectTypeOf((await page.getEntry()).author).toEqualTypeOf<string>();
-    expectTypeOf((await page.getEntry()).authorSlug).toEqualTypeOf<string>();
+    expectTypeOf(
+      (await docs.getEntry("hello")).authorName,
+    ).toEqualTypeOf<string>();
+    expectTypeOf((await page.getEntry()).author.lead).toEqualTypeOf<string>();
+    expectTypeOf((await page.getEntry()).authorName).toEqualTypeOf<string>();
+  });
+
+  test("resolveDepth sets how far each relation resolves by default", async () => {
+    const collection = qino.defineCollection({
+      directory: "depth-posts",
+      extension: ".json",
+      schema: z.object({
+        title: z.string(),
+        author: z.string(),
+        editor: z.string(),
+      }),
+      relations: {
+        author: { target: authors, resolveDepth: 2 },
+        editor: { target: () => authors, resolveDepth: 0 },
+      },
+      views: (view) => ({
+        default: view({}),
+        flat: view({ resolveRelations: { depth: 1 } }),
+      }),
+    });
+    const entry = await collection.getEntry("hello");
+    expectTypeOf(entry.author.lead.name).toEqualTypeOf<string>();
+    expectTypeOf(entry.editor).toEqualTypeOf<string>();
+    const flat = await collection.getEntry("hello", { view: "flat" });
+    expectTypeOf(flat.author.lead).toEqualTypeOf<string>();
+    expectTypeOf(flat.editor.name).toEqualTypeOf<string>();
   });
 
   test("infers callback inputs and selected outputs", async () => {
@@ -254,7 +285,7 @@ describe("views inference", () => {
       (await posts.getEntry("hello", { view: "augmented" })).name,
     ).toEqualTypeOf<string>();
     expectTypeOf(
-      (await posts.getEntry("hello", { view: "empty" })).author,
+      (await posts.getEntry("hello", { view: "empty" })).author.lead,
     ).toEqualTypeOf<string>();
     expectTypeOf(
       (await tree.getEntry("hello", { view: "raw" })).authorSlug,

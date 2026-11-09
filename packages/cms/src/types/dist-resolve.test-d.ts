@@ -50,7 +50,7 @@ const articles = defineCollection({
   },
   views: (view) => ({
     default: view({}),
-    shallow: view({ resolveRelations: 1 }),
+    shallow: view({ resolveRelations: { depth: 1 } }),
     full: view({ resolveRelations: true }),
   }),
 });

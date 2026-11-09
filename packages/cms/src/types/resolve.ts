@@ -1,6 +1,7 @@
 import type { IntClosedRange, Simplify, Subtract } from "type-fest";
 
 import type {
+  DEFAULT_RESOLVE_DEPTH,
   MAX_RESOLVE_DEPTH,
   QinoPrimitiveMarker,
   QinoPrimitives,
@@ -15,18 +16,44 @@ import type { TreeEntryMeta } from "./tree";
 import type { JsonPathArray, SupportedFileExtension } from "./utils";
 
 export type MaxDepth = typeof MAX_RESOLVE_DEPTH;
+type DefaultResolveDepth = typeof DEFAULT_RESOLVE_DEPTH;
 export type Depth = IntClosedRange<0, MaxDepth>;
-export type ResolveOption = boolean | IntClosedRange<1, MaxDepth>;
+export type ResolveOption = boolean | { depth: Depth };
 
-export type NormalizeDepth<R extends ResolveOption> = R extends true
-  ? MaxDepth
+/**
+ * How far relations resolve: `depth` hops left, and whether that depth
+ * overrides each relation's own `resolveDepth` or only caps it.
+ */
+export type ResolveMode = { depth: Depth; override: boolean };
+
+export type NormalizeResolveOption<R extends ResolveOption> = R extends true
+  ? { depth: MaxDepth; override: false }
   : R extends false
-    ? 0
-    : R extends Depth
-      ? R
+    ? { depth: 0; override: true }
+    : R extends { depth: infer D extends Depth }
+      ? { depth: D; override: true }
       : never;
 
 type Dec<D extends Depth> = Subtract<D, 1> extends Depth ? Subtract<D, 1> : 0;
+
+type Min<A extends Depth, B extends Depth> =
+  B extends IntClosedRange<0, A> ? B : A;
+
+type DeclTarget<Decl> = Decl extends { target: infer T } ? T : Decl;
+
+// Per alternative of a union declaration: an optional `resolveDepth` can hold
+// any of its values, or fall back to the default.
+type DeclDepth<Decl> = Decl extends unknown
+  ? "resolveDepth" extends keyof Decl
+    ?
+        | Extract<Decl["resolveDepth"], Depth>
+        | (undefined extends Decl["resolveDepth"] ? DefaultResolveDepth : never)
+    : DefaultResolveDepth
+  : never;
+
+type Hops<Decl, M extends ResolveMode> = M["override"] extends true
+  ? M["depth"]
+  : Min<M["depth"], DeclDepth<Decl>>;
 
 type JoinPath<Prefix extends string, K extends string> = Prefix extends ""
   ? K
@@ -50,28 +77,34 @@ type ResolveValue<
   T,
   Rels,
   PathPrefix extends string,
-  D extends Depth,
+  M extends ResolveMode,
 > = PathPrefix extends keyof Rels & string
-  ? (T & (undefined | null)) | ResolveTarget<Rels[PathPrefix], D>
+  ? (T & (undefined | null)) | ResolveTarget<NonNullable<Rels[PathPrefix]>, M>
   : HasRelationBelow<PathPrefix, Rels> extends true
     ? T extends ReadonlyArray<infer U>
-      ? Array<ResolveValue<U, Rels, `${PathPrefix}${JsonPathArray}`, D>>
+      ? Array<ResolveValue<U, Rels, `${PathPrefix}${JsonPathArray}`, M>>
       : T extends object
         ? {
             [K in keyof T]: K extends string
-              ? ResolveValue<T[K], Rels, JoinPath<PathPrefix, K>, D>
+              ? ResolveValue<T[K], Rels, JoinPath<PathPrefix, K>, M>
               : T[K];
           }
         : T
     : T;
 
-type ResolveTarget<Target, D extends Depth> = D extends 0
-  ? string
-  : NonNullable<Target> extends () => infer C
-    ? ResolveRelationTarget<C, Dec<D>>
-    : ResolveRelationTarget<NonNullable<Target>, Dec<D>>;
+// Distributes over `M`: a view whose `resolveRelations` is a union resolves either way.
+type ResolveTarget<Decl, M extends ResolveMode> = M extends ResolveMode
+  ? Hops<Decl, M> extends infer H extends Depth
+    ? H extends 0
+      ? string
+      : ResolveRelationTarget<
+          DeclTarget<Decl> extends () => infer C ? C : DeclTarget<Decl>,
+          { depth: Dec<H>; override: M["override"] }
+        >
+    : never
+  : never;
 
-type ResolveRelationTarget<C, NextD extends Depth> = C extends {
+type ResolveRelationTarget<C, Next extends ResolveMode> = C extends {
   readonly [QinoPrimitiveMarker]: {
     is: infer Kind;
     schema: infer S;
@@ -88,7 +121,7 @@ type ResolveRelationTarget<C, NextD extends Depth> = C extends {
               ? TreeEntryMeta<Ext>
               : CollectionEntryMeta<Ext>
           > &
-            ResolveEntry<S, Rels, NextD>
+            ResolveEntry<S, Rels, Next>
         >
       : never
     : never
@@ -103,7 +136,7 @@ type ResolveRelationTarget<C, NextD extends Depth> = C extends {
     ? Ext extends SupportedFileExtension
       ? S extends ObjectSchema
         ? Simplify<
-            GeneratedFields<ItemEntryMeta<Ext>> & ResolveEntry<S, Rels, NextD>
+            GeneratedFields<ItemEntryMeta<Ext>> & ResolveEntry<S, Rels, Next>
           >
         : never
       : never
@@ -112,12 +145,12 @@ type ResolveRelationTarget<C, NextD extends Depth> = C extends {
 export type ResolveEntry<
   S extends ObjectSchema,
   Rels,
-  D extends Depth,
+  M extends ResolveMode,
 > = WithStats<
   WithImages<
-    D extends 0
+    M["depth"] extends 0
       ? ValidatedOutput<S>
-      : ResolveValue<ValidatedOutput<S>, Rels, "", D>,
+      : ResolveValue<ValidatedOutput<S>, Rels, "", M>,
     Rels
   >,
   Rels

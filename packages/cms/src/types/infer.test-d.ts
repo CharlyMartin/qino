@@ -45,13 +45,13 @@ const posts = qino.defineCollection({
       resolveRelations: true,
       augment: async (entry) => ({ authorName: entry.author.name }),
     }),
-    raw: view({}),
+    raw: view({ resolveRelations: false }),
     highlight: view({
-      resolveRelations: 1,
+      resolveRelations: { depth: 1 },
       augment: (entry) => ({ label: entry.author.name }),
     }),
-    deep: view({ resolveRelations: 2 }),
-    full: view({ resolveRelations: true }),
+    deep: view({ resolveRelations: { depth: 2 } }),
+    full: view({ resolveRelations: { depth: 6 } }),
   }),
 });
 
@@ -124,7 +124,7 @@ test("item inference matches getters and item metadata", async () => {
         resolveRelations: true,
         augment: async (entry) => ({ label: entry.author.name }),
       }),
-      raw: view({}),
+      raw: view({ resolveRelations: false }),
     }),
   });
   type HomeTypes = Infer<typeof home>;
@@ -137,7 +137,8 @@ test("item inference matches getters and item metadata", async () => {
   >();
   expectTypeOf<HomeTypes["views"]["raw"]>().toEqualTypeOf<typeof raw>();
   expectTypeOf<HomeTypes["output"]["length"]>().toEqualTypeOf<number>();
-  expectTypeOf<HomeTypes["output"]["author"]>().toEqualTypeOf<string>();
+  expectTypeOf<HomeTypes["output"]["author"]["name"]>().toEqualTypeOf<string>();
+  expectTypeOf<HomeTypes["views"]["raw"]["author"]>().toEqualTypeOf<string>();
   expectTypeOf<
     HomeTypes["views"]["highlight"]["label"]
   >().toEqualTypeOf<string>();
@@ -158,7 +159,7 @@ test("tree inference describes content entries and their views", async () => {
     relations: { author: authors },
     views: (view) => ({
       default: view({
-        resolveRelations: 1,
+        resolveRelations: { depth: 1 },
         augment: async (entry) => ({ label: entry.author.name }),
       }),
       highlight: view({
@@ -178,7 +179,7 @@ test("tree inference describes content entries and their views", async () => {
   expectTypeOf<DocTypes["views"]["full"]>().toEqualTypeOf<typeof full>();
   expectTypeOf<DocTypes["output"]["label"]>().toEqualTypeOf<string>();
   expectTypeOf<
-    DocTypes["views"]["highlight"]["author"]
+    DocTypes["views"]["highlight"]["author"]["site"]
   >().toEqualTypeOf<string>();
   expectTypeOf<
     DocTypes["views"]["highlight"]["length"]

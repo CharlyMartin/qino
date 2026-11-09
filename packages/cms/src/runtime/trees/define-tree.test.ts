@@ -79,7 +79,7 @@ describe("defineTree", () => {
     expect(meta.titleField).toBe("title");
     expect(meta.orderFileName).toBe("_order.json");
     expect(meta.relations).toEqual({});
-    expect(meta.resolveRelations).toBe(false);
+    expect(meta.resolveRelations).toBe(true);
   });
 
   test("honours a custom orderFileName", () => {

@@ -39,7 +39,7 @@ describe("selectView", () => {
     expect(selectView(views, {})).toBe(views.default);
     expect(selectView(views, { view: undefined })).toBe(views.default);
     expect(selectView(views, { view: "default" })).toBe(views.default);
-    expect(selectView(undefined)).toEqual({ resolveRelations: false });
+    expect(selectView(undefined)).toEqual({ resolveRelations: true });
     expect(selectView(views, { view: "detail" })).toBe(views.detail);
   });
 

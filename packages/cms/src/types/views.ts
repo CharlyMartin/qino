@@ -3,7 +3,11 @@ import type { Simplify } from "type-fest";
 import type { QinoViewMarker } from "../data/globals";
 import type { AugmentOutput, Awaitable, EntryAugment } from "./augment";
 import type { GeneratedFields } from "./generated-fields";
-import type { NormalizeDepth, ResolveEntry, ResolveOption } from "./resolve";
+import type {
+  NormalizeResolveOption,
+  ResolveEntry,
+  ResolveOption,
+} from "./resolve";
 import type { ObjectSchema } from "./schema";
 import type { EmptyObject, GetterOptions } from "./utils";
 
@@ -12,7 +16,9 @@ export type ViewEntry<
   Meta,
   Rels,
   R extends ResolveOption,
-> = Simplify<GeneratedFields<Meta> & ResolveEntry<S, Rels, NormalizeDepth<R>>>;
+> = Simplify<
+  GeneratedFields<Meta> & ResolveEntry<S, Rels, NormalizeResolveOption<R>>
+>;
 
 export type ViewConfig<
   S extends ObjectSchema,
@@ -22,7 +28,7 @@ export type ViewConfig<
   Derived extends AugmentOutput,
 > = {
   resolveRelations?: R;
-  augment?: EntryAugment<S, Meta, Derived, Rels, R>;
+  augment?: EntryAugment<S, Meta, Derived, Rels, NoInfer<R>>;
 };
 
 export type DefinedView<Config, R extends ResolveOption> = Config & {
@@ -32,7 +38,7 @@ export type DefinedView<Config, R extends ResolveOption> = Config & {
 
 // Keep inference local to each helper call rather than its enclosing factory.
 export type ViewFactory<S extends ObjectSchema, Meta, Rels> = <
-  R extends ResolveOption = false,
+  const R extends ResolveOption = true,
   Derived extends AugmentOutput = EmptyObject,
 >(
   config: ViewConfig<S, Meta, Rels, R, Derived>,
@@ -89,14 +95,14 @@ export type SelectedView<S extends ObjectSchema, Meta, Rels, Views, Name> = (
           resolveRelations: infer R extends ResolveOption;
         }
           ? R
-          : false
+          : true
       > &
         (Views[Selected] extends {
           augment?: (...args: never[]) => infer Output;
         }
           ? Awaited<Output>
           : object)
-    : ViewEntry<S, Meta, Rels, false>
+    : ViewEntry<S, Meta, Rels, true>
   : never;
 
 export type RootViewSettings = {

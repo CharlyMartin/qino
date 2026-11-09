@@ -1,5 +1,5 @@
 import { QinoPrimitiveMarker, QinoPrimitives } from "../data/globals";
-import type { RelationTarget } from "../types/relations";
+import type { AnyRelations } from "../types/relations";
 import type { ResolveOption } from "../types/resolve";
 import type { AnyTree } from "../types/tree";
 import type {
@@ -14,7 +14,7 @@ type MakeDummyTreeOptions = {
   extension: SupportedFileExtension;
   instanceId?: symbol;
   store?: Map<string, AnyEntry>;
-  relations?: Record<string, RelationTarget | undefined>;
+  relations?: AnyRelations;
 };
 
 export function makeDummyTree({

@@ -27,7 +27,7 @@ export function selectView(
   }
 
   const name = options?.view;
-  if (name == undefined) return views?.default ?? { resolveRelations: false };
+  if (name == undefined) return views?.default ?? { resolveRelations: true };
 
   const view = views?.[name];
   if (!views || !Object.hasOwn(views, name) || !view) {

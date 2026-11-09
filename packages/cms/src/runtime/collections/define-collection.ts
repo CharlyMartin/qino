@@ -98,7 +98,7 @@ export type DefineCollectionParams<
 export function defineCollection<
   S extends ObjectSchema,
   Ext extends SupportedFileExtension,
-  Rels extends Relations<S> = object,
+  const Rels extends Relations<S> = object,
   Dir extends ContentPath = ContentPath,
   const Views extends object = object,
   const SaveEntryAs extends string = never,
@@ -145,7 +145,7 @@ export function defineCollection<
   });
   assertNoRootViewSettings(params);
   const views = buildViews(params.views, "collection");
-  const defaultResolve = views?.default.resolveRelations ?? false;
+  const defaultResolve = views?.default.resolveRelations ?? true;
   const collectionDirectory = nodePath.join(ctx.contentFolder, directory);
 
   const collection = {

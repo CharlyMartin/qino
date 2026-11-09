@@ -23,7 +23,7 @@ export function defineView(config: Config, primitive: AnyPrimitiveMeta["is"]) {
 
   return {
     ...config,
-    resolveRelations: config.resolveRelations ?? false,
+    resolveRelations: config.resolveRelations ?? true,
     [QinoViewMarker]: true as const,
   };
 }
