@@ -3,14 +3,22 @@ import type { AnyPrimitiveMeta } from "../../types/utils";
 import { toContentPath } from "../paths/to-content-path";
 import { toDirectoryPrefix } from "../paths/to-directory-prefix";
 
-export type Context = { sourceFilePath: string; relationKey: string };
+export type Context = {
+  sourceFilePath: string;
+  relationKey: string;
+  /** The raw value, when a `parse` callback turned it into `value`. */
+  parsedFrom?: string;
+};
 
 export function parseRelationValue(
   value: string,
   targetMeta: AnyPrimitiveMeta,
   ctx: Context,
 ) {
-  const prefix = `Relation "${ctx.relationKey}" in ${ctx.sourceFilePath}`;
+  const parsedFrom = ctx.parsedFrom
+    ? ` (parsed from ${JSON.stringify(ctx.parsedFrom)})`
+    : "";
+  const prefix = `Relation "${ctx.relationKey}" in ${ctx.sourceFilePath}${parsedFrom}`;
 
   if (value.startsWith("/")) {
     throw new Error(

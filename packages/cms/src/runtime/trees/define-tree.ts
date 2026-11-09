@@ -81,9 +81,12 @@ export type DefineTreeParams<
   extension: Ext;
   titleField: Title;
   orderFileName?: string;
-  relations?: Rels;
+  // The `NoInfer` half types `parse` callbacks: an object holding one is
+  // inferred last, so without it the callback would see the default.
+  relations?: Rels & NoInfer<Relations<Schema>>;
   /** Media fields, keyed by path. Image fields are read as `QinoImage`. */
-  media?: Media & NoInfer<CheckMediaKeys<Media, Schema, Ext>>;
+  media?: Media &
+    NoInfer<MediaConfig<Schema, Ext> & CheckMediaKeys<Media, Schema, Ext>>;
   /** Adds `_stats` (word and character counts) from the Markdown body. */
   markdownStats?: Stats & NoInfer<CheckMarkdownStats<Stats, Ext>>;
   views?: ViewsConfig<

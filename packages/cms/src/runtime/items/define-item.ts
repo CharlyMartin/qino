@@ -60,10 +60,15 @@ export type DefineItemParams<
   file: F & NoInfer<NoLeadingSlash<F>>;
   schema: Schema &
     NoInfer<NoReservedSchemaFields<Schema, ExtractItemExtension<F>>>;
-  relations?: Rels;
+  // The `NoInfer` half types `parse` callbacks: an object holding one is
+  // inferred last, so without it the callback would see the default.
+  relations?: Rels & NoInfer<Relations<Schema>>;
   /** Media fields, keyed by path. Image fields are read as `QinoImage`. */
   media?: Media &
-    NoInfer<CheckMediaKeys<Media, Schema, ExtractItemExtension<F>>>;
+    NoInfer<
+      MediaConfig<Schema, ExtractItemExtension<F>> &
+        CheckMediaKeys<Media, Schema, ExtractItemExtension<F>>
+    >;
   /** Adds `_stats` (word and character counts) from the Markdown body. */
   markdownStats?: Stats &
     NoInfer<CheckMarkdownStats<Stats, ExtractItemExtension<F>>>;
