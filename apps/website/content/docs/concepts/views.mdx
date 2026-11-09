@@ -14,8 +14,8 @@ export const postCollection = qino.defineCollection({
   views: (view) => ({
     default: view({}),
     detail: view({
-      resolveRelations: 1,
-      augment: (post) => ({ authorName: post.author.name }),
+      resolveRelations: { depth: 2 },
+      augment: (post) => ({ companyName: post.author.company.name }),
     }),
   }),
 });
@@ -28,13 +28,13 @@ const post = await postCollection.getEntry("hello", { view: "detail" });
 
 `views` is a function that receives a `view` helper and synchronously returns an object of named views. Every value must be created with `view({ ... })`, and the object must contain `default`. The factory runs once when the primitive is defined. Object-form views and unwrapped definitions are rejected.
 
-Without `views`, getters return validated entries with raw relation references and nothing else.
+Without `views`, getters return validated entries with each relation resolved to its own [`resolveDepth`](/docs/concepts/relations#resolving), and nothing else.
 
 ## Options
 
 | Option             | Collection | Tree | Item | Meaning                                               |
 | ------------------ | ---------- | ---- | ---- | ----------------------------------------------------- |
-| `resolveRelations` | yes        | yes  | yes  | `false`, `true`, or depth `1` to `6`. Default `false` |
+| `resolveRelations` | yes        | yes  | yes  | `true`, `false`, or `{ depth: 0..6 }`. Default `true` |
 | `augment`          | yes        | yes  | yes  | Derive extra fields, may be async                     |
 | `filter`           | yes        | no   | no   | Keep entries where the predicate is true              |
 | `sort`             | yes        | no   | no   | Comparator for `getEntries`                           |

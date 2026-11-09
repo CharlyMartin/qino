@@ -23,7 +23,7 @@ export const postCollection = qino.defineCollection({
   relations: { author: authorCollection },
   views: (view) => ({
     default: view({ filter: (post) => !post.draft }),
-    detail: view({ resolveRelations: 1 }),
+    detail: view({ resolveRelations: { depth: 2 } }),
   }),
 });
 ```

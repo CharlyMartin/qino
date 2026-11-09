@@ -10,8 +10,5 @@ const postsCollection = qino.defineCollection({
   relations: {
     author: authorsCollection,
   },
-  views: (view) => ({
-    default: view({ resolveRelations: 1 }),
-  }),
 })
 ```

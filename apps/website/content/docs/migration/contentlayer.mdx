@@ -189,12 +189,10 @@ Contentlayer stores a reference as a path relative to `contentDirPath`, with the
 author: "authors/jane.json"
 ```
 
-The difference is what you get back. Contentlayer passes the string through and leaves the lookup to you. qino resolves it when a [view](/docs/concepts/views) asks for it:
+The difference is what you get back. Contentlayer passes the string through and leaves the lookup to you. qino resolves every declared relation by default:
 
 ```ts title="qino/collections/posts.ts"
-views: (view) => ({
-  default: view({ resolveRelations: 1 }),
-}),
+relations: { author: authorCollection },
 ```
 
 `post.author` is now the author entry, typed. Helpers like `allAuthors.find((a) => a._raw.sourceFilePath == post.author)` can go. See [Relations](/docs/concepts/relations).

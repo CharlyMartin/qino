@@ -10,8 +10,8 @@ since: "releases/0.1.0.md"
 views: (view) => ({
   default: view({}),
   detail: view({
-    resolveRelations: 1,
-    augment: (entry) => ({ authorName: entry.author.name }),
+    resolveRelations: { depth: 2 },
+    augment: (entry) => ({ companyName: entry.author.company.name }),
   }),
 }),
 ```
@@ -20,7 +20,7 @@ views: (view) => ({
 
 ```ts title="@qino/cms"
 view(config: {
-  resolveRelations?: boolean | 1 | 2 | 3 | 4 | 5 | 6;
+  resolveRelations?: boolean | { depth: 0 | 1 | 2 | 3 | 4 | 5 | 6 };
   augment?: (entry: Entry) => Derived | Promise<Derived>;
   filter?: (entry: Entry) => boolean; // collections only
   sort?: (a: Entry, b: Entry) => number; // collections only
@@ -29,12 +29,12 @@ view(config: {
 
 ## Parameters
 
-| Name               | Type                                   | Required | Default | Collection | Tree | Item | Description                                                                       |
-| ------------------ | -------------------------------------- | -------- | ------- | ---------- | ---- | ---- | --------------------------------------------------------------------------------- |
-| `resolveRelations` | `boolean \| 1..6`                      | no       | `false` | yes        | yes  | yes  | Relation depth. `true` is `6`. Numbers are clamped to `0..6`                      |
-| `augment`          | `(entry) => object \| Promise<object>` | no       |         | yes        | yes  | yes  | Adds fields. Receives resolved relations. May not overwrite existing fields       |
-| `filter`           | `(entry) => boolean`                   | no       |         | yes        | no   | no   | Synchronous predicate, runs after augment. Applies to `getEntries` and `getEntry` |
-| `sort`             | `(a, b) => number`                     | no       |         | yes        | no   | no   | Synchronous comparator, runs after filter. Applies to `getEntries` only           |
+| Name               | Type                                   | Required | Default | Collection | Tree | Item | Description                                                                        |
+| ------------------ | -------------------------------------- | -------- | ------- | ---------- | ---- | ---- | ---------------------------------------------------------------------------------- |
+| `resolveRelations` | `boolean \| { depth: 0..6 }`           | no       | `true`  | yes        | yes  | yes  | `true` uses each relation's `resolveDepth`. `{ depth }` sets it for every relation |
+| `augment`          | `(entry) => object \| Promise<object>` | no       |         | yes        | yes  | yes  | Adds fields. Receives resolved relations. May not overwrite existing fields        |
+| `filter`           | `(entry) => boolean`                   | no       |         | yes        | no   | no   | Synchronous predicate, runs after augment. Applies to `getEntries` and `getEntry`  |
+| `sort`             | `(a, b) => number`                     | no       |         | yes        | no   | no   | Synchronous comparator, runs after filter. Applies to `getEntries` only            |
 
 The helper for trees and items omits `filter` and `sort` from autocomplete and rejects them at runtime.
 

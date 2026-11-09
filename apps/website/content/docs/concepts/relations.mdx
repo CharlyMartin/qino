@@ -39,6 +39,20 @@ For forward references and cycles, pass a function:
 relations: { related: () => postCollection },
 ```
 
+To set options, pass an object with the target under `target`:
+
+```ts title="qino/collections/posts.ts"
+relations: {
+  author: { target: authorCollection, resolveDepth: 2 },
+  related: { target: () => postCollection, resolveDepth: 0 },
+},
+```
+
+| Option         | Type                           | Default | Description                                                  |
+| -------------- | ------------------------------ | ------- | ------------------------------------------------------------ |
+| `target`       | primitive or `() => primitive` |         | The primitive the field points at                            |
+| `resolveDepth` | `0` to `6`                     | `1`     | Hops this relation resolves. `0` keeps the string. See below |
+
 All related primitives must come from the same `initQino` instance.
 
 ## Authoring
@@ -55,16 +69,23 @@ The directory and extension must match the target. Item targets must equal the i
 
 ## Resolving
 
-Relations resolve only when a view asks for it:
+Declared relations resolve by default. Each one resolves to its `resolveDepth`, which counts hops: at `1`, the default, the post's author becomes the author entry, but relations declared on the author stay strings. At `2` they resolve too. At `0` the relation stays a string.
+
+A nested relation never goes further than the hops left: if `author` has `resolveDepth: 1`, the author's own relations stay strings even when they set a higher `resolveDepth`.
+
+A view can change this with `resolveRelations`:
 
 ```ts title="qino/collections/posts.ts"
 views: (view) => ({
-  default: view({}), // author stays "authors/camille-laurent.json"
-  detail: view({ resolveRelations: 1 }), // author becomes the author entry
+  default: view({}), // each relation resolves to its resolveDepth
+  raw: view({ resolveRelations: false }), // author stays "authors/camille-laurent.json"
+  detail: view({ resolveRelations: { depth: 2 } }), // every relation resolves 2 hops
 }),
 ```
 
-`resolveRelations` accepts `false`, `true`, or a depth from `1` to `6`. `true` means `6`. Depth counts hops: at `1` the post's author resolves, but relations declared on the author stay raw strings. At `2` they resolve too.
+`true`, the default, uses each relation's `resolveDepth`. `false` keeps every relation a string. `{ depth }`, from `0` to `6`, sets the depth of every relation and ignores their `resolveDepth`.
+
+Keep depths low. Each hop reads the target files of every entry returned, and a self-relation such as `related: () => postCollection` can reach most of the collection within a few hops. Resolved entries are plain objects, so a deep graph also repeats the same entries in what a page sends to the client.
 
 Resolved targets contain the target's validated fields plus `_meta`. They bypass the target's own views and augment callbacks. A resolved tree entry is content plus `_meta`, without children or navigation.
 
@@ -72,5 +93,5 @@ A nullable or optional relation field stays nullable after resolution. Within on
 
 ## Where relations are and are not checked
 
-- `getEntries` and `getEntry` with a resolving view: the reference is validated and the target is read. A bad reference throws.
-- Views without resolution, `getAllSlugs`, and `qino check`: the reference is an ordinary string and is not followed.
+- `getEntries` and `getEntry`, unless the view or the relation turns resolution off: the reference is validated and the target is read. A bad reference throws.
+- Views with `resolveRelations: false`, relations with `resolveDepth: 0`, `getAllSlugs`, and `qino check`: the reference is an ordinary string and is not followed.
