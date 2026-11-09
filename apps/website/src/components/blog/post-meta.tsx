@@ -1,5 +1,6 @@
 import type { MarkdownStats } from "@qino/cms";
 
+import { DotSeparator } from "@/components/marketing/dot-separator";
 import { formatPostDate } from "@/lib/format-post-date";
 
 type PostMetaProps = {
@@ -14,14 +15,14 @@ export function PostMeta({ publishedOn, updatedOn, _stats }: PostMetaProps) {
       <time dateTime={publishedOn}>{formatPostDate(publishedOn)}</time>
       {updatedOn && (
         <>
-          <span aria-hidden="true">·</span>
+          <DotSeparator />
           <span>
             Updated{" "}
             <time dateTime={updatedOn}>{formatPostDate(updatedOn)}</time>
           </span>
         </>
       )}
-      <span aria-hidden="true">·</span>
+      <DotSeparator />
       <span>{_stats.wordCount.toLocaleString("en-US")} words</span>
     </p>
   );
