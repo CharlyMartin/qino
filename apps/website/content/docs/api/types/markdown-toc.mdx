@@ -19,11 +19,16 @@ doc._toc; // [{ heading: 2, id: "requirements", text: "Requirements" }, …]
 
 ## Option
 
-| Value                 | Lists                                    |
-| --------------------- | ---------------------------------------- |
-| `false`               | Nothing, and adds no `_toc`. The default |
-| `true`                | Every heading, `h1` to `h6`              |
-| `{ upTo: "h1"…"h6" }` | Headings down to that level, inclusive   |
+| Value              | Lists                                                             |
+| ------------------ | ----------------------------------------------------------------- |
+| `false`            | Nothing, and adds no `_toc`. The default                          |
+| `true`             | Every heading, `h1` to `h6`, with `rehype-slug` ids               |
+| `{ upTo?, slug? }` | Headings down to `upTo`, inclusive, with ids from `slug` when set |
+
+| Option | Type                       | Default | Description                                                         |
+| ------ | -------------------------- | ------- | ------------------------------------------------------------------- |
+| `upTo` | `"h1" … "h6"`              | `"h6"`  | The deepest heading level to list                                   |
+| `slug` | `(text: string) => string` |         | Turns a heading's `text` into its id. See [Custom ids](#custom-ids) |
 
 ## Type
 
@@ -41,19 +46,37 @@ type MarkdownToc = Array<MarkdownTocHeading>;
 
 ## Fields
 
-| Field     | Description                                                                  |
-| --------- | ---------------------------------------------------------------------------- |
-| `heading` | The heading level: `2` for `##`                                              |
-| `id`      | The anchor id, the same one `rehype-slug` gives the rendered heading         |
-| `text`    | The heading's plain text, with inline code, emphasis, and links kept as text |
+| Field     | Description                                                                                               |
+| --------- | --------------------------------------------------------------------------------------------------------- |
+| `heading` | The heading level: `2` for `##`                                                                           |
+| `id`      | The anchor id: `{#id}` when set, else from `slug`, else the one `rehype-slug` gives                       |
+| `text`    | The heading's plain text, with inline code, emphasis, and links kept as text, and MDX components left out |
 
 ## Anchor ids
 
 Ids are slugged with `github-slugger`, like `rehype-slug` does, so `#${id}` links to the heading when you render the body with `rehype-slug`. Every heading is slugged in order, including those `upTo` leaves out, so duplicate suffixes such as `-1` match too.
 
-`.mdx` bodies are parsed as MDX, and `.md` or `.markdown` bodies as Markdown, so `{name}` is an expression in one and text in the other. Both `id` and `text` come from what the heading renders as text: MDX expressions, raw HTML, and image alts are left out, and footnote references become their number. Headings in code blocks are skipped. Headings inside blockquotes, lists, MDX components, or used footnotes are listed, since `rehype-slug` gives them ids as well. Empty headings are left out.
+`.mdx` bodies are parsed as MDX, and `.md` or `.markdown` bodies as Markdown, so `{name}` is an expression in one and text in the other. Both `id` and `text` come from what the heading renders as text: MDX expressions, raw HTML, and image alts are left out, and footnote references become their number. `text` also leaves out MDX components, so ``## `watch`: <TypeText>() => T</TypeText>`` reads `watch:`, while the id still counts them, as `rehype-slug` does. Headings in code blocks are skipped. Headings inside blockquotes, lists, MDX components, or used footnotes are listed, since `rehype-slug` gives them ids as well. Empty headings are left out.
 
 The Markdown parsers are only loaded when a primitive sets `markdownToc`.
+
+## Custom ids
+
+A heading ending in `{#id}` keeps that id, and `{#id}` is left out of `text`. This is the syntax of `remark-custom-heading-id`, which sets the same id on the rendered heading:
+
+```md
+## Installation {#install}
+```
+
+If your site gives headings ids its own way, pass that function as `slug`. It receives each heading's `text`, and duplicates get a `-1`, `-2` suffix, counting every id before them. Only listed headings count, as a renderer that names just those would: a heading deeper than `upTo` doesn't take an id, and its `{#id}` doesn't count toward duplicates:
+
+```ts title="qino/collections/docs.ts"
+markdownToc: {
+  upTo: "h4",
+  // "Register fields" → "Registerfields"
+  slug: (text) => text.replace(/[^a-zA-Z0-9]/g, ""),
+},
+```
 
 ## Nesting
 

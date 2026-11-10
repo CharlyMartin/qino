@@ -31,6 +31,7 @@ Thrown when a `define*` call runs, usually at import.
 | `markdownStats of "<id>" counts the Markdown body, but JSON files have none.`                                    | `markdownStats` on a JSON primitive                          | Remove it                                                              |
 | `markdownToc of "<id>" lists the Markdown headings, but JSON files have none.`                                   | `markdownToc` on a JSON primitive                            | Remove it                                                              |
 | `markdownToc.upTo of "<id>" must be one of h1, h2, h3, h4, h5, h6, got <value>.`                                 | `upTo` isn't a heading tag                                   | Use `"h1"` to `"h6"`                                                   |
+| `markdownToc.slug of "<id>" must be a function, got <type>.`                                                     | `slug` isn't a function                                      | Pass a function, `(text) => id`                                        |
 
 ## Getter options
 

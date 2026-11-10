@@ -38,7 +38,7 @@ qino.defineCollection(params: {
   relations?: Record<RelationPath, Primitive | (() => Primitive)>;
   media?: Record<StringPath, { accepted: MimeType; maxSize: Size }> & { markdown?: Array<{ accepted: MimeType; maxSize: Size }> };
   markdownStats?: boolean;
-  markdownToc?: boolean | { upTo: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" };
+  markdownToc?: boolean | { upTo?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6"; slug?: (text: string) => string };
   views?: (view: ViewHelper) => Record<string, View> & { default: View };
   cloud?: { displayAs?: string; displayEntryAs?: `${string}{${RequiredField}}${string}`; saveEntryAs?: `${string}{${RequiredField}}${string}`; searchableBy?: Array<Field>; sortableBy?: Array<ScalarField>; hiddenFields?: Array<OptionalField>; media?: { saveFileAs?: string } };
 }): Collection;
@@ -54,7 +54,7 @@ qino.defineCollection(params: {
 | `relations`     | `Record<path, primitive \| () => primitive>`                                                       | no       | `{}`    | JSON paths into the schema output mapped to target primitives. `[*]` marks an array hop                                                                                                                                         |
 | `media`         | `Record<path, { accepted; maxSize }> & { markdown? }`                                              | no       | `{}`    | Media fields, keyed by path to a string field, with the one MIME type each accepts and its max size. Image fields are read as `QinoImage`. `markdown` lists the rules body images must match. See [Media](/docs/concepts/media) |
 | `markdownStats` | `boolean`                                                                                          | no       | `false` | Adds `_stats`, the word and character counts of the body. Markdown and MDX only. See [MarkdownStats](/docs/api/types/markdown-stats)                                                                                            |
-| `markdownToc`   | `boolean \| { upTo: "h1" … "h6" }`                                                                 | no       | `false` | Adds `_toc`, the headings of the body with their anchor ids. `true` lists every level. Markdown and MDX only. See [MarkdownToc](/docs/api/types/markdown-toc)                                                                   |
+| `markdownToc`   | `boolean \| { upTo?; slug? }`                                                                      | no       | `false` | Adds `_toc`, the headings of the body with their anchor ids. `true` lists every level, `upTo` stops at one, and `slug` sets how ids are made. Markdown and MDX only. See [MarkdownToc](/docs/api/types/markdown-toc)            |
 | `views`         | `(view) => { default: View; [name]: View }`                                                        | no       |         | Factory run once at definition. Must return a `default` view made with the helper                                                                                                                                               |
 | `cloud`         | `{ displayAs?; displayEntryAs?; saveEntryAs?; searchableBy?; sortableBy?; hiddenFields?; media? }` | no       |         | Cloud UI names, entry labels and naming, search, sort, hidden fields, and where uploads are saved. Requires `cloud` on `initQino`. See [Cloud](/docs/guide/cloud#primitives)                                                    |
 
