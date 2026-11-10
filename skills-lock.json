@@ -49,6 +49,12 @@
       "skillPath": "skills/security-and-hardening/SKILL.md",
       "computedHash": "f79bc2010272830c6d65400cfa5e860edc37af8607f1439a0a88aa3cea111ef1"
     },
+    "security-audit": {
+      "source": "cloudflare/security-audit-skill",
+      "sourceType": "github",
+      "skillPath": "skills/security-audit/SKILL.md",
+      "computedHash": "98b97aad2873b3b9a8e064007c25e7827b493ba27fda8bfbdb41dab586767973"
+    },
     "tanstack-start": {
       "source": "tanstack-skills/tanstack-skills",
       "sourceType": "github",
