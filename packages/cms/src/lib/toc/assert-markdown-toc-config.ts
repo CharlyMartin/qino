@@ -9,7 +9,7 @@ type AssertMarkdownTocConfigParams = {
 
 /**
  * Fails at definition on `markdownToc` for JSON files, which have no headings,
- * and on an `upTo` that isn't a heading tag.
+ * on an `upTo` that isn't a heading tag, and on a `slug` that isn't a function.
  */
 export function assertMarkdownTocConfig({
   markdownToc,
@@ -24,10 +24,22 @@ export function assertMarkdownTocConfig({
     );
   }
 
-  const tags: readonly string[] = MARKDOWN_HEADING_TAGS;
-  if (typeof markdownToc == "object" && !tags.includes(markdownToc.upTo)) {
+  if (typeof markdownToc != "object") return;
+  const { upTo, slug } = markdownToc;
+
+  const tags: readonly (string | undefined)[] = [
+    ...MARKDOWN_HEADING_TAGS,
+    undefined,
+  ];
+  if (!tags.includes(upTo)) {
     throw new Error(
-      `markdownToc.upTo of "${primitiveId}" must be one of ${tags.join(", ")}, got ${JSON.stringify(markdownToc.upTo)}.`,
+      `markdownToc.upTo of "${primitiveId}" must be one of ${MARKDOWN_HEADING_TAGS.join(", ")}, got ${JSON.stringify(upTo)}.`,
+    );
+  }
+
+  if (slug != null && typeof slug != "function") {
+    throw new Error(
+      `markdownToc.slug of "${primitiveId}" must be a function, got ${typeof slug}.`,
     );
   }
 }

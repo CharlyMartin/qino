@@ -1,6 +1,6 @@
 import type { IMAGE_MEDIA_TYPES, MARKDOWN_MEDIA_KEY } from "../data/globals";
 import type { MarkdownStatsTag } from "./markdown-stats";
-import type { MarkdownTocOption, MarkdownTocTag } from "./markdown-toc";
+import type { MarkdownTocFlag, MarkdownTocTag } from "./markdown-toc";
 import type { RelationPath } from "./relations";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
 import type { JsonPathArray, SupportedFileExtension } from "./utils";
@@ -118,7 +118,7 @@ export type TaggedRelations<
   Rels,
   Media,
   Stats extends boolean = false,
-  Toc extends MarkdownTocOption = false,
+  Toc extends MarkdownTocFlag = false,
 > = Rels &
   MediaPathsTag<ImagePaths<Media>> &
   MarkdownStatsTag<Stats> &

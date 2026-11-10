@@ -135,6 +135,130 @@ describe("getMarkdownToc", () => {
     expect(getMarkdownToc({ body, mdx: true })[0]?.id).toBe("configure-");
   });
 
+  test("leaves MDX components out of text, but not out of the id", () => {
+    const body = "## \\</> `watch`: <TypeText>(name) => T</TypeText> <Since />";
+
+    expect(getMarkdownToc({ body, mdx: true })).toEqual([
+      { heading: 2, id: "-watch-name--t-", text: "</> watch:" },
+    ]);
+  });
+
+  test("uses {#id} and strips it from the text", () => {
+    const body = "## Install {#Installation}\n\n## Install\n\n### `x` {#X}";
+
+    for (const mdx of [false, true]) {
+      expect(getMarkdownToc({ body, mdx })).toEqual([
+        { heading: 2, id: "Installation", text: "Install" },
+        // `rehype-slug` doesn't count custom ids.
+        { heading: 2, id: "install", text: "Install" },
+        { heading: 3, id: "X", text: "x" },
+      ]);
+    }
+  });
+
+  test("finds {#id} on any line of a setext heading", () => {
+    const body = "First\nsecond {#custom}\n---";
+
+    expect(getMarkdownToc({ body })).toEqual([
+      { heading: 2, id: "custom", text: "First second" },
+    ]);
+  });
+
+  test("finds {#id} on its own line in a setext heading", () => {
+    for (const mdx of [false, true]) {
+      expect(getMarkdownToc({ body: "Title\n{#custom}\n---", mdx })).toEqual([
+        { heading: 2, id: "custom", text: "Title" },
+      ]);
+    }
+  });
+
+  test("leaves {#id}-like lines in code blocks alone", () => {
+    const body = "~~~md\n~~~ {#example}\n## Not a heading\n~~~\n\n## Real";
+
+    expect(getMarkdownToc({ body }).map(({ id }) => id)).toEqual(["real"]);
+  });
+
+  test("finds {#id} in blockquoted setext headings and MDX components", () => {
+    const quoted = "> Title\n> {#quoted}\n> ---";
+    const wrapped = "<Wrapper>\n## Title {#wrapped}\n</Wrapper>";
+
+    expect(getMarkdownToc({ body: quoted }).map(({ id }) => id)).toEqual([
+      "quoted",
+    ]);
+    expect(
+      getMarkdownToc({ body: wrapped, mdx: true }).map(({ id }) => id),
+    ).toEqual(["wrapped"]);
+  });
+
+  test("keeps escaped {#id} as text", () => {
+    expect(getMarkdownToc({ body: "## Literal \\{#example}" })).toEqual([
+      {
+        heading: 2,
+        id: "literal-example",
+        text: "Literal {#example}",
+      },
+    ]);
+  });
+
+  test("keeps the rest of an MDX body when it has {#id}", () => {
+    const body = "## A {#a}\n\n## B <Badge>new</Badge>";
+
+    expect(getMarkdownToc({ body, mdx: true }).map(({ text }) => text)).toEqual(
+      ["A", "B"],
+    );
+  });
+
+  test("slugs text with slug, deduplicating against every id", () => {
+    const body = [
+      "## \\</> `useForm`: <TypeText>Props</TypeText>",
+      "",
+      "## Use Form {#useForm-1}",
+      "",
+      "## useForm",
+      "",
+      "## <Badge>only a component</Badge>",
+    ].join("\n");
+    const slug = (text: string) => text.replace(/[^a-zA-Z0-9]/g, "");
+
+    expect(getMarkdownToc({ body, mdx: true, slug })).toEqual([
+      { heading: 2, id: "useForm", text: "</> useForm:" },
+      { heading: 2, id: "useForm-1", text: "Use Form" },
+      { heading: 2, id: "useForm-2", text: "useForm" },
+    ]);
+  });
+
+  test("only counts listed headings as used ids with slug", () => {
+    const body = "##### Examples\n\n### Examples\n\n### Examples";
+    const slug = (text: string) => text;
+
+    expect(getMarkdownToc({ body, upTo: 4, slug })).toEqual([
+      { heading: 3, id: "Examples", text: "Examples" },
+      { heading: 3, id: "Examples-1", text: "Examples" },
+    ]);
+    // `rehype-slug` names every heading, so the h5 still counts there.
+    expect(getMarkdownToc({ body, upTo: 4 }).map(({ id }) => id)).toEqual([
+      "examples-1",
+      "examples-2",
+    ]);
+  });
+
+  test("doesn't count an unlisted {#id} toward duplicates with slug", () => {
+    const body = "##### Hidden {#Example}\n\n## Example";
+
+    expect(getMarkdownToc({ body, upTo: 2, slug: (text) => text })).toEqual([
+      { heading: 2, id: "Example", text: "Example" },
+    ]);
+  });
+
+  test("doesn't reserve an id for unlisted headings with slug", () => {
+    const body = "##### !!!\n\n## !!!";
+    const slug = (text: string) => text.replace(/[^a-zA-Z0-9]/g, "");
+
+    expect(getMarkdownToc({ body, upTo: 4, slug })).toEqual([
+      { heading: 2, id: "", text: "!!!" },
+    ]);
+  });
+
   test("falls back to Markdown when the body isn't valid MDX", () => {
     const body = "<!-- comment -->\n\n## After the comment";
 

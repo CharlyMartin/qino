@@ -39,7 +39,9 @@ import type {
 import type { CheckMarkdownStats } from "../../types/markdown-stats";
 import type {
   CheckMarkdownToc,
+  MarkdownTocFlag,
   MarkdownTocOption,
+  MarkdownTocOptions,
 } from "../../types/markdown-toc";
 import type {
   CheckMediaKeys,
@@ -78,7 +80,7 @@ export type DefineCollectionParams<
   DisplayEntryAs extends string = never,
   Media extends MediaConfig<Schema, Ext> = EmptyObject,
   Stats extends boolean = false,
-  Toc extends MarkdownTocOption = false,
+  Toc extends MarkdownTocFlag = false,
 > = {
   directory: Dir & NoInfer<NoLeadingSlash<Dir>>;
   schema: Schema & NoInfer<NoReservedSchemaFields<Schema, Ext>>;
@@ -92,7 +94,9 @@ export type DefineCollectionParams<
   /** Adds `_stats` (word and character counts) from the Markdown body. */
   markdownStats?: Stats & NoInfer<CheckMarkdownStats<Stats, Ext>>;
   /** Adds `_toc` (the headings, with their anchor ids) from the Markdown body. */
-  markdownToc?: Toc & NoInfer<CheckMarkdownToc<Toc, Ext>>;
+  // Infers `Toc` from booleans only: see `MarkdownTocFlag`.
+  markdownToc?: (Toc | NoInfer<MarkdownTocOptions>) &
+    NoInfer<CheckMarkdownToc<Toc, Ext>>;
   views?: ViewsConfig<
     Views,
     CollectionViewFactory<
@@ -117,7 +121,7 @@ export function defineCollection<
   const DisplayEntryAs extends string = never,
   const Media extends MediaConfig<S, Ext> = EmptyObject,
   const Stats extends boolean = false,
-  const Toc extends MarkdownTocOption = false,
+  Toc extends MarkdownTocFlag = false,
 >(
   ctx: QinoContext,
   params: DefineCollectionParams<
@@ -141,9 +145,10 @@ export function defineCollection<
     relations,
     media = {},
     markdownStats = false,
-    markdownToc = false,
     cloud,
   } = params;
+  // `Toc`'s options marker types no value: what's passed is an option.
+  const markdownToc = (params.markdownToc ?? false) as MarkdownTocOption;
   assertContentPath(directory, "directory");
   assertCloudEnabled(ctx, cloud, directory);
   const collectionRelations = (relations ?? {}) as TaggedRels;

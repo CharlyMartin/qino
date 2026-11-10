@@ -3,7 +3,7 @@ import type { CliConfig } from "../../types/cli";
 import type { CloudConfig } from "../../types/cloud";
 import type { Collection } from "../../types/collection";
 import type { ExtractItemExtension, Item, ItemFile } from "../../types/item";
-import type { MarkdownTocOption } from "../../types/markdown-toc";
+import type { MarkdownTocFlag } from "../../types/markdown-toc";
 import type { MediaConfig, TaggedRelations } from "../../types/media";
 import type { Relations } from "../../types/relations";
 import type { ObjectSchema } from "../../types/schema";
@@ -58,7 +58,7 @@ export function initQino(config: QinoConfig) {
       const DisplayEntryAs extends string = never,
       const Media extends MediaConfig<S, Ext> = EmptyObject,
       const Stats extends boolean = false,
-      const Toc extends MarkdownTocOption = false,
+      Toc extends MarkdownTocFlag = false,
     >(
       params: DefineCollectionParams<
         S,
@@ -88,7 +88,7 @@ export function initQino(config: QinoConfig) {
       const Views extends object = object,
       const Media extends MediaConfig<S, ExtractItemExtension<F>> = EmptyObject,
       const Stats extends boolean = false,
-      const Toc extends MarkdownTocOption = false,
+      Toc extends MarkdownTocFlag = false,
     >(
       params: DefineItemParams<S, F, Rels, Views, Media, Stats, Toc>,
     ): Item<
@@ -110,7 +110,7 @@ export function initQino(config: QinoConfig) {
       const DisplayEntryAs extends string = never,
       const Media extends MediaConfig<S, Ext> = EmptyObject,
       const Stats extends boolean = false,
-      const Toc extends MarkdownTocOption = false,
+      Toc extends MarkdownTocFlag = false,
     >(
       params: DefineTreeParams<
         S,

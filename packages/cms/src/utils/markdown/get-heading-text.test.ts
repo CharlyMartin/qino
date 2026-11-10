@@ -4,8 +4,10 @@ import { describe, expect, test } from "vitest";
 import { getHeadingText } from "./get-heading-text";
 import { parseMarkdownBody } from "./parse-markdown-body";
 
-function getFirstHeading(body: string) {
-  return parseMarkdownBody(body).children.find(
+const rendered = { footnoteOrder: [], includeJsx: true };
+
+function getFirstHeading(body: string, mdx = true) {
+  return parseMarkdownBody(body, { mdx }).children.find(
     (node): node is Heading => node.type == "heading",
   );
 }
@@ -14,26 +16,40 @@ describe("getHeadingText", () => {
   test("keeps text, inline code, and link text", () => {
     const heading = getFirstHeading("## A `b` [c](/d) **e**");
 
-    expect(heading && getHeadingText(heading, [])).toBe("A b c e");
+    expect(heading && getHeadingText(heading, rendered)).toBe("A b c e");
   });
 
   test("numbers footnote references", () => {
     const heading = getFirstHeading("## Hi[^x]\n\n[^x]: Note.");
 
-    expect(heading && getHeadingText(heading, ["Y", "X"])).toBe("Hi2");
+    expect(
+      heading &&
+        getHeadingText(heading, {
+          footnoteOrder: ["Y", "X"],
+          includeJsx: true,
+        }),
+    ).toBe("Hi2");
   });
 
-  test("drops MDX expressions but keeps component text", () => {
-    const heading = getFirstHeading("## Version {1 + 1} <Badge>new</Badge>");
+  test("drops MDX expressions", () => {
+    const heading = getFirstHeading("## Version {1 + 1}");
 
-    expect(heading && getHeadingText(heading, [])).toBe("Version  new");
+    expect(heading && getHeadingText(heading, rendered)).toBe("Version ");
+  });
+
+  test("keeps MDX component text only with includeJsx", () => {
+    const heading = getFirstHeading("## `watch`: <TypeText>() => T</TypeText>");
+
+    expect(heading && getHeadingText(heading, rendered)).toBe("watch: () => T");
+    expect(
+      heading &&
+        getHeadingText(heading, { footnoteOrder: [], includeJsx: false }),
+    ).toBe("watch: ");
   });
 
   test("drops raw HTML and image alts", () => {
-    const heading = getFirstHeading(
-      "<!-- force Markdown -->\n\n## A <!-- c -->b ![alt](/i.png)",
-    );
+    const heading = getFirstHeading("## A <!-- c -->b ![alt](/i.png)", false);
 
-    expect(heading && getHeadingText(heading, [])).toBe("A b ");
+    expect(heading && getHeadingText(heading, rendered)).toBe("A b ");
   });
 });

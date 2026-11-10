@@ -397,6 +397,9 @@ importers:
       '@types/pluralize':
         specifier: 0.0.33
         version: 0.0.33
+      micromark-util-types:
+        specifier: 2.0.2
+        version: 2.0.2
       publint:
         specifier: 0.3.25
         version: 0.3.25

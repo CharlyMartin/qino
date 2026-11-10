@@ -45,6 +45,26 @@ describe("assertMarkdownTocConfig", () => {
     ).not.toThrow();
   });
 
+  test("accepts slug without upTo", () => {
+    expect(() =>
+      assertMarkdownTocConfig({
+        markdownToc: { slug: (text) => text },
+        extension: ".md",
+        primitiveId: "posts",
+      }),
+    ).not.toThrow();
+  });
+
+  test("rejects a slug that isn't a function", () => {
+    expect(() =>
+      assertMarkdownTocConfig({
+        markdownToc: { slug: "kebab" as never },
+        extension: ".md",
+        primitiveId: "posts",
+      }),
+    ).toThrow('markdownToc.slug of "posts" must be a function, got string.');
+  });
+
   test("rejects an upTo that isn't a heading tag", () => {
     expect(() =>
       assertMarkdownTocConfig({

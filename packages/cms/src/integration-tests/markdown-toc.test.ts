@@ -91,6 +91,26 @@ describe("markdownToc", () => {
     ]);
   });
 
+  test("uses {#id} and slug", async () => {
+    await fs.writeFile(
+      nodePath.join(tmp, "docs", "ids.mdx"),
+      "---\ntitle: Ids\n---\n\n## Install {#Setup}\n\n## `watch`: <TypeText>T</TypeText>",
+    );
+    const { qino } = setup();
+    const docs = qino.defineTree({
+      directory: "docs",
+      extension: ".mdx",
+      schema: z.object({ title: z.string() }),
+      titleField: "title",
+      markdownToc: { slug: (text) => text.replace(/[^a-zA-Z0-9]/g, "") },
+    });
+
+    expect((await docs.getEntry("ids"))._toc).toEqual([
+      { heading: 2, id: "Setup", text: "Install" },
+      { heading: 2, id: "watch", text: "watch:" },
+    ]);
+  });
+
   test("applies to items and trees", async () => {
     const { qino } = setup();
     const about = qino.defineItem({

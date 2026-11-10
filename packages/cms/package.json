@@ -75,6 +75,7 @@
     "@types/node": "22.19.18",
     "@types/picomatch": "4.0.3",
     "@types/pluralize": "0.0.33",
+    "micromark-util-types": "2.0.2",
     "publint": "0.3.25",
     "rehype-slug": "6.0.0",
     "remark-rehype": "11.1.2",

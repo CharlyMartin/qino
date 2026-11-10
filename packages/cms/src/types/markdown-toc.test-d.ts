@@ -136,6 +136,72 @@ describe("markdownToc config", () => {
     });
   });
 
+  test("types slug's text and accepts it without upTo", async () => {
+    const posts = defineCollection({
+      directory: "posts",
+      schema: z.object({ title: z.string() }),
+      extension: ".md",
+      markdownToc: {
+        slug: (text) => {
+          expectTypeOf(text).toEqualTypeOf<string>();
+          return text.replace(/\W/g, "");
+        },
+      },
+    });
+
+    expectTypeOf((await posts.getEntry("a"))._toc).toEqualTypeOf<MarkdownToc>();
+  });
+
+  test("adds _toc for any options object", async () => {
+    const empty = defineCollection({
+      directory: "empty",
+      schema: z.object({ title: z.string() }),
+      extension: ".md",
+      markdownToc: {},
+    });
+    const both = defineCollection({
+      directory: "both",
+      schema: z.object({ title: z.string() }),
+      extension: ".md",
+      markdownToc: { upTo: "h3", slug: (text) => text.toLowerCase() },
+    });
+
+    expectTypeOf((await empty.getEntry("a"))._toc).toEqualTypeOf<MarkdownToc>();
+    expectTypeOf((await both.getEntry("a"))._toc).toEqualTypeOf<MarkdownToc>();
+  });
+
+  test("is absent for a runtime boolean, which may be false", async () => {
+    const enabled = Math.random() > 0.5;
+    const maybe = defineCollection({
+      directory: "maybe",
+      schema: z.object({ title: z.string() }),
+      extension: ".md",
+      markdownToc: enabled,
+    });
+
+    expectTypeOf(await maybe.getEntry("a")).not.toHaveProperty("_toc");
+  });
+
+  test("rejects slug options on JSON files", () => {
+    defineCollection({
+      directory: "authors",
+      schema: z.object({ name: z.string() }),
+      extension: ".json",
+      // @ts-expect-error JSON files have no Markdown headings.
+      markdownToc: { slug: (text: string) => text },
+    });
+  });
+
+  test("rejects a slug that doesn't return a string", () => {
+    defineCollection({
+      directory: "posts",
+      schema: z.object({ title: z.string() }),
+      extension: ".md",
+      // @ts-expect-error slug returns the id.
+      markdownToc: { slug: (text: string) => text.length },
+    });
+  });
+
   test("only accepts heading tags in upTo", () => {
     defineCollection({
       directory: "posts",

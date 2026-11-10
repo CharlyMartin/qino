@@ -32,7 +32,9 @@ import type {
 import type { CheckMarkdownStats } from "../../types/markdown-stats";
 import type {
   CheckMarkdownToc,
+  MarkdownTocFlag,
   MarkdownTocOption,
+  MarkdownTocOptions,
 } from "../../types/markdown-toc";
 import type {
   CheckMediaKeys,
@@ -62,7 +64,7 @@ export type DefineItemParams<
   Views extends object = object,
   Media extends MediaConfig<Schema, ExtractItemExtension<F>> = EmptyObject,
   Stats extends boolean = false,
-  Toc extends MarkdownTocOption = false,
+  Toc extends MarkdownTocFlag = false,
 > = {
   file: F & NoInfer<NoLeadingSlash<F>>;
   schema: Schema &
@@ -80,7 +82,9 @@ export type DefineItemParams<
   markdownStats?: Stats &
     NoInfer<CheckMarkdownStats<Stats, ExtractItemExtension<F>>>;
   /** Adds `_toc` (the headings, with their anchor ids) from the Markdown body. */
-  markdownToc?: Toc & NoInfer<CheckMarkdownToc<Toc, ExtractItemExtension<F>>>;
+  // Infers `Toc` from booleans only: see `MarkdownTocFlag`.
+  markdownToc?: (Toc | NoInfer<MarkdownTocOptions>) &
+    NoInfer<CheckMarkdownToc<Toc, ExtractItemExtension<F>>>;
   views?: ViewsConfig<
     Views,
     ViewFactory<
@@ -99,7 +103,7 @@ export function defineItem<
   const Views extends object = object,
   const Media extends MediaConfig<S, ExtractItemExtension<F>> = EmptyObject,
   const Stats extends boolean = false,
-  const Toc extends MarkdownTocOption = false,
+  Toc extends MarkdownTocFlag = false,
 >(
   ctx: QinoContext,
   params: DefineItemParams<S, F, Rels, Views, Media, Stats, Toc>,
@@ -111,9 +115,10 @@ export function defineItem<
     relations,
     media = {},
     markdownStats = false,
-    markdownToc = false,
     cloud,
   } = params;
+  // `Toc`'s options marker types no value: what's passed is an option.
+  const markdownToc = (params.markdownToc ?? false) as MarkdownTocOption;
   assertContentPath(file, "file");
   assertCloudEnabled(ctx, cloud, file);
 

@@ -51,6 +51,19 @@ describe("addEntryToc", () => {
     });
   });
 
+  test("passes slug through", async () => {
+    expect(
+      await addEntryToc({
+        entry,
+        markdownToc: { upTo: "h2", slug: (text) => text.toUpperCase() },
+        extension: ".md",
+      }),
+    ).toEqual({
+      ...entry,
+      _toc: [{ heading: 2, id: "INSTALL", text: "Install" }],
+    });
+  });
+
   test("returns the entry untouched when off", async () => {
     expect(
       await addEntryToc({ entry, markdownToc: false, extension: ".md" }),

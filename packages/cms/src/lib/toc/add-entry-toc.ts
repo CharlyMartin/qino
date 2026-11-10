@@ -25,17 +25,15 @@ export async function addEntryToc<Entry extends object>({
     "../../utils/markdown/get-markdown-toc"
   );
   const body = (entry as Record<string, unknown>)[MARKDOWN_FIELD_NAME];
-  const upTo =
-    typeof markdownToc == "object"
-      ? (Number(markdownToc.upTo.slice(1)) as MarkdownHeadingLevel)
-      : undefined;
+  const { upTo, slug } = typeof markdownToc == "object" ? markdownToc : {};
 
   return {
     ...entry,
     [TOC_FIELD_NAME]: getMarkdownToc({
       body: typeof body == "string" ? body : "",
-      upTo,
+      upTo: upTo && (Number(upTo.slice(1)) as MarkdownHeadingLevel),
       mdx: extension == ".mdx",
+      slug,
     }),
   };
 }
