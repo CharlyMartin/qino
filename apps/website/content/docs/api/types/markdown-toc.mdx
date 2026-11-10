@@ -1,0 +1,78 @@
+---
+title: MarkdownToc
+description: The headings of a Markdown or MDX body, with their anchor ids, added as `_toc` by `markdownToc`.
+---
+
+Set `markdownToc` on a Markdown or MDX collection, tree, or item, and every entry gets a `_toc` field: its headings in document order. Related entries get it too when their primitive sets `markdownToc`. JSON primitives can't set it.
+
+```ts title="qino/collections/docs.ts"
+export const docsCollection = qino.defineCollection({
+  directory: "docs",
+  extension: ".mdx",
+  schema: DocSchema,
+  markdownToc: { upTo: "h3" },
+});
+
+const doc = await docsCollection.getEntry("install");
+doc._toc; // [{ heading: 2, id: "requirements", text: "Requirements" }, …]
+```
+
+## Option
+
+| Value                 | Lists                                    |
+| --------------------- | ---------------------------------------- |
+| `false`               | Nothing, and adds no `_toc`. The default |
+| `true`                | Every heading, `h1` to `h6`              |
+| `{ upTo: "h1"…"h6" }` | Headings down to that level, inclusive   |
+
+## Type
+
+```ts title="@qino/cms"
+import type { MarkdownToc, MarkdownTocHeading } from "@qino/cms";
+
+type MarkdownTocHeading = {
+  heading: 1 | 2 | 3 | 4 | 5 | 6;
+  id: string;
+  text: string;
+};
+
+type MarkdownToc = Array<MarkdownTocHeading>;
+```
+
+## Fields
+
+| Field     | Description                                                                  |
+| --------- | ---------------------------------------------------------------------------- |
+| `heading` | The heading level: `2` for `##`                                              |
+| `id`      | The anchor id, the same one `rehype-slug` gives the rendered heading         |
+| `text`    | The heading's plain text, with inline code, emphasis, and links kept as text |
+
+## Anchor ids
+
+Ids are slugged with `github-slugger`, like `rehype-slug` does, so `#${id}` links to the heading when you render the body with `rehype-slug`. Every heading is slugged in order, including those `upTo` leaves out, so duplicate suffixes such as `-1` match too.
+
+`.mdx` bodies are parsed as MDX, and `.md` or `.markdown` bodies as Markdown, so `{name}` is an expression in one and text in the other. Both `id` and `text` come from what the heading renders as text: MDX expressions, raw HTML, and image alts are left out, and footnote references become their number. Headings in code blocks are skipped. Headings inside blockquotes, lists, MDX components, or used footnotes are listed, since `rehype-slug` gives them ids as well. Empty headings are left out.
+
+The Markdown parsers are only loaded when a primitive sets `markdownToc`.
+
+## Nesting
+
+`_toc` is flat, which suits an "On this page" sidebar or a select: indent each item by `heading`. For a nested list, group the headings in a view's `augment`:
+
+```ts title="qino/collections/docs.ts"
+import type { MarkdownToc, MarkdownTocHeading } from "@qino/cms";
+
+type Section = MarkdownTocHeading & { children: MarkdownToc };
+
+views: (view) => ({
+  default: view({
+    augment: (doc) => ({
+      sections: doc._toc.reduce<Array<Section>>((sections, item) => {
+        if (item.heading == 2) sections.push({ ...item, children: [] });
+        else sections.at(-1)?.children.push(item);
+        return sections;
+      }, []),
+    }),
+  }),
+}),
+```
