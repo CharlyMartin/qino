@@ -8,14 +8,6 @@ export const sectionCollection = qino.defineCollection({
   schema: z
     .object({
       title: z.string(),
-      signature: z
-        .object({
-          name: z.string(),
-          title: z.string(),
-          image: z.string(),
-          url: z.url(),
-        })
-        .strict(),
     })
     .strict(),
 });

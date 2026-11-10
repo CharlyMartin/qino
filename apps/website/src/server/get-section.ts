@@ -9,7 +9,6 @@ export const getSection = createServerFn({ method: "GET" })
   .validator(z.string())
   .middleware([staticFunctionMiddleware])
   .handler(async ({ data: slug }) => {
-    const { title, signature, markdown } =
-      await sectionCollection.getEntry(slug);
-    return { title, signature, mdx: await serializeMdx(markdown) };
+    const { title, markdown } = await sectionCollection.getEntry(slug);
+    return { title, mdx: await serializeMdx(markdown) };
   });

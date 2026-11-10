@@ -1,5 +1,7 @@
+import { externalLinks } from "@/lib/external-links";
 import type { ProjectStats } from "@/types/project-stats";
 import { ButtonLink } from "./button-link";
+import { ExternalButtonLink } from "./external-button-link";
 import { Eyebrow } from "./eyebrow";
 import { HeroStats } from "./hero-stats";
 import { InstallBox } from "./install-box";
@@ -38,7 +40,9 @@ export function Hero({ stats }: HeroProps) {
         </div>
 
         <div className="flex flex-col gap-3 md:flex-row md:justify-center">
-          <ButtonLink to="/docs">Read the docs</ButtonLink>
+          <ExternalButtonLink href={externalLinks.skill}>
+            Install with your agent
+          </ExternalButtonLink>
           <ButtonLink to="/cloud" variant="outline">
             Join the Cloud waitlist
           </ButtonLink>

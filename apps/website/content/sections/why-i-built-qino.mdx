@@ -1,35 +1,20 @@
 ---
-title: Why I built qino, and why now?
-signature:
-  name: Charly Martin
-  title: Creator of qino
-  image: /team/charly.jpg
-  url: https://github.com/CharlyMartin
+title: Why qino, and why now?
 ---
 
-At my last company, we ran several websites on Markdown content: blogs, event listings, and landing pages. Markdown is great until you need non-developers to publish updates. Then we developers become the bottleneck.
+In the AI era, it makes less and less sense to keep your content apart from your code, for one simple reason: <Underline>agents are only as good as the data you give them</Underline>.
 
-We were looking for CMS tools that plug into our existing sites, instead of forcing our code into their framework.
+Agents already read your code, grep it, edit it, and open PRs, without asking permission. Your content deserves the same. Behind someone else's API, it adds friction and limits what your agents can do.
 
-We first tried <Brand icon="decap">Decap CMS</Brand>. It's free and open-source, but we had to maintain a `config.yml` that grew with every content type, and still fetch and validate the Markdown ourselves, with no type safety.
+As Lee Robinson [wrote](https://leerob.com/agents) after moving Cursor's site from a CMS to Markdown: _"With AI and coding agents, the cost of an abstraction has never been higher."_
 
-Then we gave <Brand icon="tina">TinaCMS</Brand> a try. It handled fetching and typing, but made us query our own files through GraphQL, and its git workflow confused developers and editors alike.
+Markdown is a fantastic format for content, and LLMs love it. But on its own, it has two problems:
 
-Two tools, same result: more time spent on the CMS than on the content. **I just wanted it to be simpler.**
+- **No guardrails.** Without structure, content quickly becomes a mess.
+- **No editor.** Non-developers can't publish without a developer.
 
-I still believed in Markdown as a content source, and the timing made the case even stronger. AI agents now work alongside you in the codebase, and they're only as useful as the content they can read. A hosted CMS keeps that content on someone else's servers, behind APIs that can rate limit you, go down, or charge for access.
+qino solves both. Define your content with Zod schemas and query it with end-to-end types, in any framework. `qino check` validates every edit your agents make, and the [cloud editor](/cloud) lets everyone else publish without touching code.
 
-<Underline>The best way to give agents your content is to keep it local</Underline>, in your repo, right next to your code. Owning your content layer has never mattered more.
+With qino, <Underline>you own your content layer</Underline> without giving up the convenience of a cloud CMS.
 
-So I built <Brand icon="qino">qino</Brand>, and it comes with:
-
-1. **Type-safe content.** Define your content with Zod schemas. Types hold from end to end.
-2. **No config file to maintain.** qino generates it from your schemas and settings.
-3. **No framework lock-in.** qino plugs into the site you already have.
-4. **Any content shape.** Collections, standalone pages, or full documentation sites.
-5. **A cloud editor, soon.** Non-developers [edit content](/cloud) without touching code.
-6. **A CLI for agents.** `qino check` validates every edit against your schemas.
-
-You can use `@qino/cms` as a [standalone](https://www.npmjs.com/package/@qino/cms) content pipeline for your files, or pair it with the cloud UI for a full CMS experience once it ships.
-
-**Give qino a try!** [Read the docs](/docs) or let your agent [set it up](https://www.skills.sh/charlymartin/qino/set-up-qino-cms).
+Let your agent [set it up](https://www.skills.sh/charlymartin/qino/set-up-qino-cms) today!

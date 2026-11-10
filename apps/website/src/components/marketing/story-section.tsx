@@ -1,25 +1,18 @@
+import { ArrowRightIcon } from "@phosphor-icons/react/ssr";
 import { MDXRemote, type MDXRemoteSerializeResult } from "next-mdx-remote";
 
 import { mdxComponents } from "@/components/docs/mdx-components";
 import { Brand } from "./brand";
-import { Byline } from "./byline";
+import { ButtonLink } from "./button-link";
 import { Section } from "./section";
 import { Title } from "./title";
 
-type Signature = {
-  name: string;
-  title: string;
-  image: string;
-  url: string;
-};
-
 type StorySectionProps = {
   title: string;
-  signature: Signature;
   mdx: MDXRemoteSerializeResult<Record<string, never>, Record<string, never>>;
 };
 
-export function StorySection({ title, signature, mdx }: StorySectionProps) {
+export function StorySection({ title, mdx }: StorySectionProps) {
   return (
     <Section aria-labelledby="story-heading">
       <div className="mx-auto max-w-2xl">
@@ -28,13 +21,15 @@ export function StorySection({ title, signature, mdx }: StorySectionProps) {
           <MDXRemote {...mdx} components={{ ...mdxComponents, Brand }} />
         </div>
         <div className="mt-8">
-          <Byline
-            name={signature.name}
-            image={signature.image}
-            url={signature.url}
+          <ButtonLink
+            to="/blog/$slug"
+            params={{ slug: "why-another-cms" }}
+            variant="outline"
+            size="sm"
           >
-            {signature.title}
-          </Byline>
+            Read the full story
+            <ArrowRightIcon className="size-4" aria-hidden="true" />
+          </ButtonLink>
         </div>
       </div>
     </Section>
