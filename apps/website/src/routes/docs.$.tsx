@@ -150,7 +150,7 @@ function DocsPage() {
       </article>
       {hasToc ? (
         // Sticks where it starts: below the 4rem header and main's 4rem padding.
-        <aside className="hidden xl:sticky xl:top-32 xl:block xl:max-h-[calc(100dvh-10rem)] xl:w-56 xl:shrink-0 xl:self-start xl:overflow-y-auto xl:overscroll-contain">
+        <aside className="hidden xl:sticky xl:top-32 xl:block xl:max-h-[calc(100dvh-10rem)] xl:w-60 xl:shrink-0 xl:self-start xl:overflow-y-auto xl:overscroll-contain">
           <DocsToc toc={toc} activeId={activeId} />
         </aside>
       ) : null}
