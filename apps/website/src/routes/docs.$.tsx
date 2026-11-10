@@ -5,11 +5,14 @@ import { CopyMarkdownButton } from "../components/docs/copy-markdown-button";
 import { DocsBreadcrumbs } from "../components/docs/docs-breadcrumbs";
 import { DocsNotFound } from "../components/docs/docs-not-found";
 import { DocsPagination } from "../components/docs/docs-pagination";
+import { DocsToc } from "../components/docs/docs-toc";
+import { DocsTocSelect } from "../components/docs/docs-toc-select";
 import { mdxComponents } from "../components/docs/mdx-components";
 import { ViewMarkdownLink } from "../components/docs/view-markdown-link";
 import { Eyebrow } from "../components/marketing/eyebrow";
 import { Text } from "../components/marketing/text";
 import { Title } from "../components/marketing/title";
+import { useActiveHeading } from "../hooks/use-active-heading";
 import { getPageHead } from "../lib/get-page-head";
 import { hasDocsSlug } from "../lib/has-docs-slug";
 import { site } from "../lib/site";
@@ -104,6 +107,7 @@ function DocsPage() {
     description,
     since,
     raw,
+    toc,
     mdx,
     breadcrumbs,
     previousNode,
@@ -111,28 +115,45 @@ function DocsPage() {
   } = Route.useLoaderData();
   // Top-level pages are section landings with only a link grid to copy.
   const isSectionLanding = !slug.includes("/");
+  const activeId = useActiveHeading(toc);
+  const hasToc = toc.length > 0;
 
   return (
-    <article>
-      <header className="mb-12 flex flex-col items-start gap-4 border-b pb-8">
-        {/* A lone crumb only repeats the page title. */}
-        {breadcrumbs.length > 1 ? (
-          <DocsBreadcrumbs breadcrumbs={breadcrumbs} />
-        ) : null}
-        {since ? <Eyebrow tone="accent">Since {since.version}</Eyebrow> : null}
-        <Title as="h1">{title}</Title>
-        <Text size="lead">{description}</Text>
-        {isSectionLanding ? null : (
-          <div className="flex flex-wrap gap-2">
-            <CopyMarkdownButton markdown={raw} />
-            <ViewMarkdownLink slug={slug} />
+    <div className="flex gap-12">
+      <article className="min-w-0 flex-1">
+        <header className="mb-12 flex flex-col items-start gap-4 border-b pb-8">
+          {/* A lone crumb only repeats the page title. */}
+          {breadcrumbs.length > 1 ? (
+            <DocsBreadcrumbs breadcrumbs={breadcrumbs} />
+          ) : null}
+          {since ? (
+            <Eyebrow tone="accent">Since {since.version}</Eyebrow>
+          ) : null}
+          <Title as="h1">{title}</Title>
+          <Text size="lead">{description}</Text>
+          {isSectionLanding ? null : (
+            <div className="flex flex-wrap gap-2">
+              <CopyMarkdownButton markdown={raw} />
+              <ViewMarkdownLink slug={slug} />
+            </div>
+          )}
+        </header>
+        {hasToc ? (
+          <div className="sticky top-16 z-20 -mt-4 mb-8 bg-background py-3 xl:hidden">
+            <DocsTocSelect toc={toc} activeId={activeId} />
           </div>
-        )}
-      </header>
-      <div className="prose prose-invert max-w-none">
-        <MDXRemote {...mdx} components={mdxComponents} />
-      </div>
-      <DocsPagination previousNode={previousNode} nextNode={nextNode} />
-    </article>
+        ) : null}
+        <div className="prose prose-invert max-w-none">
+          <MDXRemote {...mdx} components={mdxComponents} />
+        </div>
+        <DocsPagination previousNode={previousNode} nextNode={nextNode} />
+      </article>
+      {hasToc ? (
+        // Sticks where it starts: below the 4rem header and main's 4rem padding.
+        <aside className="hidden xl:sticky xl:top-32 xl:block xl:max-h-[calc(100dvh-10rem)] xl:w-56 xl:shrink-0 xl:self-start xl:overflow-y-auto xl:overscroll-contain">
+          <DocsToc toc={toc} activeId={activeId} />
+        </aside>
+      ) : null}
+    </div>
   );
 }
