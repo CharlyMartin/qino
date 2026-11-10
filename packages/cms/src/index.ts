@@ -3,6 +3,7 @@ export type { Collection, CollectionEntryMeta } from "./types/collection";
 export type { Infer } from "./types/infer";
 export type { Item, ItemEntryMeta } from "./types/item";
 export type { MarkdownStats } from "./types/markdown-stats";
+export type { MarkdownToc, MarkdownTocHeading } from "./types/markdown-toc";
 export type {
   MediaParse,
   MediaParseContext,

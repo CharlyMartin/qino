@@ -27,6 +27,7 @@ export function makeDummyItem({
       resolveDepth: {} as ResolveDepths,
       media: {},
       markdownStats: false,
+      markdownToc: false,
       readEntry: async () => data as never,
     },
     getEntry: async () => data as never,

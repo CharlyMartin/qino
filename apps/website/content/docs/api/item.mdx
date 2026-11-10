@@ -31,6 +31,7 @@ qino.defineItem(params: {
   relations?: Record<RelationPath, Primitive | (() => Primitive)>;
   media?: Record<StringPath, { accepted: MimeType; maxSize: Size }> & { markdown?: Array<{ accepted: MimeType; maxSize: Size }> };
   markdownStats?: boolean;
+  markdownToc?: boolean | { upTo?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6"; slug?: (text: string) => string };
   views?: (view: ViewHelper) => Record<string, View> & { default: View };
   cloud?: { displayAs?: string; hiddenFields?: Array<OptionalField>; media?: { saveFileAs?: string } };
 }): Item;
@@ -41,10 +42,11 @@ qino.defineItem(params: {
 | Name            | Type                                                  | Required | Default | Description                                                                                                                                                                                                                     |
 | --------------- | ----------------------------------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `file`          | `` `/${string}<ext>` ``                               | yes      |         | Path under `contentFolder`, with extension. The extension is inferred from it                                                                                                                                                   |
-| `schema`        | Standard Schema object validator                      | yes      |         | Synchronous. May not declare `_meta`, nor `markdown`/`raw`/`_stats` for Markdown                                                                                                                                                |
+| `schema`        | Standard Schema object validator                      | yes      |         | Synchronous. May not declare `_meta`, nor `markdown`/`raw`/`_stats`/`_toc` for Markdown                                                                                                                                         |
 | `relations`     | `Record<path, primitive \| () => primitive>`          | no       | `{}`    | Same grammar as collections                                                                                                                                                                                                     |
 | `media`         | `Record<path, { accepted; maxSize }> & { markdown? }` | no       | `{}`    | Media fields, keyed by path to a string field, with the one MIME type each accepts and its max size. Image fields are read as `QinoImage`. `markdown` lists the rules body images must match. See [Media](/docs/concepts/media) |
 | `markdownStats` | `boolean`                                             | no       | `false` | Adds `_stats`, the word and character counts of the body. Markdown and MDX only. See [MarkdownStats](/docs/api/types/markdown-stats)                                                                                            |
+| `markdownToc`   | `boolean \| { upTo?; slug? }`                         | no       | `false` | Adds `_toc`, the headings of the body with their anchor ids. `true` lists every level, `upTo` stops at one, and `slug` sets how ids are made. Markdown and MDX only. See [MarkdownToc](/docs/api/types/markdown-toc)            |
 | `views`         | `(view) => { default: View; [name]: View }`           | no       |         | Helper offers `resolveDepth` and `augment` only                                                                                                                                                                                 |
 | `cloud`         | `{ displayAs?; hiddenFields?; media? }`               | no       |         | Cloud UI name, hidden fields, and where uploads are saved. Requires `cloud` on `initQino`. See [Cloud](/docs/guide/cloud#primitives)                                                                                            |
 

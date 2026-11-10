@@ -14,6 +14,8 @@ import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { extractExtension } from "../../lib/paths/extract-extension";
 import { addEntryStats } from "../../lib/stats/add-entry-stats";
 import { assertMarkdownStatsConfig } from "../../lib/stats/assert-markdown-stats-config";
+import { addEntryToc } from "../../lib/toc/add-entry-toc";
+import { assertMarkdownTocConfig } from "../../lib/toc/assert-markdown-toc-config";
 import { validate } from "../../lib/validate/validate";
 import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
@@ -28,6 +30,12 @@ import type {
   ResolvedItemView,
 } from "../../types/item";
 import type { CheckMarkdownStats } from "../../types/markdown-stats";
+import type {
+  CheckMarkdownToc,
+  MarkdownTocFlag,
+  MarkdownTocOption,
+  MarkdownTocOptions,
+} from "../../types/markdown-toc";
 import type {
   CheckMediaKeys,
   MediaConfig,
@@ -56,6 +64,7 @@ export type DefineItemParams<
   Views extends object = object,
   Media extends MediaConfig<Schema, ExtractItemExtension<F>> = EmptyObject,
   Stats extends boolean = false,
+  Toc extends MarkdownTocFlag = false,
 > = {
   file: F & NoInfer<NoLeadingSlash<F>>;
   schema: Schema &
@@ -72,12 +81,16 @@ export type DefineItemParams<
   /** Adds `_stats` (word and character counts) from the Markdown body. */
   markdownStats?: Stats &
     NoInfer<CheckMarkdownStats<Stats, ExtractItemExtension<F>>>;
+  /** Adds `_toc` (the headings, with their anchor ids) from the Markdown body. */
+  // Infers `Toc` from booleans only: see `MarkdownTocFlag`.
+  markdownToc?: (Toc | NoInfer<MarkdownTocOptions>) &
+    NoInfer<CheckMarkdownToc<Toc, ExtractItemExtension<F>>>;
   views?: ViewsConfig<
     Views,
     ViewFactory<
       Schema,
       ItemEntryMeta<ExtractItemExtension<F>>,
-      TaggedRelations<Rels, Media, Stats>
+      TaggedRelations<Rels, Media, Stats, Toc>
     >
   >;
   cloud?: NoInfer<ItemCloudConfig<Schema>>;
@@ -90,8 +103,12 @@ export function defineItem<
   const Views extends object = object,
   const Media extends MediaConfig<S, ExtractItemExtension<F>> = EmptyObject,
   const Stats extends boolean = false,
->(ctx: QinoContext, params: DefineItemParams<S, F, Rels, Views, Media, Stats>) {
-  type TaggedRels = TaggedRelations<Rels, Media, Stats>;
+  Toc extends MarkdownTocFlag = false,
+>(
+  ctx: QinoContext,
+  params: DefineItemParams<S, F, Rels, Views, Media, Stats, Toc>,
+) {
+  type TaggedRels = TaggedRelations<Rels, Media, Stats, Toc>;
   const {
     file,
     schema,
@@ -100,6 +117,8 @@ export function defineItem<
     markdownStats = false,
     cloud,
   } = params;
+  // `Toc`'s options marker types no value: what's passed is an option.
+  const markdownToc = (params.markdownToc ?? false) as MarkdownTocOption;
   assertContentPath(file, "file");
   assertCloudEnabled(ctx, cloud, file);
 
@@ -113,6 +132,7 @@ export function defineItem<
     primitiveId: file,
   });
   assertMarkdownStatsConfig({ markdownStats, extension, primitiveId: file });
+  assertMarkdownTocConfig({ markdownToc, extension, primitiveId: file });
   assertNoRootViewSettings(params);
   const views = buildViews(params.views, "item", itemRelations);
   const defaultResolveDepth = views?.default.resolveDepth ?? {};
@@ -134,6 +154,7 @@ export function defineItem<
       resolveDepth: defaultResolveDepth,
       media,
       markdownStats,
+      markdownToc,
       cloud,
       readEntry,
     },
@@ -157,7 +178,11 @@ export function defineItem<
       }),
     };
     return (await resolveEntryMedia({
-      entry: await addEntryStats({ entry, markdownStats }),
+      entry: await addEntryToc({
+        entry: await addEntryStats({ entry, markdownStats }),
+        markdownToc,
+        extension,
+      }),
       media,
       mediaFolder: ctx.mediaFolder,
       filePath: absoluteFilePath,

@@ -3,6 +3,7 @@ import type { CliConfig } from "../../types/cli";
 import type { CloudConfig } from "../../types/cloud";
 import type { Collection } from "../../types/collection";
 import type { ExtractItemExtension, Item, ItemFile } from "../../types/item";
+import type { MarkdownTocFlag } from "../../types/markdown-toc";
 import type { MediaConfig, TaggedRelations } from "../../types/media";
 import type { Relations } from "../../types/relations";
 import type { ObjectSchema } from "../../types/schema";
@@ -57,6 +58,7 @@ export function initQino(config: QinoConfig) {
       const DisplayEntryAs extends string = never,
       const Media extends MediaConfig<S, Ext> = EmptyObject,
       const Stats extends boolean = false,
+      Toc extends MarkdownTocFlag = false,
     >(
       params: DefineCollectionParams<
         S,
@@ -67,12 +69,13 @@ export function initQino(config: QinoConfig) {
         SaveEntryAs,
         DisplayEntryAs,
         Media,
-        Stats
+        Stats,
+        Toc
       >,
     ): Collection<
       S,
       Ext,
-      TaggedRelations<Rels, Media, Stats>,
+      TaggedRelations<Rels, Media, Stats, Toc>,
       Dir,
       ConfiguredViews<Views>
     > {
@@ -85,12 +88,13 @@ export function initQino(config: QinoConfig) {
       const Views extends object = object,
       const Media extends MediaConfig<S, ExtractItemExtension<F>> = EmptyObject,
       const Stats extends boolean = false,
+      Toc extends MarkdownTocFlag = false,
     >(
-      params: DefineItemParams<S, F, Rels, Views, Media, Stats>,
+      params: DefineItemParams<S, F, Rels, Views, Media, Stats, Toc>,
     ): Item<
       S,
       ExtractItemExtension<F>,
-      TaggedRelations<Rels, Media, Stats>,
+      TaggedRelations<Rels, Media, Stats, Toc>,
       ConfiguredViews<Views>
     > {
       return defineItem(ctx, params);
@@ -106,6 +110,7 @@ export function initQino(config: QinoConfig) {
       const DisplayEntryAs extends string = never,
       const Media extends MediaConfig<S, Ext> = EmptyObject,
       const Stats extends boolean = false,
+      Toc extends MarkdownTocFlag = false,
     >(
       params: DefineTreeParams<
         S,
@@ -117,13 +122,14 @@ export function initQino(config: QinoConfig) {
         SaveEntryAs,
         DisplayEntryAs,
         Media,
-        Stats
+        Stats,
+        Toc
       >,
     ): Tree<
       S,
       Ext,
       Title,
-      TaggedRelations<Rels, Media, Stats>,
+      TaggedRelations<Rels, Media, Stats, Toc>,
       Dir,
       ConfiguredViews<Views>
     > {

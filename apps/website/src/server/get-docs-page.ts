@@ -39,6 +39,7 @@ export const getDocsPage = createServerFn({ method: "GET" })
       description: entry.description,
       since: entry.since,
       raw: entry.raw,
+      toc: entry._toc,
       mdx,
       links,
       breadcrumbs,

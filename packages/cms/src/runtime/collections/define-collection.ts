@@ -15,6 +15,8 @@ import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { removeExtension } from "../../lib/paths/remove-extension";
 import { addEntryStats } from "../../lib/stats/add-entry-stats";
 import { assertMarkdownStatsConfig } from "../../lib/stats/assert-markdown-stats-config";
+import { addEntryToc } from "../../lib/toc/add-entry-toc";
+import { assertMarkdownTocConfig } from "../../lib/toc/assert-markdown-toc-config";
 import { validate } from "../../lib/validate/validate";
 import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
@@ -35,6 +37,12 @@ import type {
   CollectionViewFactory,
 } from "../../types/collection-views";
 import type { CheckMarkdownStats } from "../../types/markdown-stats";
+import type {
+  CheckMarkdownToc,
+  MarkdownTocFlag,
+  MarkdownTocOption,
+  MarkdownTocOptions,
+} from "../../types/markdown-toc";
 import type {
   CheckMediaKeys,
   MediaConfig,
@@ -72,6 +80,7 @@ export type DefineCollectionParams<
   DisplayEntryAs extends string = never,
   Media extends MediaConfig<Schema, Ext> = EmptyObject,
   Stats extends boolean = false,
+  Toc extends MarkdownTocFlag = false,
 > = {
   directory: Dir & NoInfer<NoLeadingSlash<Dir>>;
   schema: Schema & NoInfer<NoReservedSchemaFields<Schema, Ext>>;
@@ -84,12 +93,16 @@ export type DefineCollectionParams<
     NoInfer<MediaConfig<Schema, Ext> & CheckMediaKeys<Media, Schema, Ext>>;
   /** Adds `_stats` (word and character counts) from the Markdown body. */
   markdownStats?: Stats & NoInfer<CheckMarkdownStats<Stats, Ext>>;
+  /** Adds `_toc` (the headings, with their anchor ids) from the Markdown body. */
+  // Infers `Toc` from booleans only: see `MarkdownTocFlag`.
+  markdownToc?: (Toc | NoInfer<MarkdownTocOptions>) &
+    NoInfer<CheckMarkdownToc<Toc, Ext>>;
   views?: ViewsConfig<
     Views,
     CollectionViewFactory<
       Schema,
       CollectionEntryMeta<Ext>,
-      TaggedRelations<Rels, Media, Stats>
+      TaggedRelations<Rels, Media, Stats, Toc>
     >,
     CollectionViewDefinition
   >;
@@ -108,6 +121,7 @@ export function defineCollection<
   const DisplayEntryAs extends string = never,
   const Media extends MediaConfig<S, Ext> = EmptyObject,
   const Stats extends boolean = false,
+  Toc extends MarkdownTocFlag = false,
 >(
   ctx: QinoContext,
   params: DefineCollectionParams<
@@ -119,10 +133,11 @@ export function defineCollection<
     SaveEntryAs,
     DisplayEntryAs,
     Media,
-    Stats
+    Stats,
+    Toc
   >,
 ) {
-  type TaggedRels = TaggedRelations<Rels, Media, Stats>;
+  type TaggedRels = TaggedRelations<Rels, Media, Stats, Toc>;
   const {
     directory,
     schema,
@@ -132,6 +147,8 @@ export function defineCollection<
     markdownStats = false,
     cloud,
   } = params;
+  // `Toc`'s options marker types no value: what's passed is an option.
+  const markdownToc = (params.markdownToc ?? false) as MarkdownTocOption;
   assertContentPath(directory, "directory");
   assertCloudEnabled(ctx, cloud, directory);
   const collectionRelations = (relations ?? {}) as TaggedRels;
@@ -143,6 +160,11 @@ export function defineCollection<
   });
   assertMarkdownStatsConfig({
     markdownStats,
+    extension,
+    primitiveId: directory,
+  });
+  assertMarkdownTocConfig({
+    markdownToc,
     extension,
     primitiveId: directory,
   });
@@ -163,6 +185,7 @@ export function defineCollection<
       resolveDepth: defaultResolveDepth,
       media,
       markdownStats,
+      markdownToc,
       cloud,
       readEntries,
       readEntry,
@@ -206,7 +229,11 @@ export function defineCollection<
       [META_FIELD_NAME]: meta,
     };
     return (await resolveEntryMedia({
-      entry: await addEntryStats({ entry, markdownStats }),
+      entry: await addEntryToc({
+        entry: await addEntryStats({ entry, markdownStats }),
+        markdownToc,
+        extension,
+      }),
       media,
       mediaFolder: ctx.mediaFolder,
       filePath: meta.filePath,
