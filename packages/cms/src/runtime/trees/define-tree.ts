@@ -15,6 +15,8 @@ import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { addEntryStats } from "../../lib/stats/add-entry-stats";
 import { assertMarkdownStatsConfig } from "../../lib/stats/assert-markdown-stats-config";
+import { addEntryToc } from "../../lib/toc/add-entry-toc";
+import { assertMarkdownTocConfig } from "../../lib/toc/assert-markdown-toc-config";
 import { validate } from "../../lib/validate/validate";
 import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
@@ -26,6 +28,10 @@ import type {
   TreeCloudConfig,
 } from "../../types/cloud";
 import type { CheckMarkdownStats } from "../../types/markdown-stats";
+import type {
+  CheckMarkdownToc,
+  MarkdownTocOption,
+} from "../../types/markdown-toc";
 import type {
   CheckMediaKeys,
   MediaConfig,
@@ -75,6 +81,7 @@ export type DefineTreeParams<
   DisplayEntryAs extends string = never,
   Media extends MediaConfig<Schema, Ext> = EmptyObject,
   Stats extends boolean = false,
+  Toc extends MarkdownTocOption = false,
 > = {
   directory: Dir & NoInfer<NoLeadingSlash<Dir>>;
   schema: Schema & NoInfer<NoReservedSchemaFields<Schema, Ext>>;
@@ -89,9 +96,15 @@ export type DefineTreeParams<
     NoInfer<MediaConfig<Schema, Ext> & CheckMediaKeys<Media, Schema, Ext>>;
   /** Adds `_stats` (word and character counts) from the Markdown body. */
   markdownStats?: Stats & NoInfer<CheckMarkdownStats<Stats, Ext>>;
+  /** Adds `_toc` (the headings, with their anchor ids) from the Markdown body. */
+  markdownToc?: Toc & NoInfer<CheckMarkdownToc<Toc, Ext>>;
   views?: ViewsConfig<
     Views,
-    ViewFactory<Schema, TreeEntryMeta<Ext>, TaggedRelations<Rels, Media, Stats>>
+    ViewFactory<
+      Schema,
+      TreeEntryMeta<Ext>,
+      TaggedRelations<Rels, Media, Stats, Toc>
+    >
   >;
   cloud?: NoInfer<TreeCloudConfig<Schema>> &
     SaveEntryAsConfig<SaveEntryAs, Schema> &
@@ -109,6 +122,7 @@ export function defineTree<
   const DisplayEntryAs extends string = never,
   const Media extends MediaConfig<S, Ext> = EmptyObject,
   const Stats extends boolean = false,
+  const Toc extends MarkdownTocOption = false,
 >(
   ctx: QinoContext,
   params: DefineTreeParams<
@@ -121,10 +135,11 @@ export function defineTree<
     SaveEntryAs,
     DisplayEntryAs,
     Media,
-    Stats
+    Stats,
+    Toc
   >,
 ) {
-  type TaggedRels = TaggedRelations<Rels, Media, Stats>;
+  type TaggedRels = TaggedRelations<Rels, Media, Stats, Toc>;
   const {
     directory,
     schema,
@@ -134,6 +149,7 @@ export function defineTree<
     relations,
     media = {},
     markdownStats = false,
+    markdownToc = false,
     cloud,
   } = params;
   assertContentPath(directory, "directory");
@@ -148,6 +164,11 @@ export function defineTree<
   });
   assertMarkdownStatsConfig({
     markdownStats,
+    extension,
+    primitiveId: directory,
+  });
+  assertMarkdownTocConfig({
+    markdownToc,
     extension,
     primitiveId: directory,
   });
@@ -171,6 +192,7 @@ export function defineTree<
       resolveDepth: defaultResolveDepth,
       media,
       markdownStats,
+      markdownToc,
       cloud,
       readEntry,
     },
@@ -230,7 +252,11 @@ export function defineTree<
       }),
     };
     return (await resolveEntryMedia({
-      entry: await addEntryStats({ entry, markdownStats }),
+      entry: await addEntryToc({
+        entry: await addEntryStats({ entry, markdownStats }),
+        markdownToc,
+        extension,
+      }),
       media,
       mediaFolder: ctx.mediaFolder,
       filePath: meta.filePath,

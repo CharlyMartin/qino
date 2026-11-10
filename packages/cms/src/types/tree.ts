@@ -8,6 +8,7 @@ import type {
 import type { PrimitiveCloudConfig } from "./cloud";
 import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
+import type { MarkdownTocOption } from "./markdown-toc";
 import type { AnyMediaConfig } from "./media";
 import type { Relations } from "./relations";
 import type { ResolveDepths, ResolveEntry, UnresolvedMode } from "./resolve";
@@ -61,6 +62,7 @@ export type TreeMeta<
   readonly resolveDepth: ResolveDepths;
   readonly media: AnyMediaConfig;
   readonly markdownStats: boolean;
+  readonly markdownToc: MarkdownTocOption;
   readonly cloud?: PrimitiveCloudConfig;
   readonly readEntry: (
     slug: Slug,
@@ -133,6 +135,7 @@ export type AnyTreeMeta = {
   readonly resolveDepth: ResolveDepths;
   readonly media: AnyMediaConfig;
   readonly markdownStats: boolean;
+  readonly markdownToc: MarkdownTocOption;
   readonly cloud?: PrimitiveCloudConfig;
   readonly readEntry: (
     slug: Slug,

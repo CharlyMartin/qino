@@ -315,6 +315,9 @@ importers:
       es-toolkit:
         specifier: 1.53.2
         version: 1.53.2
+      github-slugger:
+        specifier: 2.0.0
+        version: 2.0.0
       gray-matter:
         specifier: 4.0.3
         version: 4.0.3
@@ -379,6 +382,9 @@ importers:
       '@qino/tooling':
         specifier: workspace:*
         version: link:../tooling
+      '@types/hast':
+        specifier: 3.0.5
+        version: 3.0.5
       '@types/mdast':
         specifier: 4.0.4
         version: 4.0.4
@@ -394,6 +400,12 @@ importers:
       publint:
         specifier: 0.3.25
         version: 0.3.25
+      rehype-slug:
+        specifier: 6.0.0
+        version: 6.0.0
+      remark-rehype:
+        specifier: 11.1.2
+        version: 11.1.2
       tsdown:
         specifier: 0.23.7
         version: 0.23.7(@arethetypeswrong/core@0.18.5)(publint@0.3.25)(typescript@6.0.3)(unrun@0.2.37)

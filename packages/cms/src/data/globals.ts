@@ -7,6 +7,15 @@ export const META_FIELD_NAME = "_meta";
 export const MARKDOWN_FIELD_NAME = "markdown";
 export const RAW_FIELD_NAME = "raw";
 export const STATS_FIELD_NAME = "_stats";
+export const TOC_FIELD_NAME = "_toc";
+export const MARKDOWN_HEADING_TAGS = [
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+] as const;
 export const SUPPORTED_CONTENT_EXTENSIONS = [
   ".md",
   ".mdx",

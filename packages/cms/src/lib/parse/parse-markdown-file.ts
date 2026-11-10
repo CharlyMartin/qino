@@ -4,6 +4,7 @@ import {
   MARKDOWN_FIELD_NAME,
   RAW_FIELD_NAME,
   STATS_FIELD_NAME,
+  TOC_FIELD_NAME,
 } from "../../data/globals";
 import type { ObjectSchema } from "../../types/schema";
 import { assertNoReservedMarkdownFields } from "../validate/assert-no-reserved-markdown-fields";
@@ -28,7 +29,12 @@ export function parseMarkdownFile<S extends ObjectSchema>({
     schema,
     data: parsed.data,
     filePath,
-    generatedFields: [MARKDOWN_FIELD_NAME, RAW_FIELD_NAME, STATS_FIELD_NAME],
+    generatedFields: [
+      MARKDOWN_FIELD_NAME,
+      RAW_FIELD_NAME,
+      STATS_FIELD_NAME,
+      TOC_FIELD_NAME,
+    ],
   });
   assertNoReservedMarkdownFields(validated, filePath);
 
