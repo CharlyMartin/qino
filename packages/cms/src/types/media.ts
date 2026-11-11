@@ -1,4 +1,4 @@
-import type { IMAGE_MEDIA_TYPES } from "../data/globals";
+import type { IMAGE_MEDIA_TYPES, MARKDOWN_FIELD_NAME } from "../data/globals";
 import type { MarkdownStatsTag } from "./markdown-stats";
 import type { MarkdownTocFlag, MarkdownTocTag } from "./markdown-toc";
 import type { RelationPath } from "./relations";
@@ -56,10 +56,14 @@ export type MediaRule = {
 
 /**
  * Media fields, keyed by relation-style paths to string fields: `"cover"`,
- * `"gallery[*]"`, `"seo.image"`. Files the body embeds go in `markdown.media`.
+ * `"gallery[*]"`, `"seo.image"`. Files the body embeds go in `markdown.media`,
+ * so `markdown` is never a path, even on a JSON field of that name.
  */
 export type MediaConfig<Schema extends ObjectSchema> = {
-  readonly [P in RelationPath<ValidatedOutput<Schema>>]?: MediaRule;
+  readonly [P in Exclude<
+    RelationPath<ValidatedOutput<Schema>>,
+    typeof MARKDOWN_FIELD_NAME
+  >]?: MediaRule;
 };
 
 /** Flags keys of `media` that aren't paths to string fields. */

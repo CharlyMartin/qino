@@ -148,6 +148,18 @@ describe("media config", () => {
     });
   });
 
+  test("rejects markdown under media, even as a JSON string field", () => {
+    defineCollection({
+      directory: "authors",
+      schema: z.object({ markdown: z.string() }),
+      extension: ".json",
+      media: {
+        // @ts-expect-error Not a path to a string field: markdown is reserved.
+        markdown: { accepted: "image/png", maxSize: "1MB" },
+      },
+    });
+  });
+
   test("rejects markdown.media on JSON files", () => {
     defineCollection({
       directory: "authors",

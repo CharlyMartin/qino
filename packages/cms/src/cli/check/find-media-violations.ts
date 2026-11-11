@@ -19,7 +19,7 @@ import type { AnyPrimitive } from "../../types/utils";
 import { getPrimitiveId } from "../build/get-primitive-id";
 import { serializeMedia } from "../build/serialize-media";
 import { collectPathValues } from "./collect-path-values";
-import { extractMediaCandidates } from "./extract-media-links";
+import { extractMediaCandidates } from "./extract-media-candidates";
 import { readValidatedEntries } from "./read-validated-entries";
 
 type Rule = { accepted: string; maxSize: number };
@@ -154,7 +154,7 @@ export async function findMediaViolations(
       rulesByUrl.set(normalized, [...(rulesByUrl.get(normalized) ?? []), rule]);
     }
 
-    let first: { url: string; reason: string } | undefined;
+    let first: Pick<MediaViolation, "url" | "reason"> | undefined;
     for (const [url, rules] of rulesByUrl) {
       const reason = await check(url, rules);
       if (!reason) return;

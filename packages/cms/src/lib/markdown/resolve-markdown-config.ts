@@ -44,7 +44,7 @@ export function resolveMarkdownConfig({
     ? media
     : [media as MediaRule];
   rules.forEach((rule, index) => {
-    const { parse } = rule as { parse?: unknown };
+    const { parse } = rule;
     if (parse != null && typeof parse != "function") {
       const owner = Array.isArray(media)
         ? `markdown.media, rule ${index + 1}, parse`
