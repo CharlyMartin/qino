@@ -4,6 +4,7 @@ import nodePath from "node:path";
 import { lookup } from "mrmime";
 
 import {
+  MARKDOWN_FIELD_NAME,
   MARKDOWN_MEDIA_KEY,
   META_FIELD_NAME,
   QinoPrimitiveMarker,
@@ -11,15 +12,18 @@ import {
 import { describeMediaMismatch } from "../../lib/media/describe-media-mismatch";
 import { isLocalMediaUrl } from "../../lib/media/is-local-media-url";
 import { normalizeMediaUrl } from "../../lib/media/normalize-media-url";
+import { applyParse } from "../../lib/parse/apply-parse";
 import { parsePath } from "../../lib/relations/parse-path";
+import type { MediaParse } from "../../types/media";
 import type { AnyPrimitive } from "../../types/utils";
 import { getPrimitiveId } from "../build/get-primitive-id";
 import { serializeMedia } from "../build/serialize-media";
 import { collectPathValues } from "./collect-path-values";
-import { extractMediaLinks } from "./extract-media-links";
+import { extractMediaCandidates } from "./extract-media-links";
 import { readValidatedEntries } from "./read-validated-entries";
 
 type Rule = { accepted: string; maxSize: number };
+type BodyRule = Rule & { parse: MediaParse | undefined };
 type MediaViolation = {
   file: string;
   location: string;
@@ -30,7 +34,8 @@ type MediaViolation = {
 /**
  * Lists media files that break a primitive's `media` rules: a field value
  * outside `mediaFolder`, or a field value or body image of another type or
- * over `maxSize`. Body images must match one `markdown.media` rule.
+ * over `maxSize`. Body images must match one `markdown.media` rule, each
+ * reading the image with its own `parse`.
  */
 export async function findMediaViolations(
   primitive: AnyPrimitive,
@@ -42,7 +47,11 @@ export async function findMediaViolations(
     markdown.media,
     getPrimitiveId(primitive),
   ) as Record<string, Rule | Array<Rule>>;
-  const { [MARKDOWN_MEDIA_KEY]: markdownRules, ...fields } = media;
+  const { [MARKDOWN_MEDIA_KEY]: markdownRules = [], ...fields } = media;
+  // `serializeMedia` drops `parse`; rules keep their order.
+  const bodyRules: Array<BodyRule> = (markdownRules as Array<Rule>).map(
+    (rule, index) => ({ ...rule, parse: markdown.media[index]?.parse }),
+  );
 
   if (Object.keys(media).length == 0) return [];
 
@@ -93,21 +102,65 @@ export async function findMediaViolations(
       }
     }
 
-    if (Array.isArray(markdownRules)) {
+    if (bodyRules.length) {
       const raw = await fs.readFile(file, "utf-8");
-      const images = extractMediaLinks(raw, nodePath.extname(file)).filter(
-        ({ image }) => image,
-      );
+      const images = extractMediaCandidates(raw, nodePath.extname(file))
+        .filter(({ image }) => image)
+        .sort((a, b) => a.line - b.line);
+      const seen = new Set<string>();
 
-      // Already local and normalized by `extractMediaLinks`.
-      for (const { url, line } of images) {
-        const reason = await check(url, markdownRules);
-        if (reason) {
-          violations.push({ file, location: `line ${line}`, url, reason });
+      for (const { url: value, line } of images) {
+        const key = `${line}:${value}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+
+        const violation = await checkBodyImage(value, file);
+        if (violation) {
+          violations.push({
+            file,
+            location: `line ${line}`,
+            url: violation.url,
+            reason: violation.reason,
+          });
         }
       }
     }
   }
 
   return violations;
+
+  /**
+   * Each rule reads `value` with its own `parse`; rules reading the same URL
+   * are checked together. Passes when one URL matches its rules, and skips
+   * values no rule reads as a URL in `mediaFolder`.
+   */
+  async function checkBodyImage(value: string, file: string) {
+    const rulesByUrl = new Map<string, Array<Rule>>();
+
+    for (const { parse, ...rule } of bodyRules) {
+      const url = applyParse({
+        value,
+        parse,
+        ctx: {
+          sourceFilePath: file,
+          fieldPath: MARKDOWN_FIELD_NAME,
+          mediaFolder,
+        },
+        owner: `${file}: markdown.media`,
+      });
+      if (!isLocalMediaUrl(url)) continue;
+
+      const normalized = normalizeMediaUrl(url);
+      rulesByUrl.set(normalized, [...(rulesByUrl.get(normalized) ?? []), rule]);
+    }
+
+    let first: { url: string; reason: string } | undefined;
+    for (const [url, rules] of rulesByUrl) {
+      const reason = await check(url, rules);
+      if (!reason) return;
+      first ??= { url, reason };
+    }
+
+    return first;
+  }
 }

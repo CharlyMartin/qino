@@ -6,7 +6,11 @@ import { parseYaml } from "../../lib/parse/parse-yaml";
 import { collectStrings } from "./collect-strings";
 import { scanMarkdownBody } from "./scan-markdown-body";
 
-export function extractMediaLinks(raw: string, extension: string) {
+/**
+ * Lists every URL in a content file, as written: frontmatter strings, and
+ * body links and images, with their line numbers.
+ */
+export function extractMediaCandidates(raw: string, extension: string) {
   const isJson = extension == ".json";
   const parsed = isJson
     ? { data: JSON.parse(raw), content: "" }
@@ -37,12 +41,17 @@ export function extractMediaLinks(raw: string, extension: string) {
     }
   }
 
+  return candidates;
+}
+
+/** Lists the local media URLs of a content file, normalized and sorted. */
+export function extractMediaLinks(raw: string, extension: string) {
   const links = new Map<
     string,
     { url: string; line: number; image: boolean }
   >();
 
-  for (const { url, line, image } of candidates) {
+  for (const { url, line, image } of extractMediaCandidates(raw, extension)) {
     if (!isLocalMediaUrl(url)) continue;
 
     const normalized = normalizeMediaUrl(url);
