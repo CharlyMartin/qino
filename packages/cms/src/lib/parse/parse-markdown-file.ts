@@ -1,4 +1,4 @@
-import matter from "gray-matter";
+import { parseFrontmatter } from "@qino/tooling/frontmatter";
 
 import {
   MARKDOWN_FIELD_NAME,
@@ -9,7 +9,6 @@ import {
 import type { ObjectSchema } from "../../types/schema";
 import { assertNoReservedMarkdownFields } from "../validate/assert-no-reserved-markdown-fields";
 import type { ValidateParams, validate } from "../validate/validate";
-import { parseYaml } from "./parse-yaml";
 
 type ParseMarkdownFileParams<S extends ObjectSchema> = ValidateParams<S> & {
   data: string;
@@ -22,7 +21,7 @@ export function parseMarkdownFile<S extends ObjectSchema>({
   filePath,
   validatorFn,
 }: ParseMarkdownFileParams<S>) {
-  const parsed = matter(data, { engines: { yaml: parseYaml } });
+  const parsed = parseFrontmatter(data);
   assertNoReservedMarkdownFields(parsed.data, filePath);
 
   const validated = validatorFn({
@@ -40,7 +39,7 @@ export function parseMarkdownFile<S extends ObjectSchema>({
 
   return {
     ...validated,
-    [MARKDOWN_FIELD_NAME]: parsed.content,
+    [MARKDOWN_FIELD_NAME]: parsed.body,
     [RAW_FIELD_NAME]: data,
   };
 }

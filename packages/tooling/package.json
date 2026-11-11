@@ -12,6 +12,10 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
+    },
+    "./frontmatter": {
+      "types": "./src/frontmatter/parse-frontmatter.ts",
+      "default": "./src/frontmatter/parse-frontmatter.ts"
     }
   },
   "files": [
@@ -27,7 +31,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "biome check .",
-    "check-dist": "node --input-type=module -e \"await import('./dist/index.mjs')\" && publint && pnpm pack --out .check-dist.tgz && attw .check-dist.tgz --profile esm-only; status=$?; node -e \"require('node:fs').rmSync('.check-dist.tgz',{force:true})\"; exit $status"
+    "check-dist": "node --input-type=module -e \"await import('./dist/index.mjs'); await import('./dist/frontmatter.mjs')\" && publint && pnpm pack --out .check-dist.tgz && attw .check-dist.tgz --profile esm-only; status=$?; node -e \"require('node:fs').rmSync('.check-dist.tgz',{force:true})\"; exit $status"
   },
   "publishConfig": {
     "access": "public",
@@ -35,8 +39,15 @@
       ".": {
         "types": "./dist/index.d.mts",
         "import": "./dist/index.mjs"
+      },
+      "./frontmatter": {
+        "types": "./dist/frontmatter.d.mts",
+        "import": "./dist/frontmatter.mjs"
       }
     }
+  },
+  "dependencies": {
+    "js-yaml": "5.5.0"
   },
   "peerDependencies": {
     "zod": "^4.6.5"
@@ -44,6 +55,7 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
     "@types/node": "22.19.18",
+    "gray-matter": "4.0.3",
     "publint": "0.3.25",
     "tsdown": "0.23.7",
     "typescript": "6.0.3",

@@ -1,6 +1,5 @@
-import matter from "gray-matter";
+import { parseFrontmatter } from "@qino/tooling/frontmatter";
 
-import { parseYaml } from "../../lib/parse/parse-yaml";
 import { collectStrings } from "./collect-strings";
 import { scanMarkdownBody } from "./scan-markdown-body";
 
@@ -11,12 +10,12 @@ import { scanMarkdownBody } from "./scan-markdown-body";
 export function extractMediaCandidates(raw: string, extension: string) {
   const isJson = extension == ".json";
   const parsed = isJson
-    ? { data: JSON.parse(raw), content: "" }
-    : matter(raw, { engines: { yaml: parseYaml } });
+    ? { data: JSON.parse(raw), body: "" }
+    : parseFrontmatter(raw);
 
-  // gray-matter's `content` is the source after the closing delimiter, so
-  // data strings are only looked up before it, never in the body.
-  const head = raw.slice(0, raw.length - parsed.content.length);
+  // `body` is the source after the closing delimiter, so data strings are
+  // only looked up before it, never in the body.
+  const head = raw.slice(0, raw.length - parsed.body.length);
   const bodyLineOffset = head.split("\n").length - 1;
 
   const candidates = collectStrings(parsed.data).map((url) => ({
@@ -28,7 +27,7 @@ export function extractMediaCandidates(raw: string, extension: string) {
   if (!isJson) {
     // Blank lines stand in for frontmatter so every position the parser
     // reports, including those inside MDX error messages, is a file line.
-    const body = "\n".repeat(bodyLineOffset) + parsed.content;
+    const body = "\n".repeat(bodyLineOffset) + parsed.body;
 
     try {
       candidates.push(...scanMarkdownBody(body, { mdx: extension == ".mdx" }));
