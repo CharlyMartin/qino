@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import nodePath from "node:path";
 
+import { isLocalMediaUrl, normalizeMediaUrl } from "@qino/tooling/media";
 import { parsePath } from "@qino/tooling/relations";
 import { lookup } from "mrmime";
 
@@ -10,8 +11,6 @@ import { walkAndSet } from "../relations/walk-and-set";
 import { describeMediaMismatch } from "./describe-media-mismatch";
 import { getImageData } from "./get-image-data";
 import { isImageMediaType } from "./is-image-media-type";
-import { isLocalMediaUrl } from "./is-local-media-url";
-import { normalizeMediaUrl } from "./normalize-media-url";
 import { parseSize } from "./parse-size";
 
 type ResolveEntryMediaParams<Entry> = {

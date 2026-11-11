@@ -5,6 +5,7 @@ export default defineConfig({
     index: "src/index.ts",
     frontmatter: "src/frontmatter/parse-frontmatter.ts",
     relations: "src/relations/index.ts",
+    media: "src/media/index.ts",
   },
   format: ["esm"],
   dts: true,

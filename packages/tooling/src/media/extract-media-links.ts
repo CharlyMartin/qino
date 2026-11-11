@@ -1,6 +1,6 @@
-import { isLocalMediaUrl } from "../../lib/media/is-local-media-url";
-import { normalizeMediaUrl } from "../../lib/media/normalize-media-url";
 import { extractMediaCandidates } from "./extract-media-candidates";
+import { isLocalMediaUrl } from "./is-local-media-url";
+import { normalizeMediaUrl } from "./normalize-media-url";
 
 /** Lists the local media URLs of a content file, normalized and sorted. */
 export function extractMediaLinks(raw: string, extension: string) {

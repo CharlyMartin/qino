@@ -421,13 +421,34 @@ importers:
 
   packages/tooling:
     dependencies:
+      htmlparser2:
+        specifier: 12.0.0
+        version: 12.0.0
       js-yaml:
         specifier: 5.5.0
         version: 5.5.0
+      mdast-util-from-markdown:
+        specifier: 2.1.0
+        version: 2.1.0(supports-color@7.2.0)
+      mdast-util-gfm:
+        specifier: 3.1.0
+        version: 3.1.0(supports-color@7.2.0)
+      mdast-util-mdx:
+        specifier: 3.0.0
+        version: 3.0.0(supports-color@7.2.0)
+      micromark-extension-gfm:
+        specifier: 3.0.0
+        version: 3.0.0
+      micromark-extension-mdxjs:
+        specifier: 3.0.0
+        version: 3.0.0
     devDependencies:
       '@arethetypeswrong/cli':
         specifier: 0.18.5
         version: 0.18.5
+      '@types/mdast':
+        specifier: 4.0.4
+        version: 4.0.4
       '@types/node':
         specifier: 22.19.18
         version: 22.19.18
