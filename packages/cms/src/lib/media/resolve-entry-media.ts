@@ -3,8 +3,7 @@ import nodePath from "node:path";
 
 import { lookup } from "mrmime";
 
-import { MARKDOWN_MEDIA_KEY } from "../../data/globals";
-import type { AnyMediaConfig, MediaFieldConfig } from "../../types/media";
+import type { AnyMediaConfig } from "../../types/media";
 import { applyParse } from "../parse/apply-parse";
 import { parsePath } from "../relations/parse-path";
 import { walkAndSet } from "../relations/walk-and-set";
@@ -37,10 +36,9 @@ export async function resolveEntryMedia<Entry>({
   let value: unknown = entry;
 
   for (const [path, config] of Object.entries(media)) {
-    // `markdown` is the only list; it checks the body in `qino check`.
-    if (path == MARKDOWN_MEDIA_KEY || config == undefined) continue;
+    if (config == undefined) continue;
 
-    const { accepted, maxSize, parse } = config as MediaFieldConfig;
+    const { accepted, maxSize, parse } = config;
     const segments = parsePath(path);
     const parseLeaf = (leaf: string) =>
       applyParse({

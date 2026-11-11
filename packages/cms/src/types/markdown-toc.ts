@@ -1,6 +1,4 @@
 import type { MARKDOWN_HEADING_TAGS, TOC_FIELD_NAME } from "../data/globals";
-import type { MarkdownExtension } from "./generated-fields";
-import type { SupportedFileExtension } from "./utils";
 
 export type MarkdownHeadingTag = (typeof MARKDOWN_HEADING_TAGS)[number];
 
@@ -37,7 +35,7 @@ declare const QinoMarkdownToc: unique symbol;
 declare const QinoMarkdownTocOptions: unique symbol;
 
 /**
- * `markdownToc` as inferred: `false` when left out or off, `true`, `boolean`
+ * `markdown.toc` as inferred: `false` when left out or off, `true`, `boolean`
  * for a runtime boolean, or the whole constraint for an options object.
  * Options are never inferred, so a `slug` callback stays typed: an object
  * fails the constraint, which TypeScript then falls back to.
@@ -52,22 +50,11 @@ type IsTocOn<Toc extends MarkdownTocFlag> =
       ? true
       : false;
 
-/** Flags `markdownToc` on JSON files, which have no headings to list. */
-export type CheckMarkdownToc<
-  Toc extends MarkdownTocFlag,
-  Ext extends SupportedFileExtension,
-> =
-  IsTocOn<Toc> extends true
-    ? [Ext] extends [MarkdownExtension]
-      ? unknown
-      : { readonly "JSON files have no Markdown headings to list": Ext }
-    : unknown;
-
 /** Type-only tag carried on `Rels`, like `MarkdownStatsTag`. */
 export type MarkdownTocTag<Toc extends MarkdownTocFlag> =
   IsTocOn<Toc> extends true ? { readonly [QinoMarkdownToc]?: true } : unknown;
 
-/** Adds `_toc` when `Rels` is tagged with `markdownToc`. */
+/** Adds `_toc` when `Rels` is tagged with `markdown.toc`. */
 export type WithToc<T, Rels> = typeof QinoMarkdownToc extends keyof Rels
   ? T & { [K in typeof TOC_FIELD_NAME]: MarkdownToc }
   : T;

@@ -1,9 +1,9 @@
-import type { IMAGE_MEDIA_TYPES, MARKDOWN_MEDIA_KEY } from "../data/globals";
+import type { IMAGE_MEDIA_TYPES } from "../data/globals";
 import type { MarkdownStatsTag } from "./markdown-stats";
 import type { MarkdownTocFlag, MarkdownTocTag } from "./markdown-toc";
 import type { RelationPath } from "./relations";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
-import type { JsonPathArray, SupportedFileExtension } from "./utils";
+import type { JsonPathArray } from "./utils";
 
 // Type-only metadata, like `QinoInference`: never created at runtime.
 declare const QinoMediaPaths: unique symbol;
@@ -21,17 +21,13 @@ export type ImageMediaType = (typeof IMAGE_MEDIA_TYPES)[number];
 /** An exact MIME type, such as `"image/webp"` or `"application/pdf"`. */
 export type MediaType = ImageMediaType | (string & {});
 
-export type MediaRule = {
-  /** The one MIME type the field accepts, e.g. `"image/webp"`. */
-  readonly accepted: MediaType;
-  /** Maximum file size, e.g. `"5MB"` or `"600KB"`. */
-  readonly maxSize: MediaSize;
-};
-
 export type MediaParseContext = {
   /** The file the value was written in, not the file it points to. */
   sourceFilePath: string;
-  /** The field's path as declared in `media`, e.g. `"gallery[*]"`, not the element's index. */
+  /**
+   * The field's path as declared in `media`, e.g. `"gallery[*]"`, not the
+   * element's index. `"markdown"` for files the body embeds.
+   */
   fieldPath: string;
   mediaFolder: string;
 };
@@ -46,44 +42,36 @@ export type MediaParse = (
   ctx: MediaParseContext,
 ) => string | undefined;
 
-export type MediaFieldConfig = MediaRule & {
+/**
+ * The files a media field, or the Markdown body, accepts. `parse` turns a raw
+ * value into a URL in `mediaFolder` first.
+ */
+export type MediaRule = {
+  /** The one MIME type the rule accepts, e.g. `"image/webp"`. */
+  readonly accepted: MediaType;
+  /** Maximum file size, e.g. `"5MB"` or `"600KB"`. */
+  readonly maxSize: MediaSize;
   readonly parse?: MediaParse;
 };
 
-type MarkdownKey = typeof MARKDOWN_MEDIA_KEY;
-
 /**
  * Media fields, keyed by relation-style paths to string fields: `"cover"`,
- * `"gallery[*]"`, `"seo.image"`. `markdown` lists the files the body can
- * embed, one type per rule; `qino check` checks them. JSON files have no body,
- * so no `markdown`.
+ * `"gallery[*]"`, `"seo.image"`. Files the body embeds go in `markdown.media`.
  */
-export type MediaConfig<
-  Schema extends ObjectSchema,
-  Ext extends SupportedFileExtension = SupportedFileExtension,
-> = {
-  readonly [P in Exclude<
-    RelationPath<ValidatedOutput<Schema>>,
-    MarkdownKey
-  >]?: MediaFieldConfig;
-} & ([Ext] extends [".json"]
-  ? unknown
-  : { readonly [K in MarkdownKey]?: ReadonlyArray<MediaRule> });
+export type MediaConfig<Schema extends ObjectSchema> = {
+  readonly [P in RelationPath<ValidatedOutput<Schema>>]?: MediaRule;
+};
 
 /** Flags keys of `media` that aren't paths to string fields. */
 export type CheckMediaKeys<
   Media,
   Schema extends ObjectSchema,
-  Ext extends SupportedFileExtension,
 > = string extends keyof Media
   ? unknown
   : {
-      readonly [K in Exclude<
-        keyof Media,
-        keyof MediaConfig<Schema, Ext>
-      >]: K extends MarkdownKey
-        ? { readonly "JSON files have no Markdown body to check": K }
-        : { readonly "Not a path to a string field": K };
+      readonly [K in Exclude<keyof Media, keyof MediaConfig<Schema>>]: {
+        readonly "Not a path to a string field": K;
+      };
     };
 
 /** An image field once read, shaped like Next's `StaticImageData`. */
@@ -99,11 +87,11 @@ export type QinoImage = {
 
 /** Paths of `media` whose `accepted` type is an image. */
 export type ImagePaths<Media> = {
-  [K in keyof Media & string]: K extends MarkdownKey
-    ? never
-    : Media[K] extends { readonly accepted: ImageMediaType }
-      ? K
-      : never;
+  [K in keyof Media & string]: Media[K] extends {
+    readonly accepted: ImageMediaType;
+  }
+    ? K
+    : never;
 }[keyof Media & string];
 
 /**
@@ -162,8 +150,5 @@ export type WithImages<T, Rels> = [TaggedPaths<Rels>] extends [never]
 
 /** Media config as stored on a primitive, erased from its schema. */
 export type AnyMediaConfig = {
-  readonly [path: string]:
-    | MediaFieldConfig
-    | ReadonlyArray<MediaRule>
-    | undefined;
+  readonly [path: string]: MediaRule | undefined;
 };

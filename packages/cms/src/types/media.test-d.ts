@@ -42,7 +42,9 @@ const postCollection = defineCollection({
     attachment: { accepted: "application/pdf", maxSize: "10MB" },
     "gallery[*]": { accepted: "image/png", maxSize: "5MB" },
     "seo.image": { accepted: "image/png", maxSize: "1MB" },
-    markdown: [
+  },
+  markdown: {
+    media: [
       { accepted: "image/webp", maxSize: "1MB" },
       { accepted: "image/png", maxSize: "1MB" },
     ],
@@ -134,39 +136,52 @@ describe("media config", () => {
     });
   });
 
-  test("rejects markdown on JSON files", () => {
+  test("rejects markdown under media", () => {
+    defineCollection({
+      directory: "posts",
+      schema: PostSchema,
+      extension: ".md",
+      media: {
+        // @ts-expect-error Not a path to a string field: use markdown.media.
+        markdown: [{ accepted: "image/png", maxSize: "1MB" }],
+      },
+    });
+  });
+
+  test("rejects markdown.media on JSON files", () => {
     defineCollection({
       directory: "authors",
       schema: AuthorSchema,
       extension: ".json",
-      media: {
-        avatar: { accepted: "image/png", maxSize: "1MB" },
-        // @ts-expect-error JSON files have no Markdown body.
-        markdown: [{ accepted: "image/png", maxSize: "1MB" }],
-      },
+      // @ts-expect-error JSON files have no Markdown body.
+      markdown: { media: [{ accepted: "image/png", maxSize: "1MB" }] },
     });
     defineItem({
       file: "home.json",
       schema: z.object({ hero: z.string() }),
-      media: {
-        // @ts-expect-error JSON files have no Markdown body.
-        markdown: [{ accepted: "image/png", maxSize: "1MB" }],
-      },
+      // @ts-expect-error JSON files have no Markdown body.
+      markdown: { media: { accepted: "image/png", maxSize: "1MB" } },
     });
     defineTree({
       directory: "docs",
       schema: z.object({ title: z.string() }),
       extension: ".json",
       titleField: "title",
-      media: {
-        // @ts-expect-error JSON files have no Markdown body.
-        markdown: [{ accepted: "image/png", maxSize: "1MB" }],
-      },
+      // @ts-expect-error JSON files have no Markdown body.
+      markdown: { media: [{ accepted: "image/png", maxSize: "1MB" }] },
     });
+  });
+
+  test("accepts one markdown.media rule or a list", () => {
     defineItem({
       file: "about.mdx",
       schema: z.object({ title: z.string() }),
-      media: { markdown: [{ accepted: "image/png", maxSize: "1MB" }] },
+      markdown: { media: { accepted: "image/png", maxSize: "1MB" } },
+    });
+    defineItem({
+      file: "about.md",
+      schema: z.object({ title: z.string() }),
+      markdown: { media: [{ accepted: "image/png", maxSize: "1MB" }] },
     });
   });
 
@@ -175,8 +190,8 @@ describe("media config", () => {
       directory: "posts",
       schema: PostSchema,
       extension: ".md",
-      media: {
-        markdown: [
+      markdown: {
+        media: [
           // @ts-expect-error A rule accepts one MIME type.
           { accepted: ["image/png", "image/jpeg"], maxSize: "5MB" },
         ],

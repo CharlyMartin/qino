@@ -143,10 +143,8 @@ describe("createConfigFile", () => {
       schema,
       extension: ".md",
       relations: { author: () => authors },
-      media: {
-        cover: { accepted: "image/webp", maxSize: "5MB" },
-        markdown: [{ accepted: "image/png", maxSize: "1MB" }],
-      },
+      media: { cover: { accepted: "image/webp", maxSize: "5MB" } },
+      markdown: { media: { accepted: "image/png", maxSize: "1MB" } },
       cloud: {
         searchableBy: ["title"],
         sortableBy: ["title"],

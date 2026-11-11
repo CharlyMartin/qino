@@ -67,16 +67,38 @@ describe("parse callbacks", () => {
     });
   });
 
-  test("aren't offered on markdown rules", () => {
-    qino.defineCollection({
+  test("type markdown.media rules' arguments", async () => {
+    const posts = qino.defineCollection({
       directory: "body-posts",
       extension: ".md",
       schema: z.object({ title: z.string() }),
-      media: {
-        markdown: [
-          // @ts-expect-error Body images have no parse.
-          { accepted: "image/png", maxSize: "1MB", parse: () => undefined },
+      markdown: {
+        stats: true,
+        media: [
+          {
+            accepted: "image/png",
+            maxSize: "1MB",
+            parse: (value, ctx) => {
+              expectTypeOf(value).toEqualTypeOf<string>();
+              expectTypeOf(ctx).toEqualTypeOf<MediaParseContext>();
+              return value.replace(/^\[\[(.+)\]\]$/u, "/$1");
+            },
+          },
+          { accepted: "image/webp", maxSize: "1MB", parse: () => undefined },
         ],
+      },
+    });
+    expectTypeOf((await posts.getEntry("a"))._stats.wordCount).toBeNumber();
+  });
+
+  test("reject markdown.media parse returning something else", () => {
+    qino.defineCollection({
+      directory: "bad-body-posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      markdown: {
+        // @ts-expect-error parse returns a string or undefined.
+        media: { accepted: "image/png", maxSize: "1MB", parse: () => 1 },
       },
     });
   });

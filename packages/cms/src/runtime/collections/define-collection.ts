@@ -7,6 +7,7 @@ import {
   QinoPrimitives,
 } from "../../data/globals";
 import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
+import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-config";
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
@@ -14,9 +15,7 @@ import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { removeExtension } from "../../lib/paths/remove-extension";
 import { addEntryStats } from "../../lib/stats/add-entry-stats";
-import { assertMarkdownStatsConfig } from "../../lib/stats/assert-markdown-stats-config";
 import { addEntryToc } from "../../lib/toc/add-entry-toc";
-import { assertMarkdownTocConfig } from "../../lib/toc/assert-markdown-toc-config";
 import { validate } from "../../lib/validate/validate";
 import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
@@ -36,13 +35,11 @@ import type {
   CollectionViewDefinition,
   CollectionViewFactory,
 } from "../../types/collection-views";
-import type { CheckMarkdownStats } from "../../types/markdown-stats";
 import type {
-  CheckMarkdownToc,
-  MarkdownTocFlag,
-  MarkdownTocOption,
-  MarkdownTocOptions,
-} from "../../types/markdown-toc";
+  CheckMarkdownConfig,
+  MarkdownConfig,
+} from "../../types/markdown-config";
+import type { MarkdownTocFlag } from "../../types/markdown-toc";
 import type {
   CheckMediaKeys,
   MediaConfig,
@@ -78,7 +75,7 @@ export type DefineCollectionParams<
   Views extends object = object,
   SaveEntryAs extends string = never,
   DisplayEntryAs extends string = never,
-  Media extends MediaConfig<Schema, Ext> = EmptyObject,
+  Media extends MediaConfig<Schema> = EmptyObject,
   Stats extends boolean = false,
   Toc extends MarkdownTocFlag = false,
 > = {
@@ -89,14 +86,9 @@ export type DefineCollectionParams<
   // inferred last, so without it the callback would see the default.
   relations?: Rels & NoInfer<Relations<Schema>>;
   /** Media fields, keyed by path. Image fields are read as `QinoImage`. */
-  media?: Media &
-    NoInfer<MediaConfig<Schema, Ext> & CheckMediaKeys<Media, Schema, Ext>>;
-  /** Adds `_stats` (word and character counts) from the Markdown body. */
-  markdownStats?: Stats & NoInfer<CheckMarkdownStats<Stats, Ext>>;
-  /** Adds `_toc` (the headings, with their anchor ids) from the Markdown body. */
-  // Infers `Toc` from booleans only: see `MarkdownTocFlag`.
-  markdownToc?: (Toc | NoInfer<MarkdownTocOptions>) &
-    NoInfer<CheckMarkdownToc<Toc, Ext>>;
+  media?: Media & NoInfer<MediaConfig<Schema> & CheckMediaKeys<Media, Schema>>;
+  /** Configures the Markdown body: `_stats`, `_toc`, and the files it embeds. */
+  markdown?: MarkdownConfig<Stats, Toc> & NoInfer<CheckMarkdownConfig<Ext>>;
   views?: ViewsConfig<
     Views,
     CollectionViewFactory<
@@ -119,7 +111,7 @@ export function defineCollection<
   const Views extends object = object,
   const SaveEntryAs extends string = never,
   const DisplayEntryAs extends string = never,
-  const Media extends MediaConfig<S, Ext> = EmptyObject,
+  const Media extends MediaConfig<S> = EmptyObject,
   const Stats extends boolean = false,
   Toc extends MarkdownTocFlag = false,
 >(
@@ -138,33 +130,17 @@ export function defineCollection<
   >,
 ) {
   type TaggedRels = TaggedRelations<Rels, Media, Stats, Toc>;
-  const {
-    directory,
-    schema,
-    extension,
-    relations,
-    media = {},
-    markdownStats = false,
-    cloud,
-  } = params;
-  // `Toc`'s options marker types no value: what's passed is an option.
-  const markdownToc = (params.markdownToc ?? false) as MarkdownTocOption;
+  const { directory, schema, extension, relations, media = {}, cloud } = params;
   assertContentPath(directory, "directory");
   assertCloudEnabled(ctx, cloud, directory);
   const collectionRelations = (relations ?? {}) as TaggedRels;
   assertMediaConfig({
     media,
     relations: collectionRelations,
-    extension,
     primitiveId: directory,
   });
-  assertMarkdownStatsConfig({
-    markdownStats,
-    extension,
-    primitiveId: directory,
-  });
-  assertMarkdownTocConfig({
-    markdownToc,
+  const markdown = resolveMarkdownConfig({
+    markdown: params.markdown,
     extension,
     primitiveId: directory,
   });
@@ -184,8 +160,7 @@ export function defineCollection<
       relations: collectionRelations,
       resolveDepth: defaultResolveDepth,
       media,
-      markdownStats,
-      markdownToc,
+      markdown,
       cloud,
       readEntries,
       readEntry,
@@ -230,8 +205,8 @@ export function defineCollection<
     };
     return (await resolveEntryMedia({
       entry: await addEntryToc({
-        entry: await addEntryStats({ entry, markdownStats }),
-        markdownToc,
+        entry: await addEntryStats({ entry, markdownStats: markdown.stats }),
+        markdownToc: markdown.toc,
         extension,
       }),
       media,

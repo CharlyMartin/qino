@@ -1,4 +1,4 @@
-import { MARKDOWN_MEDIA_KEY, QinoPrimitiveMarker } from "../../data/globals";
+import { QinoPrimitiveMarker } from "../../data/globals";
 import { isCollection } from "../../lib/guards/is-collection";
 import { isItem } from "../../lib/guards/is-item";
 import type { AnyPrimitive } from "../../types/utils";
@@ -24,11 +24,12 @@ export function serializePrimitive(primitive: AnyPrimitive) {
     schema: validator,
     relations,
     media,
+    markdown,
   } = primitive[QinoPrimitiveMarker];
   const schema = serializeJsonSchema(validator, id);
   assertInputPaths(primitive, schema, id);
   assertMediaFields({
-    fields: Object.keys(media).filter((path) => path != MARKDOWN_MEDIA_KEY),
+    fields: Object.keys(media),
     relationPaths: Object.keys(relations),
     jsonSchema: schema,
     primitiveId: id,
@@ -38,7 +39,7 @@ export function serializePrimitive(primitive: AnyPrimitive) {
     body: serializeBody(primitive[QinoPrimitiveMarker].extension),
     schema,
     relations: serializeRelations(relations),
-    media: serializeMedia(media, id),
+    media: serializeMedia(media, markdown.media, id),
     cloud: serializePrimitiveCloud(primitive, schema, id),
   };
 

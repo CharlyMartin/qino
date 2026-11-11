@@ -22,14 +22,16 @@ export const postCollection = qino.defineCollection({
   directory: "posts",
   schema: PostSchema,
   extension: ".md",
-  markdownStats: true,
   relations: {
     author: authorCollection,
     category: categoryCollection,
   },
   media: {
     image: { accepted: "image/webp", maxSize: "5MB" },
-    markdown: [
+  },
+  markdown: {
+    stats: true,
+    media: [
       { accepted: "image/webp", maxSize: "500KB" },
       { accepted: "image/png", maxSize: "500KB" },
       { accepted: "image/jpeg", maxSize: "500KB" },

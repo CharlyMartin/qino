@@ -30,7 +30,11 @@ export async function check(
   const primitives = [...collections, ...items, ...trees];
   await assertMediaConstraints(primitives, context.mediaFolder);
   if (
-    primitives.some((p) => Object.keys(p[QinoPrimitiveMarker].media).length)
+    primitives.some(
+      (p) =>
+        Object.keys(p[QinoPrimitiveMarker].media).length ||
+        p[QinoPrimitiveMarker].markdown.media.length,
+    )
   ) {
     consola.success("All media files follow their media rules.");
   }

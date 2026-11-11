@@ -14,7 +14,7 @@ export const docsTree = qino.defineTree({
     .strict(),
   extension: ".mdx",
   titleField: "title",
-  markdownToc: { upTo: "h3" },
+  markdown: { toc: { upTo: "h3" } },
   relations: {
     since: releaseCollection,
   },

@@ -14,7 +14,7 @@ const authorCollection = defineCollection({
   directory: "authors",
   schema: z.object({ name: z.string() }),
   extension: ".md",
-  markdownStats: true,
+  markdown: { stats: true },
 });
 
 const postCollection = defineCollection({
@@ -22,7 +22,7 @@ const postCollection = defineCollection({
   schema: z.object({ title: z.string(), author: z.string() }),
   extension: ".mdx",
   relations: { author: authorCollection },
-  markdownStats: true,
+  markdown: { stats: true },
   views: (view) => ({
     default: view({}),
     resolved: view({
@@ -37,7 +37,7 @@ const postCollection = defineCollection({
 });
 
 describe("_stats", () => {
-  test("is added with markdownStats", async () => {
+  test("is added with markdown.stats", async () => {
     expectTypeOf<
       Infer<typeof postCollection>["output"]["_stats"]
     >().toEqualTypeOf<MarkdownStats>();
@@ -52,14 +52,14 @@ describe("_stats", () => {
     const about = defineItem({
       file: "about.md",
       schema: z.object({ title: z.string() }),
-      markdownStats: true,
+      markdown: { stats: true },
     });
     const docs = defineTree({
       directory: "docs",
       schema: z.object({ title: z.string() }),
       extension: ".markdown",
       titleField: "title",
-      markdownStats: true,
+      markdown: { stats: true },
     });
 
     expectTypeOf(
@@ -70,7 +70,7 @@ describe("_stats", () => {
     ).toEqualTypeOf<MarkdownStats>();
   });
 
-  test("is absent without markdownStats", async () => {
+  test("is absent without markdown.stats", async () => {
     const plain = defineCollection({
       directory: "plain",
       schema: z.object({ title: z.string() }),
@@ -80,7 +80,7 @@ describe("_stats", () => {
       directory: "off",
       schema: z.object({ title: z.string() }),
       extension: ".md",
-      markdownStats: false,
+      markdown: { stats: false },
     });
 
     expectTypeOf(await plain.getEntry("a")).not.toHaveProperty("_stats");
@@ -92,7 +92,7 @@ describe("_stats", () => {
       directory: "posts",
       schema: z.object({ title: z.string() }),
       extension: ".md",
-      markdownStats: true,
+      markdown: { stats: true },
       views: (view) => ({
         // @ts-expect-error _stats is added by Qino.
         default: view({ augment: () => ({ _stats: 1 }) }),
@@ -101,20 +101,20 @@ describe("_stats", () => {
   });
 });
 
-describe("markdownStats config", () => {
+describe("markdown.stats config", () => {
   test("rejects JSON files", () => {
     defineCollection({
       directory: "authors",
       schema: z.object({ name: z.string() }),
       extension: ".json",
       // @ts-expect-error JSON files have no Markdown body.
-      markdownStats: true,
+      markdown: { stats: true },
     });
     defineItem({
       file: "home.json",
       schema: z.object({ title: z.string() }),
       // @ts-expect-error JSON files have no Markdown body.
-      markdownStats: true,
+      markdown: { stats: true },
     });
     defineTree({
       directory: "docs",
@@ -122,16 +122,17 @@ describe("markdownStats config", () => {
       extension: ".json",
       titleField: "title",
       // @ts-expect-error JSON files have no Markdown body.
-      markdownStats: true,
+      markdown: { stats: true },
     });
   });
 
-  test("accepts false on JSON files", () => {
+  test("rejects markdown on JSON files even when off", () => {
     defineCollection({
       directory: "authors",
       schema: z.object({ name: z.string() }),
       extension: ".json",
-      markdownStats: false,
+      // @ts-expect-error JSON files have no Markdown body.
+      markdown: { stats: false },
     });
   });
 

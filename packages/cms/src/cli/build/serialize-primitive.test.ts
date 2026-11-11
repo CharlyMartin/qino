@@ -151,9 +151,9 @@ describe("serializePrimitive", () => {
       directory: "posts",
       schema: z.object({ title: z.string(), gallery: z.array(z.string()) }),
       extension: ".md",
-      media: {
-        "gallery[*]": { accepted: "image/webp", maxSize: "5MB" },
-        markdown: [
+      media: { "gallery[*]": { accepted: "image/webp", maxSize: "5MB" } },
+      markdown: {
+        media: [
           { accepted: "image/png", maxSize: "600KB" },
           { accepted: "image/jpeg", maxSize: "600KB" },
         ],

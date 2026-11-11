@@ -51,7 +51,9 @@ function setup() {
     media: {
       cover: { accepted: "image/webp", maxSize: "1MB" },
       attachment: { accepted: "application/pdf", maxSize: "50KB" },
-      markdown: [
+    },
+    markdown: {
+      media: [
         { accepted: "image/webp", maxSize: "1MB" },
         { accepted: "image/png", maxSize: "50KB" },
       ],
@@ -154,11 +156,11 @@ describe("findMediaViolations", () => {
       directory: "posts",
       extension: ".md",
       schema: z.object({ cover: z.string() }),
-      media: { markdown: [{ accepted: "image/*", maxSize: "1MB" }] },
+      markdown: { media: [{ accepted: "image/*", maxSize: "1MB" }] },
     });
 
     await expect(findMediaViolations(posts, mediaFolder)).rejects.toThrow(
-      'media "markdown" of "posts", rule 1, accepts "image/*", which isn\'t a known MIME type.',
+      'markdown.media of "posts", rule 1, accepts "image/*", which isn\'t a known MIME type.',
     );
   });
 });

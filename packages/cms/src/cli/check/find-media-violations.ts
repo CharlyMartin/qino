@@ -30,14 +30,16 @@ type MediaViolation = {
 /**
  * Lists media files that break a primitive's `media` rules: a field value
  * outside `mediaFolder`, or a field value or body image of another type or
- * over `maxSize`. Body images must match one `markdown` rule.
+ * over `maxSize`. Body images must match one `markdown.media` rule.
  */
 export async function findMediaViolations(
   primitive: AnyPrimitive,
   mediaFolder: string,
 ) {
+  const { media: fieldConfig, markdown } = primitive[QinoPrimitiveMarker];
   const media = serializeMedia(
-    primitive[QinoPrimitiveMarker].media,
+    fieldConfig,
+    markdown.media,
     getPrimitiveId(primitive),
   ) as Record<string, Rule | Array<Rule>>;
   const { [MARKDOWN_MEDIA_KEY]: markdownRules, ...fields } = media;

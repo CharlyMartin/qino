@@ -8,7 +8,7 @@ import type {
 import type { PrimitiveCloudConfig } from "./cloud";
 import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
-import type { MarkdownTocOption } from "./markdown-toc";
+import type { ResolvedMarkdownConfig } from "./markdown-config";
 import type { AnyMediaConfig } from "./media";
 import type { Relations } from "./relations";
 import type { ResolveDepths, ResolveEntry, UnresolvedMode } from "./resolve";
@@ -91,8 +91,7 @@ export type CollectionMeta<
   readonly relations: Rels;
   readonly resolveDepth: ResolveDepths;
   readonly media: AnyMediaConfig;
-  readonly markdownStats: boolean;
-  readonly markdownToc: MarkdownTocOption;
+  readonly markdown: ResolvedMarkdownConfig;
   readonly cloud?: PrimitiveCloudConfig;
   readonly readEntries: () => Promise<
     Array<ResolvedCollectionView<Schema, Ext, Rels>>

@@ -37,8 +37,7 @@ export function makeDummyTree({
       relations,
       resolveDepth: {} as ResolveDepths,
       media: {},
-      markdownStats: false,
-      markdownToc: false,
+      markdown: { stats: false, toc: false, media: [] },
       readEntry: async (slug: string) => {
         const found = store.get(slug);
         if (!found) throw new Error(`ENOENT: ${directory}/${slug}`);

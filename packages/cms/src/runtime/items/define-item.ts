@@ -7,15 +7,14 @@ import {
   QinoPrimitives,
 } from "../../data/globals";
 import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
+import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-config";
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { extractExtension } from "../../lib/paths/extract-extension";
 import { addEntryStats } from "../../lib/stats/add-entry-stats";
-import { assertMarkdownStatsConfig } from "../../lib/stats/assert-markdown-stats-config";
 import { addEntryToc } from "../../lib/toc/add-entry-toc";
-import { assertMarkdownTocConfig } from "../../lib/toc/assert-markdown-toc-config";
 import { validate } from "../../lib/validate/validate";
 import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
@@ -29,13 +28,11 @@ import type {
   ItemFile,
   ResolvedItemView,
 } from "../../types/item";
-import type { CheckMarkdownStats } from "../../types/markdown-stats";
 import type {
-  CheckMarkdownToc,
-  MarkdownTocFlag,
-  MarkdownTocOption,
-  MarkdownTocOptions,
-} from "../../types/markdown-toc";
+  CheckMarkdownConfig,
+  MarkdownConfig,
+} from "../../types/markdown-config";
+import type { MarkdownTocFlag } from "../../types/markdown-toc";
 import type {
   CheckMediaKeys,
   MediaConfig,
@@ -62,7 +59,7 @@ export type DefineItemParams<
   F extends ItemFile,
   Rels extends Relations<Schema> = object,
   Views extends object = object,
-  Media extends MediaConfig<Schema, ExtractItemExtension<F>> = EmptyObject,
+  Media extends MediaConfig<Schema> = EmptyObject,
   Stats extends boolean = false,
   Toc extends MarkdownTocFlag = false,
 > = {
@@ -73,18 +70,10 @@ export type DefineItemParams<
   // inferred last, so without it the callback would see the default.
   relations?: Rels & NoInfer<Relations<Schema>>;
   /** Media fields, keyed by path. Image fields are read as `QinoImage`. */
-  media?: Media &
-    NoInfer<
-      MediaConfig<Schema, ExtractItemExtension<F>> &
-        CheckMediaKeys<Media, Schema, ExtractItemExtension<F>>
-    >;
-  /** Adds `_stats` (word and character counts) from the Markdown body. */
-  markdownStats?: Stats &
-    NoInfer<CheckMarkdownStats<Stats, ExtractItemExtension<F>>>;
-  /** Adds `_toc` (the headings, with their anchor ids) from the Markdown body. */
-  // Infers `Toc` from booleans only: see `MarkdownTocFlag`.
-  markdownToc?: (Toc | NoInfer<MarkdownTocOptions>) &
-    NoInfer<CheckMarkdownToc<Toc, ExtractItemExtension<F>>>;
+  media?: Media & NoInfer<MediaConfig<Schema> & CheckMediaKeys<Media, Schema>>;
+  /** Configures the Markdown body: `_stats`, `_toc`, and the files it embeds. */
+  markdown?: MarkdownConfig<Stats, Toc> &
+    NoInfer<CheckMarkdownConfig<ExtractItemExtension<F>>>;
   views?: ViewsConfig<
     Views,
     ViewFactory<
@@ -101,7 +90,7 @@ export function defineItem<
   F extends ItemFile,
   const Rels extends Relations<S> = object,
   const Views extends object = object,
-  const Media extends MediaConfig<S, ExtractItemExtension<F>> = EmptyObject,
+  const Media extends MediaConfig<S> = EmptyObject,
   const Stats extends boolean = false,
   Toc extends MarkdownTocFlag = false,
 >(
@@ -109,16 +98,7 @@ export function defineItem<
   params: DefineItemParams<S, F, Rels, Views, Media, Stats, Toc>,
 ) {
   type TaggedRels = TaggedRelations<Rels, Media, Stats, Toc>;
-  const {
-    file,
-    schema,
-    relations,
-    media = {},
-    markdownStats = false,
-    cloud,
-  } = params;
-  // `Toc`'s options marker types no value: what's passed is an option.
-  const markdownToc = (params.markdownToc ?? false) as MarkdownTocOption;
+  const { file, schema, relations, media = {}, cloud } = params;
   assertContentPath(file, "file");
   assertCloudEnabled(ctx, cloud, file);
 
@@ -128,11 +108,13 @@ export function defineItem<
   assertMediaConfig({
     media,
     relations: itemRelations,
+    primitiveId: file,
+  });
+  const markdown = resolveMarkdownConfig({
+    markdown: params.markdown,
     extension,
     primitiveId: file,
   });
-  assertMarkdownStatsConfig({ markdownStats, extension, primitiveId: file });
-  assertMarkdownTocConfig({ markdownToc, extension, primitiveId: file });
   assertNoRootViewSettings(params);
   const views = buildViews(params.views, "item", itemRelations);
   const defaultResolveDepth = views?.default.resolveDepth ?? {};
@@ -153,8 +135,7 @@ export function defineItem<
       relations: itemRelations,
       resolveDepth: defaultResolveDepth,
       media,
-      markdownStats,
-      markdownToc,
+      markdown,
       cloud,
       readEntry,
     },
@@ -179,8 +160,8 @@ export function defineItem<
     };
     return (await resolveEntryMedia({
       entry: await addEntryToc({
-        entry: await addEntryStats({ entry, markdownStats }),
-        markdownToc,
+        entry: await addEntryStats({ entry, markdownStats: markdown.stats }),
+        markdownToc: markdown.toc,
         extension,
       }),
       media,
