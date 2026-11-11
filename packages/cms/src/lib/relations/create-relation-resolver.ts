@@ -1,3 +1,5 @@
+import { parsePath } from "@qino/tooling/relations";
+
 import { META_FIELD_NAME, QinoPrimitiveMarker } from "../../data/globals";
 import type { AnyRelations } from "../../types/relations";
 import type { ResolveDepths } from "../../types/resolve";
@@ -6,7 +8,6 @@ import { isItem } from "../guards/is-item";
 import type { ResolveCache } from "./create-resolve-cache";
 import { fetchTargetEntry } from "./fetch-target-entry";
 import { getRelationTargets } from "./get-relation-targets";
-import { parsePath } from "./parse-path";
 import { resolveRelationLeaf } from "./resolve-relation-leaf";
 import { walkAndSet } from "./walk-and-set";
 

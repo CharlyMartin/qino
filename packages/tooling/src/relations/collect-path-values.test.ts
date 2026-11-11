@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
-import { parsePath } from "../../lib/relations/parse-path";
 import { collectPathValues } from "./collect-path-values";
+import { parsePath } from "./parse-path";
 
 const value = {
   author: "ada",

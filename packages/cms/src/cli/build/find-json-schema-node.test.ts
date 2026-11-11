@@ -1,6 +1,6 @@
+import { parsePath } from "@qino/tooling/relations";
 import { describe, expect, test } from "vitest";
 
-import { parsePath } from "../../lib/relations/parse-path";
 import { findJsonSchemaNode } from "./find-json-schema-node";
 
 const schema = {

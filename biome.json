@@ -80,7 +80,8 @@
         "packages/cms/src/index.ts",
         "packages/cms/src/utils/index.ts",
         "packages/cms/src/cli/index.ts",
-        "packages/tooling/src/index.ts"
+        "packages/tooling/src/index.ts",
+        "packages/tooling/src/relations/index.ts"
       ],
       "linter": {
         "rules": {

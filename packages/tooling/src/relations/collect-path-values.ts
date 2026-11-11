@@ -1,4 +1,4 @@
-import type { Segment } from "../../lib/relations/parse-path";
+import type { Segment } from "./parse-path";
 
 /**
  * Collects the values at a relation path, flattening `[*]` segments. Missing

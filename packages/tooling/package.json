@@ -16,6 +16,10 @@
     "./frontmatter": {
       "types": "./src/frontmatter/parse-frontmatter.ts",
       "default": "./src/frontmatter/parse-frontmatter.ts"
+    },
+    "./relations": {
+      "types": "./src/relations/index.ts",
+      "default": "./src/relations/index.ts"
     }
   },
   "files": [
@@ -31,7 +35,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "biome check .",
-    "check-dist": "node --input-type=module -e \"await import('./dist/index.mjs'); await import('./dist/frontmatter.mjs')\" && publint && pnpm pack --out .check-dist.tgz && attw .check-dist.tgz --profile esm-only; status=$?; node -e \"require('node:fs').rmSync('.check-dist.tgz',{force:true})\"; exit $status"
+    "check-dist": "node --input-type=module -e \"await import('./dist/index.mjs'); await import('./dist/frontmatter.mjs'); await import('./dist/relations.mjs')\" && publint && pnpm pack --out .check-dist.tgz && attw .check-dist.tgz --profile esm-only; status=$?; node -e \"require('node:fs').rmSync('.check-dist.tgz',{force:true})\"; exit $status"
   },
   "publishConfig": {
     "access": "public",
@@ -43,6 +47,10 @@
       "./frontmatter": {
         "types": "./dist/frontmatter.d.mts",
         "import": "./dist/frontmatter.mjs"
+      },
+      "./relations": {
+        "types": "./dist/relations.d.mts",
+        "import": "./dist/relations.mjs"
       }
     }
   },

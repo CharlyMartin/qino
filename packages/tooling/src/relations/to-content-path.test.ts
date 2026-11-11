@@ -26,18 +26,47 @@ describe("toContentPath", () => {
     ).toBe("pages/home.md");
   });
 
-  test("resolves a parent-relative content folder", () => {
-    const folder = `${process.cwd()}/../../content`;
-    expect(toContentPath("content/authors/jane.json", folder, "authors/")).toBe(
-      "authors/jane.json",
-    );
+  test("folds the parent segments of a content folder", () => {
+    expect(
+      toContentPath(
+        "content/authors/jane.json",
+        "/repo/apps/site/../../content",
+        "authors/",
+      ),
+    ).toBe("authors/jane.json");
   });
 
-  test("resolves a relative content folder against the working directory", () => {
+  test("reads a relative content folder from the repository root", () => {
     expect(
       toContentPath(
         "src/content/authors/jane.json",
         "./src/content/",
+        "authors/",
+      ),
+    ).toBe("authors/jane.json");
+  });
+
+  test.each([
+    "src/content/authors/jane.json",
+    "apps/site/src/content/authors/jane.json",
+  ])("strips a monorepo content folder from the root path %s", (value) => {
+    expect(toContentPath(value, "apps/site/src/content", "authors/")).toBe(
+      "authors/jane.json",
+    );
+  });
+
+  test("never resolves a relative content folder against the working directory", () => {
+    const parent = process.cwd().split("/").at(-1);
+    expect(toContentPath(`${parent}/authors/jane.json`, ".", "authors/")).toBe(
+      `${parent}/authors/jane.json`,
+    );
+  });
+
+  test("reads a Windows content folder", () => {
+    expect(
+      toContentPath(
+        "src/content/authors/jane.json",
+        "C:\\repo\\src\\content",
         "authors/",
       ),
     ).toBe("authors/jane.json");
