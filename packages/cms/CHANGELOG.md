@@ -1,5 +1,22 @@
 # @qino/cms
 
+## 0.21.0
+
+### Minor Changes
+
+- [#314](https://github.com/CharlyMartin/qino/pull/314) [`c645f24`](https://github.com/CharlyMartin/qino/commit/c645f24d92ec060727b5963691f218f0140cf26f) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Rejects frontmatter written in a language other than YAML. A file starting with `---json` or `---js` now fails with `Frontmatter must be YAML: "---json" isn't supported.`; before, `---json` was parsed as JSON and `---js` was evaluated as JavaScript. This is a breaking change: rewrite such frontmatter as YAML.
+
+  ```diff
+  - ---json
+  - { "title": "Hello" }
+  - ---
+  + ---
+  + title: Hello
+  + ---
+  ```
+
+  Also drops the `gray-matter` dependency: files are read with `parseFrontmatter` from `@qino/tooling`, the reader the Qino cloud UI uses.
+
 ## 0.20.0
 
 ### Minor Changes

@@ -1,5 +1,18 @@
 # @qino/tooling
 
+## 0.7.0
+
+### Minor Changes
+
+- [#314](https://github.com/CharlyMartin/qino/pull/314) [`c645f24`](https://github.com/CharlyMartin/qino/commit/c645f24d92ec060727b5963691f218f0140cf26f) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Adds `parseFrontmatter` at `@qino/tooling/frontmatter`. It splits a Markdown or MDX file into its YAML frontmatter (`data`) and its `body`, exactly as `qino build` reads it, so tools like the Qino cloud UI read content files the same way. It needs no zod and uses no Node APIs:
+
+  ```ts
+  import { parseFrontmatter } from "@qino/tooling/frontmatter";
+
+  const { data, body } = parseFrontmatter("---\ntitle: Hello\n---\n# Hello");
+  // data: { title: "Hello" }, body: "# Hello"
+  ```
+
 ## 0.6.0
 
 ### Minor Changes
