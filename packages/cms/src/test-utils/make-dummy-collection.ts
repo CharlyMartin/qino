@@ -36,8 +36,7 @@ export function makeDummyCollection({
       relations,
       resolveDepth: {} as ResolveDepths,
       media: {},
-      markdownStats: false,
-      markdownToc: false,
+      markdown: { stats: false, toc: false, media: [] },
       readEntries: async () => Array.from(store.values()) as never,
       readEntry: async (slug: Slug) => {
         const found = store.get(slug);

@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
 import { initQino } from "../../runtime/qino/init-qino";
+import type { MarkdownConfig } from "../../types/markdown-config";
 import { findMediaViolations } from "./find-media-violations";
 
 let tmp: string;
@@ -38,7 +39,12 @@ afterEach(async () => {
   await fs.rm(tmp, { recursive: true, force: true });
 });
 
-function setup() {
+function setup(
+  bodyRules: MarkdownConfig["media"] = [
+    { accepted: "image/webp", maxSize: "1MB" },
+    { accepted: "image/png", maxSize: "50KB" },
+  ],
+) {
   const qino = initQino({ contentFolder, mediaFolder });
 
   return qino.defineCollection({
@@ -51,11 +57,8 @@ function setup() {
     media: {
       cover: { accepted: "image/webp", maxSize: "1MB" },
       attachment: { accepted: "application/pdf", maxSize: "50KB" },
-      markdown: [
-        { accepted: "image/webp", maxSize: "1MB" },
-        { accepted: "image/png", maxSize: "50KB" },
-      ],
     },
+    markdown: { media: bodyRules },
   });
 }
 
@@ -136,6 +139,83 @@ describe("findMediaViolations", () => {
     ]);
   });
 
+  test("reads body images with a rule's parse", async () => {
+    const posts = setup({
+      accepted: "image/webp",
+      maxSize: "1MB",
+      parse: (value, { fieldPath }) => {
+        expect(fieldPath).toBe("markdown");
+        return value.startsWith("/") ? undefined : `/${value}`;
+      },
+    });
+    const file = await writePost(
+      "cover: /a.webp",
+      "![](a.webp)\n\n![](/a.webp)\n\n![](missing.webp)",
+    );
+
+    expect(await findMediaViolations(posts, mediaFolder)).toEqual([
+      {
+        file,
+        location: "line 9",
+        url: "/missing.webp",
+        reason: `doesn't exist in "${mediaFolder}".`,
+      },
+    ]);
+  });
+
+  test("passes when any rule's parse reads a matching file", async () => {
+    const posts = setup([
+      { accepted: "image/png", maxSize: "1MB", parse: (v) => `/${v}.png` },
+      { accepted: "image/webp", maxSize: "1MB", parse: (v) => `/${v}.webp` },
+    ]);
+    const file = await writePost(
+      "cover: /a.webp",
+      "![](a)\n\n![](b)\n\n![](c)",
+    );
+
+    // `a` is only a WebP, `b` only a PNG, and `c` neither.
+    expect(await findMediaViolations(posts, mediaFolder)).toEqual([
+      {
+        file,
+        location: "line 9",
+        url: "/c.png",
+        reason: `doesn't exist in "${mediaFolder}".`,
+      },
+    ]);
+  });
+
+  test("skips body images no rule reads as a local URL", async () => {
+    const posts = setup([
+      { accepted: "image/webp", maxSize: "1MB" },
+      {
+        accepted: "image/png",
+        maxSize: "1MB",
+        parse: (v) => (v.includes(":") ? undefined : `/${v}.png`),
+      },
+    ]);
+    await writePost(
+      "cover: /a.webp",
+      "![](https://example.com/a.jpg)\n\n![](b)",
+    );
+
+    expect(await findMediaViolations(posts, mediaFolder)).toEqual([]);
+  });
+
+  test("names the file when a body parse throws", async () => {
+    const posts = setup({
+      accepted: "image/webp",
+      maxSize: "1MB",
+      parse: () => {
+        throw new Error("boom");
+      },
+    });
+    const file = await writePost("cover: /a.webp", "![](a.webp)");
+
+    await expect(findMediaViolations(posts, mediaFolder)).rejects.toThrow(
+      `${file}: markdown.media: parse failed for "a.webp": boom`,
+    );
+  });
+
   test("skips primitives without media", async () => {
     const qino = initQino({ contentFolder, mediaFolder });
     const posts = qino.defineCollection({
@@ -154,11 +234,11 @@ describe("findMediaViolations", () => {
       directory: "posts",
       extension: ".md",
       schema: z.object({ cover: z.string() }),
-      media: { markdown: [{ accepted: "image/*", maxSize: "1MB" }] },
+      markdown: { media: [{ accepted: "image/*", maxSize: "1MB" }] },
     });
 
     await expect(findMediaViolations(posts, mediaFolder)).rejects.toThrow(
-      'media "markdown" of "posts", rule 1, accepts "image/*", which isn\'t a known MIME type.',
+      'markdown.media of "posts", rule 1, accepts "image/*", which isn\'t a known MIME type.',
     );
   });
 });

@@ -6,7 +6,7 @@ type AddEntryStatsParams<Entry> = {
 };
 
 /**
- * Adds `_stats` from the Markdown body when `markdownStats` is on. The
+ * Adds `_stats` from the Markdown body when `markdown.stats` is on. The
  * Markdown parsers are only imported then.
  */
 export async function addEntryStats<Entry extends object>({

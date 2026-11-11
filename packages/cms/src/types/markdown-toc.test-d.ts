@@ -14,7 +14,7 @@ const authorCollection = defineCollection({
   directory: "authors",
   schema: z.object({ name: z.string() }),
   extension: ".md",
-  markdownToc: true,
+  markdown: { toc: true },
 });
 
 const postCollection = defineCollection({
@@ -22,8 +22,7 @@ const postCollection = defineCollection({
   schema: z.object({ title: z.string(), author: z.string() }),
   extension: ".mdx",
   relations: { author: authorCollection },
-  markdownToc: { upTo: "h3" },
-  markdownStats: true,
+  markdown: { toc: { upTo: "h3" }, stats: true },
   views: (view) => ({
     default: view({}),
     resolved: view({
@@ -38,7 +37,7 @@ const postCollection = defineCollection({
 });
 
 describe("_toc", () => {
-  test("is added with markdownToc", async () => {
+  test("is added with markdown.toc", async () => {
     expectTypeOf<
       Infer<typeof postCollection>["output"]["_toc"]
     >().toEqualTypeOf<MarkdownToc>();
@@ -57,21 +56,21 @@ describe("_toc", () => {
     const about = defineItem({
       file: "about.md",
       schema: z.object({ title: z.string() }),
-      markdownToc: true,
+      markdown: { toc: true },
     });
     const docs = defineTree({
       directory: "docs",
       schema: z.object({ title: z.string() }),
       extension: ".markdown",
       titleField: "title",
-      markdownToc: { upTo: "h2" },
+      markdown: { toc: { upTo: "h2" } },
     });
 
     expectTypeOf((await about.getEntry())._toc).toEqualTypeOf<MarkdownToc>();
     expectTypeOf((await docs.getEntry("a"))._toc).toEqualTypeOf<MarkdownToc>();
   });
 
-  test("is absent without markdownToc", async () => {
+  test("is absent without markdown.toc", async () => {
     const plain = defineCollection({
       directory: "plain",
       schema: z.object({ title: z.string() }),
@@ -81,7 +80,7 @@ describe("_toc", () => {
       directory: "off",
       schema: z.object({ title: z.string() }),
       extension: ".md",
-      markdownToc: false,
+      markdown: { toc: false },
     });
 
     expectTypeOf(await plain.getEntry("a")).not.toHaveProperty("_toc");
@@ -93,7 +92,7 @@ describe("_toc", () => {
       directory: "posts",
       schema: z.object({ title: z.string() }),
       extension: ".md",
-      markdownToc: true,
+      markdown: { toc: true },
       views: (view) => ({
         // @ts-expect-error _toc is added by Qino.
         default: view({ augment: () => ({ _toc: 1 }) }),
@@ -102,20 +101,20 @@ describe("_toc", () => {
   });
 });
 
-describe("markdownToc config", () => {
+describe("markdown.toc config", () => {
   test("rejects JSON files", () => {
     defineCollection({
       directory: "authors",
       schema: z.object({ name: z.string() }),
       extension: ".json",
       // @ts-expect-error JSON files have no Markdown headings.
-      markdownToc: true,
+      markdown: { toc: true },
     });
     defineItem({
       file: "home.json",
       schema: z.object({ title: z.string() }),
       // @ts-expect-error JSON files have no Markdown headings.
-      markdownToc: { upTo: "h2" },
+      markdown: { toc: { upTo: "h2" } },
     });
     defineTree({
       directory: "docs",
@@ -123,16 +122,17 @@ describe("markdownToc config", () => {
       extension: ".json",
       titleField: "title",
       // @ts-expect-error JSON files have no Markdown headings.
-      markdownToc: true,
+      markdown: { toc: true },
     });
   });
 
-  test("accepts false on JSON files", () => {
+  test("rejects markdown on JSON files even when off", () => {
     defineCollection({
       directory: "authors",
       schema: z.object({ name: z.string() }),
       extension: ".json",
-      markdownToc: false,
+      // @ts-expect-error JSON files have no Markdown body.
+      markdown: { toc: false },
     });
   });
 
@@ -141,10 +141,12 @@ describe("markdownToc config", () => {
       directory: "posts",
       schema: z.object({ title: z.string() }),
       extension: ".md",
-      markdownToc: {
-        slug: (text) => {
-          expectTypeOf(text).toEqualTypeOf<string>();
-          return text.replace(/\W/g, "");
+      markdown: {
+        toc: {
+          slug: (text) => {
+            expectTypeOf(text).toEqualTypeOf<string>();
+            return text.replace(/\W/g, "");
+          },
         },
       },
     });
@@ -157,13 +159,13 @@ describe("markdownToc config", () => {
       directory: "empty",
       schema: z.object({ title: z.string() }),
       extension: ".md",
-      markdownToc: {},
+      markdown: { toc: {} },
     });
     const both = defineCollection({
       directory: "both",
       schema: z.object({ title: z.string() }),
       extension: ".md",
-      markdownToc: { upTo: "h3", slug: (text) => text.toLowerCase() },
+      markdown: { toc: { upTo: "h3", slug: (text) => text.toLowerCase() } },
     });
 
     expectTypeOf((await empty.getEntry("a"))._toc).toEqualTypeOf<MarkdownToc>();
@@ -176,7 +178,7 @@ describe("markdownToc config", () => {
       directory: "maybe",
       schema: z.object({ title: z.string() }),
       extension: ".md",
-      markdownToc: enabled,
+      markdown: { toc: enabled },
     });
 
     expectTypeOf(await maybe.getEntry("a")).not.toHaveProperty("_toc");
@@ -188,7 +190,7 @@ describe("markdownToc config", () => {
       schema: z.object({ name: z.string() }),
       extension: ".json",
       // @ts-expect-error JSON files have no Markdown headings.
-      markdownToc: { slug: (text: string) => text },
+      markdown: { toc: { slug: (text: string) => text } },
     });
   });
 
@@ -198,7 +200,7 @@ describe("markdownToc config", () => {
       schema: z.object({ title: z.string() }),
       extension: ".md",
       // @ts-expect-error slug returns the id.
-      markdownToc: { slug: (text: string) => text.length },
+      markdown: { toc: { slug: (text: string) => text.length } },
     });
   });
 
@@ -208,7 +210,7 @@ describe("markdownToc config", () => {
       schema: z.object({ title: z.string() }),
       extension: ".md",
       // @ts-expect-error h7 isn't a heading tag.
-      markdownToc: { upTo: "h7" },
+      markdown: { toc: { upTo: "h7" } },
     });
   });
 

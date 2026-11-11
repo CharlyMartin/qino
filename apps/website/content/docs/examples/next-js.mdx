@@ -10,7 +10,7 @@ The canonical qino example is a Next.js App Router site. It lives in the reposit
 - **Collections**: `posts` (`.md`), `authors` (`.json`), and `categories` (`.json`).
 - **Relations**: `author` and `category` on posts; `featured-posts[*]` on the home item.
 - **Views**: a `default` view that resolves relations one level deep.
-- **Markdown stats**: `markdownStats` on posts, with a reading time derived from `_stats.wordCount` by a local `getReadingTimes` helper.
+- **Markdown stats**: `markdown.stats` on posts, with a reading time derived from `_stats.wordCount` by a local `getReadingTimes` helper.
 - **Tree**: a `.mdx` docs tree with nested sections, `_order.json` ordering, and prev/next navigation.
 - **Item**: `pages/home.md` with resolved featured posts.
 - **CLI**: `qino build` as the `prebuild` script, with `qino/_generated/` gitignored.

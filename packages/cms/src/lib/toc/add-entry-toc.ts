@@ -11,7 +11,7 @@ type AddEntryTocParams<Entry> = {
 };
 
 /**
- * Adds `_toc` from the Markdown body when `markdownToc` is on. The Markdown
+ * Adds `_toc` from the Markdown body when `markdown.toc` is on. The Markdown
  * parsers are only imported then.
  */
 export async function addEntryToc<Entry extends object>({

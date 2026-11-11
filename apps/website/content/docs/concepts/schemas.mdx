@@ -43,9 +43,9 @@ After validation, qino adds two strings to every Markdown entry, like it adds `_
 }
 ```
 
-Don't declare them in the schema; they never reach it, so strict objects work as-is. They are added before views run, so `augment`, `filter`, and `sort` can read them. To derive something from the body, use [`augment`](/docs/concepts/views). For word and character counts, set `markdownStats: true` and qino adds a `_stats` field too. See [MarkdownStats](/docs/api/types/markdown-stats). For a table of contents, set `markdownToc` and qino adds a `_toc` field. See [MarkdownToc](/docs/api/types/markdown-toc).
+Don't declare them in the schema; they never reach it, so strict objects work as-is. They are added before views run, so `augment`, `filter`, and `sort` can read them. To derive something from the body, use [`augment`](/docs/concepts/views). For word and character counts, set `markdown: { stats: true }` and qino adds a `_stats` field too. See [MarkdownStats](/docs/api/types/markdown-stats). For a table of contents, set `markdown.toc` and qino adds a `_toc` field. See [MarkdownToc](/docs/api/types/markdown-toc).
 
-In Markdown files, `markdown`, `raw`, `_stats`, and `_toc` are reserved at the top level of frontmatter, schema input, and schema output. Declaring them in a schema is a type error, and frontmatter or a transform that introduces them fails at runtime. Augment callbacks cannot add or replace `markdown` and `raw`, nor `_stats` when `markdownStats` is on, nor `_toc` when `markdownToc` is on. In JSON files, they are ordinary fields.
+In Markdown files, `markdown`, `raw`, `_stats`, and `_toc` are reserved at the top level of frontmatter, schema input, and schema output. Declaring them in a schema is a type error, and frontmatter or a transform that introduces them fails at runtime. Augment callbacks cannot add or replace `markdown` and `raw`, nor `_stats` when `markdown.stats` is on, nor `_toc` when `markdown.toc` is on. In JSON files, they are ordinary fields.
 
 ## Reserved: \_meta
 

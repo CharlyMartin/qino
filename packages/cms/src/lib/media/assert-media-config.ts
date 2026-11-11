@@ -1,35 +1,31 @@
-import { MARKDOWN_MEDIA_KEY } from "../../data/globals";
+import { MARKDOWN_FIELD_NAME } from "../../data/globals";
 import type { AnyMediaConfig } from "../../types/media";
 import { parsePath } from "../relations/parse-path";
 
 type AssertMediaConfigParams = {
   media: AnyMediaConfig;
   relations: object;
-  extension: string;
   primitiveId: string;
 };
 
 /**
  * Fails at definition on media keys that can't be read: malformed paths,
- * paths that are also relations, or `markdown` on JSON files, which have no
- * body. Types and MIME types are checked by `qino build` and `qino check`.
+ * paths that are also relations, or `markdown`, whose rules moved to
+ * `markdown.media`. Types and MIME types are checked by `qino build` and
+ * `qino check`.
  */
 export function assertMediaConfig({
   media,
   relations,
-  extension,
   primitiveId,
 }: AssertMediaConfigParams) {
   for (const path of Object.keys(media)) {
     const prefix = `media "${path}" of "${primitiveId}"`;
 
-    if (path == MARKDOWN_MEDIA_KEY) {
-      if (extension == ".json") {
-        throw new Error(
-          `${prefix} checks the Markdown body, but JSON files have none.`,
-        );
-      }
-      continue;
+    if (path == MARKDOWN_FIELD_NAME) {
+      throw new Error(
+        `${prefix} is the Markdown body: set its rules in markdown.media.`,
+      );
     }
 
     try {

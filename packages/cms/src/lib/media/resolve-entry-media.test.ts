@@ -80,13 +80,12 @@ describe("resolveEntryMedia", () => {
     ).toEqual(entry);
   });
 
-  test("leaves other media fields and markdown alone", async () => {
+  test("leaves other media fields and the body alone", async () => {
     const entry = { attachment: "/files/a.pdf", markdown: "![](/x.png)" };
 
     expect(
       await resolve(entry, {
         attachment: { accepted: "application/pdf", maxSize: "1MB" },
-        markdown: [{ accepted: "image/png", maxSize: "1MB" }],
       }),
     ).toEqual(entry);
   });

@@ -1,17 +1,17 @@
 ---
 title: MarkdownStats
-description: Word and character counts of a Markdown or MDX body, added as `_stats` by `markdownStats`.
+description: Word and character counts of a Markdown or MDX body, added as `_stats` by `markdown.stats`.
 since: "releases/0.1.0.md"
 ---
 
-Set `markdownStats: true` on a Markdown or MDX collection, tree, or item, and every entry gets a `_stats` field. Related entries get it too when their primitive sets `markdownStats`. JSON primitives can't set it.
+Set `markdown: { stats: true }` on a Markdown or MDX collection, tree, or item, and every entry gets a `_stats` field. Related entries get it too when their primitive sets `markdown.stats`. JSON primitives can't set it.
 
 ```ts title="qino/collections/posts.ts"
 export const postCollection = qino.defineCollection({
   directory: "posts",
   extension: ".md",
   schema: PostSchema,
-  markdownStats: true,
+  markdown: { stats: true },
 });
 
 const post = await postCollection.getEntry("hello");
@@ -44,7 +44,7 @@ The body is parsed with remark, GFM, and MDX. Text nodes are kept. Code blocks, 
 
 Words are segmented with `Intl.Segmenter`, and characters are counted as graphemes rather than UTF-16 code units, so multi-byte scripts and emoji count once each.
 
-The Markdown parsers are only loaded when a primitive sets `markdownStats`.
+The Markdown parsers are only loaded when a primitive sets `markdown.stats`.
 
 ## Reading time
 

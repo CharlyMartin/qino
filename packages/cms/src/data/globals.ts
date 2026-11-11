@@ -34,6 +34,7 @@ export const DEFAULT_ORDER_FILE_NAME = "_order.json";
 export const DEFAULT_BRANCH_PREFIX = "qino/";
 export const DEFAULT_MEDIA_SAVE_AS = "{id}/{name}-{hash}";
 export const MEDIA_PATH_TOKENS = ["id", "field", "name", "hash"] as const;
+/** Key of `markdown.media` within a primitive's `media` in `config.json`. */
 export const MARKDOWN_MEDIA_KEY = "markdown";
 /**
  * Types Next imports as images (`next-image-loader`) that sharp can read:

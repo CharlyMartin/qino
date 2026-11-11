@@ -39,14 +39,14 @@ function setup() {
     directory: "authors",
     extension: ".md",
     schema: z.object({ name: z.string() }),
-    markdownStats: true,
+    markdown: { stats: true },
   });
   const posts = qino.defineCollection({
     directory: "posts",
     extension: ".md",
     schema: z.object({ title: z.string(), author: z.string() }),
     relations: { author: authors },
-    markdownStats: true,
+    markdown: { stats: true },
     views: (view) => ({
       default: view({}),
       reading: view({
@@ -60,7 +60,7 @@ function setup() {
   return { qino, authors, posts };
 }
 
-describe("markdownStats", () => {
+describe("markdown.stats", () => {
   test("adds _stats to entries and related entries", async () => {
     const post = await setup().posts.getEntry("hello");
 
@@ -83,14 +83,14 @@ describe("markdownStats", () => {
     const about = qino.defineItem({
       file: "about.md",
       schema: z.object({}),
-      markdownStats: true,
+      markdown: { stats: true },
     });
     const docs = qino.defineTree({
       directory: "docs",
       extension: ".mdx",
       schema: z.object({ title: z.string() }),
       titleField: "title",
-      markdownStats: true,
+      markdown: { stats: true },
     });
 
     expect((await about.getEntry())._stats.wordCount).toBe(2);
@@ -117,7 +117,7 @@ describe("markdownStats", () => {
         extension: ".json",
         schema: z.object({ name: z.string() }),
         // @ts-expect-error JSON files have no Markdown body.
-        markdownStats: true,
+        markdown: { stats: true },
       }),
     ).toThrow("JSON files have none");
   });

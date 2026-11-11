@@ -39,14 +39,14 @@ function setup() {
     directory: "authors",
     extension: ".md",
     schema: z.object({ name: z.string() }),
-    markdownToc: true,
+    markdown: { toc: true },
   });
   const posts = qino.defineCollection({
     directory: "posts",
     extension: ".md",
     schema: z.object({ title: z.string(), author: z.string() }),
     relations: { author: authors },
-    markdownToc: true,
+    markdown: { toc: true },
     views: (view) => ({
       default: view({}),
       outline: view({
@@ -58,7 +58,7 @@ function setup() {
   return { qino, authors, posts };
 }
 
-describe("markdownToc", () => {
+describe("markdown.toc", () => {
   test("adds _toc to entries and related entries", async () => {
     const post = await setup().posts.getEntry("hello");
 
@@ -82,7 +82,7 @@ describe("markdownToc", () => {
       directory: "posts",
       extension: ".md",
       schema: z.object({ title: z.string(), author: z.string() }),
-      markdownToc: { upTo: "h2" },
+      markdown: { toc: { upTo: "h2" } },
     });
 
     expect((await posts.getEntry("hello"))._toc.map(({ id }) => id)).toEqual([
@@ -102,7 +102,7 @@ describe("markdownToc", () => {
       extension: ".mdx",
       schema: z.object({ title: z.string() }),
       titleField: "title",
-      markdownToc: { slug: (text) => text.replace(/[^a-zA-Z0-9]/g, "") },
+      markdown: { toc: { slug: (text) => text.replace(/[^a-zA-Z0-9]/g, "") } },
     });
 
     expect((await docs.getEntry("ids"))._toc).toEqual([
@@ -116,14 +116,14 @@ describe("markdownToc", () => {
     const about = qino.defineItem({
       file: "about.md",
       schema: z.object({}),
-      markdownToc: true,
+      markdown: { toc: true },
     });
     const docs = qino.defineTree({
       directory: "docs",
       extension: ".mdx",
       schema: z.object({ title: z.string() }),
       titleField: "title",
-      markdownToc: { upTo: "h3" },
+      markdown: { toc: { upTo: "h3" } },
     });
 
     expect((await about.getEntry())._toc[0]?.id).toBe("team");
@@ -150,7 +150,7 @@ describe("markdownToc", () => {
         extension: ".json",
         schema: z.object({ name: z.string() }),
         // @ts-expect-error JSON files have no Markdown headings.
-        markdownToc: true,
+        markdown: { toc: true },
       }),
     ).toThrow("JSON files have none");
   });

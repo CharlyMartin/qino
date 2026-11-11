@@ -56,7 +56,7 @@ export function initQino(config: QinoConfig) {
       const Views extends object = object,
       const SaveEntryAs extends string = never,
       const DisplayEntryAs extends string = never,
-      const Media extends MediaConfig<S, Ext> = EmptyObject,
+      const Media extends MediaConfig<S> = EmptyObject,
       const Stats extends boolean = false,
       Toc extends MarkdownTocFlag = false,
     >(
@@ -86,7 +86,7 @@ export function initQino(config: QinoConfig) {
       F extends ItemFile,
       const Rels extends Relations<S> = object,
       const Views extends object = object,
-      const Media extends MediaConfig<S, ExtractItemExtension<F>> = EmptyObject,
+      const Media extends MediaConfig<S> = EmptyObject,
       const Stats extends boolean = false,
       Toc extends MarkdownTocFlag = false,
     >(
@@ -108,7 +108,7 @@ export function initQino(config: QinoConfig) {
       const Views extends object = object,
       const SaveEntryAs extends string = never,
       const DisplayEntryAs extends string = never,
-      const Media extends MediaConfig<S, Ext> = EmptyObject,
+      const Media extends MediaConfig<S> = EmptyObject,
       const Stats extends boolean = false,
       Toc extends MarkdownTocFlag = false,
     >(

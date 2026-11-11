@@ -9,11 +9,11 @@ describe("serializeMedia", () => {
         {
           cover: { accepted: "image/webp", maxSize: "5MB" },
           attachment: { accepted: "application/pdf", maxSize: "600KB" },
-          markdown: [
-            { accepted: "image/webp", maxSize: "1MB" },
-            { accepted: "image/png", maxSize: "2MB" },
-          ],
         },
+        [
+          { accepted: "image/webp", maxSize: "1MB" },
+          { accepted: "image/png", maxSize: "2MB" },
+        ],
         "posts",
       ),
     ).toEqual({
@@ -27,14 +27,33 @@ describe("serializeMedia", () => {
   });
 
   test("returns an empty object without media", () => {
-    expect(serializeMedia({}, "posts")).toEqual({});
+    expect(serializeMedia({}, [], "posts")).toEqual({});
+  });
+
+  test("leaves parse out", () => {
+    expect(
+      serializeMedia(
+        {
+          cover: {
+            accepted: "image/webp",
+            maxSize: "5MB",
+            parse: (value) => value,
+          },
+        },
+        [{ accepted: "image/png", maxSize: "1MB", parse: () => undefined }],
+        "posts",
+      ),
+    ).toEqual({
+      cover: { accepted: "image/webp", maxSize: 5242880 },
+      markdown: [{ accepted: "image/png", maxSize: 1048576 }],
+    });
   });
 
   test.each(["image/*", "*/*", "image/wep", "webp"])(
     "rejects a field accepting %s",
     (accepted) => {
       expect(() =>
-        serializeMedia({ cover: { accepted, maxSize: "5MB" } }, "posts"),
+        serializeMedia({ cover: { accepted, maxSize: "5MB" } }, [], "posts"),
       ).toThrow(
         `media "cover" of "posts" accepts "${accepted}", which isn't a known MIME type.`,
       );
@@ -45,49 +64,37 @@ describe("serializeMedia", () => {
     expect(() =>
       serializeMedia(
         { cover: { accepted: ["image/webp"] as never, maxSize: "5MB" } },
+        [],
         "posts",
       ),
     ).toThrow('accepts ["image/webp"], which isn\'t a known MIME type');
   });
 
-  test("rejects unknown types in markdown rules", () => {
+  test("rejects unknown types in markdown.media rules", () => {
     expect(() =>
       serializeMedia(
-        {
-          markdown: [
-            { accepted: "image/png", maxSize: "1MB" },
-            { accepted: "image/*", maxSize: "1MB" },
-          ],
-        },
+        {},
+        [
+          { accepted: "image/png", maxSize: "1MB" },
+          { accepted: "image/*", maxSize: "1MB" },
+        ],
         "posts",
       ),
     ).toThrow(
-      'media "markdown" of "posts", rule 2, accepts "image/*", which isn\'t a known MIME type.',
+      'markdown.media of "posts", rule 2, accepts "image/*", which isn\'t a known MIME type.',
     );
   });
 
-  test("rejects a markdown rule accepting several types", () => {
+  test("rejects a markdown.media rule accepting several types", () => {
     expect(() =>
       serializeMedia(
-        {
-          markdown: [
-            { accepted: ["image/png", "image/jpeg"] as never, maxSize: "1MB" },
-          ],
-        },
+        {},
+        [{ accepted: ["image/png", "image/jpeg"] as never, maxSize: "1MB" }],
         "posts",
       ),
     ).toThrow(
-      'media "markdown" of "posts", rule 1, accepts ["image/png","image/jpeg"], which isn\'t a known MIME type.',
+      'markdown.media of "posts", rule 1, accepts ["image/png","image/jpeg"], which isn\'t a known MIME type.',
     );
-  });
-
-  test("rejects markdown that isn't a list", () => {
-    expect(() =>
-      serializeMedia(
-        { markdown: { accepted: "image/png", maxSize: "1MB" } as never },
-        "posts",
-      ),
-    ).toThrow('media "markdown" of "posts" must be a list of rules.');
   });
 
   test.each(["101MB", "25KB", "1.5MB", "5mb"])(
@@ -96,6 +103,7 @@ describe("serializeMedia", () => {
       expect(() =>
         serializeMedia(
           { cover: { accepted: "image/png", maxSize: maxSize as never } },
+          [],
           "posts",
         ),
       ).toThrow(

@@ -52,7 +52,7 @@ Then `computedFields`, one row each:
 
 - From frontmatter only (formatting, defaults): a schema transform. **S**
 - From `_raw.flattenedPath` / `_id` (slug, url, edit link): `_meta.slug` / `_meta.filePath` in app code. **S**
-- From the body (`body.raw`: reading time, headings, table of contents): app code after the getter, since transforms run before qino adds `markdown`. Word counts and reading time can use `markdownStats: true` and `_stats.wordCount`. **S–M**
+- From the body (`body.raw`: reading time, headings, table of contents): app code after the getter, since transforms run before qino adds `markdown`. Word counts and reading time can use `markdown: { stats: true }` and `_stats.wordCount`. **S–M**
 - Anything async, or reading other documents: app code. **M**
 
 ## 3. Find the call sites
