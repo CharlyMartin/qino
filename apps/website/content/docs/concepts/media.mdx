@@ -23,7 +23,9 @@ export const postCollection = qino.defineCollection({
     cover: { accepted: "image/webp", maxSize: "5MB" },
     "gallery[*]": { accepted: "image/png", maxSize: "2MB" },
     attachment: { accepted: "application/pdf", maxSize: "10MB" },
-    markdown: [
+  },
+  markdown: {
+    media: [
       { accepted: "image/webp", maxSize: "1MB" },
       { accepted: "image/png", maxSize: "2MB" },
       { accepted: "image/jpeg", maxSize: "2MB" },
@@ -36,7 +38,7 @@ Paths use the [relation path](/docs/concepts/relations#declaring) syntax: `"cove
 
 `accepted` is one exact MIME type, such as `"image/webp"` or `"application/pdf"`. Wildcards like `"image/*"` aren't accepted, so a file's type is always known from its extension. `maxSize` goes from `"50KB"` to `"950KB"` in steps of 50, or `"1MB"` to `"100MB"`, where 1KB is 1024 bytes. Anything else, like `"1.5MB"` or `"25KB"`, is a type error.
 
-`markdown` checks the images embedded in the body. See [Body images](#body-images).
+`markdown.media` checks the images embedded in the body. See [Body images](#body-images).
 
 Content stores the URL the file is served at, starting with `/`: with `mediaFolder: "public"`, `/images/cover.webp` is the file `public/images/cover.webp`.
 
@@ -65,7 +67,7 @@ media: {
 },
 ```
 
-The URL it returns replaces the value: it's the `src` of an image field, and the string of any other media field. Rules and `qino check` apply to it. Return `undefined` to keep the value as is. The `MediaParse` type types a callback declared on its own. `markdown` rules have no `parse`: body images are read as written.
+The URL it returns replaces the value: it's the `src` of an image field, and the string of any other media field. Rules and `qino check` apply to it. Return `undefined` to keep the value as is. The `MediaParse` type types a callback declared on its own, and `MediaRule` a whole rule. Body rules take a `parse` too. See [Body images](#body-images).
 
 `ctx`, the second argument, holds `sourceFilePath`, the file the value is written in, `fieldPath`, the field's path as declared, and `mediaFolder`, where the files live. For this post, with `initQino({ contentFolder: "vault", mediaFolder: "vault/attachments" })` and a `parse` on `cover` and `"gallery[*]"`:
 
@@ -147,16 +149,29 @@ Reading an entry fails when an image field holds a URL outside `mediaFolder`, su
 
 ## Body images
 
-`markdown` lists the files the body can embed, as rules: an image must match one rule's type and stay under its `maxSize`. Like a field, each rule accepts one exact MIME type: list one rule per type, even when they share a `maxSize`. It's checked by [`qino check`](/docs/guide/cli#media) only: the body isn't changed when read.
+`markdown.media` lists the files the body can embed, as one rule or a list of rules: an image must match one rule's type and stay under its `maxSize`. Like a field, each rule accepts one exact MIME type: list one rule per type, even when they share a `maxSize`. It's checked by [`qino check`](/docs/guide/cli#media) only: the body isn't changed when read.
 
 Only images are checked: `![](/a.png)`, reference images like `![][logo]`, and the `src` of `<img>` and, in MDX, `<Image>`. Links, `<video>`, and external URLs are left out. JSON files have no body, so `markdown` on a JSON primitive is a type error, and throws at definition when set from JavaScript.
+
+Each rule can have its own `parse`, which reads the image's URL as written, with `fieldPath` set to `"markdown"`. A rule checks the URL its `parse` returns, or the URL as written when it returns `undefined`. An image passes when one rule matches, and is left out when no rule reads it as a URL in `mediaFolder`:
+
+```ts title="qino/collections/posts.ts"
+markdown: {
+  media: [
+    // ![](diagram) checks /diagrams/diagram.webp
+    { accepted: "image/webp", maxSize: "1MB", parse: (url) => `/diagrams/${url}.webp` },
+    // ![](/photo.png) is read as written
+    { accepted: "image/png", maxSize: "2MB" },
+  ],
+},
+```
 
 ## Checks
 
 `qino check` verifies, for every entry:
 
 - Each media field holds a URL in `mediaFolder` to a file that exists, of its `accepted` type, and under its `maxSize`.
-- Each body image matches one `markdown` rule, by type and size.
+- Each body image matches one `markdown.media` rule, by type and size.
 
 It lists every file that breaks a rule:
 
@@ -166,6 +181,6 @@ Error: 2 media files break their media rules:
   - src/content/posts/a.md (line 12) → /images/diagram.png is 2.4MB, over the 2MB limit.
 ```
 
-`qino check` and `qino build` also fail on an `accepted` type that isn't a known MIME type, a `markdown` rule without types, or a `maxSize` out of range, for config passed from JavaScript or a widened `string`.
+`qino check` and `qino build` also fail on an `accepted` type that isn't a known MIME type, a `markdown.media` rule without types, or a `maxSize` out of range, for config passed from JavaScript or a widened `string`.
 
 With [`cloud`](/docs/guide/cloud#media-fields) set, `media` is written to `config.json`, so the cloud UI offers a media picker for each field and accepts the same files. Paths must then be fields of the schema input too, as with relations.

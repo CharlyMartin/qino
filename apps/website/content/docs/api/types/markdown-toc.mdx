@@ -1,16 +1,16 @@
 ---
 title: MarkdownToc
-description: The headings of a Markdown or MDX body, with their anchor ids, added as `_toc` by `markdownToc`.
+description: The headings of a Markdown or MDX body, with their anchor ids, added as `_toc` by `markdown.toc`.
 ---
 
-Set `markdownToc` on a Markdown or MDX collection, tree, or item, and every entry gets a `_toc` field: its headings in document order. Related entries get it too when their primitive sets `markdownToc`. JSON primitives can't set it.
+Set `markdown.toc` on a Markdown or MDX collection, tree, or item, and every entry gets a `_toc` field: its headings in document order. Related entries get it too when their primitive sets `markdown.toc`. JSON primitives can't set it.
 
 ```ts title="qino/collections/docs.ts"
 export const docsCollection = qino.defineCollection({
   directory: "docs",
   extension: ".mdx",
   schema: DocSchema,
-  markdownToc: { upTo: "h3" },
+  markdown: { toc: { upTo: "h3" } },
 });
 
 const doc = await docsCollection.getEntry("install");
@@ -58,7 +58,7 @@ Ids are slugged with `github-slugger`, like `rehype-slug` does, so `#${id}` link
 
 `.mdx` bodies are parsed as MDX, and `.md` or `.markdown` bodies as Markdown, so `{name}` is an expression in one and text in the other. Both `id` and `text` come from what the heading renders as text: MDX expressions, raw HTML, and image alts are left out, and footnote references become their number. `text` also leaves out MDX components, so ``## `watch`: <TypeText>() => T</TypeText>`` reads `watch:`, while the id still counts them, as `rehype-slug` does. Headings in code blocks are skipped. Headings inside blockquotes, lists, MDX components, or used footnotes are listed, since `rehype-slug` gives them ids as well. Empty headings are left out.
 
-The Markdown parsers are only loaded when a primitive sets `markdownToc`.
+The Markdown parsers are only loaded when a primitive sets `markdown.toc`.
 
 ## Custom ids
 
@@ -71,10 +71,12 @@ A heading ending in `{#id}` keeps that id, and `{#id}` is left out of `text`. Th
 If your site gives headings ids its own way, pass that function as `slug`. It receives each heading's `text`, and duplicates get a `-1`, `-2` suffix, counting every id before them. Only listed headings count, as a renderer that names just those would: a heading deeper than `upTo` doesn't take an id, and its `{#id}` doesn't count toward duplicates:
 
 ```ts title="qino/collections/docs.ts"
-markdownToc: {
-  upTo: "h4",
-  // "Register fields" → "Registerfields"
-  slug: (text) => text.replace(/[^a-zA-Z0-9]/g, ""),
+markdown: {
+  toc: {
+    upTo: "h4",
+    // "Register fields" → "Registerfields"
+    slug: (text) => text.replace(/[^a-zA-Z0-9]/g, ""),
+  },
 },
 ```
 

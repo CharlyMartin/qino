@@ -52,7 +52,7 @@ For each getter call: read and validate, resolve relations to the view's depths,
 A custom view inherits nothing from `default`. Reuse a base by spreading it:
 
 ```ts title="qino/collections/posts.ts"
-// With markdownStats: true on the collection.
+// With markdown: { stats: true } on the collection.
 views: (view) => {
   const base = view({
     augment: (post) => ({ readingMinutes: post._stats.wordCount / 220 }),
