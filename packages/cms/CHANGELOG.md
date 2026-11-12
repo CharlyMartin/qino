@@ -1,5 +1,13 @@
 # @qino/cms
 
+## 0.22.0
+
+### Minor Changes
+
+- [#318](https://github.com/CharlyMartin/qino/pull/318) [`4e31fdc`](https://github.com/CharlyMartin/qino/commit/4e31fdcf914dd57fdd270a90637ab80f4c6e309b) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Adds `"customFormat": true` to relations and media rules in `config.json` when they have a `parse` callback, which can't be written to JSON. The cloud UI shows those fields read-only, since it can't tell which values the callback reads. `configFileSchema` and `ConfigFile` accept the new field.
+
+  Projects with a `parse` callback get a new `config.json`: run `qino build` after upgrading, or `qino check` reports it out of date.
+
 ## 0.21.0
 
 ### Minor Changes
