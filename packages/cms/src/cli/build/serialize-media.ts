@@ -5,9 +5,10 @@ import { assertMediaType } from "./assert-media-type";
 
 /**
  * Describes a primitive's `media` in `config.json`, with `maxSize` in bytes
- * and `markdown.media` listed under `markdown`. `parse` is left out. Fails on
- * a rule whose `accepted` isn't one known MIME type, or a `maxSize` outside
- * 50–950KB in steps of 50, or 1–100MB.
+ * and `markdown.media` listed under `markdown`. A `parse` callback can't be
+ * serialized, so a rule with one gets `parse: true`. Fails on a rule whose
+ * `accepted` isn't one known MIME type, or a `maxSize` outside 50–950KB in
+ * steps of 50, or 1–100MB.
  */
 export function serializeMedia(
   media: AnyMediaConfig,
@@ -33,9 +34,13 @@ export function serializeMedia(
 }
 
 function serializeRule(rule: unknown, owner: string) {
-  const { accepted, maxSize } = rule as { [K: string]: unknown };
+  const { accepted, maxSize, parse } = rule as { [K: string]: unknown };
   assertMediaType(accepted, owner);
-  return { accepted, maxSize: toBytes(maxSize, owner) };
+  return {
+    accepted,
+    maxSize: toBytes(maxSize, owner),
+    ...(parse ? { parse: true } : {}),
+  };
 }
 
 function toBytes(maxSize: unknown, owner: string) {

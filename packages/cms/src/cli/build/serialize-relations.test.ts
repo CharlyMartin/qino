@@ -64,6 +64,27 @@ describe("serializeRelations", () => {
     ]);
   });
 
+  test("marks a relation with a parse callback", () => {
+    expect(
+      serializeRelations({
+        author: { target: authors, parse: () => undefined },
+        "docs[*]": docs,
+      }),
+    ).toEqual([
+      {
+        path: "author",
+        target: { kind: "collection", id: "authors" },
+        cardinality: "one",
+        parse: true,
+      },
+      {
+        path: "docs[*]",
+        target: { kind: "tree", id: "docs" },
+        cardinality: "many",
+      },
+    ]);
+  });
+
   test("resolves lazy targets", () => {
     expect(serializeRelations({ "meta.authors[*]": () => authors })).toEqual([
       {

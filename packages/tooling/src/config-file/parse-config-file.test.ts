@@ -99,6 +99,19 @@ describe("parseConfigFile", () => {
     );
   });
 
+  test("keeps parse on relations and media rules read with a callback", () => {
+    const json = setup();
+    const { posts } = json.collections;
+    Object.assign(posts.relations[0] ?? {}, { parse: true });
+    Object.assign(posts.media.image, { parse: true });
+    Object.assign(posts.media.markdown[0] ?? {}, { parse: true });
+
+    const parsed = parseConfigFile(json).collections.posts;
+    expect(parsed?.relations[0]?.parse).toBe(true);
+    expect(parsed?.media.image?.parse).toBe(true);
+    expect(parsed?.media.markdown?.[0]?.parse).toBe(true);
+  });
+
   test("rejects review turned on without its settings", () => {
     const json = setup();
     json.cloud.publish.reviewBeforePublish = true as never;
