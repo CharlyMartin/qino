@@ -30,7 +30,7 @@ describe("serializeMedia", () => {
     expect(serializeMedia({}, [], "posts")).toEqual({});
   });
 
-  test("leaves parse out", () => {
+  test("marks rules with a parse callback", () => {
     expect(
       serializeMedia(
         {
@@ -41,6 +41,21 @@ describe("serializeMedia", () => {
           },
         },
         [{ accepted: "image/png", maxSize: "1MB", parse: () => undefined }],
+        "posts",
+      ),
+    ).toEqual({
+      cover: { accepted: "image/webp", maxSize: 5242880, customFormat: true },
+      markdown: [
+        { accepted: "image/png", maxSize: 1048576, customFormat: true },
+      ],
+    });
+  });
+
+  test("leaves customFormat out of rules without a parse callback", () => {
+    expect(
+      serializeMedia(
+        { cover: { accepted: "image/webp", maxSize: "5MB" } },
+        [{ accepted: "image/png", maxSize: "1MB" }],
         "posts",
       ),
     ).toEqual({

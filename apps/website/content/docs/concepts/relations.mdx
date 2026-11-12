@@ -149,6 +149,8 @@ Paths are relative to the working directory, as passed to `initQino`. When the a
 
 `parse` runs when the relation resolves. A relation that stays a string keeps the raw value, such as `"[[Jane Doe]]"`. Errors about the returned path name the raw value too. The `RelationParse` type types a callback declared on its own.
 
+The cloud UI can't run `parse`, so a relation with a `parse` callback is read-only there. See [In config.json](/docs/guide/cloud#in-configjson).
+
 ## Resolving
 
 Declared relations resolve by default. Each one resolves to its `resolveDepth`, which counts hops: at `1`, the default, the post's author becomes the author entry, but relations declared on the author stay strings. At `2` they resolve too. At `0` the relation stays a string.

@@ -99,6 +99,19 @@ describe("parseConfigFile", () => {
     );
   });
 
+  test("keeps customFormat on relations and media rules", () => {
+    const json = setup();
+    const { posts } = json.collections;
+    Object.assign(posts.relations[0] ?? {}, { customFormat: true });
+    Object.assign(posts.media.image, { customFormat: true });
+    Object.assign(posts.media.markdown[0] ?? {}, { customFormat: true });
+
+    const parsed = parseConfigFile(json).collections.posts;
+    expect(parsed?.relations[0]?.customFormat).toBe(true);
+    expect(parsed?.media.image?.customFormat).toBe(true);
+    expect(parsed?.media.markdown?.[0]?.customFormat).toBe(true);
+  });
+
   test("rejects review turned on without its settings", () => {
     const json = setup();
     json.cloud.publish.reviewBeforePublish = true as never;

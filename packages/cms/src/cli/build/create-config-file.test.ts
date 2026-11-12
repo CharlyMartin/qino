@@ -131,6 +131,7 @@ describe("createConfigFile", () => {
     const schema = z.object({
       title: z.string(),
       author: z.string(),
+      editor: z.string(),
       cover: z.string(),
     });
     const authors = qino.defineCollection({
@@ -142,9 +143,18 @@ describe("createConfigFile", () => {
       directory: "posts",
       schema,
       extension: ".md",
-      relations: { author: () => authors },
+      relations: {
+        author: () => authors,
+        editor: { target: () => authors, parse: () => undefined },
+      },
       media: { cover: { accepted: "image/webp", maxSize: "5MB" } },
-      markdown: { media: { accepted: "image/png", maxSize: "1MB" } },
+      markdown: {
+        media: {
+          accepted: "image/png",
+          maxSize: "1MB",
+          parse: () => undefined,
+        },
+      },
       cloud: {
         searchableBy: ["title"],
         sortableBy: ["title"],
