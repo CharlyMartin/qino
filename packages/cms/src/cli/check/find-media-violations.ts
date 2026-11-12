@@ -48,7 +48,8 @@ export async function findMediaViolations(
     getPrimitiveId(primitive),
   ) as Record<string, Rule | Array<Rule>>;
   const { [MARKDOWN_MEDIA_KEY]: markdownRules = [], ...fields } = media;
-  // `serializeMedia` writes `parse` as `true`; rules keep their order.
+  // `serializeMedia` writes `customFormat` in place of `parse`; rules keep
+  // their order.
   const bodyRules: Array<BodyRule> = (markdownRules as Array<Rule>).map(
     (rule, index) => ({ ...rule, parse: markdown.media[index]?.parse }),
   );

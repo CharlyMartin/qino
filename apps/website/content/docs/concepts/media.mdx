@@ -106,7 +106,7 @@ Reading `cover` takes four steps:
 
 Paths are relative to the working directory, as passed to `initQino`. `parse` runs each time an entry is read, and when `qino check` checks media.
 
-The cloud UI can't run `parse`, so it shows a media field with one read-only. See [In config.json](/docs/guide/cloud#in-configjson).
+The cloud UI can't run `parse`, so a media field with a `parse` callback is read-only there. See [In config.json](/docs/guide/cloud#in-configjson).
 
 ## Image fields
 

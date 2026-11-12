@@ -8,7 +8,7 @@ import { getPrimitiveId } from "./get-primitive-id";
 /**
  * Turns a primitive's relations map into a sorted, JSON-friendly array,
  * referencing each target by kind and id. A `parse` callback can't be
- * serialized, so a relation with one gets `parse: true`.
+ * serialized, so a relation with one gets `customFormat: true`.
  */
 export function serializeRelations(relations: Relations<ObjectSchema>) {
   return getRelationTargets(relations)
@@ -19,7 +19,7 @@ export function serializeRelations(relations: Relations<ObjectSchema>) {
         id: getPrimitiveId(target),
       },
       cardinality: path.includes(JSON_PATH_ARRAY) ? "many" : "one",
-      ...(parse ? { parse: true } : {}),
+      ...(parse ? { customFormat: true } : {}),
     }))
     .toSorted((a, b) => compareCodeUnits(a.path, b.path));
 }

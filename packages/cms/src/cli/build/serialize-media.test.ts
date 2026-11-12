@@ -44,12 +44,14 @@ describe("serializeMedia", () => {
         "posts",
       ),
     ).toEqual({
-      cover: { accepted: "image/webp", maxSize: 5242880, parse: true },
-      markdown: [{ accepted: "image/png", maxSize: 1048576, parse: true }],
+      cover: { accepted: "image/webp", maxSize: 5242880, customFormat: true },
+      markdown: [
+        { accepted: "image/png", maxSize: 1048576, customFormat: true },
+      ],
     });
   });
 
-  test("leaves parse out of rules without one", () => {
+  test("leaves customFormat out of rules without a parse callback", () => {
     expect(
       serializeMedia(
         { cover: { accepted: "image/webp", maxSize: "5MB" } },

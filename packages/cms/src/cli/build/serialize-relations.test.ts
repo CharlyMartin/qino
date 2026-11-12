@@ -75,7 +75,7 @@ describe("serializeRelations", () => {
         path: "author",
         target: { kind: "collection", id: "authors" },
         cardinality: "one",
-        parse: true,
+        customFormat: true,
       },
       {
         path: "docs[*]",

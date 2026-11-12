@@ -99,17 +99,17 @@ describe("parseConfigFile", () => {
     );
   });
 
-  test("keeps parse on relations and media rules read with a callback", () => {
+  test("keeps customFormat on relations and media rules", () => {
     const json = setup();
     const { posts } = json.collections;
-    Object.assign(posts.relations[0] ?? {}, { parse: true });
-    Object.assign(posts.media.image, { parse: true });
-    Object.assign(posts.media.markdown[0] ?? {}, { parse: true });
+    Object.assign(posts.relations[0] ?? {}, { customFormat: true });
+    Object.assign(posts.media.image, { customFormat: true });
+    Object.assign(posts.media.markdown[0] ?? {}, { customFormat: true });
 
     const parsed = parseConfigFile(json).collections.posts;
-    expect(parsed?.relations[0]?.parse).toBe(true);
-    expect(parsed?.media.image?.parse).toBe(true);
-    expect(parsed?.media.markdown?.[0]?.parse).toBe(true);
+    expect(parsed?.relations[0]?.customFormat).toBe(true);
+    expect(parsed?.media.image?.customFormat).toBe(true);
+    expect(parsed?.media.markdown?.[0]?.customFormat).toBe(true);
   });
 
   test("rejects review turned on without its settings", () => {

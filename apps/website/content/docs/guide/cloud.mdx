@@ -139,7 +139,7 @@ With `{hash}`, an upload never overwrites another file, and each URL always serv
 
 ## In config.json
 
-`config.json` holds every value resolved, so the cloud UI doesn't reimplement defaults: `branchPrefix`, `reviewBeforePublish`'s settings, and `media.saveFileAs` are filled in, and lists default to `[]`. Each primitive's [`media`](/docs/concepts/media) sits next to its relations, with `maxSize` in bytes, so `"5MB"` becomes `5242880`. `displayAs` and `displayEntryAs` sit at the top level of the primitive, next to `titleField`. `displayAs` defaults to the id, and trees' `displayEntryAs` to `"{<titleField>}"`. Collections leave `displayEntryAs` out when unset. A relation or media rule with a `parse` callback gets `"parse": true`, since a function can't be written to JSON. The cloud UI can't run the callback, so it shows those fields read-only.
+`config.json` holds every value resolved, so the cloud UI doesn't reimplement defaults: `branchPrefix`, `reviewBeforePublish`'s settings, and `media.saveFileAs` are filled in, and lists default to `[]`. Each primitive's [`media`](/docs/concepts/media) sits next to its relations, with `maxSize` in bytes, so `"5MB"` becomes `5242880`. `displayAs` and `displayEntryAs` sit at the top level of the primitive, next to `titleField`. `displayAs` defaults to the id, and trees' `displayEntryAs` to `"{<titleField>}"`. Collections leave `displayEntryAs` out when unset. A relation or media rule with a `parse` callback gets `"customFormat": true`, since a function can't be written to JSON. The cloud UI can't run the callback, so it shows those fields read-only.
 
 ```json title="qino/_generated/config.json"
 {
