@@ -1,13 +1,13 @@
 import fs from "node:fs/promises";
 import nodePath from "node:path";
 
+import { extractMediaLinks } from "@qino/tooling/media";
 import { glob } from "tinyglobby";
 
 import { SUPPORTED_CONTENT_EXTENSIONS } from "../../data/globals";
 import { isFile } from "../../lib/fs/is-file";
 import type { QinoConfig } from "../../runtime/qino/init-qino";
 import { createMediaFilter } from "./create-media-filter";
-import { extractMediaLinks } from "./extract-media-links";
 
 export async function findMissingMedia({
   contentFolder,

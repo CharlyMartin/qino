@@ -1,5 +1,4 @@
-import { parseFrontmatter } from "@qino/tooling/frontmatter";
-
+import { parseFrontmatter } from "../frontmatter/parse-frontmatter";
 import { collectStrings } from "./collect-strings";
 import { scanMarkdownBody } from "./scan-markdown-body";
 
