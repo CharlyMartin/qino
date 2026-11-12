@@ -1,6 +1,6 @@
+import type { Segment } from "@qino/tooling/relations";
 import { describe, expect, test, vi } from "vitest";
 
-import type { Segment } from "./parse-path";
 import { walkAndSet } from "./walk-and-set";
 
 const upper = async (leaf: unknown) =>

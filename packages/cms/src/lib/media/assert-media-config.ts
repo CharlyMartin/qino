@@ -1,6 +1,7 @@
+import { parsePath } from "@qino/tooling/relations";
+
 import { MARKDOWN_FIELD_NAME } from "../../data/globals";
 import type { AnyMediaConfig } from "../../types/media";
-import { parsePath } from "../relations/parse-path";
 
 type AssertMediaConfigParams = {
   media: AnyMediaConfig;

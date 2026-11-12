@@ -1,6 +1,7 @@
+import { parsePath, type Segment } from "@qino/tooling/relations";
+
 import { QinoPrimitiveMarker } from "../../data/globals";
 import { isTree } from "../../lib/guards/is-tree";
-import { parsePath, type Segment } from "../../lib/relations/parse-path";
 import type { AnyPrimitive } from "../../types/utils";
 
 type Field = { label: string; segments: Array<Segment> };

@@ -1,11 +1,11 @@
 import fs from "node:fs/promises";
 import nodePath from "node:path";
 
+import { parsePath } from "@qino/tooling/relations";
 import { lookup } from "mrmime";
 
 import type { AnyMediaConfig } from "../../types/media";
 import { applyParse } from "../parse/apply-parse";
-import { parsePath } from "../relations/parse-path";
 import { walkAndSet } from "../relations/walk-and-set";
 import { describeMediaMismatch } from "./describe-media-mismatch";
 import { getImageData } from "./get-image-data";

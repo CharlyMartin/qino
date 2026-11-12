@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import nodePath from "node:path";
 
+import { collectPathValues, parsePath } from "@qino/tooling/relations";
 import { lookup } from "mrmime";
 
 import {
@@ -13,12 +14,10 @@ import { describeMediaMismatch } from "../../lib/media/describe-media-mismatch";
 import { isLocalMediaUrl } from "../../lib/media/is-local-media-url";
 import { normalizeMediaUrl } from "../../lib/media/normalize-media-url";
 import { applyParse } from "../../lib/parse/apply-parse";
-import { parsePath } from "../../lib/relations/parse-path";
 import type { MediaParse } from "../../types/media";
 import type { AnyPrimitive } from "../../types/utils";
 import { getPrimitiveId } from "../build/get-primitive-id";
 import { serializeMedia } from "../build/serialize-media";
-import { collectPathValues } from "./collect-path-values";
 import { extractMediaCandidates } from "./extract-media-candidates";
 import { readValidatedEntries } from "./read-validated-entries";
 

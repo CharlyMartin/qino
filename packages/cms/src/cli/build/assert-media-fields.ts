@@ -1,4 +1,5 @@
-import { parsePath } from "../../lib/relations/parse-path";
+import { parsePath } from "@qino/tooling/relations";
+
 import { collectJsonSchemaTypes } from "./collect-json-schema-types";
 import { findJsonSchemaNodes } from "./find-json-schema-nodes";
 

@@ -1,4 +1,5 @@
-import type { Segment } from "../../lib/relations/parse-path";
+import type { Segment } from "@qino/tooling/relations";
+
 import { findJsonSchemaNodes } from "./find-json-schema-nodes";
 
 /**

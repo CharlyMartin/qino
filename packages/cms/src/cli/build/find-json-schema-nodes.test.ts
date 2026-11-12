@@ -1,7 +1,7 @@
+import { parsePath } from "@qino/tooling/relations";
 import { describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { parsePath } from "../../lib/relations/parse-path";
 import { findJsonSchemaNodes } from "./find-json-schema-nodes";
 import { serializeJsonSchema } from "./serialize-json-schema";
 

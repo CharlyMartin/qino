@@ -1,6 +1,7 @@
+import { toDirectoryPrefix } from "@qino/tooling/relations";
+
 import { QinoPrimitives } from "../../data/globals";
 import type { ContentPath } from "../../types/utils";
-import { toDirectoryPrefix } from "./to-directory-prefix";
 
 type PrimitiveKind = (typeof QinoPrimitives)[keyof typeof QinoPrimitives];
 

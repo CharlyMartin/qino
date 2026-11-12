@@ -1,5 +1,6 @@
+import type { Segment } from "@qino/tooling/relations";
+
 import { JSON_PATH_ARRAY } from "../../data/globals";
-import type { Segment } from "./parse-path";
 
 type WalkAndSetParams = {
   value: unknown;

@@ -1,11 +1,12 @@
 import nodePath from "node:path";
 import { isDeepStrictEqual } from "node:util";
 
+import { collectPathValues } from "@qino/tooling/relations";
+
 import { META_FIELD_NAME, QinoPrimitiveMarker } from "../../data/globals";
 import type { AnyPrimitive } from "../../types/utils";
 import { getMappedFields } from "../build/get-mapped-fields";
 import { getPrimitiveId } from "../build/get-primitive-id";
-import { collectPathValues } from "./collect-path-values";
 import { readRawEntry } from "./read-raw-entry";
 import { readValidatedEntries } from "./read-validated-entries";
 

@@ -10,6 +10,10 @@ pnpm add @qino/tooling
 - `configFileSchema`, `type ConfigFile`: the zod schema and type of that file
 - `getEntrySchema(primitive)`: a zod schema for a primitive's entries, from its JSON Schema
 - `parseFrontmatter(source)`, from `@qino/tooling/frontmatter`: splits a Markdown or MDX file into its YAML frontmatter (`data`) and its `body`, as `qino build` reads it. Needs no zod
+- From `@qino/tooling/relations`, to read relations as `qino build` does. Needs no zod:
+  - `parsePath(path)` and `collectPathValues(fields, segments)`: the values at a relation or media path like `gallery[*].src`
+  - `parseRelationValue(value, target, { contentFolder, owner })`: the slug a relation value points to, or the file of an item target. Accepts root paths through the content folder, like `src/content/authors/jane.json`; pass `contentFolder` from the repository root
+  - `toDirectoryPrefix(directory)`: the prefix a directory's content paths start with: `authors` gives `authors/`, the content root gives `""`
 
 ## License
 
