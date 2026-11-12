@@ -1,5 +1,25 @@
 # @qino/tooling
 
+## 0.8.0
+
+### Minor Changes
+
+- [#316](https://github.com/CharlyMartin/qino/pull/316) [`80e2ad1`](https://github.com/CharlyMartin/qino/commit/80e2ad157a8302a0c9d18fc4bf69df374f203412) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Adds `@qino/tooling/relations`, to read relations as `qino build` does:
+
+  - `parsePath(path)` and `collectPathValues(fields, segments)`: the values at a relation or media path like `gallery[*].src`.
+  - `parseRelationValue(value, target, { contentFolder, owner })`: the slug a relation value points to, or the file of an item target, from the fields `config.json` gives the target. Accepts root paths through the content folder, like `src/content/authors/jane.json`.
+  - `toDirectoryPrefix(directory)`: the prefix a directory's content paths start with.
+
+- [#317](https://github.com/CharlyMartin/qino/pull/317) [`cc371a2`](https://github.com/CharlyMartin/qino/commit/cc371a2b729f2ee7c77d4ca97e6ab538ffa68200) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Adds `@qino/tooling/media`, to find the media a content file uses as `qino check` does:
+
+  - `extractMediaLinks(source, extension)`: the local media URLs of a Markdown, MDX or JSON file, normalized, with their line. Reads frontmatter and JSON strings, and the body's images, links, and `src` or `poster` attributes, never code.
+  - `extractMediaCandidates(source, extension)`: every URL as written, with `image` set on images.
+  - `isLocalMediaUrl(url)` and `normalizeMediaUrl(url)`.
+
+- [#318](https://github.com/CharlyMartin/qino/pull/318) [`4e31fdc`](https://github.com/CharlyMartin/qino/commit/4e31fdcf914dd57fdd270a90637ab80f4c6e309b) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Adds `"customFormat": true` to relations and media rules in `config.json` when they have a `parse` callback, which can't be written to JSON. The cloud UI shows those fields read-only, since it can't tell which values the callback reads. `configFileSchema` and `ConfigFile` accept the new field.
+
+  Projects with a `parse` callback get a new `config.json`: run `qino build` after upgrading, or `qino check` reports it out of date.
+
 ## 0.7.0
 
 ### Minor Changes
