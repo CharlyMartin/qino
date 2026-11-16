@@ -97,7 +97,7 @@ describe("parseMarkdownFile", () => {
           validatorFn: validate,
         }),
       ).toThrow(
-        `/fixtures/override.md: fields reserved for Qino cannot appear in content or schema output: ${field}.`,
+        `/fixtures/override.md: fields reserved for qino cannot appear in content or schema output: ${field}.`,
       );
     },
   );
@@ -113,7 +113,7 @@ describe("parseMarkdownFile", () => {
           validatorFn: validate,
         }),
       ).toThrow(
-        `/fixtures/transform.md: fields reserved for Qino cannot appear in content or schema output: ${field}.`,
+        `/fixtures/transform.md: fields reserved for qino cannot appear in content or schema output: ${field}.`,
       );
     },
   );
@@ -173,7 +173,7 @@ describe("parseMarkdownFile", () => {
         validatorFn: validate,
       }),
     ).toThrow(
-      "Validation failed for /fixtures/post.md:\n  markdown: Invalid input: expected string, received undefined\nFields added by Qino after validation cannot be declared in the schema: markdown.",
+      "Validation failed for /fixtures/post.md:\n  markdown: Invalid input: expected string, received undefined\nFields added by qino after validation cannot be declared in the schema: markdown.",
     );
   });
 

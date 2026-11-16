@@ -163,7 +163,7 @@ test("allows nested names, JSON markdown, and erased schemas", async () => {
   expectTypeOf(
     (await posts.getEntry("hello")).markdown,
   ).toEqualTypeOf<string>();
-  // @ts-expect-error Qino does not generate body or provide an alias.
+  // @ts-expect-error qino does not generate body or provide an alias.
   expectTypeOf((await posts.getEntry("hello")).body);
 
   const json = qino.defineItem({

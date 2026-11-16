@@ -23,7 +23,7 @@ export function assertNoReservedMarkdownFields(
 
   if (conflicts.length > 0) {
     throw new Error(
-      `${filePath}: fields reserved for Qino cannot appear in content or schema output: ${conflicts.join(", ")}.`,
+      `${filePath}: fields reserved for qino cannot appear in content or schema output: ${conflicts.join(", ")}.`,
     );
   }
 }

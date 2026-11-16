@@ -43,10 +43,10 @@ export async function lint({
     itemFiles: items.map((s) => s[QinoPrimitiveMarker].file),
   });
 
-  // Ensure all primitives belong to the same Qino instance
+  // Ensure all primitives belong to the same qino instance
   assertInstanceIdsMatch(allPrimitives, context.instanceId);
 
-  // Ensure all relation targets belong to the same Qino instance
+  // Ensure all relation targets belong to the same qino instance
   assertRelationInstanceIds(allPrimitives, context.instanceId);
 
   if (collections.length) {

@@ -94,7 +94,7 @@ describe("_toc", () => {
       extension: ".md",
       markdown: { toc: true },
       views: (view) => ({
-        // @ts-expect-error _toc is added by Qino.
+        // @ts-expect-error _toc is added by qino.
         default: view({ augment: () => ({ _toc: 1 }) }),
       }),
     });

@@ -6,6 +6,6 @@ export function assertQino(
   msg?: string,
 ): asserts value is AnyQinoConfig {
   if (!isQinoConfig(value)) {
-    throw new Error(msg || `${value} is not a valid Qino instance`);
+    throw new Error(msg || `${value} is not a valid qino instance`);
   }
 }

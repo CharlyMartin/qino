@@ -79,7 +79,7 @@ describe("fetchTargetEntry", () => {
 
   describe("item target", () => {
     test("delegates to the source reader and returns the data", async () => {
-      const data = { siteName: "Qino" };
+      const data = { siteName: "qino" };
       const target = makeDummyItem({
         file: "config/site.json",
         data,

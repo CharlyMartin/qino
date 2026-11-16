@@ -17,6 +17,6 @@ export function assertQinoPrimitive(
     typeof value[QinoPrimitiveMarker].is == "string";
 
   if (!isValid) {
-    throw new Error(msg || `${value} is not a valid Qino primitive`);
+    throw new Error(msg || `${value} is not a valid qino primitive`);
   }
 }

@@ -25,7 +25,7 @@ describe("isQinoPrimitive", () => {
     ).toBe(true);
   });
 
-  test("returns false for a Qino instance", () => {
+  test("returns false for a qino instance", () => {
     expect(isQinoPrimitive(makeDummyQino())).toBe(false);
   });
 

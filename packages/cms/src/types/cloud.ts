@@ -12,7 +12,7 @@ export type CloudReviewConfig = {
 
 type CloudPublishReview = {
   /**
-   * Whether an approver signs off in Qino before the author can publish. An
+   * Whether an approver signs off in qino before the author can publish. An
    * object turns review on and configures it.
    */
   readonly reviewBeforePublish: boolean | CloudReviewConfig;

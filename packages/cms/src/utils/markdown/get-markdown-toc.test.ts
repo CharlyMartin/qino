@@ -92,13 +92,13 @@ describe("getMarkdownToc", () => {
   test("keeps the text of inline code, emphasis, and links", () => {
     expect(
       getMarkdownToc({
-        body: "## The `markdownToc` **flag** in [Qino](/docs)",
+        body: "## The `markdownToc` **flag** in [qino](/docs)",
       }),
     ).toEqual([
       {
         heading: 2,
         id: "the-markdowntoc-flag-in-qino",
-        text: "The markdownToc flag in Qino",
+        text: "The markdownToc flag in qino",
       },
     ]);
   });

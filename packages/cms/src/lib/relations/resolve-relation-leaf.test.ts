@@ -58,7 +58,7 @@ describe("resolveRelationLeaf", () => {
   test("parses an item reference and delegates target resolution", async () => {
     const targetMeta = makeDummyItem({
       file: "config/site.json",
-      data: { siteName: "Qino" },
+      data: { siteName: "qino" },
     })[QinoPrimitiveMarker];
     const result = await resolveRelationLeaf("config/site.json", {
       ...baseCtx(),

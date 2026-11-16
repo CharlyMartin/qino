@@ -62,7 +62,7 @@ describe.each([".md", ".mdx", ".markdown", ".json"] as const)(
             titleField: "title",
             schema,
           });
-          const error = `${filePath}: fields reserved for Qino cannot appear in content or schema output: ${field}.`;
+          const error = `${filePath}: fields reserved for qino cannot appear in content or schema output: ${field}.`;
           await expect(collection.getEntry("hello")).rejects.toThrow(error);
           await expect(collection.getEntries()).rejects.toThrow(error);
           await expect(item.getEntry()).rejects.toThrow(error);
