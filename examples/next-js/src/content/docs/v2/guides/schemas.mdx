@@ -5,7 +5,7 @@ title: Schemas
 Pluggable Standard Schema validators — bring your favourite.
 
 Schemas validate frontmatter only (or the whole object for JSON). After
-validation, Qino adds two strings to every Markdown or MDX entry, like `_meta`:
+validation, qino adds two strings to every Markdown or MDX entry, like `_meta`:
 `markdown`, the body excluding frontmatter (empty string when empty), and `raw`,
 the untouched source file. Don't declare them; strict objects work as-is.
 Documents without frontmatter validate `{}`, so `z.object({})` is enough.
