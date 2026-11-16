@@ -23,7 +23,7 @@
   + ---
   ```
 
-  Also drops the `gray-matter` dependency: files are read with `parseFrontmatter` from `@qino/tooling`, the reader the Qino cloud UI uses.
+  Also drops the `gray-matter` dependency: files are read with `parseFrontmatter` from `@qino/tooling`, the reader the qino cloud UI uses.
 
 ## 0.20.0
 
@@ -399,7 +399,7 @@
 
 ### Minor Changes
 
-- [#216](https://github.com/CharlyMartin/qino/pull/216) [`62bfc33`](https://github.com/CharlyMartin/qino/commit/62bfc33aab054d85840f443d6ffcf644932d0a92) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Adds a `cloud` option to `initQino`, `defineCollection`, `defineTree`, and `defineItem` to configure the Qino cloud UI: publish mode, review, accepted uploads, searchable and sortable fields, and where media lands. Values are written, resolved, into `qino/_generated/config.json`.
+- [#216](https://github.com/CharlyMartin/qino/pull/216) [`62bfc33`](https://github.com/CharlyMartin/qino/commit/62bfc33aab054d85840f443d6ffcf644932d0a92) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Adds a `cloud` option to `initQino`, `defineCollection`, `defineTree`, and `defineItem` to configure the qino cloud UI: publish mode, review, accepted uploads, searchable and sortable fields, and where media lands. Values are written, resolved, into `qino/_generated/config.json`.
 
   ```ts
   initQino({

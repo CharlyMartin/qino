@@ -10,9 +10,9 @@ export function assertInstanceIdsMatch(
 
     if (primitiveInstanceId != instanceId) {
       throw new Error(
-        `Primitive "${primitive[QinoPrimitiveMarker].is}" was created by a different Qino instance. ` +
+        `Primitive "${primitive[QinoPrimitiveMarker].is}" was created by a different qino instance. ` +
           `Expected "${instanceId.description}" but got "${primitiveInstanceId.description}". ` +
-          `Make sure all primitives are created with the same Qino config.`,
+          `Make sure all primitives are created with the same qino config.`,
       );
     }
   }

@@ -6,7 +6,7 @@ export type ValidateParams<S extends StandardSchemaV1> = {
   schema: S;
   data: unknown;
   filePath: string;
-  // Fields Qino adds after validation, which the schema never receives.
+  // Fields qino adds after validation, which the schema never receives.
   generatedFields?: ReadonlyArray<string>;
 };
 
@@ -21,7 +21,7 @@ export function validate<S extends StandardSchemaV1>({
 
   if (result instanceof Promise) {
     throw new Error(
-      `Schema for ${filePath} returned a Promise. Qino requires synchronous Standard Schema validators.`,
+      `Schema for ${filePath} returned a Promise. qino requires synchronous Standard Schema validators.`,
     );
   }
 
@@ -47,7 +47,7 @@ export function validate<S extends StandardSchemaV1>({
 
     if (declaredGeneratedFields.size > 0) {
       lines.push(
-        `Fields added by Qino after validation cannot be declared in the schema: ${[...declaredGeneratedFields].join(", ")}.`,
+        `Fields added by qino after validation cannot be declared in the schema: ${[...declaredGeneratedFields].join(", ")}.`,
       );
     }
     throw new Error(`Validation failed for ${filePath}:\n${lines.join("\n")}`);

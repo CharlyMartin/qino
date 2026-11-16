@@ -1,4 +1,4 @@
-# Qino
+# qino
 
 The modern headless Markdown CMS.
 
@@ -6,7 +6,7 @@ The modern headless Markdown CMS.
 [![CI](https://github.com/CharlyMartin/qino/actions/workflows/ci.yml/badge.svg)](https://github.com/CharlyMartin/qino/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/npm/l/@qino/cms)](./LICENSE)
 
-Qino turns a folder of Markdown, MDX, and JSON files into typed, validated content you can query from any JavaScript app. Your repo is the source of truth. No database, no hosted backend.
+qino turns a folder of Markdown, MDX, and JSON files into typed, validated content you can query from any JavaScript app. Your repo is the source of truth. No database, no hosted backend.
 
 - **Flat-file**: content lives on disk and moves with your code through branches, PRs, and tags.
 - **Typed**: define collections, items, and trees with a schema (Zod or any Standard Schema validator) and get fully inferred types from the getters.
@@ -35,7 +35,7 @@ Zod is optional; any [Standard Schema](https://standardschema.dev) validator wor
 
 ### AI agents
 
-Install the setup skill to let your coding agent add Qino to an existing project and model its content:
+Install the setup skill to let your coding agent add qino to an existing project and model its content:
 
 ```sh
 npx skills add CharlyMartin/qino --skill set-up-qino-cms
@@ -51,7 +51,7 @@ npx skills add CharlyMartin/qino --skill contentlayer-exit-check
 
 ## Quick start
 
-Create a Qino instance pointing at your content and media folders:
+Create a qino instance pointing at your content and media folders:
 
 ```ts
 // qino/index.ts
@@ -82,7 +82,7 @@ const posts = await postCollection.getEntries();
 const post = await postCollection.getEntry("hello-world");
 ```
 
-The frontmatter of each entry in `src/content/posts/*.md` is validated against the schema. Qino then adds the body as `markdown`, the source as `raw`, and `_meta` (slug, path) to every entry.
+The frontmatter of each entry in `src/content/posts/*.md` is validated against the schema. qino then adds the body as `markdown`, the source as `raw`, and `_meta` (slug, path) to every entry.
 
 Run `qino build` before your app builds to validate content and generate types:
 
@@ -108,7 +108,7 @@ Run `qino build` before your app builds to validate content and generate types:
 | Package                                  | Description                      |
 | ---------------------------------------- | -------------------------------- |
 | [`@qino/cms`](./packages/cms)            | Core library and `qino` CLI      |
-| [`examples/next-js`](./examples/next-js) | Reference Next.js app using Qino |
+| [`examples/next-js`](./examples/next-js) | Reference Next.js app using qino |
 
 ## License
 

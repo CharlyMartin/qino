@@ -32,7 +32,7 @@ const faqs: Array<FaqItem> = [
       "No. You add me as a collaborator while I work on it, and I'm happy to sign an NDA first if required.",
   },
   {
-    question: "Do we have to use Qino Cloud?",
+    question: "Do we have to use qino Cloud?",
     answer: (
       <>
         No. qino works on its own, for free. When{" "}

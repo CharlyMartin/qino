@@ -12,7 +12,7 @@ export function assertRelationInstanceIds(
     )) {
       if (target[QinoPrimitiveMarker].instanceId != instanceId) {
         throw new Error(
-          `Relation "${path}" points to a primitive created by a different initQino() call. All related primitives must come from the same Qino instance.`,
+          `Relation "${path}" points to a primitive created by a different initQino() call. All related primitives must come from the same qino instance.`,
         );
       }
     }

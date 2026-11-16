@@ -5,7 +5,7 @@ import { makeDummyQino } from "../../test-utils/make-dummy-qino";
 import { assertQino } from "./assert-qino";
 
 describe("assertQino", () => {
-  test("does not throw for a Qino instance", () => {
+  test("does not throw for a qino instance", () => {
     expect(() => assertQino(makeDummyQino())).not.toThrow();
   });
 

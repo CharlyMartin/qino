@@ -95,7 +95,7 @@ describe("createRelationResolver", () => {
     test("resolves an item reference via getEntry", async () => {
       const target = makeDummyItem({
         file: "config/site.json",
-        data: { siteName: "Qino" },
+        data: { siteName: "qino" },
       });
       const resolver = createRelationResolver(createResolveCache());
 
@@ -113,7 +113,7 @@ describe("createRelationResolver", () => {
         },
       );
 
-      expect(result.site).toMatchObject({ siteName: "Qino" });
+      expect(result.site).toMatchObject({ siteName: "qino" });
     });
 
     test("invokes a lazy target function and resolves the returned target", async () => {
@@ -369,7 +369,7 @@ describe("createRelationResolver", () => {
   });
 
   describe("cross-instance enforcement", () => {
-    test("throws when a relation target was created by a different Qino instance", async () => {
+    test("throws when a relation target was created by a different qino instance", async () => {
       const otherInstanceId = Symbol("qino.other");
       const target = makeDummyCollection({
         directory: "authors",

@@ -2,7 +2,7 @@
 
 The modern headless Markdown CMS.
 
-Qino turns a folder of Markdown, MDX, and JSON files into typed, validated content you can query from any JavaScript app. Your repo is the source of truth: no database, no hosted backend.
+qino turns a folder of Markdown, MDX, and JSON files into typed, validated content you can query from any JavaScript app. Your repo is the source of truth: no database, no hosted backend.
 
 - **Flat-file**: content lives on disk and moves with your code through branches, PRs, and tags.
 - **Typed**: define collections, items, and trees with a schema (Zod or any Standard Schema validator) and get fully inferred types.

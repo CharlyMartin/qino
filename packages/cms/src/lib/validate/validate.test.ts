@@ -15,7 +15,7 @@ describe("validate", () => {
           filePath: "/fixtures/input.md",
         }),
       ).toThrow(
-        `/fixtures/input.md: fields reserved for Qino cannot appear in content or schema output: ${field}.`,
+        `/fixtures/input.md: fields reserved for qino cannot appear in content or schema output: ${field}.`,
       );
     },
   );
@@ -28,7 +28,7 @@ describe("validate", () => {
         filePath: "/fixtures/output.md",
       }),
     ).toThrow(
-      `/fixtures/output.md: fields reserved for Qino cannot appear in content or schema output: ${field}.`,
+      `/fixtures/output.md: fields reserved for qino cannot appear in content or schema output: ${field}.`,
     );
   });
 
@@ -76,7 +76,7 @@ describe("validate", () => {
     ).toThrow(/foo\.bar: bad/);
   });
 
-  test("hints when the schema requires fields Qino adds after validation", () => {
+  test("hints when the schema requires fields qino adds after validation", () => {
     const run = (data: unknown) =>
       validate({
         schema: z.object({
@@ -91,18 +91,18 @@ describe("validate", () => {
       });
 
     expect(() => run({ title: "Hello", nested: {} })).toThrow(
-      "Fields added by Qino after validation cannot be declared in the schema: markdown, raw.",
+      "Fields added by qino after validation cannot be declared in the schema: markdown, raw.",
     );
     expect(() =>
       run({ markdown: "", raw: "", nested: { markdown: "" } }),
-    ).toThrow(/^(?![\s\S]*added by Qino)/);
+    ).toThrow(/^(?![\s\S]*added by qino)/);
     expect(() =>
       validate({
         schema: z.object({ markdown: z.string() }),
         data: {},
         filePath: "/fixtures/post.json",
       }),
-    ).toThrow(/^(?![\s\S]*added by Qino)/);
+    ).toThrow(/^(?![\s\S]*added by qino)/);
   });
 
   test("formats empty/missing paths as (root)", () => {

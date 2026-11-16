@@ -1,15 +1,15 @@
 ---
 name: set-up-qino-cms
-description: Use when adding Qino (@qino/cms) to a JavaScript or TypeScript project, when asked to install, set up, or configure Qino as the Markdown/JSON content layer of an app, when starting a new blog or content site with Qino, or when `qino build` or `qino check` fails during setup.
+description: Use when adding qino (@qino/cms) to a JavaScript or TypeScript project, when asked to install, set up, or configure qino as the Markdown/JSON content layer of an app, when starting a new blog or content site with qino, or when `qino build` or `qino check` fails during setup.
 ---
 
-# Set up Qino CMS
+# Set up qino CMS
 
 If the installed version is newer and an API here doesn't match, the live docs win.
 
 ## Overview
 
-Qino is a flat-file CMS: content lives as `.md`, `.mdx`, `.markdown`, or `.json` files, definitions live in a `qino/` folder, and a `qino` CLI validates everything and generates slug types.
+qino is a flat-file CMS: content lives as `.md`, `.mdx`, `.markdown`, or `.json` files, definitions live in a `qino/` folder, and a `qino` CLI validates everything and generates slug types.
 
 **Done means:** `qino build` exits 0 and, in TypeScript projects, `tsc --noEmit` passes. Don't stop before both.
 
@@ -93,7 +93,7 @@ For new content, follow the starting point chosen in step 1. For existing conten
 | A body with components          | `.mdx`  |
 | Only structured fields, no body | `.json` |
 
-- Use `.mdx` only if the app already renders MDX (e.g. `next-mdx-remote`, `@next/mdx`, `@mdx-js/*`) or the user asks for it. Qino returns the body as a string; the app does the rendering.
+- Use `.mdx` only if the app already renders MDX (e.g. `next-mdx-remote`, `@next/mdx`, `@mdx-js/*`) or the user asks for it. qino returns the body as a string; the app does the rendering.
 - JSON suits relation targets such as authors, categories, and settings.
 - Existing content keeps its extension. If `.md` files never have a body, suggest JSON, but don't convert without the user's agreement.
 
@@ -108,7 +108,7 @@ For new content, follow the starting point chosen in step 1. For existing conten
 All three also take `schema`, and optionally `relations` and `views`.
 
 - Collections read only direct children; nested files are ignored.
-- A tree folder `guides/` needs an anchor file `guides.md` next to it. Qino has no index files. Details: `/guide/content-folder`.
+- A tree folder `guides/` needs an anchor file `guides.md` next to it. qino has no index files. Details: `/guide/content-folder`.
 - Items suit one-off files such as the home page or site settings.
 - One primitive owns one extension. For mixed folders, use the dominant extension and flag the rest.
 
@@ -131,16 +131,16 @@ If they decline, skip the folder and flag it.
 ### Inferring schemas
 
 - **Read every file**, not a sample. A field missing from some files becomes `.optional()`. One that's sometimes `null` becomes `.nullable()`.
-- **Markdown bodies:** model frontmatter only. Qino adds `markdown` (body) and `raw` (source) to every Markdown entry after validation. Never declare them; it's a type error. Files without frontmatter get `z.object({})`.
+- **Markdown bodies:** model frontmatter only. qino adds `markdown` (body) and `raw` (source) to every Markdown entry after validation. Never declare them; it's a type error. Files without frontmatter get `z.object({})`.
 - **YAML is 1.2 core:** unquoted dates arrive as strings (use `z.string()` or `z.iso.date()`, never `z.date()`), and `yes`/`no` are strings. See `/guide/frontmatter`.
 - **Reserved keys:** a top-level `_meta`, or `markdown`/`raw` in Markdown frontmatter, is an error. Tell the user; don't rename them.
-- **YAML syntax errors:** Qino's parser is stricter than some older ones, so files that parsed before may fail (e.g. under-indented continuation lines). Show the file and error and propose a minimal whitespace or quoting fix. Apply it only with the user's agreement. If the error doesn't name the file, parse the folder's files one by one to find it.
+- **YAML syntax errors:** qino's parser is stricter than some older ones, so files that parsed before may fail (e.g. under-indented continuation lines). Show the file and error and propose a minimal whitespace or quoting fix. Apply it only with the user's agreement. If the error doesn't name the file, parse the folder's files one by one to find it.
 
 ### Existing schemas
 
 If the app already validates its content, reuse those schemas instead of inferring new ones. This avoids drift and keeps existing refinements and enums. Adapt them:
 
-- Remove the field that held the body, whatever its name. Never add `markdown` or `raw`: Qino adds them after validation, and declaring them is an error.
+- Remove the field that held the body, whatever its name. Never add `markdown` or `raw`: qino adds them after validation, and declaring them is an error.
 - Replace `z.date()` with an ISO string format, e.g. `z.iso.date()` or `z.iso.datetime()` (or the equivalent in other validators).
 
 ### Shared entities and relations
@@ -159,7 +159,7 @@ Do this directly for new content. For existing content, offer it first and list 
 
 ### Migrating existing content loaders
 
-If the app already reads content with its own code and you replace it with Qino getters:
+If the app already reads content with its own code and you replace it with qino getters:
 
 - **Field mapping:** slug → `_meta.slug`, body → `markdown`. `_meta.filePath` is relative to the working directory, not absolute.
 - **Key transforms:** utilities that rename or filter keys (case conversion, sanitizers) can mangle `_meta`. Exclude it.
@@ -173,7 +173,7 @@ If the app already reads content with its own code and you replace it with Qino 
 - **`.gitignore`.** Add `qino/_generated/`. If `initQino` sets `cloud`, use `qino/_generated/*` plus `!qino/_generated/config.json` instead: that file is meant to be committed. Also exclude `qino/_generated/` from Prettier/Biome, or `qino check` reports `config.json` as out of date.
 - **`tsconfig.json`.** `include` must cover `qino/`. If it's narrowed (e.g. `["src"]`), add `"qino"`.
 - **Frameworks.** See the framework examples at https://www.qino.works/docs/examples. If yours isn't listed, don't invent config.
-- **Runtime.** Qino reads the file system. Call getters only in server code, never in client components or edge runtimes. If pages render on request, the deployed server needs the content folder; check the deploy's file tracing includes it. See `/guide/installation#runtime`.
+- **Runtime.** qino reads the file system. Call getters only in server code, never in client components or edge runtimes. If pages render on request, the deployed server needs the content folder; check the deploy's file tracing includes it. See `/guide/installation#runtime`.
 - **Dynamic routes.** Check route params against `getAllSlugs()` before calling `getEntry(slug)`, and return a 404 if the slug isn't there. Unknown slugs throw a raw file-system error, and unchecked params shouldn't reach the file system.
 
 ## 5. Verify
@@ -184,7 +184,7 @@ Look up each error message at https://www.qino.works/docs/api/errors. The ones s
 
 - `Tree: folder "<path>" is missing its sibling file…`: add the anchor file, or convert the `index.md` layout.
 - `Validation failed for <filePath>:`: make the field optional or fix its type. Don't edit content to fit the schema. YAML syntax errors are different; see "Inferring schemas".
-- `…fields reserved for Qino cannot appear…`: `_meta`, `markdown`, or `raw` in frontmatter or schema output. Flag frontmatter conflicts to the user; drop them from schemas.
+- `…fields reserved for qino cannot appear…`: `_meta`, `markdown`, or `raw` in frontmatter or schema output. Flag frontmatter conflicts to the user; drop them from schemas.
 - `Relation "<key>"…expected value under "<dir>/"…`: the value is a bare slug. Keep it as `z.string()`, or convert it to a path.
 
 Report back:

@@ -13,7 +13,7 @@ describe("assertNoReservedMarkdownFields", () => {
           filePath,
         ),
       ).toThrow(
-        `${filePath}: fields reserved for Qino cannot appear in content or schema output: _meta, markdown, raw.`,
+        `${filePath}: fields reserved for qino cannot appear in content or schema output: _meta, markdown, raw.`,
       );
     },
   );

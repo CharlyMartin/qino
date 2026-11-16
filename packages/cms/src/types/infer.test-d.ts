@@ -215,11 +215,11 @@ test("omitted views have no keys", () => {
 });
 
 test("rejects invalid inputs and unknown view names", () => {
-  // @ts-expect-error A schema is not a Qino primitive.
+  // @ts-expect-error A schema is not a qino primitive.
   expectTypeOf<Infer<typeof schema>>();
-  // @ts-expect-error An arbitrary object is not a Qino primitive.
+  // @ts-expect-error An arbitrary object is not a qino primitive.
   expectTypeOf<Infer<object>>();
-  // @ts-expect-error A Qino instance is not a content primitive.
+  // @ts-expect-error A qino instance is not a content primitive.
   expectTypeOf<Infer<typeof qino>>();
   // @ts-expect-error Only declared named views can be selected.
   expectTypeOf<Infer<typeof posts>["views"]["missing"]>();

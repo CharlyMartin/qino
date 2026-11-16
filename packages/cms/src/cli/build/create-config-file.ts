@@ -16,7 +16,7 @@ export type CreateConfigFileParams = {
 };
 
 /**
- * Serializes `config.json`, the project description read by the Qino cloud
+ * Serializes `config.json`, the project description read by the qino cloud
  * UI: config, cloud config, primitives, JSON Schemas, and relations.
  * Deterministic (sorted, pretty-printed) so it diffs cleanly once committed.
  */

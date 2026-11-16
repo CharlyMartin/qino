@@ -10,7 +10,7 @@ describe("assertNoReservedSchemaFields", () => {
       expect(() =>
         assertNoReservedSchemaFields({ _meta: undefined }, filePath),
       ).toThrow(
-        `${filePath}: fields reserved for Qino cannot appear in content or schema output: _meta.`,
+        `${filePath}: fields reserved for qino cannot appear in content or schema output: _meta.`,
       );
     },
   );

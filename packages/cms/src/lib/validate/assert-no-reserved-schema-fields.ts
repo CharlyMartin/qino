@@ -5,7 +5,7 @@ export function assertNoReservedSchemaFields(data: unknown, filePath: string) {
 
   if (Object.hasOwn(data, META_FIELD_NAME)) {
     throw new Error(
-      `${filePath}: fields reserved for Qino cannot appear in content or schema output: ${META_FIELD_NAME}.`,
+      `${filePath}: fields reserved for qino cannot appear in content or schema output: ${META_FIELD_NAME}.`,
     );
   }
 }

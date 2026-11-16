@@ -94,7 +94,7 @@ describe("_stats", () => {
       extension: ".md",
       markdown: { stats: true },
       views: (view) => ({
-        // @ts-expect-error _stats is added by Qino.
+        // @ts-expect-error _stats is added by qino.
         default: view({ augment: () => ({ _stats: 1 }) }),
       }),
     });

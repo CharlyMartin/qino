@@ -1,6 +1,6 @@
 # @qino/tooling
 
-Schemas and helpers for tools built on [Qino](https://www.qino.works) projects, like the Qino cloud UI.
+Schemas and helpers for tools built on [qino](https://www.qino.works) projects, like the qino cloud UI.
 
 ```sh
 pnpm add @qino/tooling

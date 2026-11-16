@@ -15,7 +15,7 @@ export type PrimitiveInference<S extends ObjectSchema, Meta, Rels, Views> = {
   };
 };
 
-/** The default entry output and named view outputs of a Qino primitive. */
+/** The default entry output and named view outputs of a qino primitive. */
 export type Infer<
   Primitive extends AnyPrimitive & {
     readonly [QinoInference]?: { output: unknown; views: object };

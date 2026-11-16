@@ -26,7 +26,7 @@ type DeclaredKeys<Value> = Value extends unknown
   : never;
 
 // Markdown entries also reserve the body, source, stats, and table of
-// contents Qino adds after validation.
+// contents qino adds after validation.
 type ReservedKeys<Ext extends SupportedFileExtension> =
   | typeof META_FIELD_NAME
   | (Ext extends MarkdownExtension
@@ -52,5 +52,5 @@ export type NoReservedSchemaFields<
 > = [ConflictingKeys<S, Ext>] extends [never]
   ? unknown
   : {
-      readonly "Qino schema contains reserved fields": ConflictingKeys<S, Ext>;
+      readonly "qino schema contains reserved fields": ConflictingKeys<S, Ext>;
     };

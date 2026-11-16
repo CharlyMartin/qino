@@ -9,7 +9,7 @@
       "assertions": [
         "The recommendation is `merge`.",
         "The risk for js-yaml is `low` or `none`.",
-        "The dump fix is marked as not affecting Qino because `dump` is unused.",
+        "The dump fix is marked as not affecting qino because `dump` is unused.",
         "There are no manual checks.",
         "The response does not require a changeset.",
         "The response does not merge, approve or comment on the PR."
@@ -18,7 +18,7 @@
     {
       "id": 2,
       "prompt": "Review this Dependabot PR from this isolated context. Do not inspect the repository, run commands, or edit files. Write the review you would give the user.\n\nContext:\n- PR #302: `build(deps): bump picomatch from 4.0.7 to 4.0.8`.\n- Changed files: `packages/cms/package.json` (`dependencies`), `pnpm-lock.yaml`.\n- Release notes: `security: fix ReDoS in brace expansion (GHSA-xxxx-yyyy-zzzz)`.\n- `@qino/cms` matches user-supplied collection globs with `picomatch` in `packages/cms/src/match-files.ts`.\n- CI is green.",
-      "expected_output": "Claude flags a security fix in a code path Qino uses, asks for a `@qino/cms` patch changeset naming the GHSA, and doesn't recommend a plain merge.",
+      "expected_output": "Claude flags a security fix in a code path qino uses, asks for a `@qino/cms` patch changeset naming the GHSA, and doesn't recommend a plain merge.",
       "files": [],
       "assertions": [
         "The recommendation is `merge-verify` or `investigate`, not `merge`.",

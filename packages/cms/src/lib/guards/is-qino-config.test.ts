@@ -7,7 +7,7 @@ import { makeDummyTree } from "../../test-utils/make-dummy-tree";
 import { isQinoConfig } from "./is-qino-config";
 
 describe("isQinoConfig", () => {
-  test("returns true for a Qino instance", () => {
+  test("returns true for a qino instance", () => {
     expect(isQinoConfig(makeDummyQino())).toBe(true);
   });
 
