@@ -38,7 +38,7 @@ export function ScopeSection() {
           source, MIT-licensed, and runs inside your repo. No service to depend
           on, no account to create.
         </SpecRow>
-        <SpecRow label="Bonus" title="Qino Cloud beta pricing, for life">
+        <SpecRow label="Bonus" title="qino Cloud beta pricing, for life">
           The <TextLink to="/cloud">cloud UI</TextLink> lets non-developers edit
           content and open pull requests from the browser. When it launches, you
           keep beta pricing for as long as you use it.
