@@ -38,21 +38,21 @@ Done when every package the diff bumps has a `{ name, from, to }`.
 
 Dependabot puts release notes, changelogs and commits in the PR body. Use them first. When they're missing or cut off, try `gh release view <tag> --repo <owner>/<repo>`, then `npm view <name>@<to>`.
 
-Record the changes that could matter to Qino, each with a kind:
+Record the changes that could matter to qino, each with a kind:
 
 | Kind       | Use for                                                         |
 | ---------- | --------------------------------------------------------------- |
 | `breaking` | Removed or renamed exports, changed signatures, dropped support |
 | `behavior` | Changed output, side effects, or defaults                       |
 | `security` | A fix with a CVE/GHSA ID; include the ID                        |
-| `fix`      | Bug fixes, especially ones that change output Qino relies on    |
+| `fix`      | Bug fixes, especially ones that change output qino relies on    |
 | `feature`  | New exports, methods, or options                                |
 
 A type-only change counts only when it changes emitted JS.
 
 Done when every package has its changes recorded, or "no changes" once every source came up empty.
 
-## 4. Find how Qino uses each package
+## 4. Find how qino uses each package
 
 Where the bump lands decides who it reaches:
 
@@ -61,25 +61,25 @@ Where the bump lands decides who it reaches:
 | `packages/*` `dependencies`        | Everyone who installs `@qino/cms` at the next release                  |
 | `packages/*` `peerDependencies`    | Everyone who installs `@qino/tooling`: the range they must satisfy     |
 | `packages/*` `devDependencies`     | The build (`tsdown` decides what's in `dist/`) and tests (`vitest`)    |
-| `apps/website`                     | Visitors of the Qino website                                           |
+| `apps/website`                     | Visitors of the qino website                                           |
 | `examples/next-js`                 | The demo app only                                                      |
 | Root `package.json`                | Repo tooling: `turbo`, `biome`, `prettier`, `changesets`, `typescript` |
 | `pnpm-lock.yaml` only (transitive) | Whoever pulls it in: find out with `pnpm why <name> -r`                |
 
-Then find the callsites with `grep -rn "<name>" --include="*.ts" --include="*.tsx" packages apps examples`, and decide for each recorded change whether it touches an API or code path Qino actually calls.
+Then find the callsites with `grep -rn "<name>" --include="*.ts" --include="*.tsx" packages apps examples`, and decide for each recorded change whether it touches an API or code path qino actually calls.
 
 Done when every recorded change has an "affects us" answer backed by a file path, or by a search that found no callsite.
 
 ## 5. Rate the risk of each package
 
-Rate the **change**, not the package. `unified` parses every entry, but a bump is high risk only if it changes what it does for Qino.
+Rate the **change**, not the package. `unified` parses every entry, but a bump is high risk only if it changes what it does for qino.
 
 | Risk     | Meaning                                                                                                |
 | -------- | ------------------------------------------------------------------------------------------------------ |
 | `none`   | Transitive only, types only, data only (such as `simple-icons`), or no used API touched                |
 | `low`    | Bug fixes or additive changes; used APIs unchanged; or tooling only (lint, format, test, build)        |
 | `medium` | A used API changed behavior: parsed entries from `@qino/cms`, the website's rendered pages, or `dist/` |
-| `high`   | A breaking change hits an API Qino uses, or a security fix in a code path Qino uses                    |
+| `high`   | A breaking change hits an API qino uses, or a security fix in a code path qino uses                    |
 
 CI runs on every PR: `pnpm install --frozen-lockfile`, `pnpm build` (which runs `qino build` and builds the website and the example), `pnpm check-types`, `pnpm biome check .`, `check-dist` for both packages (`publint`, `attw`, importing `dist/`), and `pnpm test`. Vercel deploys a preview of the website. Raise the risk only for CI's **blind spots**:
 

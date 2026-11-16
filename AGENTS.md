@@ -4,12 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Qino is a flat-file Markdown CMS. See local-only `SPECS.md` and `specs/**.md` (gitignored) for the design intent (config/collection/page APIs, `qino-lock.json`, CLI commands `qino build` / `qino watch`, generated `.d.ts` types). The repo is in early scaffolding — `examples/` and `packages/` are empty workspaces awaiting the first packages.
+qino is a flat-file Markdown CMS. See local-only `SPECS.md` and `specs/**.md` (gitignored) for the design intent (config/collection/page APIs, `qino-lock.json`, CLI commands `qino build` / `qino watch`, generated `.d.ts` types). The repo is in early scaffolding — `examples/` and `packages/` are empty workspaces awaiting the first packages.
 
 ## Monorepo layout
 
 - pnpm workspaces (`pnpm-workspace.yaml`) + Turborepo (`turbo.json`)
-- `examples/*` — consumer apps (e.g. example/demo Next.js sites that exercise Qino)
+- `examples/*` — consumer apps (e.g. example/demo Next.js sites that exercise qino)
 - `packages/*` — publishable libraries (the `qino` core, CLI, schema helpers, etc.)
 - Node `>=22`, package manager pinned via `packageManager` in `package.json`
 

@@ -31,7 +31,7 @@ Run `pnpm changeset --empty` from the repo root. It creates a randomly named `.m
 
 ## 3. Write the message
 
-The message is the public changelog entry: it becomes the `CHANGELOG.md` entry and the GitHub release notes. Write it for people using Qino in their project, about what they'll notice.
+The message is the public changelog entry: it becomes the `CHANGELOG.md` entry and the GitHub release notes. Write it for people using qino in their project, about what they'll notice.
 
 Start with a present-tense verb that completes "This release…": Adds, Fixes, Removes, Renames, Changes, Improves, Deprecates.
 
