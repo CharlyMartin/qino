@@ -24,7 +24,7 @@
 
 ### Minor Changes
 
-- [#314](https://github.com/CharlyMartin/qino/pull/314) [`c645f24`](https://github.com/CharlyMartin/qino/commit/c645f24d92ec060727b5963691f218f0140cf26f) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Adds `parseFrontmatter` at `@qino/tooling/frontmatter`. It splits a Markdown or MDX file into its YAML frontmatter (`data`) and its `body`, exactly as `qino build` reads it, so tools like the Qino cloud UI read content files the same way. It needs no zod and uses no Node APIs:
+- [#314](https://github.com/CharlyMartin/qino/pull/314) [`c645f24`](https://github.com/CharlyMartin/qino/commit/c645f24d92ec060727b5963691f218f0140cf26f) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Adds `parseFrontmatter` at `@qino/tooling/frontmatter`. It splits a Markdown or MDX file into its YAML frontmatter (`data`) and its `body`, exactly as `qino build` reads it, so tools like the qino cloud UI read content files the same way. It needs no zod and uses no Node APIs:
 
   ```ts
   import { parseFrontmatter } from "@qino/tooling/frontmatter";
@@ -142,7 +142,7 @@
 
 ### Minor Changes
 
-- [#220](https://github.com/CharlyMartin/qino/pull/220) [`53b91dc`](https://github.com/CharlyMartin/qino/commit/53b91dcb2ee6d9c817850ff90e1dd14a39f7b1b3) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Adds `@qino/tooling`, schemas and helpers for tools built on Qino projects, like the Qino cloud UI. Requires `zod` 4 as a peer dependency.
+- [#220](https://github.com/CharlyMartin/qino/pull/220) [`53b91dc`](https://github.com/CharlyMartin/qino/commit/53b91dcb2ee6d9c817850ff90e1dd14a39f7b1b3) Thanks [@CharlyMartin](https://github.com/CharlyMartin)! - Adds `@qino/tooling`, schemas and helpers for tools built on qino projects, like the qino cloud UI. Requires `zod` 4 as a peer dependency.
 
   - `parseConfigFile` validates a generated `qino/_generated/config.json`, dispatching on its `version`. `configFileSchema` and `type ConfigFile` are its zod schema and type.
   - `getEntrySchema` builds a zod schema validating a primitive's entries, from the JSON Schema in `config.json`:
