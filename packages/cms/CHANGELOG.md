@@ -1,5 +1,11 @@
 # @qino/cms
 
+## 0.22.1
+
+### Patch Changes
+
+- [#321](https://github.com/CharlyMartin/qino/pull/321) [`21b6d50`](https://github.com/CharlyMartin/qino/commit/21b6d5098ea1954fb5897d349fce68dcb58625ec) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Changes error messages and type errors to write qino in lowercase, e.g. `fields reserved for qino cannot appear in content or schema output`
+
 ## 0.22.0
 
 ### Minor Changes
