@@ -1,4 +1,4 @@
 {
   "autoReview": ["open"],
-  "excludeAuthors": ["dependabot[bot]"]
+  "excludeAuthors": ["dependabot[bot]", "github-actions[bot]"]
 }
