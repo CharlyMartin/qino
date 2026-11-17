@@ -18,12 +18,13 @@ type FileCacheSlot = {
  * file's inode, mtime, and size are unchanged. A file edited within 2s of a
  * read is compared by content too, until its mtime is old enough to trust, as
  * Git does for "racily clean" files. One slot per path, so edits replace rather
- * than grow it. A rejected load is dropped, so the next read retries it.
+ * than grow it, and a missing file or `retain` drops it. A rejected load is
+ * dropped too, so the next read retries it.
  */
 export function createFileCache() {
   const slots = new Map<string, FileCacheSlot>();
 
-  return { read };
+  return { read, retain };
 
   async function read<Value>(filePath: string, load: FileLoader<Value>) {
     const now = Date.now();
@@ -31,7 +32,10 @@ export function createFileCache() {
     const stats = await fs
       .stat(filePath, { bigint: true })
       .catch(() => undefined);
-    if (!stats) return load(await fs.readFile(filePath, "utf-8"));
+    if (!stats) {
+      slots.delete(filePath);
+      return load(await fs.readFile(filePath, "utf-8"));
+    }
 
     const version = `${stats.ino}:${stats.mtimeNs}:${stats.size}`;
     const recent = now - Number(stats.mtimeMs) < RECENT_EDIT_MS;
@@ -64,5 +68,13 @@ export function createFileCache() {
       if (slots.get(filePath)?.value == value) slots.delete(filePath);
     });
     return value;
+  }
+
+  /** Drops every slot whose path isn't in `filePaths`, such as removed files. */
+  function retain(filePaths: Iterable<string>) {
+    const kept = new Set(filePaths);
+    for (const filePath of slots.keys()) {
+      if (!kept.has(filePath)) slots.delete(filePath);
+    }
   }
 }

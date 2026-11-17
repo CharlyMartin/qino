@@ -46,25 +46,13 @@ describe("paginate", () => {
     );
   });
 
-  test.each([0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY])(
-    "rejects %s as page or perPage",
-    (value) => {
-      expect(() => paginate(items, { page: value, perPage: 2, owner })).toThrow(
-        `${owner}: page must be a positive integer, got ${value}.`,
-      );
-      expect(() => paginate(items, { page: 1, perPage: value, owner })).toThrow(
-        `${owner}: perPage must be a positive integer, got ${value}.`,
-      );
-    },
-  );
-
-  test("names a string or missing value from a JavaScript caller", () => {
-    expect(() =>
-      paginate(items, { page: "2" as never, perPage: 2, owner }),
-    ).toThrow(`${owner}: page must be a positive integer, got "2".`);
-    expect(() =>
-      paginate(items, { page: 1, perPage: undefined as never, owner }),
-    ).toThrow(`${owner}: perPage must be a positive integer, got undefined.`);
+  test("rejects a page or perPage that isn't a positive integer", () => {
+    expect(() => paginate(items, { page: 0, perPage: 2, owner })).toThrow(
+      `${owner}: page must be a positive integer, got 0.`,
+    );
+    expect(() => paginate(items, { page: 1, perPage: 1.5, owner })).toThrow(
+      `${owner}: perPage must be a positive integer, got 1.5.`,
+    );
   });
 
   test("does not change the input", () => {

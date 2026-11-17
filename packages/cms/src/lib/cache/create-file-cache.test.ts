@@ -178,6 +178,61 @@ describe("createFileCache", () => {
     expect(load).not.toHaveBeenCalled();
   });
 
+  describe("dropping removed files", () => {
+    // Moving a file away and back keeps its inode, mtime, and size, so only a
+    // dropped slot makes the next read load it again.
+    async function moveAwayAndBack(between: () => Promise<unknown>) {
+      const awayPath = nodePath.join(tmp, "away.md");
+      await fs.rename(filePath, awayPath);
+      await between();
+      await fs.rename(awayPath, filePath);
+    }
+
+    test("keeps the slot when nothing drops it", async () => {
+      const cache = createFileCache();
+      const load = makeLoader();
+      await touch(filePath, 1_000);
+      await cache.read(filePath, load);
+
+      await moveAwayAndBack(async () => {});
+
+      await cache.read(filePath, load);
+      expect(load).toHaveBeenCalledTimes(1);
+    });
+
+    test("drops the slot of a file a read finds missing", async () => {
+      const cache = createFileCache();
+      const load = makeLoader();
+      await touch(filePath, 1_000);
+      await cache.read(filePath, load);
+
+      await moveAwayAndBack(() =>
+        expect(cache.read(filePath, load)).rejects.toThrow(/ENOENT/),
+      );
+
+      await cache.read(filePath, load);
+      expect(load).toHaveBeenCalledTimes(2);
+    });
+
+    test("retain drops the slots of paths it isn't given", async () => {
+      const cache = createFileCache();
+      const load = makeLoader();
+      const otherPath = nodePath.join(tmp, "other.md");
+      await fs.writeFile(otherPath, "other");
+      await touch(filePath, 1_000);
+      await touch(otherPath, 1_000);
+      await cache.read(filePath, load);
+      await cache.read(otherPath, load);
+
+      await moveAwayAndBack(async () => cache.retain([otherPath]));
+
+      await cache.read(filePath, load);
+      await cache.read(otherPath, load);
+      expect(load).toHaveBeenCalledTimes(3);
+      expect(load).toHaveBeenLastCalledWith("first");
+    });
+  });
+
   test("keeps separate caches apart", async () => {
     const load = makeLoader();
     await touch(filePath, 1_000);

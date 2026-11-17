@@ -556,6 +556,34 @@ describe("getPaginatedEntries", () => {
     ).toEqual(empty);
   });
 
+  test("rejects a bad page or perPage before reading any entry", async () => {
+    await writeMd("a.md", "A");
+    await fs.writeFile(nodePath.join(tmp, "posts", "b.md"), "---\n---\n");
+    const augment = vi.fn(() => ({}));
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
+    const collection = qino.defineCollection({
+      directory: "posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      views: (view) => ({
+        default: view({
+          augment,
+          sort: (a, b) => a.title.localeCompare(b.title),
+        }),
+      }),
+    });
+    const readFile = vi.spyOn(fs, "readFile");
+
+    await expect(
+      collection.getPaginatedEntries(0, { perPage: 2 }),
+    ).rejects.toThrow(/page must be a positive integer, got 0/);
+    await expect(
+      collection.getPaginatedEntries(1, { perPage: 0 }),
+    ).rejects.toThrow(/perPage must be a positive integer, got 0/);
+    expect(readFile).not.toHaveBeenCalled();
+    expect(augment).not.toHaveBeenCalled();
+  });
+
   test("rejects out-of-range pages, invalid sizes, unknown views, and getter callbacks", async () => {
     await writeMd("a.md", "A");
     await writeMd("b.md", "B");
@@ -673,6 +701,29 @@ describe("collection read cache", () => {
     await touch("posts/a.md", 2_000);
 
     expect((await collection.getEntry("a")).title).toBe("Fixed");
+  });
+
+  test("drops a removed file once a listing no longer finds it", async () => {
+    await writeMd("a.md", "A");
+    await touch("posts/a.md", 1_000);
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
+    const parse = vi.fn((post: { title: string }) => post);
+    const collection = qino.defineCollection({
+      directory: "posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }).transform(parse),
+    });
+    await collection.getEntry("a");
+    const postPath = nodePath.join(tmp, "posts/a.md");
+    const awayPath = nodePath.join(tmp, "a.md");
+
+    // Moving it away and back keeps its inode, mtime, and size.
+    await fs.rename(postPath, awayPath);
+    expect(await collection.getAllSlugs()).toEqual([]);
+    await fs.rename(awayPath, postPath);
+
+    await collection.getEntry("a");
+    expect(parse).toHaveBeenCalledTimes(2);
   });
 
   test("keeps top-level writes to a returned entry out of later reads", async () => {

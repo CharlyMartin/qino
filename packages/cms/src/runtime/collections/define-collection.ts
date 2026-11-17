@@ -11,6 +11,7 @@ import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-confi
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
+import { assertPageOptions } from "../../lib/pagination/assert-page-options";
 import { paginate } from "../../lib/pagination/paginate";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
@@ -190,6 +191,10 @@ export function defineCollection<
       absoluteDirPath: collectionDirectory,
       extension,
     });
+    // Frees removed and renamed files, which no read would ask for again.
+    fileCache.retain(
+      paths.map((path) => nodePath.join(collectionDirectory, path)),
+    );
 
     return paths.map((path) => removeExtension(path) as SlugFor<Dir>).sort();
   }
@@ -277,10 +282,13 @@ export function defineCollection<
     const view = selectView(views, options) as CollectionViewDefinition;
     const pageOptions = {
       page,
-      // A JavaScript caller can omit options; paginate names the missing value.
+      // A JavaScript caller can omit options; the check names the missing value.
       perPage: options?.perPage,
       owner: `Collection "${directory}" (view "${options?.view ?? "default"}")`,
     };
+    // Before any read: a bad argument costs nothing and no content error hides
+    // it. The upper bound needs the filtered total, so paginate checks it.
+    assertPageOptions(pageOptions);
 
     // Without filter or sort, the page is known from slugs alone, so only its
     // files are read.
