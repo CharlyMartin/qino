@@ -36,13 +36,16 @@ post._meta.filePath; // absolute path
 
 ## Getters
 
-| Getter                   | Reads content | Applies view | Returns                |
-| ------------------------ | ------------- | ------------ | ---------------------- |
-| `getEntries(options?)`      | all files     | yes          | `Array<Entry>`         |
-| `getEntry(slug, options?)` | one file      | yes          | `Entry`                |
-| `getAllSlugs()`          | no            | no           | `Array<string>` sorted |
+| Getter                               | Reads content                                                 | Applies view | Returns                   |
+| ------------------------------------ | ------------------------------------------------------------- | ------------ | ------------------------- |
+| `getEntries(options?)`               | all files                                                     | yes          | `Array<Entry>`            |
+| `getPaginatedEntries(page, options)` | the page's files, or all files when the view filters or sorts | yes          | `PaginatedEntries<Entry>` |
+| `getEntry(slug, options?)`           | one file                                                      | yes          | `Entry`                   |
+| `getAllSlugs()`                      | no                                                            | no           | `Array<string>` sorted    |
 
-`getEntries` returns entries in discovery order unless the selected view sorts them. `getAllSlugs` is the cheap way to build routes, since it never parses or validates anything.
+`getEntries` returns entries in slug order unless the selected view sorts them. `getPaginatedEntries` returns one page of that order, with its totals. See [getPaginatedEntries](/docs/api/collection/get-paginated-entries). `getAllSlugs` is the cheap way to build routes, since it never parses or validates anything.
+
+Each collection keeps its parsed files between calls and re-reads a file only once it changes. Entries can share nested objects between calls, so treat them as read-only.
 
 ## Filtering and sorting
 
@@ -58,12 +61,14 @@ views: (view) => ({
 }),
 ```
 
-Filtering runs after relation resolution and augmentation. Sorting runs after filtering, for `getEntries` only. `getEntry` throws when the selected view's filter excludes the entry. See [Views](/docs/concepts/views).
+Filtering runs after relation resolution and augmentation. Sorting runs after filtering, for `getEntries` and `getPaginatedEntries` only. `getEntry` throws when the selected view's filter excludes the entry. See [Views](/docs/concepts/views).
 
 Because `getAllSlugs` ignores views, it can list slugs that a filtering default view excludes. When the default view filters, derive route slugs from the viewed set instead:
 
 ```ts title="src/app/posts/[slug]/page.tsx"
-const slugs = (await postCollection.getEntries()).map((post) => post._meta.slug);
+const slugs = (await postCollection.getEntries()).map(
+  (post) => post._meta.slug,
+);
 ```
 
 ## When to reach for something else

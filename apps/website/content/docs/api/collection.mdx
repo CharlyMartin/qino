@@ -66,11 +66,12 @@ type MediaRule = { accepted: MimeType; maxSize: Size; parse?: (value: string, ct
 
 ## Returns
 
-A `Collection` with three getters.
+A `Collection` with four getters.
 
 ### Getters
 
 - [`getEntries(options?)`](/docs/api/collection/get-entries)
+- [`getPaginatedEntries(page, options)`](/docs/api/collection/get-paginated-entries)
 - [`getEntry(slug, options?)`](/docs/api/collection/get-entry)
 - [`getAllSlugs()`](/docs/api/collection/get-all-slugs)
 

@@ -1,1 +1,6 @@
-["get-entries.mdx", "get-entry.mdx", "get-all-slugs.mdx"]
+[
+  "get-entries.mdx",
+  "get-paginated-entries.mdx",
+  "get-entry.mdx",
+  "get-all-slugs.mdx"
+]

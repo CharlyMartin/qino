@@ -36,12 +36,14 @@ Thrown when a `define*` call runs, usually at import.
 
 ## Getter options
 
-| Message                                                                                                | Cause                                             | Fix                              |
-| ------------------------------------------------------------------------------------------------------ | ------------------------------------------------- | -------------------------------- |
-| `Unknown view "<name>". Available views: <names>.`                                                     | `view` not declared. `(none)` when no views exist | Declare it or pick a listed name |
-| `Getter resolveDepth is not supported. Configure resolveDepth in a view and select that view instead.` | `resolveDepth` passed to a getter                 | Configure it in a view           |
-| `Getter filter and sort are not supported. Configure them in a collection view instead.`               | `filter` or `sort` passed to a getter             | Configure them in a view         |
-| `Entry "<slug>" in collection "<directory>" is excluded by view "<view>".`                             | `getEntry` on an entry the view's filter rejects  | Select a view without a filter   |
+| Message                                                                                                | Cause                                               | Fix                                  |
+| ------------------------------------------------------------------------------------------------------ | --------------------------------------------------- | ------------------------------------ |
+| `Unknown view "<name>". Available views: <names>.`                                                     | `view` not declared. `(none)` when no views exist   | Declare it or pick a listed name     |
+| `Getter resolveDepth is not supported. Configure resolveDepth in a view and select that view instead.` | `resolveDepth` passed to a getter                   | Configure it in a view               |
+| `Getter filter and sort are not supported. Configure them in a collection view instead.`               | `filter` or `sort` passed to a getter               | Configure them in a view             |
+| `Entry "<slug>" in collection "<directory>" is excluded by view "<view>".`                             | `getEntry` on an entry the view's filter rejects    | Select a view without a filter       |
+| `Collection "<directory>" (view "<view>"): page <n> is out of range, expected 1 to <pageCount>.`       | `getPaginatedEntries` past the last page            | Link only to pages up to `pageCount` |
+| `Collection "<directory>" (view "<view>"): <page \| perPage> must be a positive integer, got <value>.` | A page or page size of `0`, a fraction, or a string | Convert route params with `Number()` |
 
 ## Parsing and validation
 
