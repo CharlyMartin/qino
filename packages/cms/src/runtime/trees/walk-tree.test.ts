@@ -185,4 +185,80 @@ describe("walkTree", () => {
 
     expect(nodes.map((n) => n.slug)).toEqual(["a"]);
   });
+
+  describe("concurrent reads", () => {
+    // Rejects the named files after their delay, in milliseconds, and reads
+    // the others with the real schema.
+    function makeTimedReader(failures: Record<string, number>) {
+      const read = makeReadParsed(Schema);
+      let active = 0;
+      const reader = {
+        maxActive: 0,
+        async readParsed(filePath: string) {
+          active += 1;
+          reader.maxActive = Math.max(reader.maxActive, active);
+          const name = nodePath.relative(tmp, filePath);
+          await new Promise((resolve) =>
+            setTimeout(resolve, failures[name] ?? 5),
+          );
+          active -= 1;
+          if (name in failures) throw new Error(`${name} failed`);
+          return read(filePath);
+        },
+      };
+      return reader;
+    }
+
+    function walk(reader: ReturnType<typeof makeTimedReader>) {
+      return walkTree({
+        directoryPath: tmp,
+        readParsed: reader.readParsed,
+        extension: ".md",
+        titleField: "title",
+        orderFileName: "_order.json",
+      });
+    }
+
+    test("reads a folder's files at the same time", async () => {
+      for (const name of ["a", "b", "c"]) await writeMd(tmp, name, name);
+      const reader = makeTimedReader({});
+
+      const nodes = await walk(reader);
+
+      expect(nodes.map((n) => n.slug)).toEqual(["a", "b", "c"]);
+      expect(reader.maxActive).toBe(3);
+    });
+
+    test("throws the first failing file by name, not the first to fail", async () => {
+      for (const name of ["a", "b"]) await writeMd(tmp, name, name);
+      const reader = makeTimedReader({ "a.md": 30, "b.md": 0 });
+
+      await expect(walk(reader)).rejects.toThrow("a.md failed");
+    });
+
+    test("throws a subfolder's failure before its parent's files", async () => {
+      await writeMd(tmp, "a", "A");
+      await writeMd(tmp, "guide", "Guide");
+      await fs.mkdir(nodePath.join(tmp, "guide"));
+      await writeMd(nodePath.join(tmp, "guide"), "setup", "Setup");
+      const reader = makeTimedReader({ "a.md": 0, "guide/setup.md": 30 });
+
+      await expect(walk(reader)).rejects.toThrow("guide/setup.md failed");
+    });
+
+    test("nests a subfolder under its sibling file", async () => {
+      await writeMd(tmp, "guide", "Guide");
+      await fs.mkdir(nodePath.join(tmp, "guide"));
+      for (const name of ["setup", "usage"]) {
+        await writeMd(nodePath.join(tmp, "guide"), name, name);
+      }
+
+      const [guide] = await walk(makeTimedReader({}));
+
+      expect(guide?.children.map((n) => n.slug)).toEqual([
+        "guide/setup",
+        "guide/usage",
+      ]);
+    });
+  });
 });
