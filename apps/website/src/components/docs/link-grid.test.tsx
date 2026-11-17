@@ -39,7 +39,9 @@ test("renders a card per link with title and description", async () => {
     },
   ]);
 
-  expect(html).toContain('aria-label="Pages in this section"');
+  expect(html).toContain('<ul aria-label="Pages in this section"');
+  expect(html).not.toContain("<nav");
+  expect(html.match(/<li>/g)).toHaveLength(2);
   expect(html).toContain('href="/docs/guide/cli"');
   expect(html).toContain('href="/docs/guide/installation"');
   expect(html).toContain(">CLI</span>");
@@ -50,5 +52,5 @@ test("renders a card per link with title and description", async () => {
 test("renders nothing without links", async () => {
   const html = await renderLinkGrid([]);
 
-  expect(html).not.toContain("<nav");
+  expect(html).not.toContain("Pages in this section");
 });
