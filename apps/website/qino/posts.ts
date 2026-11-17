@@ -25,5 +25,10 @@ export const postCollection = qino.defineCollection({
     default: view({
       sort: (a, b) => b.publishedOn.localeCompare(a.publishedOn),
     }),
+    // Leaves `author` as a slug: the server bundle can't read its image with sharp.
+    summary: view({
+      resolveDepth: { author: 0 },
+      sort: (a, b) => b.publishedOn.localeCompare(a.publishedOn),
+    }),
   }),
 });

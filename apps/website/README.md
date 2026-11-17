@@ -60,6 +60,15 @@ SEO and LLM endpoints:
 - `/docs/<slug>.md` returns a page as plain Markdown (`src/server/get-docs-markdown.ts`).
   Pages with a "View Markdown" link are prerendered through the crawler; section
   landings are served by the Start runtime. Both stay out of the sitemap.
+- Pages also answer `Accept: text/markdown` (https://acceptmarkdown.com) through the
+  request middleware in `src/start.ts`: `/` returns llms.txt, docs pages their `.md`,
+  and unknown paths a Markdown 404. Other pages stay HTML, or 406 when the request
+  rules HTML out. Responses carry `Vary: Accept`. Vercel serves prerendered pages
+  before the server runs, so `src/lib/get-vercel-routes.ts` sends Markdown requests
+  for `/` and `/docs/*` to the server function. llms.txt reads posts through their
+  `summary` view because the server bundle can't load sharp for author images.
+- Section landings list their pages in a `<ul>`, not a `<nav>`, so text extractors
+  keep them as content.
 - `public/og.png` (1200×630), `public/favicon.svg` and `public/apple-touch-icon.png`
   are referenced from the root route.
 

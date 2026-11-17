@@ -5,7 +5,8 @@ import { buildLlmsTxt } from "../lib/build-llms-txt";
 export async function getLlmsTxt() {
   const [flat, posts] = await Promise.all([
     docsTree.getFlatTree(),
-    postCollection.getEntries(),
+    // Also served at runtime as the homepage's Markdown (src/start.ts).
+    postCollection.getEntries({ view: "summary" }),
   ]);
 
   const links = await Promise.all(

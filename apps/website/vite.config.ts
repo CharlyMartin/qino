@@ -7,6 +7,7 @@ import viteReact from "@vitejs/plugin-react";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 
+import { getVercelRoutes } from "./src/lib/get-vercel-routes.ts";
 import { site } from "./src/lib/site.ts";
 
 export default defineConfig(({ mode }) => ({
@@ -52,6 +53,8 @@ export default defineConfig(({ mode }) => ({
     mode != "test" &&
       nitro({
         compatibilityDate: "2026-09-20",
+        // Prepended to the generated routes, ahead of the file system.
+        vercel: { config: { version: 3, routes: getVercelRoutes() } },
         modules: [
           (nitro) => {
             // qino needs the content files in the deployed server's working directory.
