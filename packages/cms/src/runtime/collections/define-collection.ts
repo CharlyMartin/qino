@@ -6,6 +6,7 @@ import {
   QinoPrimitives,
 } from "../../data/globals";
 import { createFileCache } from "../../lib/cache/create-file-cache";
+import { createInFlightCache } from "../../lib/cache/create-in-flight-cache";
 import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
 import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-config";
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
@@ -155,6 +156,9 @@ export function defineCollection<
   const collectionDirectory = nodePath.join(ctx.contentFolder, directory);
   // Per collection: two collections over one directory can parse it apart.
   const fileCache = createFileCache();
+  // Concurrent reads of one view, such as the pages a build renders at once,
+  // share one listing instead of each resolving and sorting every entry.
+  const listings = createInFlightCache();
 
   const collection = {
     [QinoPrimitiveMarker]: {
@@ -261,11 +265,20 @@ export function defineCollection<
       : filtered;
   }
 
+  // Keyed by name: without views, selectView returns a new default each call.
+  async function listEntries(viewName: string, view: CollectionViewDefinition) {
+    return listings.run(viewName, async () =>
+      shapeEntries(await readEntries(), view),
+    );
+  }
+
   async function getEntries<
     Args extends ViewArguments<ConfiguredViews<Views>> = [],
   >(...[options]: Args) {
     const view = selectView(views, options) as CollectionViewDefinition;
-    return (await shapeEntries(await readEntries(), view)) as Array<
+    const entries = await listEntries(options?.view ?? "default", view);
+    // A copy, so one caller sorting in place leaves the others' order alone.
+    return [...entries] as Array<
       SelectedView<
         S,
         CollectionEntryMeta<Ext>,
@@ -280,11 +293,12 @@ export function defineCollection<
     Options extends PageOptions<ViewNames<ConfiguredViews<Views>> | undefined>,
   >(page: number, options: Options) {
     const view = selectView(views, options) as CollectionViewDefinition;
+    const viewName = options?.view ?? "default";
     const pageOptions = {
       page,
       // A JavaScript caller can omit options; the check names the missing value.
       perPage: options?.perPage,
-      owner: `Collection "${directory}" (view "${options?.view ?? "default"}")`,
+      owner: `Collection "${directory}" (view "${viewName}")`,
     };
     // Before any read: a bad argument costs nothing and no content error hides
     // it. The upper bound needs the filtered total, so paginate checks it.
@@ -294,7 +308,7 @@ export function defineCollection<
     // files are read.
     const result =
       view.filter || view.sort
-        ? paginate(await shapeEntries(await readEntries(), view), pageOptions)
+        ? paginate(await listEntries(viewName, view), pageOptions)
         : await readPage(paginate(await getAllSlugs(), pageOptions), view);
 
     return result as PaginatedEntries<

@@ -673,4 +673,45 @@ describe("tree read cache", () => {
     expect((await tree.getEntry("intro")).title).toBe("Introduction");
     expect((await tree.getTree("intro")).title).toBe("Introduction");
   });
+
+  test("shares one walk between concurrent calls", async () => {
+    await makeDocs();
+    const tree = makeTree();
+    const readdir = vi.spyOn(fs, "readdir");
+
+    const [nodes, next, previous] = await Promise.all([
+      tree.getTree(),
+      tree.getNextNode("guide"),
+      tree.getPreviousNode("intro"),
+      tree.getAncestorNodes("intro"),
+    ]);
+
+    expect(readdir).toHaveBeenCalledTimes(1);
+    expect(nodes.map((node) => node.slug)).toEqual(["guide", "intro"]);
+    expect(next?.slug).toBe("intro");
+    expect(previous?.slug).toBe("guide");
+    readdir.mockRestore();
+  });
+
+  test("walks again for a call after the previous walk finished", async () => {
+    const docs = await makeDocs();
+    const tree = makeTree();
+    await tree.getTree();
+
+    await writeMd(docs, "intro", "Getting started");
+    await touch(nodePath.join(docs, "intro.md"), 2_000);
+
+    expect((await tree.getTree("intro")).title).toBe("Getting started");
+  });
+
+  test("gives each concurrent call its own nodes", async () => {
+    await makeDocs();
+    const tree = makeTree();
+
+    const [first, second] = await Promise.all([tree.getTree(), tree.getTree()]);
+    (first[0] as Doc).title = "Changed";
+    first.reverse();
+
+    expect(second.map((node) => node.title)).toEqual(["Guide", "Introduction"]);
+  });
 });
