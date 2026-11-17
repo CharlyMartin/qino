@@ -5,6 +5,8 @@ import { z } from "zod";
 import { initQino } from "../runtime/qino/init-qino";
 import type { AnyCollection } from "./collection";
 
+type RawPageOptions = { view?: "raw"; perPage: number };
+
 const qino = initQino({
   contentFolder: "content",
   mediaFolder: "public",
@@ -46,7 +48,7 @@ test("returns the selected view's entries with page totals", async () => {
 });
 
 test("an optional view selection can return the default view", async () => {
-  const options: { view?: "raw"; perPage: number } = { perPage: 10 };
+  const options: RawPageOptions = { perPage: 10 };
   const page = await posts.getPaginatedEntries(1, options);
   // @ts-expect-error The default view resolves author to an object.
   page.entries[0]?.author.toUpperCase();
