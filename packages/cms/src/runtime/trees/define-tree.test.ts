@@ -26,6 +26,8 @@ afterEach(async () => {
 
 const Schema = z.object({ title: z.string() }).strict();
 
+type Doc = z.infer<typeof Schema>;
+
 async function writeMd(
   dir: string,
   name: string,
@@ -558,7 +560,7 @@ describe("tree read cache", () => {
     return docs;
   }
 
-  function makeTree(parse = vi.fn((doc: { title: string }) => doc)) {
+  function makeTree(parse = vi.fn((doc: Doc) => doc)) {
     return defineTree({
       directory: "docs",
       schema: Schema.transform(parse),
@@ -569,7 +571,7 @@ describe("tree read cache", () => {
 
   test("shares one parse per file between tree walks and entry reads", async () => {
     await makeDocs();
-    const parse = vi.fn((doc: { title: string }) => doc);
+    const parse = vi.fn((doc: Doc) => doc);
     const tree = makeTree(parse);
 
     await tree.getTree();
@@ -623,7 +625,7 @@ describe("tree read cache", () => {
 
   test("drops a removed file once a walk no longer finds it", async () => {
     const docs = await makeDocs();
-    const parse = vi.fn((doc: { title: string }) => doc);
+    const parse = vi.fn((doc: Doc) => doc);
     const tree = makeTree(parse);
     await tree.getEntry("intro");
     const docPath = nodePath.join(docs, "intro.md");
@@ -638,6 +640,27 @@ describe("tree read cache", () => {
 
     await tree.getEntry("intro");
     expect(parse).toHaveBeenCalledTimes(3);
+  });
+
+  test("gives each JSON file its own metadata when the schema returns a shared object", async () => {
+    const docs = nodePath.join(tmp, "docs");
+    await fs.mkdir(docs);
+    for (const name of ["a", "b"]) {
+      await fs.writeFile(
+        nodePath.join(docs, `${name}.json`),
+        JSON.stringify({ title: name }),
+      );
+    }
+    const shared = { title: "Shared" };
+    const tree = defineTree({
+      directory: "docs",
+      schema: z.object({ title: z.string() }).transform(() => shared),
+      extension: ".json",
+      titleField: "title",
+    });
+
+    expect((await tree.getEntry("a"))._meta.slug).toBe("a");
+    expect((await tree.getEntry("b"))._meta.slug).toBe("b");
   });
 
   test("keeps top-level writes to a returned entry out of later reads", async () => {

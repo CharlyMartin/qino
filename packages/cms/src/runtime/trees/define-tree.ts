@@ -249,16 +249,16 @@ export function defineTree<
   }
 
   async function readParsed(filePath: string) {
-    return fileCache.read(
-      filePath,
-      async (data) =>
-        parseFile({
-          schema,
-          data,
-          filePath,
-          validatorFn: validate,
-        }) as Record<string, unknown>,
-    );
+    // A copy per file: the entry cache keys on this object, and a JSON schema
+    // transform can return one object, such as a lookup, for several files.
+    return fileCache.read(filePath, async (data) => ({
+      ...(parseFile({
+        schema,
+        data,
+        filePath,
+        validatorFn: validate,
+      }) as Record<string, unknown>),
+    }));
   }
 
   async function addMarkdownFields(

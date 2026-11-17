@@ -7,6 +7,8 @@ import { z } from "zod";
 
 import { initQino } from "../qino/init-qino";
 
+type Home = { title: string };
+
 let tmp: string;
 
 beforeEach(async () => {
@@ -54,7 +56,7 @@ describe("item read cache", () => {
     await fs.utimes(filePath, seconds, seconds);
   }
 
-  function makeItem(parse = vi.fn((home: { title: string }) => home)) {
+  function makeItem(parse = vi.fn((home: Home) => home)) {
     const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     return qino.defineItem({
       file: "pages/home.md",
@@ -64,7 +66,7 @@ describe("item read cache", () => {
 
   test("reuses the parsed file between reads", async () => {
     await writeHome("Home", 1_000);
-    const parse = vi.fn((home: { title: string }) => home);
+    const parse = vi.fn((home: Home) => home);
     const item = makeItem(parse);
 
     await item.getEntry();

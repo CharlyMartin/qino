@@ -2,8 +2,10 @@ import { describe, expect, test, vi } from "vitest";
 
 import { createDerivedCache } from "./create-derived-cache";
 
+type Source = { title: string };
+
 function makeDerive() {
-  return vi.fn(async (source: { title: string }) => source.title.toUpperCase());
+  return vi.fn(async (source: Source) => source.title.toUpperCase());
 }
 
 describe("createDerivedCache", () => {
