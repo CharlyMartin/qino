@@ -16,27 +16,42 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+  vi.restoreAllMocks();
   await fs.rm(tmp, { recursive: true, force: true });
 });
 
-// Back-to-back writes can share an mtime, so tests move it explicitly.
+// Back-to-back writes can share an mtime, so tests set it explicitly.
 async function touch(path: string, seconds: number) {
   await fs.utimes(path, seconds, seconds);
 }
 
-describe("createFileCache", () => {
-  test("loads once while the file is unchanged", async () => {
-    const cache = createFileCache();
-    const load = vi.fn(() => fs.readFile(filePath, "utf-8"));
+// Whole seconds, so a later touch restores the exact same mtime.
+function recentSeconds() {
+  return Math.floor(Date.now() / 1_000);
+}
 
-    expect(await cache.read(filePath, load)).toBe("first");
-    expect(await cache.read(filePath, load)).toBe("first");
+function makeLoader() {
+  return vi.fn(async (data: string) => data.toUpperCase());
+}
+
+describe("createFileCache", () => {
+  test("loads from the file's text once while the file is unchanged", async () => {
+    const cache = createFileCache();
+    const load = makeLoader();
+    await touch(filePath, 1_000);
+    const readFile = vi.spyOn(fs, "readFile");
+
+    expect(await cache.read(filePath, load)).toBe("FIRST");
+    expect(await cache.read(filePath, load)).toBe("FIRST");
     expect(load).toHaveBeenCalledTimes(1);
+    expect(load).toHaveBeenCalledWith("first");
+    expect(readFile).toHaveBeenCalledTimes(1);
   });
 
   test("shares one pending load between concurrent reads", async () => {
     const cache = createFileCache();
-    const load = vi.fn(() => fs.readFile(filePath, "utf-8"));
+    const load = makeLoader();
+    await touch(filePath, 1_000);
 
     await Promise.all([cache.read(filePath, load), cache.read(filePath, load)]);
     expect(load).toHaveBeenCalledTimes(1);
@@ -44,32 +59,32 @@ describe("createFileCache", () => {
 
   test("reloads after the mtime changes", async () => {
     const cache = createFileCache();
-    const load = vi.fn(() => fs.readFile(filePath, "utf-8"));
+    const load = makeLoader();
     await touch(filePath, 1_000);
     await cache.read(filePath, load);
 
     await fs.writeFile(filePath, "other");
     await touch(filePath, 2_000);
 
-    expect(await cache.read(filePath, load)).toBe("other");
+    expect(await cache.read(filePath, load)).toBe("OTHER");
     expect(load).toHaveBeenCalledTimes(2);
   });
 
   test("reloads after the size changes, even with the same mtime", async () => {
     const cache = createFileCache();
-    const load = vi.fn(() => fs.readFile(filePath, "utf-8"));
+    const load = makeLoader();
     await touch(filePath, 1_000);
     await cache.read(filePath, load);
 
     await fs.writeFile(filePath, "longer content");
     await touch(filePath, 1_000);
 
-    expect(await cache.read(filePath, load)).toBe("longer content");
+    expect(await cache.read(filePath, load)).toBe("LONGER CONTENT");
   });
 
   test("reloads after an atomic replace keeps the mtime and size", async () => {
     const cache = createFileCache();
-    const load = vi.fn(() => fs.readFile(filePath, "utf-8"));
+    const load = makeLoader();
     await touch(filePath, 1_000);
     await cache.read(filePath, load);
 
@@ -78,14 +93,71 @@ describe("createFileCache", () => {
     await touch(tempPath, 1_000);
     await fs.rename(tempPath, filePath);
 
-    expect(await cache.read(filePath, load)).toBe("third");
+    expect(await cache.read(filePath, load)).toBe("THIRD");
+  });
+
+  test("reloads a recent same-size rewrite that keeps every stat", async () => {
+    const cache = createFileCache();
+    const load = makeLoader();
+    const seconds = recentSeconds();
+    await touch(filePath, seconds);
+    await cache.read(filePath, load);
+
+    await fs.writeFile(filePath, "other");
+    await touch(filePath, seconds);
+
+    expect(await cache.read(filePath, load)).toBe("OTHER");
+    expect(load).toHaveBeenCalledTimes(2);
+  });
+
+  test("shares one reload between concurrent reads of a same-stat rewrite", async () => {
+    const cache = createFileCache();
+    const load = makeLoader();
+    const seconds = recentSeconds();
+    await touch(filePath, seconds);
+    await cache.read(filePath, load);
+
+    await fs.writeFile(filePath, "other");
+    await touch(filePath, seconds);
+    const reads = Array.from({ length: 20 }, () => cache.read(filePath, load));
+
+    expect(new Set(await Promise.all(reads))).toEqual(new Set(["OTHER"]));
+    expect(load).toHaveBeenCalledTimes(2);
+  });
+
+  test("compares a recent file's text instead of reloading it when unchanged", async () => {
+    const cache = createFileCache();
+    const load = makeLoader();
+    await touch(filePath, recentSeconds());
+    const readFile = vi.spyOn(fs, "readFile");
+
+    await cache.read(filePath, load);
+    expect(await cache.read(filePath, load)).toBe("FIRST");
+    expect(load).toHaveBeenCalledTimes(1);
+    expect(readFile).toHaveBeenCalledTimes(2);
+  });
+
+  test("trusts a recent file's stats again once its mtime is old enough", async () => {
+    const cache = createFileCache();
+    const load = makeLoader();
+    const seconds = recentSeconds();
+    await touch(filePath, seconds);
+    await cache.read(filePath, load);
+    const readFile = vi.spyOn(fs, "readFile");
+
+    vi.spyOn(Date, "now").mockReturnValue(seconds * 1_000 + 5_000);
+    await cache.read(filePath, load);
+    await cache.read(filePath, load);
+
+    expect(readFile).toHaveBeenCalledTimes(1);
+    expect(load).toHaveBeenCalledTimes(1);
   });
 
   test("drops a rejected load so the next read retries", async () => {
     const cache = createFileCache();
     const failure = new Error("Parse failed");
     const load = vi
-      .fn<() => Promise<string>>()
+      .fn<(data: string) => Promise<string>>()
       .mockRejectedValueOnce(failure)
       .mockResolvedValueOnce("recovered");
 
@@ -94,18 +166,21 @@ describe("createFileCache", () => {
     expect(load).toHaveBeenCalledTimes(2);
   });
 
-  test("leaves a missing file to the loader without caching", async () => {
+  test("throws readFile's error for a missing file without caching", async () => {
     const cache = createFileCache();
     const missing = nodePath.join(tmp, "missing.md");
-    const load = vi.fn(() => fs.readFile(missing, "utf-8"));
+    const load = makeLoader();
 
+    await expect(cache.read(missing, load)).rejects.toThrow(
+      /ENOENT: no such file or directory, open/,
+    );
     await expect(cache.read(missing, load)).rejects.toThrow(/ENOENT/);
-    await expect(cache.read(missing, load)).rejects.toThrow(/ENOENT/);
-    expect(load).toHaveBeenCalledTimes(2);
+    expect(load).not.toHaveBeenCalled();
   });
 
   test("keeps separate caches apart", async () => {
-    const load = vi.fn(() => fs.readFile(filePath, "utf-8"));
+    const load = makeLoader();
+    await touch(filePath, 1_000);
 
     await createFileCache().read(filePath, load);
     await createFileCache().read(filePath, load);

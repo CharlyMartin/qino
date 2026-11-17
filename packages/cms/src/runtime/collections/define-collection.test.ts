@@ -649,6 +649,19 @@ describe("collection read cache", () => {
     ]);
   });
 
+  test("re-reads a just-edited file whose rewrite keeps its size and mtime", async () => {
+    const seconds = Math.floor(Date.now() / 1_000);
+    await writeMd("a.md", "Before");
+    await touch("posts/a.md", seconds);
+    const collection = makeCollection();
+    expect((await collection.getEntry("a")).title).toBe("Before");
+
+    await writeMd("a.md", "After!");
+    await touch("posts/a.md", seconds);
+
+    expect((await collection.getEntry("a")).title).toBe("After!");
+  });
+
   test("does not cache a file that fails validation", async () => {
     await fs.mkdir(nodePath.join(tmp, "posts"));
     await fs.writeFile(nodePath.join(tmp, "posts/a.md"), "---\n---\n");

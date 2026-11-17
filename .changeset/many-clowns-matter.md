@@ -17,4 +17,8 @@ When the view has no `filter` and no `sort`, only that page's files are read. A 
 
 #### Parsed files are cached
 
-Collections now keep each file's parsed, validated entry between calls, and re-read a file only once it changes. Repeated `getEntries` and `getPaginatedEntries` calls, such as one per static page, no longer parse and validate every file again. Images, relations, and views still run on every call. Entries can now share nested objects between calls, so treat them as read-only.
+Collections now keep each file's parsed, validated entry between calls, and re-read a file only once it changes. Repeated `getEntries` and `getPaginatedEntries` calls, such as one per static page, no longer parse and validate every file again. Images, relations, and views still run on every call.
+
+- A file counts as changed when its size, modification time, or inode changes. For 2 seconds after an edit, its content is compared too.
+- Entries can now share nested objects between calls, so treat them as read-only.
+- A schema transform that reads data outside its own file, such as another file, runs again only when that file changes. Move that work to a view's `augment`, which runs on every call.

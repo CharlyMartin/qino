@@ -1,4 +1,3 @@
-import fs from "node:fs/promises";
 import nodePath from "node:path";
 
 import {
@@ -201,7 +200,9 @@ export function defineCollection<
       relativePath: `${slug}${extension}`,
       extension,
     });
-    const entry = await fileCache.read(meta.filePath, () => parseEntry(meta));
+    const entry = await fileCache.read(meta.filePath, (data) =>
+      parseEntry(meta, data),
+    );
     // Images are read per call: an edited image keeps its entry's cache key.
     // The copy keeps top-level writes to a returned entry out of the cache.
     return (await resolveEntryMedia({
@@ -213,8 +214,7 @@ export function defineCollection<
   }
 
   // Everything here depends on the file alone, so it's cached by file.
-  async function parseEntry(meta: CollectionEntryMeta<Ext>) {
-    const data = await fs.readFile(meta.filePath, "utf-8");
+  async function parseEntry(meta: CollectionEntryMeta<Ext>, data: string) {
     const entry = {
       ...parseFile({
         schema,
