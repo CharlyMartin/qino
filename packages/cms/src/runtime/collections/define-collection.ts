@@ -6,11 +6,13 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
+import { createFileCache } from "../../lib/cache/create-file-cache";
 import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
 import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-config";
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
+import { paginate } from "../../lib/pagination/paginate";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { removeExtension } from "../../lib/paths/remove-extension";
@@ -29,6 +31,7 @@ import type {
 import type {
   Collection,
   CollectionEntryMeta,
+  PaginatedEntries,
   ResolvedCollectionView,
 } from "../../types/collection";
 import type {
@@ -53,6 +56,7 @@ import type {
   ContentPath,
   EmptyObject,
   NoLeadingSlash,
+  PageOptions,
   Slug,
   SupportedFileExtension,
 } from "../../types/utils";
@@ -61,6 +65,7 @@ import type {
   RootViewSettings,
   SelectedView,
   ViewArguments,
+  ViewNames,
   ViewSelection,
   ViewsConfig,
 } from "../../types/views";
@@ -148,6 +153,8 @@ export function defineCollection<
   const views = buildViews(params.views, "collection", collectionRelations);
   const defaultResolveDepth = views?.default.resolveDepth ?? {};
   const collectionDirectory = nodePath.join(ctx.contentFolder, directory);
+  // Per collection: two collections over one directory can parse it apart.
+  const fileCache = createFileCache();
 
   const collection = {
     [QinoPrimitiveMarker]: {
@@ -166,6 +173,7 @@ export function defineCollection<
       readEntry,
     },
     getEntries,
+    getPaginatedEntries,
     getAllSlugs,
     getEntry,
   } as const satisfies Collection<
@@ -193,6 +201,19 @@ export function defineCollection<
       relativePath: `${slug}${extension}`,
       extension,
     });
+    const entry = await fileCache.read(meta.filePath, () => parseEntry(meta));
+    // Images are read per call: an edited image keeps its entry's cache key.
+    // The copy keeps top-level writes to a returned entry out of the cache.
+    return (await resolveEntryMedia({
+      entry: { ...entry },
+      media,
+      mediaFolder: ctx.mediaFolder,
+      filePath: meta.filePath,
+    })) as ResolvedCollectionView<S, Ext, TaggedRels>;
+  }
+
+  // Everything here depends on the file alone, so it's cached by file.
+  async function parseEntry(meta: CollectionEntryMeta<Ext>) {
     const data = await fs.readFile(meta.filePath, "utf-8");
     const entry = {
       ...parseFile({
@@ -203,33 +224,23 @@ export function defineCollection<
       }),
       [META_FIELD_NAME]: meta,
     };
-    return (await resolveEntryMedia({
-      entry: await addEntryToc({
-        entry: await addEntryStats({ entry, markdownStats: markdown.stats }),
-        markdownToc: markdown.toc,
-        extension,
-      }),
-      media,
-      mediaFolder: ctx.mediaFolder,
-      filePath: meta.filePath,
-    })) as ResolvedCollectionView<S, Ext, TaggedRels>;
-  }
-
-  async function readEntries() {
-    const paths = await globCollectionPaths({
-      absoluteDirPath: collectionDirectory,
+    return addEntryToc({
+      entry: await addEntryStats({ entry, markdownStats: markdown.stats }),
+      markdownToc: markdown.toc,
       extension,
     });
-    return Promise.all(
-      paths.map((path) => readEntry(path.slice(0, -extension.length))),
-    );
   }
 
-  async function getEntries<
-    Args extends ViewArguments<ConfiguredViews<Views>> = [],
-  >(...[options]: Args) {
-    const view = selectView(views, options) as CollectionViewDefinition;
-    const entries = await readEntries();
+  // Slug order, so unsorted views and sort ties page the same on every call.
+  async function readEntries() {
+    const slugs = await getAllSlugs();
+    return Promise.all(slugs.map((slug) => readEntry(slug)));
+  }
+
+  async function shapeEntries(
+    entries: Array<ResolvedCollectionView<S, Ext, TaggedRels>>,
+    view: CollectionViewDefinition,
+  ) {
     const augmented = await applyView(
       entries,
       view,
@@ -240,11 +251,16 @@ export function defineCollection<
     const filtered = filter
       ? augmented.filter((entry) => filter(entry as never))
       : augmented;
-    return (
-      sort
-        ? filtered.toSorted((a, b) => sort(a as never, b as never))
-        : filtered
-    ) as Array<
+    return sort
+      ? filtered.toSorted((a, b) => sort(a as never, b as never))
+      : filtered;
+  }
+
+  async function getEntries<
+    Args extends ViewArguments<ConfiguredViews<Views>> = [],
+  >(...[options]: Args) {
+    const view = selectView(views, options) as CollectionViewDefinition;
+    return (await shapeEntries(await readEntries(), view)) as Array<
       SelectedView<
         S,
         CollectionEntryMeta<Ext>,
@@ -253,6 +269,45 @@ export function defineCollection<
         ViewSelection<Args[0]>
       >
     >;
+  }
+
+  async function getPaginatedEntries<
+    Options extends PageOptions<ViewNames<ConfiguredViews<Views>> | undefined>,
+  >(page: number, options: Options) {
+    const view = selectView(views, options) as CollectionViewDefinition;
+    const pageOptions = {
+      page,
+      // A JavaScript caller can omit options; paginate names the missing value.
+      perPage: options?.perPage,
+      owner: `Collection "${directory}" (view "${options?.view ?? "default"}")`,
+    };
+
+    // Without filter or sort, the page is known from slugs alone, so only its
+    // files are read.
+    const result =
+      view.filter || view.sort
+        ? paginate(await shapeEntries(await readEntries(), view), pageOptions)
+        : await readPage(paginate(await getAllSlugs(), pageOptions), view);
+
+    return result as PaginatedEntries<
+      SelectedView<
+        S,
+        CollectionEntryMeta<Ext>,
+        TaggedRels,
+        ConfiguredViews<Views>,
+        ViewSelection<Options>
+      >
+    >;
+  }
+
+  async function readPage(
+    slugPage: PaginatedEntries<Slug>,
+    view: CollectionViewDefinition,
+  ) {
+    const entries = await Promise.all(
+      slugPage.entries.map((slug) => readEntry(slug)),
+    );
+    return { ...slugPage, entries: await shapeEntries(entries, view) };
   }
 
   async function getEntry<

@@ -1,5 +1,9 @@
 export { initQino } from "./runtime/qino/init-qino";
-export type { Collection, CollectionEntryMeta } from "./types/collection";
+export type {
+  Collection,
+  CollectionEntryMeta,
+  PaginatedEntries,
+} from "./types/collection";
 export type { Infer } from "./types/infer";
 export type { Item, ItemEntryMeta } from "./types/item";
 export type { MarkdownConfig } from "./types/markdown-config";
