@@ -45,7 +45,7 @@ post._meta.filePath; // absolute path
 
 `getEntries` returns entries in slug order unless the selected view sorts them. `getPaginatedEntries` returns one page of that order, with its totals. See [getPaginatedEntries](/docs/api/collection/get-paginated-entries). `getAllSlugs` is the cheap way to build routes, since it never parses or validates anything.
 
-Each collection keeps its parsed files between calls and re-reads a file only once it changes. Entries can share nested objects between calls, so treat them as read-only.
+Each collection keeps its parsed files between calls and re-reads a file only once it changes. Entries can share nested objects between calls, so treat them as read-only. See [Entry pipeline](/docs/concepts/pipeline) for what counts as a change.
 
 ## Filtering and sorting
 
