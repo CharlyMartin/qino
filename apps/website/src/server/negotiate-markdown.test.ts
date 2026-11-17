@@ -39,6 +39,16 @@ test("answers Accept: text/markdown with the page's Markdown", async () => {
   expect(next).not.toHaveBeenCalled();
 });
 
+test("serves a docs page requested with a trailing slash", async () => {
+  const response = await negotiateMarkdown({
+    request: request("/docs/guide/cli/", { headers: markdownHeaders }),
+    next: html(),
+  });
+
+  expect(response.status).toBe(200);
+  expect(await response.text()).toBe(await getDocsMarkdown("guide/cli"));
+});
+
 test("serves the homepage as Markdown", async () => {
   const response = await negotiateMarkdown({
     request: request("/", { headers: markdownHeaders }),

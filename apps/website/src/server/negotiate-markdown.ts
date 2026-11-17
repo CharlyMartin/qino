@@ -14,7 +14,8 @@ export async function negotiateMarkdown({
   request,
   next,
 }: NegotiateMarkdownOptions) {
-  const { pathname } = new URL(request.url);
+  // Pages also render with a trailing slash (`/docs/guide/`), so look them up without it.
+  const pathname = new URL(request.url).pathname.replace(/(?<=.)\/+$/, "");
   const isPage = !pathname.split("/").at(-1)?.includes(".");
   if (!isPage || (request.method != "GET" && request.method != "HEAD")) {
     return next();
