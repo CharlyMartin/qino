@@ -21,6 +21,8 @@ Steps 5 to 8 come from the selected view. See [Views](/docs/concepts/views).
 
 Collections, trees, and items cache steps 1 to 3 per file between calls, and redo them only once the file changes. Tree walks, such as `getTree` and `getNextNode`, read steps 1 and 2 from the same cache, so a page that renders a sidebar and its entry parses each file once. Images, relations, and views run on every call. Entries can share nested objects between calls, so treat them as read-only.
 
+Calls that run at the same time share their work. `getEntries` and `getPaginatedEntries` calls for one view share one listing, and tree walks share one walk, so the pages a build renders at once resolve, filter, and sort the entries once. Each call still gets its own array, and its own tree nodes. A call that starts while another one is running gets that run's result, so an edit made during it shows up from the next call on.
+
 A file counts as changed when its size, modification time, or inode changes. For 2 seconds after an edit, qino also compares its content, because some file systems record modification times only to the second or two. A file rewritten in place with the same size, then given back its old modification time, by a script for example, is still served from the cache.
 
 The cache follows each file, not what its schema reads. A schema transform that reads another file, or anything else outside the entry, runs again only when the entry's own file changes. Read that data in a view's `augment` instead, which runs on every call.
