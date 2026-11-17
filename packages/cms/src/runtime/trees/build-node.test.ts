@@ -5,6 +5,7 @@ import nodePath from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
+import { makeReadParsed } from "../../test-utils/make-read-parsed";
 import { buildNode } from "./build-node";
 
 let tmp: string;
@@ -30,7 +31,7 @@ describe("buildNode", () => {
     });
 
     const node = await buildNode({
-      schema,
+      readParsed: makeReadParsed(schema),
       extension: ".md",
       titleField: "title",
       filePath,
@@ -59,7 +60,7 @@ describe("buildNode", () => {
     });
 
     const node = await buildNode({
-      schema,
+      readParsed: makeReadParsed(schema),
       extension: ".md",
       titleField: "label",
       filePath,
@@ -83,7 +84,7 @@ describe("buildNode", () => {
 
     await expect(
       buildNode({
-        schema,
+        readParsed: makeReadParsed(schema),
         extension: ".md",
         titleField: "title",
         filePath,

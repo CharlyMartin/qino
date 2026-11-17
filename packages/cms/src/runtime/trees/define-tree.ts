@@ -1,4 +1,3 @@
-import fs from "node:fs/promises";
 import nodePath from "node:path";
 
 import {
@@ -7,6 +6,8 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
+import { createDerivedCache } from "../../lib/cache/create-derived-cache";
+import { createFileCache } from "../../lib/cache/create-file-cache";
 import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
 import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-config";
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
@@ -165,6 +166,10 @@ export function defineTree<
   const defaultResolveDepth = views?.default.resolveDepth ?? {};
   const resolvedOrderFileName = orderFileName ?? DEFAULT_ORDER_FILE_NAME;
   const directoryPath = nodePath.join(ctx.contentFolder, directory);
+  // Parsed files are shared by tree walks and entry reads. Stats and the table
+  // of contents, which only entry reads need, are derived once per parse.
+  const fileCache = createFileCache();
+  const entryCache = createDerivedCache();
 
   const tree = {
     [QinoPrimitiveMarker]: {
@@ -206,11 +211,13 @@ export function defineTree<
   async function getTree(slug?: Slug) {
     const nodes = await walkTree({
       directoryPath,
-      schema,
+      readParsed,
       extension,
       titleField,
       orderFileName: resolvedOrderFileName,
     });
+    // A walk lists every file, so it frees removed and renamed ones.
+    fileCache.retain(flattenTree(nodes).map((node) => node.filePath));
 
     if (typeof slug == "undefined") return nodes;
     return findNode(nodes, slug, directory);
@@ -227,27 +234,43 @@ export function defineTree<
       extension,
     });
 
-    const raw = await fs.readFile(meta.filePath, "utf-8");
-
-    const entry = {
-      [META_FIELD_NAME]: meta,
-      ...parseFile({
-        schema,
-        data: raw,
-        filePath: meta.filePath,
-        validatorFn: validate,
-      }),
-    };
+    const parsed = await readParsed(meta.filePath);
+    const entry = await entryCache.read(parsed, () =>
+      addMarkdownFields(meta, parsed),
+    );
+    // Images are read per call: an edited image keeps its entry's cache key.
+    // The copy keeps top-level writes to a returned entry out of the cache.
     return (await resolveEntryMedia({
-      entry: await addEntryToc({
-        entry: await addEntryStats({ entry, markdownStats: markdown.stats }),
-        markdownToc: markdown.toc,
-        extension,
-      }),
+      entry: { ...entry },
       media,
       mediaFolder: ctx.mediaFolder,
       filePath: meta.filePath,
     })) as ResolvedTreeEntry<S, Ext, TaggedRels>;
+  }
+
+  async function readParsed(filePath: string) {
+    return fileCache.read(
+      filePath,
+      async (data) =>
+        parseFile({
+          schema,
+          data,
+          filePath,
+          validatorFn: validate,
+        }) as Record<string, unknown>,
+    );
+  }
+
+  async function addMarkdownFields(
+    meta: TreeEntryMeta<Ext>,
+    parsed: Record<string, unknown>,
+  ) {
+    const entry = { [META_FIELD_NAME]: meta, ...parsed };
+    return addEntryToc({
+      entry: await addEntryStats({ entry, markdownStats: markdown.stats }),
+      markdownToc: markdown.toc,
+      extension,
+    });
   }
 
   async function getEntry<

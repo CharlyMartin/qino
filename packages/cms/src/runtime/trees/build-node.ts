@@ -1,14 +1,15 @@
-import fs from "node:fs/promises";
 import nodePath from "node:path";
 
-import { parseFile } from "../../lib/parse/parse-file";
-import { validate } from "../../lib/validate/validate";
-import type { ObjectSchema } from "../../types/schema";
 import type { TreeNode } from "../../types/tree";
 import type { Slug, SupportedFileExtension } from "../../types/utils";
 
+/** Reads a tree file and returns its validated schema output. */
+export type ReadParsedFile = (
+  filePath: string,
+) => Promise<Record<string, unknown>>;
+
 type BuildTreeNodeParams = {
-  schema: ObjectSchema;
+  readParsed: ReadParsedFile;
   extension: SupportedFileExtension;
   titleField: string;
   filePath: string;
@@ -17,19 +18,13 @@ type BuildTreeNodeParams = {
 };
 
 export async function buildNode({
-  schema,
+  readParsed,
   titleField,
   filePath,
   slug,
   children,
 }: BuildTreeNodeParams) {
-  const raw = await fs.readFile(filePath, "utf-8");
-  const validated = parseFile({
-    schema,
-    data: raw,
-    filePath,
-    validatorFn: validate,
-  });
+  const validated = await readParsed(filePath);
 
   const title = validated[titleField];
   if (typeof title != "string") {

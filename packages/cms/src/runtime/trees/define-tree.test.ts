@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import nodePath from "node:path";
 
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 
 import {
@@ -541,4 +541,113 @@ test("relations load nested Markdown tree entries without navigation or target a
     },
   });
   expect(entry.doc).not.toHaveProperty("children");
+});
+
+describe("tree read cache", () => {
+  async function touch(filePath: string, seconds: number) {
+    await fs.utimes(filePath, seconds, seconds);
+  }
+
+  async function makeDocs() {
+    const docs = nodePath.join(tmp, "docs");
+    await fs.mkdir(docs);
+    await writeMd(docs, "intro", "Introduction", "## Setup\n\nOne two");
+    await writeMd(docs, "guide", "Guide", "## Usage\n\nThree");
+    await touch(nodePath.join(docs, "intro.md"), 1_000);
+    await touch(nodePath.join(docs, "guide.md"), 1_000);
+    return docs;
+  }
+
+  function makeTree(parse = vi.fn((doc: { title: string }) => doc)) {
+    return defineTree({
+      directory: "docs",
+      schema: Schema.transform(parse),
+      extension: ".md",
+      titleField: "title",
+    });
+  }
+
+  test("shares one parse per file between tree walks and entry reads", async () => {
+    await makeDocs();
+    const parse = vi.fn((doc: { title: string }) => doc);
+    const tree = makeTree(parse);
+
+    await tree.getTree();
+    await tree.getFlatTree();
+    await tree.getNextNode("guide");
+    await tree.getAncestorNodes("intro");
+    await tree.getEntry("intro");
+    await tree.getEntries();
+    await tree.getTree();
+
+    expect(parse).toHaveBeenCalledTimes(2);
+  });
+
+  test("builds the table of contents once per parse, and only for entry reads", async () => {
+    await makeDocs();
+    const slug = vi.fn((text: string) => text.toLowerCase());
+    const tree = defineTree({
+      directory: "docs",
+      schema: Schema,
+      extension: ".md",
+      titleField: "title",
+      markdown: { stats: true, toc: { slug } },
+    });
+
+    await tree.getTree();
+    expect(slug).not.toHaveBeenCalled();
+
+    const entry = await tree.getEntry("intro");
+    await tree.getEntry("intro");
+    await tree.getEntries();
+
+    expect(entry._toc).toEqual([
+      expect.objectContaining({ id: "setup", text: "Setup" }),
+    ]);
+    expect(entry._stats.wordCount).toBeGreaterThan(0);
+    expect(slug).toHaveBeenCalledTimes(2);
+  });
+
+  test("re-reads an edited file in walks and entries", async () => {
+    const docs = await makeDocs();
+    const tree = makeTree();
+    expect((await tree.getTree("intro")).title).toBe("Introduction");
+    expect((await tree.getEntry("intro")).title).toBe("Introduction");
+
+    await writeMd(docs, "intro", "Getting started");
+    await touch(nodePath.join(docs, "intro.md"), 2_000);
+
+    expect((await tree.getTree("intro")).title).toBe("Getting started");
+    expect((await tree.getEntry("intro")).title).toBe("Getting started");
+  });
+
+  test("drops a removed file once a walk no longer finds it", async () => {
+    const docs = await makeDocs();
+    const parse = vi.fn((doc: { title: string }) => doc);
+    const tree = makeTree(parse);
+    await tree.getEntry("intro");
+    const docPath = nodePath.join(docs, "intro.md");
+    const awayPath = nodePath.join(tmp, "intro.md");
+
+    // Moving it away and back keeps its inode, mtime, and size.
+    await fs.rename(docPath, awayPath);
+    expect((await tree.getFlatTree()).map((node) => node.slug)).toEqual([
+      "guide",
+    ]);
+    await fs.rename(awayPath, docPath);
+
+    await tree.getEntry("intro");
+    expect(parse).toHaveBeenCalledTimes(3);
+  });
+
+  test("keeps top-level writes to a returned entry out of later reads", async () => {
+    await makeDocs();
+    const tree = makeTree();
+
+    const entry = await tree.getEntry("intro");
+    entry.title = "Changed";
+
+    expect((await tree.getEntry("intro")).title).toBe("Introduction");
+    expect((await tree.getTree("intro")).title).toBe("Introduction");
+  });
 });
