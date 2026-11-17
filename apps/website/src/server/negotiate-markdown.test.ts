@@ -49,6 +49,39 @@ test("serves a docs page requested with a trailing slash", async () => {
   expect(await response.text()).toBe(await getDocsMarkdown("guide/cli"));
 });
 
+test("decodes the path before looking up the page", async () => {
+  const response = await negotiateMarkdown({
+    request: request("/docs/%67uide/cli", { headers: markdownHeaders }),
+    next: html(),
+  });
+
+  expect(response.status).toBe(200);
+  expect(await response.text()).toBe(await getDocsMarkdown("guide/cli"));
+});
+
+test("names the missing path still encoded in the 404", async () => {
+  const response = await negotiateMarkdown({
+    request: request("/docs/`[x](/evil)`", {
+      headers: markdownHeaders,
+    }),
+    next: html(404),
+  });
+
+  expect(await response.text()).toBe(
+    buildNotFoundMarkdown("/docs/%60[x](/evil)%60"),
+  );
+});
+
+test("leaves a malformed path to the router", async () => {
+  const upstream = new Response("upstream", { status: 400 });
+  const response = await negotiateMarkdown({
+    request: request("/docs/%E0%A4%A", { headers: markdownHeaders }),
+    next: async () => upstream,
+  });
+
+  expect(response).toBe(upstream);
+});
+
 test("serves the homepage as Markdown", async () => {
   const response = await negotiateMarkdown({
     request: request("/", { headers: markdownHeaders }),
