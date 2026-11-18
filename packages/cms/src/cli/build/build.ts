@@ -14,19 +14,22 @@ type BuildParams = {
   trees: Array<AnyTree>;
 };
 
-export async function build({
-  context,
-  collections,
-  items,
-  trees,
-}: BuildParams) {
+type BuildOptions = {
+  /** Whether `check` verified `config.json`, which then stays as is. */
+  isConfigFileChecked?: boolean;
+};
+
+export async function build(
+  { context, collections, items, trees }: BuildParams,
+  { isConfigFileChecked = false }: BuildOptions = {},
+) {
   if (context.cli?.build?.types == false) {
     consola.info("Types generation skipped: `cli.build.types` is false.");
   } else {
     await generateTypes({ collections, trees });
   }
 
-  if (context.cloud) {
+  if (context.cloud && !isConfigFileChecked) {
     await generateConfigFile({ context, collections, items, trees });
   }
 }

@@ -28,7 +28,8 @@ export async function assertConfigFileFresh(params: CreateConfigFileParams) {
     );
   }
 
-  if (existing != createConfigFile(params)) {
+  // A Windows checkout may turn the committed line endings into CRLF.
+  if (existing.replaceAll("\r\n", "\n") != createConfigFile(params)) {
     throw new Error(
       `"${DISPLAY_PATH}" is out of date. Run \`qino build\` and commit it.`,
     );

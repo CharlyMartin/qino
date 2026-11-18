@@ -58,6 +58,13 @@ describe("build", () => {
     expect(generateTypes).not.toHaveBeenCalled();
   });
 
+  test("leaves the config file as is once check verified it", async () => {
+    await build(setup({ cloud }), { isConfigFileChecked: true });
+
+    expect(generateTypes).toHaveBeenCalledOnce();
+    expect(generateConfigFile).not.toHaveBeenCalled();
+  });
+
   test("still generates the config file when types are skipped", async () => {
     await build(setup({ cli: { build: { types: false } }, cloud }));
 

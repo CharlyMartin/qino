@@ -31,7 +31,7 @@ export type QinoConfig = {
    * Configures the qino cloud UI. When set, `qino build` writes
    * `qino/_generated/config.json`, describing the config, primitives, schemas
    * (as JSON Schema), and relations. Meant to be committed and read by the
-   * cloud UI; `qino check` fails when it's stale.
+   * cloud UI; `qino check`, and `qino build` in CI, fail when it's stale.
    */
   readonly cloud?: CloudConfig;
 };
