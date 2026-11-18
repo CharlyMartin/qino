@@ -28,16 +28,21 @@ async function writePost(slug: string, title: string, publishedOn: string) {
   );
 }
 
-// Sorted like `postCollection`'s default view: newest first.
+// Shaped and sorted like `postCollection`: `publishedOn`, newest first.
 function definePosts() {
   const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
   return qino.defineCollection({
     directory: "posts",
     extension: ".md",
-    schema: z.object({ title: z.string(), "published-on": z.iso.date() }),
+    schema: z
+      .object({ title: z.string(), "published-on": z.iso.date() })
+      .transform(({ title, "published-on": publishedOn }) => ({
+        title,
+        publishedOn,
+      })),
     views: (view) => ({
       default: view({
-        sort: (a, b) => b["published-on"].localeCompare(a["published-on"]),
+        sort: (a, b) => b.publishedOn.localeCompare(a.publishedOn),
       }),
     }),
   });
@@ -51,6 +56,7 @@ test("reads the newest post, not the first slug", async () => {
   expect(await readLatestPost(definePosts())).toEqual({
     slug: "b-newest",
     title: "Newest",
+    publishedOn: "2026-03-01",
   });
 });
 
