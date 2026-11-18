@@ -201,7 +201,7 @@
 
 /* Below xl, the sticky "On this page" select sits under the header too. */
 .prose :where(h2, h3, h4) {
-  @apply scroll-mt-36 font-extrabold tracking-tighter xl:scroll-mt-24;
+  @apply scroll-mt-34 font-extrabold tracking-tighter xl:scroll-mt-22;
 }
 
 .prose :where(h2) {

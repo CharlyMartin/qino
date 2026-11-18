@@ -5,7 +5,7 @@ import { Title } from "../marketing/title";
 
 export function DocsNotFound() {
   return (
-    <section className="flex flex-col items-start gap-4">
+    <section className="mx-auto flex max-w-5xl flex-col items-start gap-4">
       <Title as="h1">Page not found</Title>
       <Text size="lead">This documentation page does not exist.</Text>
       <Link

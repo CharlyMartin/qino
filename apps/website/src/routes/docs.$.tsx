@@ -2,7 +2,6 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { MDXRemote } from "next-mdx-remote";
 
 import { CopyMarkdownButton } from "../components/docs/copy-markdown-button";
-import { DocsBreadcrumbs } from "../components/docs/docs-breadcrumbs";
 import { DocsNotFound } from "../components/docs/docs-not-found";
 import { DocsPagination } from "../components/docs/docs-pagination";
 import { DocsToc } from "../components/docs/docs-toc";
@@ -109,7 +108,6 @@ function DocsPage() {
     raw,
     toc,
     mdx,
-    breadcrumbs,
     previousNode,
     nextNode,
   } = Route.useLoaderData();
@@ -120,38 +118,41 @@ function DocsPage() {
 
   return (
     <div className="flex gap-12">
-      <article className="min-w-0 flex-1">
-        <header className="mb-12 flex flex-col items-start gap-4 border-b pb-8">
-          {/* A lone crumb only repeats the page title. */}
-          {breadcrumbs.length > 1 ? (
-            <DocsBreadcrumbs breadcrumbs={breadcrumbs} />
-          ) : null}
-          {since ? <Eyebrow tone="accent">Since {since}</Eyebrow> : null}
-          <Title as="h1">{title}</Title>
-          <Text size="lead">{description}</Text>
-          {isSectionLanding ? null : (
-            <div className="flex flex-wrap gap-2">
-              <CopyMarkdownButton markdown={raw} />
-              <ViewMarkdownLink slug={slug} />
+      {/* Fills the space left of the TOC, the page centered in it. */}
+      <div className="min-w-0 flex-1">
+        <article className="mx-auto max-w-3xl">
+          <header className="mb-12 flex flex-col items-start gap-4 border-b pb-8">
+            {since ? <Eyebrow tone="accent">Since {since}</Eyebrow> : null}
+            <Title as="h1">{title}</Title>
+            <Text size="lead">{description}</Text>
+            {isSectionLanding ? null : (
+              <div className="flex flex-wrap gap-2">
+                <CopyMarkdownButton markdown={raw} />
+                <ViewMarkdownLink slug={slug} />
+              </div>
+            )}
+          </header>
+          {hasToc ? (
+            <div className="sticky top-14 z-20 -mt-4 mb-8 bg-background py-3 xl:hidden">
+              <DocsTocSelect toc={toc} activeId={activeId} />
             </div>
-          )}
-        </header>
-        {hasToc ? (
-          <div className="sticky top-16 z-20 -mt-4 mb-8 bg-background py-3 xl:hidden">
-            <DocsTocSelect toc={toc} activeId={activeId} />
+          ) : null}
+          <div className="prose prose-invert max-w-none">
+            <MDXRemote {...mdx} components={mdxComponents} />
           </div>
+          <DocsPagination previousNode={previousNode} nextNode={nextNode} />
+        </article>
+      </div>
+      {/* On the right edge, as wide as the sidebar on the left, and kept on
+          pages without a TOC so every page centers the same way. */}
+      <div className="hidden xl:block xl:w-60 xl:shrink-0">
+        {hasToc ? (
+          // Sticks where it starts: below the 3.5rem header and main's 4rem padding.
+          <aside className="sticky top-30 max-h-[calc(100dvh-9.5rem)] overflow-y-auto overscroll-contain">
+            <DocsToc toc={toc} activeId={activeId} />
+          </aside>
         ) : null}
-        <div className="prose prose-invert max-w-none">
-          <MDXRemote {...mdx} components={mdxComponents} />
-        </div>
-        <DocsPagination previousNode={previousNode} nextNode={nextNode} />
-      </article>
-      {hasToc ? (
-        // Sticks where it starts: below the 4rem header and main's 4rem padding.
-        <aside className="hidden xl:sticky xl:top-32 xl:block xl:max-h-[calc(100dvh-10rem)] xl:w-60 xl:shrink-0 xl:self-start xl:overflow-y-auto xl:overscroll-contain">
-          <DocsToc toc={toc} activeId={activeId} />
-        </aside>
-      ) : null}
+      </div>
     </div>
   );
 }
