@@ -18,7 +18,7 @@ describe("readTargetEntry", () => {
     const read = vi.spyOn(target[QinoPrimitiveMarker], "readEntry");
 
     expect(await readTargetEntry(target, "alice")).toBe(entry);
-    expect(read).toHaveBeenCalledWith("alice");
+    expect(read).toHaveBeenCalledWith("alice", undefined);
   });
 
   test("reads a tree entry by slug", async () => {
@@ -42,7 +42,7 @@ describe("readTargetEntry", () => {
     expect(await readTargetEntry(target, "ignored")).toEqual({
       siteName: "qino",
     });
-    expect(read).toHaveBeenCalledWith();
+    expect(read).toHaveBeenCalledWith(undefined);
   });
 
   test("rejects with the target's own error, unwrapped", async () => {

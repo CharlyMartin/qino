@@ -4,6 +4,10 @@ import { META_FIELD_NAME, QinoPrimitiveMarker } from "../../data/globals";
 import type { AnyRelations } from "../../types/relations";
 import type { ResolveDepths } from "../../types/resolve";
 import type { AnyEntry, AnyPrimitive, Slug } from "../../types/utils";
+import {
+  createDependencyCollector,
+  type DependencyCollector,
+} from "../cache/create-dependency-collector";
 import type { ResolveCache } from "./create-resolve-cache";
 import { fetchTargetEntry } from "./fetch-target-entry";
 import { getRelationTargets } from "./get-relation-targets";
@@ -19,6 +23,8 @@ type ResolveEntryContext = {
   /** The view's depths by relation path, overriding the branch below each. */
   viewDepths?: ResolveDepths;
   sourceInstanceId: symbol;
+  /** Records every target file, and each target's media, this entry uses. */
+  dependencies?: DependencyCollector;
 };
 
 export type RelationErrorContext = {
@@ -30,7 +36,14 @@ export function createRelationResolver(cache: ResolveCache) {
   return { resolveEntry };
 
   async function resolveEntry(entry: AnyEntry, ctx: ResolveEntryContext) {
-    const { relations, depth, override, viewDepths, sourceInstanceId } = ctx;
+    const {
+      relations,
+      depth,
+      override,
+      viewDepths,
+      sourceInstanceId,
+      dependencies,
+    } = ctx;
     if (depth <= 0) return entry;
 
     let result: Record<string, unknown> = entry;
@@ -75,7 +88,7 @@ export function createRelationResolver(cache: ResolveCache) {
               return resolveTargetReference(
                 resolvedTarget,
                 slug,
-                { depth: hops - 1, override: branchOverride },
+                { depth: hops - 1, override: branchOverride, dependencies },
                 sourceInstanceId,
                 errorCtx,
               );
@@ -91,17 +104,24 @@ export function createRelationResolver(cache: ResolveCache) {
   async function resolveTargetReference(
     target: AnyPrimitive,
     slug: Slug,
-    { depth, override }: Pick<ResolveEntryContext, "depth" | "override">,
+    {
+      depth,
+      override,
+      dependencies,
+    }: Pick<ResolveEntryContext, "depth" | "override" | "dependencies">,
     sourceInstanceId: symbol,
     ctx: RelationErrorContext,
   ) {
-    const raw = await getOrFetchRawTarget(target, slug, ctx);
+    const raw = await getOrFetchRawTarget(target, slug, ctx, dependencies);
 
+    // The target's own relations are followed per reference, to the depth
+    // left on this branch, so their files are recorded on this entry too.
     return resolveEntry(raw, {
       relations: target[QinoPrimitiveMarker].relations,
       depth,
       override,
       sourceInstanceId,
+      dependencies,
     });
   }
 
@@ -109,19 +129,30 @@ export function createRelationResolver(cache: ResolveCache) {
     target: AnyPrimitive,
     slug: Slug,
     ctx: RelationErrorContext,
+    dependencies?: DependencyCollector,
   ) {
     const entryCache = getOrCreateEntryCache(cache, target);
 
-    let entryPromise = entryCache.get(slug);
+    let read = entryCache.get(slug);
 
-    if (!entryPromise) {
-      entryPromise = readTargetEntry(target, slug);
-      entryCache.set(slug, entryPromise);
+    if (!read) {
+      const targetDependencies = dependencies && createDependencyCollector();
+      read = {
+        entry: readTargetEntry(target, slug, targetDependencies),
+        dependencies: targetDependencies,
+      };
+      entryCache.set(slug, read);
     }
 
     // The read is shared, the error context isn't: each reference names its
     // own source in a failure.
-    return fetchTargetEntry(target, slug, ctx, entryPromise);
+    const entry = await fetchTargetEntry(target, slug, ctx, read.entry);
+    if (dependencies) {
+      // A read started without tracking can't prove what it used.
+      if (read.dependencies) dependencies.merge(read.dependencies);
+      else dependencies.markUnreusable();
+    }
+    return entry;
   }
 }
 

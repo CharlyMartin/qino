@@ -5,8 +5,10 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
+import type { DependencyCollector } from "../../lib/cache/create-dependency-collector";
 import { createFileCache } from "../../lib/cache/create-file-cache";
 import { createInFlightCache } from "../../lib/cache/create-in-flight-cache";
+import { createListingCache } from "../../lib/cache/create-listing-cache";
 import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
 import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-config";
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
@@ -160,6 +162,13 @@ export function defineCollection<
   // Concurrent reads of one view, such as the pages a build renders at once,
   // share one listing instead of each resolving and sorting every entry.
   const listings = createInFlightCache();
+  const listingCache = createListingCache({
+    getAllSlugs,
+    readEntry,
+    relations: collectionRelations,
+    instanceId: ctx.instanceId,
+    reuse: ctx.reuseListings ?? false,
+  });
 
   const collection = {
     [QinoPrimitiveMarker]: {
@@ -204,14 +213,16 @@ export function defineCollection<
     return paths.map((path) => removeExtension(path) as SlugFor<Dir>).sort();
   }
 
-  async function readEntry(slug: Slug) {
+  async function readEntry(slug: Slug, dependencies?: DependencyCollector) {
     const meta = buildEntryMeta({
       directory: collectionDirectory,
       relativePath: `${slug}${extension}`,
       extension,
     });
-    const entry = await fileCache.read(meta.filePath, (data) =>
-      parseEntry(meta, data),
+    const entry = await fileCache.read(
+      meta.filePath,
+      (data) => parseEntry(meta, data),
+      dependencies,
     );
     // Images are read per call: an edited image keeps its entry's cache key.
     // The copy keeps top-level writes to a returned entry out of the cache.
@@ -220,6 +231,7 @@ export function defineCollection<
       media,
       mediaFolder: ctx.mediaFolder,
       filePath: meta.filePath,
+      dependencies,
     })) as ResolvedCollectionView<S, Ext, TaggedRels>;
   }
 
@@ -241,36 +253,15 @@ export function defineCollection<
     });
   }
 
-  // Slug order, so unsorted views and sort ties page the same on every call.
+  // In slug order, through the schema, without views: what `qino check` reads.
   async function readEntries() {
     const slugs = await getAllSlugs();
     return Promise.all(slugs.map((slug) => readEntry(slug)));
   }
 
-  async function shapeEntries(
-    entries: Array<ResolvedCollectionView<S, Ext, TaggedRels>>,
-    view: CollectionViewDefinition,
-  ) {
-    const augmented = await applyView(
-      entries,
-      view,
-      collectionRelations,
-      ctx.instanceId,
-    );
-    const { filter, sort } = view;
-    const filtered = filter
-      ? augmented.filter((entry) => filter(entry as never))
-      : augmented;
-    return sort
-      ? filtered.toSorted((a, b) => sort(a as never, b as never))
-      : filtered;
-  }
-
   // Keyed by name: without views, selectView returns a new default each call.
   async function listEntries(viewName: string, view: CollectionViewDefinition) {
-    return listings.run(viewName, async () =>
-      shapeEntries(await readEntries(), view),
-    );
+    return listings.run(viewName, () => listingCache.list(viewName, view));
   }
 
   async function getEntries<
@@ -331,7 +322,16 @@ export function defineCollection<
     const entries = await Promise.all(
       slugPage.entries.map((slug) => readEntry(slug)),
     );
-    return { ...slugPage, entries: await shapeEntries(entries, view) };
+    // A view without filter or sort: the page only needs its view applied.
+    return {
+      ...slugPage,
+      entries: await applyView(
+        entries,
+        view,
+        collectionRelations,
+        ctx.instanceId,
+      ),
+    };
   }
 
   async function getEntry<

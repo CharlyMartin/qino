@@ -5,6 +5,7 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
+import type { DependencyCollector } from "../../lib/cache/create-dependency-collector";
 import { createFileCache } from "../../lib/cache/create-file-cache";
 import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
 import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-config";
@@ -145,8 +146,12 @@ export function defineItem<
 
   return item;
 
-  async function readEntry() {
-    const entry = await fileCache.read(absoluteFilePath, parseEntry);
+  async function readEntry(dependencies?: DependencyCollector) {
+    const entry = await fileCache.read(
+      absoluteFilePath,
+      parseEntry,
+      dependencies,
+    );
     // Images are read per call: an edited image keeps its entry's cache key.
     // The copy keeps top-level writes to a returned entry out of the cache.
     return (await resolveEntryMedia({
@@ -154,6 +159,7 @@ export function defineItem<
       media,
       mediaFolder: ctx.mediaFolder,
       filePath: absoluteFilePath,
+      dependencies,
     })) as ResolvedItemView<S, Ext, TaggedRels>;
   }
 

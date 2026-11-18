@@ -3,9 +3,20 @@ import os from "node:os";
 import nodePath from "node:path";
 
 import sharp from "sharp";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { getImageData } from "./get-image-data";
+
+// Counts sharp calls, to tell how many decodes ran.
+const sharpCalls = vi.hoisted(() => ({ count: 0 }));
+vi.mock("sharp", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("sharp")>();
+  const counted = (...args: Parameters<typeof actual.default>) => {
+    sharpCalls.count += 1;
+    return actual.default(...args);
+  };
+  return { ...actual, default: Object.assign(counted, actual.default) };
+});
 
 let tmp: string;
 
@@ -96,6 +107,57 @@ describe("getImageData", () => {
     await fs.utimes(filePath, later, later);
 
     expect(await getImageData(filePath, "/a.png")).toMatchObject({ width: 30 });
+  });
+
+  test("keys the cache on the observation it's given", async () => {
+    const filePath = await writeImage("a.png", 40, 20);
+    const observation = { version: "1:1:1", untrusted: false };
+    expect(await getImageData(filePath, "/a.png", observation)).toMatchObject({
+      width: 40,
+    });
+
+    // The same version says the same file, so the cached decode is used.
+    await writeImage("a.png", 30, 30);
+    expect(await getImageData(filePath, "/a.png", observation)).toMatchObject({
+      width: 40,
+    });
+    expect(
+      await getImageData(filePath, "/a.png", { ...observation, version: "2" }),
+    ).toMatchObject({ width: 30 });
+  });
+
+  test("decodes an untrusted file again, without keeping or using a cached decode", async () => {
+    const filePath = await writeImage("a.png", 40, 20);
+    const trusted = { version: "1:1:1", untrusted: false };
+    await getImageData(filePath, "/a.png", trusted);
+
+    await writeImage("a.png", 30, 30);
+    expect(
+      await getImageData(filePath, "/a.png", { ...trusted, untrusted: true }),
+    ).toMatchObject({ width: 30 });
+
+    // The stale decode was dropped, so a trusted read decodes again too.
+    await writeImage("a.png", 20, 20);
+    expect(await getImageData(filePath, "/a.png", trusted)).toMatchObject({
+      width: 20,
+    });
+  });
+
+  test("shares one decode of an untrusted file between concurrent calls, and keeps none", async () => {
+    const filePath = await writeImage("a.png", 40, 20);
+    const untrusted = { version: "1:1:1", untrusted: true };
+    sharpCalls.count = 0;
+
+    await Promise.all([
+      getImageData(filePath, "/a.png", untrusted),
+      getImageData(filePath, "/a.png", untrusted),
+    ]);
+    const shared = sharpCalls.count;
+    await getImageData(filePath, "/a.png", untrusted);
+
+    // A PNG decode reads the metadata, then makes the blur.
+    expect(shared).toBe(2);
+    expect(sharpCalls.count).toBe(4);
   });
 
   test("throws on files that aren't images", async () => {

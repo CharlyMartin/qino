@@ -6,6 +6,7 @@ import sharp from "sharp";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 import type { AnyMediaConfig } from "../../types/media";
+import { createDependencyCollector } from "../cache/create-dependency-collector";
 import { resolveEntryMedia } from "./resolve-entry-media";
 
 let tmp: string;
@@ -57,6 +58,29 @@ describe("resolveEntryMedia", () => {
       ],
       seo: { image: { src: "/images/my%20image.png", ...data } },
     });
+  });
+
+  test("records each image file, with the stat its checks and decode used", async () => {
+    const dependencies = createDependencyCollector();
+    const imagePath = nodePath.join(tmp, "images", "a.png");
+    await fs.utimes(imagePath, 1_000, 1_000);
+
+    await resolveEntryMedia({
+      entry: { cover: "/images/a.png", gallery: ["/images/a.png"] },
+      media: { cover: image, "gallery[*]": image },
+      mediaFolder: tmp,
+      filePath: "posts/a.md",
+      dependencies,
+    });
+
+    const { ino, size } = await fs.stat(imagePath, { bigint: true });
+    expect([...dependencies.observations]).toEqual([
+      [
+        imagePath,
+        { version: `${ino}:${1_000_000_000_000n}:${size}`, untrusted: false },
+      ],
+    ]);
+    expect(dependencies.isReusable()).toBe(true);
   });
 
   test("leaves null and missing values", async () => {

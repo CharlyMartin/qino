@@ -34,6 +34,14 @@ export type QinoConfig = {
    * cloud UI; `qino check` fails when it's stale.
    */
   readonly cloud?: CloudConfig;
+  /**
+   * Keeps each collection listing between calls and reuses its entries while
+   * the files they were built from are unchanged, checked with one sync stat
+   * per file. `augment`, `filter`, and `sort` still run on every call. Meant
+   * for a long-running dev server, such as
+   * `reuseListings: process.env.NODE_ENV == "development"`. Off by default.
+   */
+  readonly reuseListings?: boolean;
 };
 
 export type QinoContext = {

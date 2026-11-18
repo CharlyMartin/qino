@@ -4,6 +4,7 @@ import nodePath from "node:path";
 
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
+import { createDependencyCollector } from "./create-dependency-collector";
 import { createFileCache } from "./create-file-cache";
 
 let tmp: string;
@@ -240,5 +241,41 @@ describe("createFileCache", () => {
     await createFileCache().read(filePath, load);
     await createFileCache().read(filePath, load);
     expect(load).toHaveBeenCalledTimes(2);
+  });
+
+  test("records the stat each read took before using the file", async () => {
+    const cache = createFileCache();
+    await touch(filePath, 1_000);
+    const first = createDependencyCollector();
+    const second = createDependencyCollector();
+
+    await cache.read(filePath, makeLoader(), first);
+    await cache.read(filePath, makeLoader(), second);
+
+    const { ino, size } = await fs.stat(filePath, { bigint: true });
+    const observation = {
+      version: `${ino}:${1_000_000_000_000n}:${size}`,
+      untrusted: false,
+    };
+    expect(first.observations.get(filePath)).toEqual(observation);
+    expect(second.observations.get(filePath)).toEqual(observation);
+  });
+
+  test("marks a read just after an edit untrusted, and a missing file unreusable", async () => {
+    const cache = createFileCache();
+    // A fixed clock, so the read is within 2s of the mtime however slow.
+    const now = Date.now();
+    vi.spyOn(Date, "now").mockReturnValue(now);
+    await touch(filePath, Math.floor(now / 1_000));
+    const recent = createDependencyCollector();
+    const missing = createDependencyCollector();
+
+    await cache.read(filePath, makeLoader(), recent);
+    await expect(
+      cache.read(nodePath.join(tmp, "missing.md"), makeLoader(), missing),
+    ).rejects.toThrow(/ENOENT/);
+
+    expect(recent.observations.get(filePath)?.untrusted).toBe(true);
+    expect(missing.isReusable()).toBe(false);
   });
 });

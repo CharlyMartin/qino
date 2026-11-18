@@ -6,6 +6,7 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
+import type { DependencyCollector } from "../../lib/cache/create-dependency-collector";
 import { createDerivedCache } from "../../lib/cache/create-derived-cache";
 import { createFileCache } from "../../lib/cache/create-file-cache";
 import { createInFlightCache } from "../../lib/cache/create-in-flight-cache";
@@ -237,14 +238,14 @@ export function defineTree<
     return flattenTree(await getTree());
   }
 
-  async function readEntry(slug: Slug) {
+  async function readEntry(slug: Slug, dependencies?: DependencyCollector) {
     const meta = buildEntryMeta({
       directory: directoryPath,
       relativePath: `${slug}${extension}`,
       extension,
     });
 
-    const parsed = await readParsed(meta.filePath);
+    const parsed = await readParsed(meta.filePath, dependencies);
     const entry = await entryCache.read(parsed, () =>
       addMarkdownFields(meta, parsed),
     );
@@ -255,20 +256,28 @@ export function defineTree<
       media,
       mediaFolder: ctx.mediaFolder,
       filePath: meta.filePath,
+      dependencies,
     })) as ResolvedTreeEntry<S, Ext, TaggedRels>;
   }
 
-  async function readParsed(filePath: string) {
+  async function readParsed(
+    filePath: string,
+    dependencies?: DependencyCollector,
+  ) {
     // A copy per file: the entry cache keys on this object, and a JSON schema
     // transform can return one object, such as a lookup, for several files.
-    return fileCache.read(filePath, async (data) => ({
-      ...(parseFile({
-        schema,
-        data,
-        filePath,
-        validatorFn: validate,
-      }) as Record<string, unknown>),
-    }));
+    return fileCache.read(
+      filePath,
+      async (data) => ({
+        ...(parseFile({
+          schema,
+          data,
+          filePath,
+          validatorFn: validate,
+        }) as Record<string, unknown>),
+      }),
+      dependencies,
+    );
   }
 
   async function addMarkdownFields(

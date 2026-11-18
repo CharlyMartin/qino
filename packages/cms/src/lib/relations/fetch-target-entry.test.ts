@@ -27,7 +27,7 @@ describe("fetchTargetEntry", () => {
       const result = await fetchTargetEntry(target, "alice", ctx);
 
       expect(result).toBe(entry);
-      expect(spy).toHaveBeenCalledWith("alice");
+      expect(spy).toHaveBeenCalledWith("alice", undefined);
     });
 
     test("wraps a source read error with the collection directory and slug", async () => {
@@ -110,7 +110,7 @@ describe("fetchTargetEntry", () => {
       const result = await fetchTargetEntry(target, "ignored", ctx);
 
       expect(result).toEqual(data);
-      expect(spy).toHaveBeenCalledWith();
+      expect(spy).toHaveBeenCalledWith(undefined);
     });
 
     test("wraps a source read error with the item file path", async () => {
@@ -156,7 +156,7 @@ describe("tree target", () => {
     const read = vi.spyOn(target[QinoPrimitiveMarker], "readEntry");
     const publicRead = vi.spyOn(target, "getEntry");
     expect(await fetchTargetEntry(target, "guides/setup", ctx)).toBe(entry);
-    expect(read).toHaveBeenCalledWith("guides/setup");
+    expect(read).toHaveBeenCalledWith("guides/setup", undefined);
     expect(publicRead).not.toHaveBeenCalled();
   });
 
