@@ -15,6 +15,7 @@ import { TestimonialsSection } from "@/components/marketing/testimonials-section
 import { externalLinks } from "@/lib/external-links";
 import { getPageHead } from "@/lib/get-page-head";
 import { site } from "@/lib/site";
+import { getLatestPost } from "@/server/get-latest-post";
 import { getProjectStats } from "@/server/get-project-stats";
 import { getSection } from "@/server/get-section";
 import { getSnippets } from "@/server/get-snippets";
@@ -22,13 +23,15 @@ import { getTestimonials } from "@/server/get-testimonials";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
-    const [snippets, testimonials, stats, story] = await Promise.all([
-      getSnippets(),
-      getTestimonials(),
-      getProjectStats(),
-      getSection({ data: "why-i-built-qino" }),
-    ]);
-    return { ...snippets, testimonials, stats, story };
+    const [snippets, testimonials, stats, story, latestPost] =
+      await Promise.all([
+        getSnippets(),
+        getTestimonials(),
+        getProjectStats(),
+        getSection({ data: "why-i-built-qino" }),
+        getLatestPost(),
+      ]);
+    return { ...snippets, testimonials, stats, story, latestPost };
   },
   head: () =>
     getPageHead({
@@ -63,6 +66,7 @@ function HomePage() {
     testimonials,
     stats,
     story,
+    latestPost,
   } = Route.useLoaderData();
 
   return (
@@ -70,7 +74,7 @@ function HomePage() {
       <SkipLink />
       <SiteHeader />
       <main id="main-content">
-        <Hero stats={stats} />
+        <Hero stats={stats} latestPost={latestPost} />
         <TestimonialsSection testimonials={testimonials} />
         <StorySection {...story} />
         <Pipeline

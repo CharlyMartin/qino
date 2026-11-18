@@ -5,6 +5,7 @@ import { ExternalButtonLink } from "./external-button-link";
 import { Eyebrow } from "./eyebrow";
 import { HeroStats } from "./hero-stats";
 import { InstallBox } from "./install-box";
+import { LatestPostLink, type LatestPostLinkProps } from "./latest-post-link";
 import { Section } from "./section";
 import { Text } from "./text";
 import { Title } from "./title";
@@ -12,11 +13,17 @@ import { Underline } from "./underline";
 
 type HeroProps = {
   stats: ProjectStats;
+  latestPost: LatestPostLinkProps | null;
 };
 
-export function Hero({ stats }: HeroProps) {
+export function Hero({ stats, latestPost }: HeroProps) {
   return (
     <Section aria-labelledby="hero-heading" spacing="hero" align="center">
+      {latestPost && (
+        <div className="mb-8">
+          <LatestPostLink {...latestPost} />
+        </div>
+      )}
       <Eyebrow tone="accent">Type-safe content pipeline</Eyebrow>
       <div className="mt-4">
         <HeroStats stats={stats} />
