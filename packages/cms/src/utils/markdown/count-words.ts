@@ -1,7 +1,9 @@
 const segmenter = new Intl.Segmenter("und", { granularity: "word" });
 
 export function countWords(value: string) {
-  return Array.from(segmenter.segment(value)).filter(
-    (segment) => segment.isWordLike,
-  ).length;
+  let count = 0;
+  for (const segment of segmenter.segment(value)) {
+    if (segment.isWordLike) count++;
+  }
+  return count;
 }
