@@ -59,6 +59,27 @@ describe("fetchTargetEntry", () => {
       expect((err as Error).cause).toBe(original);
     });
 
+    test("waits for a shared read instead of reading again, with its own context", async () => {
+      const target = makeDummyCollection({
+        directory: "authors",
+        extension: ".json",
+      });
+      const read = vi.spyOn(target[QinoPrimitiveMarker], "readEntry");
+      const shared = Promise.reject(new Error("ENOENT: authors/ghost"));
+      const other = {
+        sourceFilePath: "/fixtures/other.json",
+        relationKey: "editor",
+      };
+
+      await expect(
+        fetchTargetEntry(target, "ghost", ctx, shared),
+      ).rejects.toThrow(/"author".*authors\/ghost.*post\.json/);
+      await expect(
+        fetchTargetEntry(target, "ghost", other, shared),
+      ).rejects.toThrow(/"editor".*authors\/ghost.*other\.json/);
+      expect(read).not.toHaveBeenCalled();
+    });
+
     test("stringifies non-Error rejections and leaves cause undefined", async () => {
       const target = makeDummyCollection({
         directory: "authors",

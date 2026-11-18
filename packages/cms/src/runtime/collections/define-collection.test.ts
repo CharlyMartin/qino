@@ -759,6 +759,43 @@ describe("collection read cache", () => {
     expect((await plain.getEntry("a")).title).toBe("Hello");
     expect((await loud.getEntry("a")).title).toBe("HELLO");
   });
+
+  test("keeps relation targets over the same directory apart", async () => {
+    await fs.mkdir(nodePath.join(tmp, "people"));
+    await fs.writeFile(
+      nodePath.join(tmp, "people/ada.json"),
+      JSON.stringify({ name: "Ada" }),
+    );
+    await writeMd("a.md", "A");
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
+    const people = qino.defineCollection({
+      directory: "people",
+      extension: ".json",
+      schema: z.object({ name: z.string() }),
+    });
+    const loudPeople = qino.defineCollection({
+      directory: "people",
+      extension: ".json",
+      schema: z
+        .object({ name: z.string() })
+        .transform(({ name }) => ({ name: name.toUpperCase() })),
+    });
+    const posts = qino.defineCollection({
+      directory: "posts",
+      extension: ".md",
+      schema: z.object({
+        title: z.string(),
+        author: z.string().default("people/ada.json"),
+        editor: z.string().default("people/ada.json"),
+      }),
+      relations: { author: people, editor: loudPeople },
+    });
+
+    const [post] = await posts.getEntries();
+
+    expect(post?.author.name).toBe("Ada");
+    expect(post?.editor.name).toBe("ADA");
+  });
 });
 
 describe("getEntries order", () => {
