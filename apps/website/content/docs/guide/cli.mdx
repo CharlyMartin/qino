@@ -199,7 +199,7 @@ qino/_generated/*
 
 Exclude `qino/_generated/` from formatters like Prettier or Biome: reformatting `config.json` makes it differ from what `build` writes.
 
-`qino check` fails when the committed file is missing or differs from what `build` would write, so CI catches a schema change that wasn't rebuilt. `build` itself skips this check, since it rewrites the file.
+`qino check` fails when the committed file is missing or differs from what `build` would write. So does `build` in CI: when the `CI` environment variable is set, as GitHub Actions, Vercel, and most CI providers do, `build` checks the file instead of rewriting it. A schema change that wasn't rebuilt and committed then fails the CI run or the deploy, rather than going unnoticed. Outside CI, `build` rewrites the file. Set `CI=false` for a CI command that should rewrite it, for example one that commits it back.
 
 ## Exit codes
 
@@ -223,4 +223,6 @@ Run `build` before the app builds:
 }
 ```
 
-In a monorepo, run it in the package that owns `qino/`, since discovery is relative to the working directory.
+With `cloud` set, this also checks `config.json` in CI and on deploys, with no extra step. See [Config file](#config-file).
+
+In a monorepo, run it in the package that owns `qino/`, since discovery is relative to the working directory. With Turborepo, add `CI` to the build task's [`env`](https://turborepo.dev/docs/reference/configuration#env). Otherwise a build cached outside CI, where it rewrote `config.json`, can be restored in CI and skip the check.
