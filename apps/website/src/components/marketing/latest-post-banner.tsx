@@ -15,10 +15,10 @@ export function LatestPostBanner({ slug, title }: LatestPostBannerProps) {
     <Link
       to="/blog/$slug"
       params={{ slug }}
-      className="group block border-b bg-surface text-sm text-foreground-2 transition-colors motion-reduce:transition-none hover:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+      className="group block border-b bg-surface-sunken text-sm text-foreground-2 transition-colors motion-reduce:transition-none hover:text-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
     >
       <span className="mx-auto flex max-w-7xl px-4 py-2.5 md:justify-center md:px-7 lg:px-12">
-        <span className="-mx-2 flex min-w-0 items-center gap-3 rounded-sm px-2 py-0.5 group-focus-visible:ring-2 group-focus-visible:ring-ring group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-surface">
+        <span className="-mx-2 flex min-w-0 items-center gap-3 rounded-sm px-2 py-0.5 group-focus-visible:ring-2 group-focus-visible:ring-ring group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-surface-sunken">
           <span className="shrink-0 font-mono text-label text-primary">
             New post
           </span>
