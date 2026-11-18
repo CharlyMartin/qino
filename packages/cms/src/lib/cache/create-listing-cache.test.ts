@@ -54,12 +54,12 @@ function spyOnReads() {
   return () => stat.mock.calls.map(([filePath]) => toContentPath(filePath));
 }
 
-function makeQino(reuseListings = true) {
-  return initQino({ contentFolder: tmp, mediaFolder: tmp, reuseListings });
+function makeQino(incrementalEntries = true) {
+  return initQino({ contentFolder: tmp, mediaFolder: tmp, incrementalEntries });
 }
 
-function makeBlog(reuseListings = true) {
-  const qino = makeQino(reuseListings);
+function makeBlog(incrementalEntries = true) {
+  const qino = makeQino(incrementalEntries);
   const teams = qino.defineCollection({
     directory: "teams",
     extension: ".json",
@@ -102,7 +102,7 @@ async function writeBlog() {
   await write("posts/c.json", { title: "C", author: "authors/ada.json" });
 }
 
-describe("reuseListings", () => {
+describe("incrementalEntries", () => {
   test("off, builds every entry on every call", async () => {
     await writeBlog();
     const { posts } = makeBlog(false);
@@ -608,15 +608,15 @@ describe("reuseListings", () => {
   });
 
   test.each([true, false])(
-    "with reuseListings %s, reports a read error before a relation error",
-    async (reuse) => {
+    "with incrementalEntries %s, reports a read error before a relation error",
+    async (incremental) => {
       await write("authors/bob.json", { name: "Bob" });
       await write("posts/a.json", {
         title: "A",
         author: "authors/missing.json",
       });
       await write("posts/b.json", { author: "authors/bob.json" });
-      const { posts } = makeBlog(reuse);
+      const { posts } = makeBlog(incremental);
 
       await expect(posts.getEntries()).rejects.toThrow(
         /posts\/b\.json.*Validation failed|Validation failed.*b\.json/s,
@@ -625,11 +625,11 @@ describe("reuseListings", () => {
   );
 
   test.each([true, false])(
-    "with reuseListings %s, reports the first failure in slug order, not the first to settle",
-    async (reuse) => {
+    "with incrementalEntries %s, reports the first failure in slug order, not the first to settle",
+    async (incremental) => {
       await write("posts/a.json", { title: "A" });
       await write("posts/b.json", { title: "B" });
-      const qino = makeQino(reuse);
+      const qino = makeQino(incremental);
       const posts = qino.defineCollection({
         directory: "posts",
         extension: ".json",

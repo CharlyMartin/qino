@@ -25,7 +25,7 @@ type ListingSource = {
   relations: AnyRelations;
   instanceId: symbol;
   /** Keeps entries between calls, reused while their files are unchanged. */
-  reuse: boolean;
+  incremental: boolean;
 };
 
 type ListingSlot = {
@@ -57,10 +57,10 @@ type StaleRead = {
  * ties in slug order. A failure throws the first error in slug order, and a
  * read error wins over a relation or `augment` one.
  *
- * With `reuse`, each view keeps its entries, before `augment`, with every file
- * they were built from. A call reuses an entry while a sync stat finds each of
- * those files unchanged, and builds the others again. `augment`, `filter`, and
- * `sort` still run on every call.
+ * With `incremental`, each view keeps its entries, before `augment`, with
+ * every file they were built from. A call reuses an entry while a sync stat
+ * finds each of those files unchanged, and builds the others again. `augment`,
+ * `filter`, and `sort` still run on every call.
  */
 export function createListingCache(source: ListingSource) {
   const states = new Map<string, ListingState>();
@@ -72,7 +72,7 @@ export function createListingCache(source: ListingSource) {
     const state = getState(viewName, slugs);
     const stale = slugs.filter((slug) => !state.slots.has(slug));
 
-    // Every read settles before any relation resolves, as without reuse.
+    // Every read settles before any relation resolves, as when not incremental.
     const reads = unwrapSettled(
       await Promise.allSettled(stale.map((slug) => readStale(slug))),
     );
@@ -112,13 +112,14 @@ export function createListingCache(source: ListingSource) {
       lastOrder: state.order,
     });
     // Only a reused, sorted listing starts its next sort from this order.
-    if (source.reuse && view.sort) state.order = listed.map(getEntrySlug);
+    if (source.incremental && view.sort) state.order = listed.map(getEntrySlug);
     return listed;
   }
 
   // Drops the entries whose files changed, so the call builds them again.
   function getState(viewName: string, slugs: Array<Slug>) {
-    if (!source.reuse) return { slots: new Map(), order: [] } as ListingState;
+    if (!source.incremental)
+      return { slots: new Map(), order: [] } as ListingState;
 
     let state = states.get(viewName);
     if (!state) {
@@ -141,7 +142,9 @@ export function createListingCache(source: ListingSource) {
   }
 
   async function readStale(slug: Slug) {
-    const dependencies = source.reuse ? createDependencyCollector() : undefined;
+    const dependencies = source.incremental
+      ? createDependencyCollector()
+      : undefined;
     const entry = await source.readEntry(slug, dependencies);
     return { entry, dependencies } satisfies StaleRead;
   }

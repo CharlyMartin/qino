@@ -167,7 +167,7 @@ export function defineCollection<
     readEntry,
     relations: collectionRelations,
     instanceId: ctx.instanceId,
-    reuse: ctx.reuseListings ?? false,
+    incremental: ctx.incrementalEntries ?? false,
   });
 
   const collection = {

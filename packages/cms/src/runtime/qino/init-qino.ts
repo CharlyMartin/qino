@@ -35,13 +35,14 @@ export type QinoConfig = {
    */
   readonly cloud?: CloudConfig;
   /**
-   * Keeps each collection listing between calls and reuses its entries while
-   * the files they were built from are unchanged, checked with one sync stat
-   * per file. `augment`, `filter`, and `sort` still run on every call. Meant
-   * for a long-running dev server, such as
-   * `reuseListings: process.env.NODE_ENV == "development"`. Off by default.
+   * Keeps the entries `getEntries` and `getPaginatedEntries` build between
+   * calls, and builds again only those whose files changed, checked with one
+   * sync stat per file. `augment`, `filter`, and `sort` still run on every
+   * call. Meant for a long-running dev server, such as
+   * `incrementalEntries: process.env.NODE_ENV == "development"`. Off by
+   * default.
    */
-  readonly reuseListings?: boolean;
+  readonly incrementalEntries?: boolean;
 };
 
 export type QinoContext = {

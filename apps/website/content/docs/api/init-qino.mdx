@@ -50,7 +50,7 @@ function initQino(config: {
             boolean | { readonly bypassIfAdmin?: boolean };
         };
   };
-  readonly reuseListings?: boolean;
+  readonly incrementalEntries?: boolean;
 }): {
   defineCollection: typeof defineCollection;
   defineTree: typeof defineTree;
@@ -72,7 +72,7 @@ function initQino(config: {
 | `cloud.publish.reviewBeforePublish`               | `boolean \| { bypassIfAdmin? }`                     | yes      |           | Whether an approver signs off in qino before the author can publish. An object turns review on and configures it                                                                                                                                |
 | `cloud.publish.reviewBeforePublish.bypassIfAdmin` | `boolean`                                           | no       | `false`   | Whether admins can publish before every entry is approved                                                                                                                                                                                       |
 | `cloud.publish.branchPrefix`                      | `string`                                            | no       | `"qino/"` | Prefix of the branches the cloud UI opens. `open_pull_request` only                                                                                                                                                                             |
-| `reuseListings`                                   | `boolean`                                           | no       | `false`   | Whether collections keep their listings between calls, and reuse each entry while the files it was built from are unchanged. Meant for a dev server. See [Reusing listings](#reusing-listings)                                                  |
+| `incrementalEntries`                              | `boolean`                                           | no       | `false`   | Whether `getEntries` and `getPaginatedEntries` keep their entries between calls, and build again only those whose files changed. Meant for a dev server. See [Incremental entries](#incremental-entries)                                        |
 
 The config type is not exported; pass an object literal.
 
@@ -95,15 +95,15 @@ export const { defineCollection, defineTree, defineItem } = initQino({
 
 Each instance carries a unique identity. Primitives from one instance cannot be related to primitives from another, and `qino lint` rejects a project that mixes instances.
 
-## Reusing listings
+## Incremental entries
 
-A `getEntries` call, or a `getPaginatedEntries` call on a view that filters or sorts, builds every entry of the collection: its images, its relations, and the view. Parsed files are cached, but on a large collection the rest still takes seconds per call under `next dev`, which makes every promise slower. `reuseListings` keeps each view's entries between calls instead:
+A `getEntries` call, or a `getPaginatedEntries` call on a view that filters or sorts, builds every entry of the collection: its images, its relations, and the view. Parsed files are cached, but on a large collection the rest still takes seconds per call under `next dev`, which makes every promise slower. `incrementalEntries` keeps each view's entries between calls, and builds again only the ones whose files changed:
 
 ```ts title="qino/index.ts"
 export default initQino({
   contentFolder: "src/content",
   mediaFolder: "public",
-  reuseListings: process.env.NODE_ENV == "development",
+  incrementalEntries: process.env.NODE_ENV == "development",
 });
 ```
 
@@ -111,7 +111,8 @@ export default initQino({
 - Each call checks those files, with one sync stat per file, and builds again only the entries whose files changed. An edit shows up on the next call.
 - A file read within 2 seconds of an edit is read again on every call until it's older, because some file systems record modification times only to the second or two.
 - `augment`, `filter`, and `sort` still run on every call, over every entry, so a `filter` that reads the clock or an `augment` that reads other data stays fresh. A sync `augment` adds little. An async one adds a promise per entry.
-- Listings are kept per collection instance. Under `next dev`, each route gets its own instance, so the first visit to a route still builds every entry.
+- Entries are kept per collection instance and view, so the first call for a view on an instance still builds every entry.
+- Other reads build their entries on every call, as without the option: `getEntry`, `getPaginatedEntries` on a view that neither filters nor sorts, and every tree and item getter.
 
 With the option on:
 
