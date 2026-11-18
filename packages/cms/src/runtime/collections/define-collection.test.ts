@@ -817,8 +817,40 @@ describe("concurrent reads", () => {
     ]);
     first.reverse();
 
-    expect(second[0]).toBe(first[1]);
+    expect(second[0]).toEqual(first[1]);
     expect(second.map((post) => post.title)).toEqual(["a", "b"]);
+  });
+
+  test("give each caller its own entries, so top-level writes stay in that call", async () => {
+    for (const slug of ["a", "b", "c"]) await writeMd(`${slug}.md`, slug);
+    const collection = makeListedCollection();
+
+    const [all, again, page] = await Promise.all([
+      collection.getEntries({ view: "listing" }),
+      collection.getEntries({ view: "listing" }),
+      collection.getPaginatedEntries(1, { view: "listing", perPage: 2 }),
+    ]);
+    const [first] = all;
+    if (first) first.title = "Changed by another page";
+
+    expect(again.map((post) => post.title)).toEqual(["c", "b", "a"]);
+    expect(page.entries.map((post) => post.title)).toEqual(["c", "b"]);
+  });
+
+  test("give pages their own entries, so top-level writes stay in that call", async () => {
+    for (const slug of ["a", "b", "c"]) await writeMd(`${slug}.md`, slug);
+    const collection = makeListedCollection();
+
+    const [first, again, all] = await Promise.all([
+      collection.getPaginatedEntries(1, { view: "listing", perPage: 2 }),
+      collection.getPaginatedEntries(1, { view: "listing", perPage: 2 }),
+      collection.getEntries({ view: "listing" }),
+    ]);
+    const [entry] = first.entries;
+    if (entry) entry.title = "Changed by another page";
+
+    expect(again.entries.map((post) => post.title)).toEqual(["c", "b"]);
+    expect(all.map((post) => post.title)).toEqual(["c", "b", "a"]);
   });
 
   test("keep different views apart", async () => {
