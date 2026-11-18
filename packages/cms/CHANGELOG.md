@@ -1,5 +1,36 @@
 # @qino/cms
 
+## 0.24.0
+
+### Minor Changes
+
+- [#345](https://github.com/CharlyMartin/qino/pull/345) [`e1682f5`](https://github.com/CharlyMartin/qino/commit/e1682f5dbb862a0d2e2aea004db8d2a707bfb97d) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Adds `incrementalEntries` to `initQino`, for long-running dev servers. On a large collection, every `getEntries` call, and every `getPaginatedEntries` call on a view that filters or sorts, resolved each entry's images and relations again, which took seconds per page under `next dev`.
+
+  ```ts
+  export default initQino({
+    contentFolder: "src/content",
+    mediaFolder: "public",
+    incrementalEntries: process.env.NODE_ENV == "development",
+  });
+  ```
+
+  - Each view keeps its entries, with every file they were built from: the entry's own file, its images, and the relation targets it resolved, with theirs.
+  - Each call checks those files with one sync stat each, and builds again only the entries whose files changed, so an edit shows up on the next call.
+  - `augment`, `filter`, and `sort` still run on every call. A sync `augment` no longer costs a promise per entry.
+  - With the option on, a reused entry skips its relation and media `parse` callbacks, a lazy relation target must always return the same collection, and entries that reference one target can hold different objects for it.
+
+  On 10,000 posts with a stand-in for `next dev`'s async tracking, a repeated call drops from about 3.6 s to about 50 ms, and editing an author of 879 posts costs about 0.4 s. The first call for each view still builds every entry.
+
+  Also changes which error a collection's `getEntries` and `getPaginatedEntries` throw when several entries fail, with or without the option: the first in slug order, and a read or validation error before a relation or `augment` error, instead of whichever failed first.
+
+- [#353](https://github.com/CharlyMartin/qino/pull/353) [`811b403`](https://github.com/CharlyMartin/qino/commit/811b4034cfc79d2a7cb34e1b63415385af6e00fc) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Changes `qino build` to check `qino/_generated/config.json` instead of rewriting it when the `CI` environment variable is set, as on GitHub Actions and Vercel. With `cloud` set, a stale or missing committed `config.json` now fails the build with the same error as `qino check`, so CI runs and deploys catch a schema change that wasn't rebuilt and committed, with no extra step. This is a breaking change for builds that relied on CI regenerating the file: run `qino build` locally and commit `config.json`, or set `CI=false` for a command that should rewrite it.
+
+### Patch Changes
+
+- [#349](https://github.com/CharlyMartin/qino/pull/349) [`43fbb48`](https://github.com/CharlyMartin/qino/commit/43fbb48ff89926fd653ba325983ae6efe298800f) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Improves the first listing call under `next dev` for collections and trees with `markdown.stats` or `markdown.toc`. `next dev` loads the development build of the Markdown parser, which runs several times slower, so qino now ships the parser's production build bundled into its own. Counting characters for `_stats` is also faster. On 10,000 posts with `markdown.stats`, the first call drops from about 16 s to about 11 s.
+
+  Installing `@qino/cms` no longer installs `unified`, `remark-parse`, `remark-gfm`, `remark-mdx`, or the `mdast-util-*` and `micromark-extension-*` packages. A project that imports any of them without listing it in its own `package.json` needs to add it. The bundled packages' licenses ship in `dist/THIRD-PARTY-LICENSES.md`.
+
 ## 0.23.1
 
 ### Patch Changes
