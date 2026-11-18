@@ -19,7 +19,7 @@ Every getter builds its entries through the same steps, in the same order. Each 
 
 Steps 5 to 8 come from the selected view. See [Views](/docs/concepts/views).
 
-Collections cache steps 1 to 3 per file between calls, and redo them only once the file changes. Images, relations, and views run on every call. Entries can share nested objects between calls, so treat them as read-only.
+Collections, trees, and items cache steps 1 to 3 per file between calls, and redo them only once the file changes. Tree walks, such as `getTree` and `getNextNode`, read steps 1 and 2 from the same cache, so a page that renders a sidebar and its entry parses each file once. Images, relations, and views run on every call. Entries can share nested objects between calls, so treat them as read-only.
 
 A file counts as changed when its size, modification time, or inode changes. For 2 seconds after an edit, qino also compares its content, because some file systems record modification times only to the second or two. A file rewritten in place with the same size, then given back its old modification time, by a script for example, is still served from the cache.
 

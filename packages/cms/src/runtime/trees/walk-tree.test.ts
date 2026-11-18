@@ -5,6 +5,7 @@ import nodePath from "node:path";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
+import { makeReadParsed } from "../../test-utils/make-read-parsed";
 import { walkTree } from "./walk-tree";
 
 const Schema = z.object({
@@ -35,7 +36,7 @@ describe("walkTree", () => {
 
     const nodes = await walkTree({
       directoryPath: tmp,
-      schema: Schema,
+      readParsed: makeReadParsed(Schema),
       extension: ".md",
       titleField: "title",
       orderFileName: "_order.json",
@@ -56,7 +57,7 @@ describe("walkTree", () => {
 
     const nodes = await walkTree({
       directoryPath: tmp,
-      schema: Schema,
+      readParsed: makeReadParsed(Schema),
       extension: ".md",
       titleField: "title",
       orderFileName: "_order.json",
@@ -80,7 +81,7 @@ describe("walkTree", () => {
 
     const nodes = await walkTree({
       directoryPath: tmp,
-      schema: Schema,
+      readParsed: makeReadParsed(Schema),
       extension: ".md",
       titleField: "title",
       orderFileName: "_order.json",
@@ -99,7 +100,7 @@ describe("walkTree", () => {
 
     const nodes = await walkTree({
       directoryPath: tmp,
-      schema: Schema,
+      readParsed: makeReadParsed(Schema),
       extension: ".md",
       titleField: "title",
       orderFileName: "_order.json",
@@ -119,7 +120,7 @@ describe("walkTree", () => {
     await expect(
       walkTree({
         directoryPath: tmp,
-        schema: Schema,
+        readParsed: makeReadParsed(Schema),
         extension: ".md",
         titleField: "title",
         orderFileName: "_order.json",
@@ -139,7 +140,7 @@ describe("walkTree", () => {
     await expect(
       walkTree({
         directoryPath: tmp,
-        schema: Schema,
+        readParsed: makeReadParsed(Schema),
         extension: ".md",
         titleField: "title",
         orderFileName: "_order.json",
@@ -154,7 +155,7 @@ describe("walkTree", () => {
 
     const nodes = await walkTree({
       directoryPath: tmp,
-      schema: Schema,
+      readParsed: makeReadParsed(Schema),
       extension: ".md",
       titleField: "title",
       orderFileName: "_order.json",
@@ -176,7 +177,7 @@ describe("walkTree", () => {
 
     const nodes = await walkTree({
       directoryPath: tmp,
-      schema: Schema,
+      readParsed: makeReadParsed(Schema),
       extension: ".md",
       titleField: "title",
       orderFileName: "_order.json",

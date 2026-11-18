@@ -9,6 +9,10 @@ import { validateCollection } from "../../cli/check/validate-collection";
 import { QinoPrimitiveMarker } from "../../data/globals";
 import { initQino } from "../qino/init-qino";
 
+type Post = { title: string };
+type PostWithAuthor = Post & { author: string };
+type Author = { name: string };
+
 let tmp: string;
 
 beforeEach(async () => {
@@ -635,8 +639,8 @@ describe("collection read cache", () => {
     await writeMd("a.md", "A");
     await writeMd("b.md", "B");
     const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
-    const parseAuthor = vi.fn((author: { name: string }) => author);
-    const parsePost = vi.fn((post: { title: string; author: string }) => post);
+    const parseAuthor = vi.fn((author: Author) => author);
+    const parsePost = vi.fn((post: PostWithAuthor) => post);
     const authors = qino.defineCollection({
       directory: "authors",
       extension: ".json",
@@ -707,7 +711,7 @@ describe("collection read cache", () => {
     await writeMd("a.md", "A");
     await touch("posts/a.md", 1_000);
     const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
-    const parse = vi.fn((post: { title: string }) => post);
+    const parse = vi.fn((post: Post) => post);
     const collection = qino.defineCollection({
       directory: "posts",
       extension: ".md",

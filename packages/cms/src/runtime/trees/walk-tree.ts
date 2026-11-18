@@ -1,16 +1,15 @@
 import fs from "node:fs/promises";
 import nodePath from "node:path";
 
-import type { ObjectSchema } from "../../types/schema";
 import type { TreeNode } from "../../types/tree";
 import type { SupportedFileExtension } from "../../types/utils";
-import { buildNode } from "./build-node";
+import { buildNode, type ReadParsedFile } from "./build-node";
 import { getOrderFromFile } from "./get-order-from-file";
 import { getOrderedNodes } from "./get-ordered-nodes";
 
 type WalkTreeParams = {
   directoryPath: string;
-  schema: ObjectSchema;
+  readParsed: ReadParsedFile;
   extension: SupportedFileExtension;
   titleField: string;
   orderFileName: string;
@@ -70,7 +69,7 @@ async function walkFolder({
     const children = folderMap.get(name) ?? [];
     const slug = relFromRoot ? `${relFromRoot}/${name}` : name;
     const node = await buildNode({
-      schema: params.schema,
+      readParsed: params.readParsed,
       extension: params.extension,
       titleField: params.titleField,
       filePath,

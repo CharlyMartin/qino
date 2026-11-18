@@ -52,7 +52,7 @@ Listed files come first, unlisted ones follow alphabetically. Without the file, 
 
 A tree exposes two kinds of data.
 
-**Nodes** describe structure. `getTree()` returns nested `TreeNode` objects with `slug`, `title`, `fileName`, `filePath`, and `children`. Nodes carry no schema fields and no augment output, so building a sidebar never validates a body.
+**Nodes** describe structure. `getTree()` returns nested `TreeNode` objects with `slug`, `title`, `fileName`, `filePath`, and `children`. Nodes carry no schema fields and no augment output, so building a sidebar never validates a body. Walks and entry reads share each file's cached parse, so later calls re-read only the files that changed. See [Entry pipeline](/docs/concepts/pipeline).
 
 **Entries** carry content. `getEntry(slug)` reads, validates, and applies the selected view to one file, returning the schema output plus `_meta`. `getEntries()` does the same for every file, in reading order, for sitemaps, search indexes, and feeds.
 

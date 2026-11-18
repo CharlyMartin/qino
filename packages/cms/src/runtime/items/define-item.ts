@@ -1,4 +1,3 @@
-import fs from "node:fs/promises";
 import nodePath from "node:path";
 
 import {
@@ -6,6 +5,7 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
+import { createFileCache } from "../../lib/cache/create-file-cache";
 import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
 import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-config";
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
@@ -123,6 +123,7 @@ export function defineItem<
     ctx.contentFolder,
     file,
   ) as `${string}${Ext}`;
+  const fileCache = createFileCache();
 
   const item = {
     [QinoPrimitiveMarker]: {
@@ -145,29 +146,33 @@ export function defineItem<
   return item;
 
   async function readEntry() {
-    const meta = buildItemMeta({ filePath: absoluteFilePath });
-
-    const raw = await fs.readFile(absoluteFilePath, "utf-8");
-
-    const entry = {
-      [META_FIELD_NAME]: meta,
-      ...parseFile({
-        schema,
-        data: raw,
-        filePath: absoluteFilePath,
-        validatorFn: validate,
-      }),
-    };
+    const entry = await fileCache.read(absoluteFilePath, parseEntry);
+    // Images are read per call: an edited image keeps its entry's cache key.
+    // The copy keeps top-level writes to a returned entry out of the cache.
     return (await resolveEntryMedia({
-      entry: await addEntryToc({
-        entry: await addEntryStats({ entry, markdownStats: markdown.stats }),
-        markdownToc: markdown.toc,
-        extension,
-      }),
+      entry: { ...entry },
       media,
       mediaFolder: ctx.mediaFolder,
       filePath: absoluteFilePath,
     })) as ResolvedItemView<S, Ext, TaggedRels>;
+  }
+
+  // Everything here depends on the file alone, so it's cached by file.
+  async function parseEntry(data: string) {
+    const entry = {
+      [META_FIELD_NAME]: buildItemMeta({ filePath: absoluteFilePath }),
+      ...parseFile({
+        schema,
+        data,
+        filePath: absoluteFilePath,
+        validatorFn: validate,
+      }),
+    };
+    return addEntryToc({
+      entry: await addEntryStats({ entry, markdownStats: markdown.stats }),
+      markdownToc: markdown.toc,
+      extension,
+    });
   }
 
   async function getEntry<
