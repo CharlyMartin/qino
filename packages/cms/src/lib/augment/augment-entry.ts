@@ -1,45 +1,50 @@
-import { META_FIELD_NAME } from "../../data/globals";
 import type { AugmentOutput, Awaitable } from "../../types/augment";
+import {
+  type AugmentedSource,
+  mergeAugmentOutput,
+} from "./merge-augment-output";
+import { toAugmentError } from "./to-augment-error";
 
-export async function augmentEntry<
+/**
+ * Adds the fields `augment` returns to an entry. A sync `augment` is merged
+ * right away, without a promise, so augmenting thousands of entries stays
+ * cheap where every promise costs extra, as under `next dev`. An async one
+ * returns a promise of the merged entry.
+ */
+export function augmentEntry<
   Entry extends Record<string, unknown>,
   Output extends AugmentOutput,
 >(
-  entry: Entry & { [META_FIELD_NAME]: { filePath: string } },
+  entry: Entry & AugmentedSource,
   augment?: (entry: Readonly<Entry>) => Awaitable<Output>,
 ) {
   if (!augment) return entry;
 
-  let output: Output;
+  let output: Awaitable<Output>;
 
   try {
-    output = await augment(entry);
+    output = augment(entry);
   } catch (cause) {
-    const message = cause instanceof Error ? cause.message : String(cause);
-
-    throw new Error(
-      `${entry[META_FIELD_NAME].filePath}: augment failed: ${message}`,
-      {
-        cause: cause instanceof Error ? cause : undefined,
-      },
-    );
+    throw toAugmentError(entry, cause);
   }
 
-  if (typeof output != "object" || output == null || Array.isArray(output)) {
-    throw new Error(
-      `${entry[META_FIELD_NAME].filePath}: augment must return an object.`,
-    );
+  // `in` doesn't run a `then` getter. Anything with a `then` goes through
+  // `await`, which reads and calls it exactly as before.
+  const mayBeThenable =
+    (typeof output == "object" && output != null) ||
+    typeof output == "function";
+  if (mayBeThenable && "then" in output) {
+    const pending = output;
+    return (async () => {
+      let value: Output;
+      try {
+        value = await pending;
+      } catch (cause) {
+        throw toAugmentError(entry, cause);
+      }
+      return mergeAugmentOutput(entry, value);
+    })();
   }
 
-  const conflictingKeys = Object.keys(output).filter((key) =>
-    Object.hasOwn(entry, key),
-  );
-
-  if (conflictingKeys.length > 0) {
-    throw new Error(
-      `${entry[META_FIELD_NAME].filePath}: augment cannot add reserved or overwrite existing fields: ${conflictingKeys.join(", ")}.`,
-    );
-  }
-
-  return { ...entry, ...output };
+  return mergeAugmentOutput(entry, output);
 }
