@@ -7,7 +7,7 @@ import sharp from "sharp";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 
-import { initQino } from "../../runtime/qino/init-qino";
+import { initQino, type QinoConfig } from "../../runtime/qino/init-qino";
 import type { AugmentOutput, Awaitable } from "../../types/augment";
 
 type Post = { title: string };
@@ -54,12 +54,14 @@ function spyOnReads() {
   return () => stat.mock.calls.map(([filePath]) => toContentPath(filePath));
 }
 
-function makeQino(incrementalEntries = true) {
-  return initQino({ contentFolder: tmp, mediaFolder: tmp, incrementalEntries });
+type IncrementalOption = Pick<QinoConfig, "incrementalEntries">;
+
+function makeQino(option: IncrementalOption = { incrementalEntries: true }) {
+  return initQino({ contentFolder: tmp, mediaFolder: tmp, ...option });
 }
 
-function makeBlog(incrementalEntries = true) {
-  const qino = makeQino(incrementalEntries);
+function makeBlog(option?: IncrementalOption) {
+  const qino = makeQino(option);
   const teams = qino.defineCollection({
     directory: "teams",
     extension: ".json",
@@ -103,9 +105,12 @@ async function writeBlog() {
 }
 
 describe("incrementalEntries", () => {
-  test("off, builds every entry on every call", async () => {
+  test.each([
+    ["off", { incrementalEntries: false }],
+    ["omitted", {}],
+  ])("%s, builds every entry on every call", async (_, option) => {
     await writeBlog();
-    const { posts } = makeBlog(false);
+    const { posts } = makeBlog(option);
     await posts.getEntries();
     const reads = spyOnReads();
 
@@ -616,7 +621,7 @@ describe("incrementalEntries", () => {
         author: "authors/missing.json",
       });
       await write("posts/b.json", { author: "authors/bob.json" });
-      const { posts } = makeBlog(incremental);
+      const { posts } = makeBlog({ incrementalEntries: incremental });
 
       await expect(posts.getEntries()).rejects.toThrow(
         /posts\/b\.json.*Validation failed|Validation failed.*b\.json/s,
@@ -629,7 +634,7 @@ describe("incrementalEntries", () => {
     async (incremental) => {
       await write("posts/a.json", { title: "A" });
       await write("posts/b.json", { title: "B" });
-      const qino = makeQino(incremental);
+      const qino = makeQino({ incrementalEntries: incremental });
       const posts = qino.defineCollection({
         directory: "posts",
         extension: ".json",

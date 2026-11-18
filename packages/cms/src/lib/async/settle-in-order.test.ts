@@ -1,3 +1,5 @@
+import vm from "node:vm";
+
 import { describe, expect, test } from "vitest";
 
 import { settleInOrder } from "./settle-in-order";
@@ -31,6 +33,13 @@ describe("settleInOrder", () => {
       settleInOrder([Promise.reject(new Error("failed")), slow]),
     ).rejects.toThrow("failed");
     expect(done).toBe(true);
+  });
+
+  test("waits for a promise that isn't an instance of the global Promise", async () => {
+    const foreign = vm.runInNewContext("Promise.resolve(2)");
+    expect(foreign instanceof Promise).toBe(false);
+
+    expect(await settleInOrder([1, foreign, 3])).toEqual([1, 2, 3]);
   });
 
   test("returns an empty list for no values", async () => {
