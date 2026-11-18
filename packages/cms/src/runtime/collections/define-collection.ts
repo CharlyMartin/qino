@@ -13,6 +13,7 @@ import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
 import { assertPageOptions } from "../../lib/pagination/assert-page-options";
+import { copyPage } from "../../lib/pagination/copy-page";
 import { paginate } from "../../lib/pagination/paginate";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
@@ -277,8 +278,9 @@ export function defineCollection<
   >(...[options]: Args) {
     const view = selectView(views, options) as CollectionViewDefinition;
     const entries = await listEntries(options?.view ?? "default", view);
-    // A copy, so one caller sorting in place leaves the others' order alone.
-    return [...entries] as Array<
+    // Concurrent calls share one listing. Copies keep one caller's top-level
+    // writes, and its in-place sorts, out of the others' entries.
+    return entries.map((entry) => ({ ...entry })) as Array<
       SelectedView<
         S,
         CollectionEntryMeta<Ext>,
@@ -308,7 +310,7 @@ export function defineCollection<
     // files are read.
     const result =
       view.filter || view.sort
-        ? paginate(await listEntries(viewName, view), pageOptions)
+        ? copyPage(paginate(await listEntries(viewName, view), pageOptions))
         : await readPage(paginate(await getAllSlugs(), pageOptions), view);
 
     return result as PaginatedEntries<
