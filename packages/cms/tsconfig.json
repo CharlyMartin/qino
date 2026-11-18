@@ -15,5 +15,5 @@
     "resolveJsonModule": true,
     "noUncheckedIndexedAccess": true
   },
-  "include": ["src", "tsdown.config.ts", "vitest.config.ts"]
+  "include": ["build", "src", "tsdown.config.ts", "vitest.config.ts"]
 }
