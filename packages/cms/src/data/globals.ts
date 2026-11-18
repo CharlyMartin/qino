@@ -71,3 +71,9 @@ export const QinoPrimitives = {
   item: "item",
   tree: "tree",
 } as const;
+/**
+ * Files read at once, across the process. On Node 22, reading thousands of
+ * files at once fails with `EMFILE` under a 1,024 open-file limit, as on AWS
+ * Lambda. 64 leaves room under that limit and reads as fast as no cap.
+ */
+export const MAX_CONCURRENT_FILE_READS = 64;

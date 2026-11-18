@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import nodePath from "node:path";
 
+import { unwrapSettled } from "../../lib/async/unwrap-settled";
 import type { TreeNode } from "../../types/tree";
 import type { SupportedFileExtension } from "../../types/utils";
 import { buildNode, type ReadParsedFile } from "./build-node";
@@ -37,8 +38,11 @@ async function walkFolder({
   const entries = await fs.readdir(absFolder, { withFileTypes: true });
   const sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
 
+  // Subfolders, files, and the order file are read concurrently. Failures are
+  // still thrown in the order a one-by-one walk hits them: subfolders, then
+  // files, by name, then a missing sibling file, then the order file.
   const fileMap = new Map<string, string>();
-  const folderMap = new Map<string, Array<TreeNode>>();
+  const folderWalks = new Map<string, Promise<Array<TreeNode>>>();
 
   for (const dirent of sorted) {
     if (dirent.isFile()) {
@@ -54,30 +58,44 @@ async function walkFolder({
         ? `${relFromRoot}/${dirent.name}`
         : dirent.name;
       const childAbs = nodePath.join(absFolder, dirent.name);
-      const children = await walkFolder({
-        params,
-        absFolder: childAbs,
-        relFromRoot: childRel,
-      });
-      folderMap.set(dirent.name, children);
+      folderWalks.set(
+        dirent.name,
+        walkFolder({ params, absFolder: childAbs, relFromRoot: childRel }),
+      );
     }
   }
 
-  const candidates = new Map<string, TreeNode>();
+  const nodeBuilds = [...fileMap].map(
+    async ([name, filePath]) =>
+      [
+        name,
+        await buildNode({
+          readParsed: params.readParsed,
+          extension: params.extension,
+          titleField: params.titleField,
+          filePath,
+          slug: relFromRoot ? `${relFromRoot}/${name}` : name,
+          // A file with a sibling folder waits for that folder's walk only.
+          children: (await folderWalks.get(name)) ?? [],
+        }),
+      ] as const,
+  );
+  const orderRead = getOrderFromFile({
+    folder: absFolder,
+    fileName: params.orderFileName,
+    extension: params.extension,
+  });
 
-  for (const [name, filePath] of fileMap) {
-    const children = folderMap.get(name) ?? [];
-    const slug = relFromRoot ? `${relFromRoot}/${name}` : name;
-    const node = await buildNode({
-      readParsed: params.readParsed,
-      extension: params.extension,
-      titleField: params.titleField,
-      filePath,
-      slug,
-      children,
-    });
-    candidates.set(name, node);
-  }
+  const [walked, built, ordered] = await Promise.all([
+    Promise.allSettled(
+      [...folderWalks].map(async ([name, walk]) => [name, await walk] as const),
+    ),
+    Promise.allSettled(nodeBuilds),
+    Promise.allSettled([orderRead]),
+  ]);
+
+  const folderMap = new Map(unwrapSettled(walked));
+  const candidates = new Map<string, TreeNode>(unwrapSettled(built));
 
   for (const [name, children] of folderMap) {
     if (fileMap.has(name)) continue;
@@ -88,11 +106,7 @@ async function walkFolder({
     );
   }
 
-  const order = await getOrderFromFile({
-    folder: absFolder,
-    fileName: params.orderFileName,
-    extension: params.extension,
-  });
+  const [order] = unwrapSettled(ordered);
 
   return getOrderedNodes({
     order,

@@ -8,6 +8,7 @@ import {
 } from "../../data/globals";
 import { createDerivedCache } from "../../lib/cache/create-derived-cache";
 import { createFileCache } from "../../lib/cache/create-file-cache";
+import { createInFlightCache } from "../../lib/cache/create-in-flight-cache";
 import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
 import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-config";
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
@@ -170,6 +171,9 @@ export function defineTree<
   // of contents, which only entry reads need, are derived once per parse.
   const fileCache = createFileCache();
   const entryCache = createDerivedCache();
+  // Concurrent calls, such as a page's sidebar and its neighbor links, share
+  // one walk.
+  const walks = createInFlightCache();
 
   const tree = {
     [QinoPrimitiveMarker]: {
@@ -209,6 +213,14 @@ export function defineTree<
   async function getTree(): Promise<Array<TreeNode>>;
   async function getTree(slug: Slug): Promise<TreeNode>;
   async function getTree(slug?: Slug) {
+    // Each call gets its own nodes, so changing them affects no other call.
+    const nodes = structuredClone(await walks.run("tree", walk));
+
+    if (typeof slug == "undefined") return nodes;
+    return findNode(nodes, slug, directory);
+  }
+
+  async function walk() {
     const nodes = await walkTree({
       directoryPath,
       readParsed,
@@ -218,9 +230,7 @@ export function defineTree<
     });
     // A walk lists every file, so it frees removed and renamed ones.
     fileCache.retain(flattenTree(nodes).map((node) => node.filePath));
-
-    if (typeof slug == "undefined") return nodes;
-    return findNode(nodes, slug, directory);
+    return nodes;
   }
 
   async function getFlatTree() {

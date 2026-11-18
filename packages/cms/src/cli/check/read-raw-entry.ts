@@ -1,5 +1,4 @@
-import fs from "node:fs/promises";
-
+import { readTextFile } from "../../lib/fs/read-text-file";
 import { parseFile } from "../../lib/parse/parse-file";
 import type { validate } from "../../lib/validate/validate";
 import type { ObjectSchema } from "../../types/schema";
@@ -12,7 +11,7 @@ const passThrough = (({ data }) => data) as typeof validate;
  * schema's output.
  */
 export async function readRawEntry(schema: ObjectSchema, filePath: string) {
-  const data = await fs.readFile(filePath, "utf-8");
+  const data = await readTextFile(filePath);
 
   return parseFile({ schema, data, filePath, validatorFn: passThrough });
 }

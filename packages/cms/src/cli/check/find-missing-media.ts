@@ -1,4 +1,3 @@
-import fs from "node:fs/promises";
 import nodePath from "node:path";
 
 import { extractMediaLinks } from "@qino/tooling/media";
@@ -6,6 +5,7 @@ import { glob } from "tinyglobby";
 
 import { SUPPORTED_CONTENT_EXTENSIONS } from "../../data/globals";
 import { isFile } from "../../lib/fs/is-file";
+import { readTextFile } from "../../lib/fs/read-text-file";
 import type { QinoConfig } from "../../runtime/qino/init-qino";
 import { createMediaFilter } from "./create-media-filter";
 
@@ -44,7 +44,7 @@ export async function findMissingMedia({
   const results = await Promise.all(
     files.sort().map(async (file) => {
       try {
-        const raw = await fs.readFile(file, "utf-8");
+        const raw = await readTextFile(file);
         const links = extractMediaLinks(raw, nodePath.extname(file)).filter(
           ({ url }) => isCheckedMedia(url),
         );

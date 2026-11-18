@@ -772,3 +772,77 @@ describe("getEntries order", () => {
     ).toEqual(["a", "a-b", "b", "c"]);
   });
 });
+
+describe("concurrent reads", () => {
+  function makeListedCollection(augment = vi.fn(() => ({}))) {
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
+    return qino.defineCollection({
+      directory: "posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      views: (view) => ({
+        default: view({}),
+        listing: view({
+          augment,
+          sort: (a, b) => b.title.localeCompare(a.title),
+        }),
+      }),
+    });
+  }
+
+  test("share one listing per view, across getEntries and getPaginatedEntries", async () => {
+    for (const slug of ["a", "b", "c"]) await writeMd(`${slug}.md`, slug);
+    const augment = vi.fn(() => ({}));
+    const collection = makeListedCollection(augment);
+
+    const [all, first, second] = await Promise.all([
+      collection.getEntries({ view: "listing" }),
+      collection.getPaginatedEntries(1, { view: "listing", perPage: 2 }),
+      collection.getPaginatedEntries(2, { view: "listing", perPage: 2 }),
+    ]);
+
+    expect(augment).toHaveBeenCalledTimes(3);
+    expect(all.map((post) => post.title)).toEqual(["c", "b", "a"]);
+    expect(first.entries.map((post) => post.title)).toEqual(["c", "b"]);
+    expect(second.entries.map((post) => post.title)).toEqual(["a"]);
+  });
+
+  test("share a listing without configured views, each caller with its own array", async () => {
+    for (const slug of ["a", "b"]) await writeMd(`${slug}.md`, slug);
+    const collection = makeCollection();
+
+    const [first, second] = await Promise.all([
+      collection.getEntries(),
+      collection.getEntries(),
+    ]);
+    first.reverse();
+
+    expect(second[0]).toBe(first[1]);
+    expect(second.map((post) => post.title)).toEqual(["a", "b"]);
+  });
+
+  test("keep different views apart", async () => {
+    for (const slug of ["a", "b"]) await writeMd(`${slug}.md`, slug);
+    const collection = makeListedCollection();
+
+    const [plain, listed] = await Promise.all([
+      collection.getEntries(),
+      collection.getEntries({ view: "listing" }),
+    ]);
+
+    expect(plain.map((post) => post.title)).toEqual(["a", "b"]);
+    expect(listed.map((post) => post.title)).toEqual(["b", "a"]);
+  });
+
+  test("start a new listing for a call after the previous one finished", async () => {
+    for (const slug of ["a", "b"]) await writeMd(`${slug}.md`, slug);
+    const augment = vi.fn(() => ({}));
+    const collection = makeListedCollection(augment);
+
+    const first = await collection.getEntries({ view: "listing" });
+    const second = await collection.getEntries({ view: "listing" });
+
+    expect(augment).toHaveBeenCalledTimes(4);
+    expect(second[0]).not.toBe(first[0]);
+  });
+});

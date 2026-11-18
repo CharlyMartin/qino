@@ -15,6 +15,7 @@ import {
   META_FIELD_NAME,
   QinoPrimitiveMarker,
 } from "../../data/globals";
+import { readTextFile } from "../../lib/fs/read-text-file";
 import { describeMediaMismatch } from "../../lib/media/describe-media-mismatch";
 import { applyParse } from "../../lib/parse/apply-parse";
 import type { MediaParse } from "../../types/media";
@@ -105,7 +106,7 @@ export async function findMediaViolations(
     }
 
     if (bodyRules.length) {
-      const raw = await fs.readFile(file, "utf-8");
+      const raw = await readTextFile(file);
       const images = extractMediaCandidates(raw, nodePath.extname(file))
         .filter(({ image }) => image)
         .sort((a, b) => a.line - b.line);

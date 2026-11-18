@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import {
   MARKDOWN_FIELD_NAME,
+  MAX_CONCURRENT_FILE_READS,
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
@@ -27,6 +28,8 @@ afterEach(async () => {
 const Schema = z.object({ title: z.string() }).strict();
 
 type Doc = z.infer<typeof Schema>;
+
+type ReadFile = typeof fs.readFile;
 
 async function writeMd(
   dir: string,
@@ -672,5 +675,95 @@ describe("tree read cache", () => {
 
     expect((await tree.getEntry("intro")).title).toBe("Introduction");
     expect((await tree.getTree("intro")).title).toBe("Introduction");
+  });
+
+  test("shares one walk between concurrent calls", async () => {
+    await makeDocs();
+    const tree = makeTree();
+    const readdir = vi.spyOn(fs, "readdir");
+
+    const [nodes, next, previous] = await Promise.all([
+      tree.getTree(),
+      tree.getNextNode("guide"),
+      tree.getPreviousNode("intro"),
+      tree.getAncestorNodes("intro"),
+    ]);
+
+    expect(readdir).toHaveBeenCalledTimes(1);
+    expect(nodes.map((node) => node.slug)).toEqual(["guide", "intro"]);
+    expect(next?.slug).toBe("intro");
+    expect(previous?.slug).toBe("guide");
+    readdir.mockRestore();
+  });
+
+  test("walks again for a call after the previous walk finished", async () => {
+    const docs = await makeDocs();
+    const tree = makeTree();
+    await tree.getTree();
+
+    await writeMd(docs, "intro", "Getting started");
+    await touch(nodePath.join(docs, "intro.md"), 2_000);
+
+    expect((await tree.getTree("intro")).title).toBe("Getting started");
+  });
+
+  test("gives each concurrent call its own nodes", async () => {
+    await makeDocs();
+    const tree = makeTree();
+
+    const [first, second] = await Promise.all([tree.getTree(), tree.getTree()]);
+    (first[0] as Doc).title = "Changed";
+    first.reverse();
+
+    expect(second.map((node) => node.title)).toEqual(["Guide", "Introduction"]);
+  });
+
+  test(`keeps at most ${MAX_CONCURRENT_FILE_READS} files open while walking a larger tree`, async () => {
+    const docs = nodePath.join(tmp, "docs");
+    const guide = nodePath.join(docs, "guide");
+    await fs.mkdir(guide, { recursive: true });
+    await writeMd(docs, "guide", "Guide");
+    const pages: Array<string> = [];
+    const steps: Array<string> = [];
+    for (let i = 0; i < MAX_CONCURRENT_FILE_READS * 2; i++) {
+      await writeMd(docs, `page-${i}`, `Page ${i}`);
+      await writeMd(guide, `step-${i}`, `Step ${i}`);
+      pages.push(`page-${i}.md`);
+      steps.push(`step-${i}.md`);
+    }
+    // Order files are read during the walk too, under the same cap.
+    await fs.writeFile(
+      nodePath.join(docs, "_order.json"),
+      JSON.stringify(["guide.md", ...pages.reverse()]),
+    );
+    await fs.writeFile(
+      nodePath.join(guide, "_order.json"),
+      JSON.stringify(steps.reverse()),
+    );
+    const tree = makeTree();
+    const readFile = fs.readFile.bind(fs);
+    const counts = { active: 0, max: 0 };
+    const spy = vi.spyOn(fs, "readFile").mockImplementation((async (
+      ...args: Parameters<ReadFile>
+    ) => {
+      counts.active++;
+      counts.max = Math.max(counts.max, counts.active);
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        return await readFile(...args);
+      } finally {
+        counts.active--;
+      }
+    }) as ReadFile);
+
+    const nodes = await tree.getFlatTree();
+
+    expect(nodes).toHaveLength(MAX_CONCURRENT_FILE_READS * 4 + 1);
+    expect(nodes.map((node) => node.slug).slice(0, 2)).toEqual([
+      "guide",
+      `guide/step-${MAX_CONCURRENT_FILE_READS * 2 - 1}`,
+    ]);
+    expect(counts.max).toBe(MAX_CONCURRENT_FILE_READS);
+    spy.mockRestore();
   });
 });
