@@ -11,7 +11,7 @@ import { validateItem } from "./validate-item";
 import { validateTree } from "./validate-tree";
 
 type CheckOptions = {
-  /** Whether to check `config.json` is up to date. `qino build` turns it off, since it rewrites the file. */
+  /** Whether to check `config.json` is up to date. `qino build` turns it off outside CI, where it rewrites the file instead. */
   checkConfigFileFreshness?: boolean;
 };
 

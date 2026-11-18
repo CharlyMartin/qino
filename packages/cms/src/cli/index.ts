@@ -2,6 +2,7 @@
 import { consola } from "consola";
 
 import { build } from "./build/build";
+import { isCi } from "./build/is-ci";
 import { check } from "./check/check";
 import { lint } from "./lint/lint";
 import { load } from "./load/load";
@@ -34,8 +35,10 @@ async function main() {
       consola.start(`qino ${BUILD} starts`);
       const loaded = await load();
       await lint(loaded);
-      await check(loaded, { checkConfigFileFreshness: false });
-      await build(loaded);
+      // In CI, a stale config.json fails instead of being rewritten.
+      const isConfigFileChecked = isCi();
+      await check(loaded, { checkConfigFileFreshness: isConfigFileChecked });
+      await build(loaded, { isConfigFileChecked });
       consola.success(`qino ${BUILD} done!`);
       consola.log("");
       return;

@@ -53,6 +53,15 @@ describe("assertConfigFileFresh", () => {
     await expect(assertConfigFileFresh(setup())).resolves.toBeUndefined();
   });
 
+  test("passes when a checkout turned its line endings into CRLF", async () => {
+    await fs.writeFile(
+      filePath,
+      createConfigFile(setup()).replaceAll("\n", "\r\n"),
+    );
+
+    await expect(assertConfigFileFresh(setup())).resolves.toBeUndefined();
+  });
+
   test("throws when the file is missing", async () => {
     await expect(assertConfigFileFresh(setup())).rejects.toThrow(
       '"qino/_generated/config.json" not found. Run `qino build` and commit it.',
