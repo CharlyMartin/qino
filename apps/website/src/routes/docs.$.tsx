@@ -126,9 +126,7 @@ function DocsPage() {
           {breadcrumbs.length > 1 ? (
             <DocsBreadcrumbs breadcrumbs={breadcrumbs} />
           ) : null}
-          {since ? (
-            <Eyebrow tone="accent">Since {since.version}</Eyebrow>
-          ) : null}
+          {since ? <Eyebrow tone="accent">Since {since}</Eyebrow> : null}
           <Title as="h1">{title}</Title>
           <Text size="lead">{description}</Text>
           {isSectionLanding ? null : (
