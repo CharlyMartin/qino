@@ -24,8 +24,8 @@
   ],
   "scripts": {
     "prepublishOnly": "pnpm build && pnpm check-types && pnpm lint && pnpm test && pnpm check-dist",
-    "build": "tsdown",
-    "dev": "tsdown --watch",
+    "build": "tsdown --config-loader unrun",
+    "dev": "tsdown --watch --config-loader unrun",
     "pack": "pnpm build && pnpm pack",
     "check-types": "tsc --noEmit",
     "test": "vitest run",
@@ -80,6 +80,7 @@
     "tsdown": "0.23.7",
     "typescript": "6.0.3",
     "unified": "11.0.5",
+    "unrun": "0.2.37",
     "vitest": "5.1.0",
     "zod": "4.6.7"
   },
