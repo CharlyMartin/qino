@@ -1,5 +1,16 @@
 # @qino/cms
 
+## 0.23.1
+
+### Patch Changes
+
+- [#342](https://github.com/CharlyMartin/qino/pull/342) [`014f04c`](https://github.com/CharlyMartin/qino/commit/014f04cd253ea9df9f8a071e87da95846557fa6b) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Fixes `getEntries` and `getPaginatedEntries` calls that run at the same time sharing entry objects. A top-level change to an entry in one call, such as `post.title = …`, showed up in every call that shared the listing. Each call now gets its own copy of each entry's top-level fields, as calls made one after another already did.
+
+- [#343](https://github.com/CharlyMartin/qino/pull/343) [`85c7145`](https://github.com/CharlyMartin/qino/commit/85c7145269f50e704114cc46badb99dca7164f13) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Fixes two relation bugs in `getEntries`, `getPaginatedEntries`, and `getEntry`:
+
+  - Relations to two primitives over the same directory, such as two collections that parse `people/` apart, resolved to whichever one was read first. Each relation now gets its own target's entry.
+  - When several entries referenced the same missing or invalid target, every error named the first entry that reached it. Each error now names its own entry and relation.
+
 ## 0.23.0
 
 ### Minor Changes
