@@ -27,6 +27,11 @@ type ResolveEntryContext = {
   dependencies?: DependencyCollector;
 };
 
+type TargetReferenceContext = Pick<
+  ResolveEntryContext,
+  "depth" | "override" | "dependencies"
+>;
+
 export type RelationErrorContext = {
   sourceFilePath: string;
   relationKey: string;
@@ -104,11 +109,7 @@ export function createRelationResolver(cache: ResolveCache) {
   async function resolveTargetReference(
     target: AnyPrimitive,
     slug: Slug,
-    {
-      depth,
-      override,
-      dependencies,
-    }: Pick<ResolveEntryContext, "depth" | "override" | "dependencies">,
+    { depth, override, dependencies }: TargetReferenceContext,
     sourceInstanceId: symbol,
     ctx: RelationErrorContext,
   ) {

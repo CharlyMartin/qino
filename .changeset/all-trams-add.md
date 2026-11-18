@@ -15,7 +15,7 @@ export default initQino({
 - Each view keeps its entries, with every file they were built from: the entry's own file, its images, and the relation targets it resolved, with theirs.
 - Each call checks those files with one sync stat each, and builds again only the entries whose files changed, so an edit shows up on the next call.
 - `augment`, `filter`, and `sort` still run on every call. A sync `augment` no longer costs a promise per entry.
-- With the option on, relation and media `parse` callbacks run again only when a file changes, a lazy relation target must always return the same collection, and entries that reference one target can hold different objects for it.
+- With the option on, a reused entry skips its relation and media `parse` callbacks, a lazy relation target must always return the same collection, and entries that reference one target can hold different objects for it.
 
 On 10,000 posts with a stand-in for `next dev`'s async tracking, a repeated call drops from about 3.6 s to about 50 ms, and editing an author of 879 posts costs about 0.4 s. The first call for each view still builds every entry.
 

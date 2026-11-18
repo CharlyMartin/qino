@@ -72,7 +72,7 @@ function initQino(config: {
 | `cloud.publish.reviewBeforePublish`               | `boolean \| { bypassIfAdmin? }`                     | yes      |           | Whether an approver signs off in qino before the author can publish. An object turns review on and configures it                                                                                                                                |
 | `cloud.publish.reviewBeforePublish.bypassIfAdmin` | `boolean`                                           | no       | `false`   | Whether admins can publish before every entry is approved                                                                                                                                                                                       |
 | `cloud.publish.branchPrefix`                      | `string`                                            | no       | `"qino/"` | Prefix of the branches the cloud UI opens. `open_pull_request` only                                                                                                                                                                             |
-| `incrementalEntries`                              | `boolean`                                           | no       | `false`   | Whether `getEntries` and `getPaginatedEntries` keep their entries between calls, and build again only those whose files changed. Meant for a dev server. See [Incremental entries](#incremental-entries)                                        |
+| `incrementalEntries`                              | `boolean`                                           | no       | `false`   | Whether a collection's `getEntries`, and `getPaginatedEntries` on a filtered or sorted view, keep entries between calls, rebuilding only those whose files changed. Meant for a dev server. See [Incremental entries](#incremental-entries)     |
 
 The config type is not exported; pass an object literal.
 
@@ -116,7 +116,7 @@ export default initQino({
 
 With the option on:
 
-- Relation and media `parse` callbacks run again only when a file they depend on changes, like schema transforms. Read other data in `augment` instead.
+- A reused entry skips its relation and media `parse` callbacks, as a cached file skips its schema transforms, so they don't run on every call. Read other data in `augment` instead.
 - A lazy relation target, `() => collection`, must return the same collection every time.
 - Entries that reference one target can hold different objects for it. Group them by the target's `_meta.filePath` or slug, not by object.
 - Nested objects are shared between calls made one after another, not only between concurrent ones. Treat entries as read-only.
