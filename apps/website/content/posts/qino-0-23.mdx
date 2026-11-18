@@ -1,0 +1,135 @@
+---
+title: "qino 0.23: 8× faster builds on large content"
+description: Paginated reads, a read cache, and reads that run in parallel. A paginated listing over 10,000 posts now builds in 17 seconds instead of 134.
+published-on: "2026-11-18"
+author: "authors/charly.json"
+---
+
+qino 0.23 is out, and it's all about large content.
+
+I wanted to see how qino holds up when a content folder gets big, so I pointed it at [qino-test-large](https://github.com/useqino/qino-test-large): a Next.js blog with 10,000 posts, each with an image, reading stats, and two relations. A paginated listing of 60 pages took over two minutes to build, and peaked at 5.6 GB of memory.
+
+The reason was simple. Every page called `getEntries()`, and every call read, validated, and resolved all 10,000 files again, only to keep 24 of them.
+
+With 0.23, the same build takes 17 seconds, with half the memory. Here's what changed, one step at a time.
+
+## Read one page with `getPaginatedEntries`
+
+Collections have a new getter for listings too long to render at once. It returns one page of a view, with the totals you need to link the others:
+
+```tsx title="src/app/posts/page/[page]/page.tsx"
+const PER_PAGE = 24;
+
+export async function generateStaticParams() {
+  const { pageCount } = await postCollection.getPaginatedEntries(1, {
+    perPage: PER_PAGE,
+  });
+  return Array.from({ length: pageCount }, (_, i) => ({ page: `${i + 1}` }));
+}
+
+export default async function PostsPage({ params }: PageProps) {
+  const { page } = await params;
+  const { entries, pageCount, total } =
+    await postCollection.getPaginatedEntries(Number(page), {
+      perPage: PER_PAGE,
+    });
+  // Render entries, and links to pages 1 to pageCount.
+}
+```
+
+When the view has no `filter` and no `sort`, qino picks the page from the slugs, and reads only that page's 24 files.
+
+A date-sorted blog index is another story. qino has to read every entry before it knows which ones land on page 2. That's where the next change comes in.
+
+## Parsed files are cached
+
+Collections, trees, and items now keep each file's parsed, validated entry between calls. A file is read again only once it changes: its size, modification time, or inode. For 2 seconds after an edit, its content is compared too, because some file systems only keep timestamps to the nearest 2 seconds.
+
+Images, relations, and views still run on every call, so an edited image or a changed author shows up right away.
+
+Reading 20 pages one after another, in a script:
+
+| 20 pages, one after another | 0.22.1: `getEntries().slice()` | 0.23.0: `getPaginatedEntries` |
+| --------------------------- | ------------------------------ | ----------------------------- |
+| Unsorted view               | 92.3 s                         | 0.59 s                        |
+| Unsorted view, per page     | ~4.6 s each                    | 135 ms, then 24 ms            |
+| Date-sorted view            | 91.1 s                         | 13.3 s                        |
+| Date-sorted view, per page  | ~4.5 s each                    | 5.0 s, then 437 ms            |
+| Peak memory, sorted         | 502 MB                         | 568 MB                        |
+
+The sorted view's first page still reads and validates all 10,000 files. After that, each page only resolves and sorts entries that are already parsed. Keeping them costs some memory: 66 MB more on this run.
+
+These runs used the pagination and cache change on its own. The other changes in 0.23 target concurrent calls and trees.
+
+Trees and items get the same cache. Reading the same docs entry a second time went from 3.1 ms to 0.1 ms.
+
+## Concurrent calls share their work
+
+The cache made each call cheaper, but `next build` doesn't make calls one at a time. Each worker renders about 8 pages at once. With a sorted view, each of those pages resolved and sorted all 10,000 entries on its own, at the same time. That's where the memory went.
+
+Now, `getEntries` and `getPaginatedEntries` calls for the same view that run at the same time share one listing. Each call still gets its own array, so sorting it in one page leaves the others alone. Nothing is kept once the calls finish, so nothing can go stale.
+
+| `next build`, 60 listing pages | 0.22.1  | Pagination and cache | 0.23.0  |
+| ------------------------------ | ------- | -------------------- | ------- |
+| Static page generation         | 2.1 min | 24.5 s               | 6.8 s   |
+| Whole build                    | 133.9 s | 33.8 s               | 16.7 s  |
+| Peak memory, all processes     | 5.57 GB | 5.36 GB              | 2.67 GB |
+| Peak memory, largest worker    | 1.70 GB | 1.56 GB              | 0.79 GB |
+
+Pagination and the cache made the build 4× faster, but barely moved memory. Sharing the listing halved it.
+
+## Trees walk in parallel
+
+Tree walks are shared the same way. A docs page that calls `getTree`, `getPreviousNode`, and `getNextNode` together now lists its files once, and each call still gets its own nodes.
+
+That wasn't the slow part, though. A walk read its files one after another: about 1,000 round trips for a 1,000-file tree. Now it reads a folder's files, subfolders, and order file at the same time. When several files are invalid, it still throws the same error it did before.
+
+On this website's docs, copied 20 times over to make 1,020 files:
+
+| Warm                     | 0.22.1  | Read cache | Shared walks | 0.23.0  |
+| ------------------------ | ------- | ---------- | ------------ | ------- |
+| `getTree()`, 1,020 files | 69.1 ms | 56.8 ms    | 58.4 ms      | 17.7 ms |
+| Docs page, 1,020 files   | ~79 ms  | ~73 ms     | ~61 ms       | ~19 ms  |
+| Docs page, 50 files      | ~7 ms   | ~7 ms      | 5.6 ms       | 3.6 ms  |
+
+A docs page here is a sidebar, previous and next links, and the entry itself, rendered together. Each column adds one change to the one before, and the parallel walk is the one that counts.
+
+Cold walks gain too. The first walk in a fresh process, over 2,040 small files, went from 412 ms with the one-by-one walk to 139 ms with the parallel one on Node 22, and from 189 ms to 76 ms on Node 26. That's a single run of each.
+
+## Thousands of files on Node 22
+
+Reading thousands of files at once can run out of open files. On Node 22, a collection of 2,000 files already failed with `EMFILE` under a 1,024 open-file limit, the limit AWS Lambda sets. The parallel tree walk would have hit it too.
+
+qino now reads at most 64 content files at once, across the whole process: in trees, collections, items, and `qino check`. In my runs, that read as fast as no limit at all.
+
+| Node 22, 1,024 open files | 0.22.1              | 0.23.0 |
+| ------------------------- | ------------------- | ------ |
+| Collection, 2,000 files   | fails with `EMFILE` | passes |
+| Tree, 2,040 files         | passes              | passes |
+
+## Upgrading
+
+0.23 is a minor release. Three things to know before you upgrade:
+
+- **Slug order.** `getEntries` without a `sort` now returns entries in slug order, instead of the order the file system lists them in. Pages stay the same on every call and on every machine. Add a `sort` to a view to choose another order.
+- **Treat entries as read-only.** Entries can share nested objects between calls. Top-level fields are copied for each call, but an in-place change to a nested value, such as `post.tags.sort()`, shows up in later reads. Use `post.tags.toSorted()` instead.
+- **Schema transforms run once per change.** A transform that reads data outside its own file runs again only when that file changes. Move that work to a view's `augment`, which runs on every call.
+
+## How I measured
+
+- A Linux VM with 6 cores and 10 GB of memory, on arm64, with Node 26.
+- Collections: [qino-test-large](https://github.com/useqino/qino-test-large), with 10,000 posts and 24 per page.
+- `next build`: Next 16, with a `/posts/page/[page]` route over a date-sorted view. 60 listing pages, 64 static pages in all, on 5 workers. Memory is the peak resident memory, sampled across the whole build.
+- The 20-page script reads pages one after another, in a fresh process.
+- Trees: this website's docs, with 50 files, and the same docs copied 20 times to make 1,020, with a table of contents down to `h3`. Runs are warm, and file times are set in the past, so the 2-second content check stays out of the way. Docs page times are averaged over the first 50 pages.
+- `EMFILE`: Node 22.23 with `ulimit -n 1024`, on small generated files.
+
+## Try it
+
+<InstallBox />
+
+- [`getPaginatedEntries`](/docs/api/collection/get-paginated-entries)
+- [Entry pipeline](/docs/concepts/pipeline): what's cached, and what runs on every call
+- [Changelog](https://github.com/CharlyMartin/qino/blob/main/packages/cms/CHANGELOG.md)
+
+If you run qino on a large content folder, I'd love to hear how 0.23 does on yours.
