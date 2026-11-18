@@ -1,10 +1,8 @@
 import fs from "node:fs/promises";
 
 import { readTextFile } from "../fs/read-text-file";
-
-// Timestamps can be as coarse as 2s (FAT), so an edit this close to a read can
-// leave the file's stats as they were.
-const RECENT_EDIT_MS = 2_000;
+import type { DependencyCollector } from "./create-dependency-collector";
+import { observeFile } from "./observe-file";
 
 type FileLoader<Value> = (data: string) => Promise<Value>;
 
@@ -28,19 +26,29 @@ export function createFileCache() {
 
   return { read, retain };
 
-  async function read<Value>(filePath: string, load: FileLoader<Value>) {
+  /**
+   * Reads a file's value. `dependencies` records the stat this read took
+   * before using the file, so a listing can tell later whether it changed.
+   */
+  async function read<Value>(
+    filePath: string,
+    load: FileLoader<Value>,
+    dependencies?: DependencyCollector,
+  ) {
     const now = Date.now();
     // A missing file fails in readFile, with the error an uncached read throws.
     const stats = await fs
       .stat(filePath, { bigint: true })
       .catch(() => undefined);
     if (!stats) {
+      dependencies?.record(filePath);
       slots.delete(filePath);
       return load(await readTextFile(filePath));
     }
 
-    const version = `${stats.ino}:${stats.mtimeNs}:${stats.size}`;
-    const recent = now - Number(stats.mtimeMs) < RECENT_EDIT_MS;
+    const observation = observeFile(stats, now);
+    dependencies?.record(filePath, observation);
+    const { version, untrusted: recent } = observation;
     const slot = slots.get(filePath);
     if (slot?.version == version && !slot.text) {
       return slot.value as Promise<Value>;

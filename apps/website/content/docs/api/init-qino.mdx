@@ -50,6 +50,7 @@ function initQino(config: {
             boolean | { readonly bypassIfAdmin?: boolean };
         };
   };
+  readonly incrementalEntries?: boolean;
 }): {
   defineCollection: typeof defineCollection;
   defineTree: typeof defineTree;
@@ -71,6 +72,7 @@ function initQino(config: {
 | `cloud.publish.reviewBeforePublish`               | `boolean \| { bypassIfAdmin? }`                     | yes      |           | Whether an approver signs off in qino before the author can publish. An object turns review on and configures it                                                                                                                                |
 | `cloud.publish.reviewBeforePublish.bypassIfAdmin` | `boolean`                                           | no       | `false`   | Whether admins can publish before every entry is approved                                                                                                                                                                                       |
 | `cloud.publish.branchPrefix`                      | `string`                                            | no       | `"qino/"` | Prefix of the branches the cloud UI opens. `open_pull_request` only                                                                                                                                                                             |
+| `incrementalEntries`                              | `boolean`                                           | no       | `false`   | Whether a collection's `getEntries`, and `getPaginatedEntries` on a filtered or sorted view, keep entries between calls, rebuilding only those whose files changed. Meant for a dev server. See [Incremental entries](#incremental-entries)     |
 
 The config type is not exported; pass an object literal.
 
@@ -92,6 +94,34 @@ export const { defineCollection, defineTree, defineItem } = initQino({
 ```
 
 Each instance carries a unique identity. Primitives from one instance cannot be related to primitives from another, and `qino lint` rejects a project that mixes instances.
+
+## Incremental entries
+
+A `getEntries` call, or a `getPaginatedEntries` call on a view that filters or sorts, builds every entry of the collection: its images, its relations, and the view. Parsed files are cached, but on a large collection the rest still takes seconds per call under `next dev`, which makes every promise slower. `incrementalEntries` keeps each view's entries between calls, and builds again only the ones whose files changed:
+
+```ts title="qino/index.ts"
+export default initQino({
+  contentFolder: "src/content",
+  mediaFolder: "public",
+  incrementalEntries: process.env.NODE_ENV == "development",
+});
+```
+
+- Each entry is kept with every file it was built from: its own file, its images, and each relation target it resolved, with the target's images, down to the resolve depth.
+- Each call checks those files, with one sync stat per file, and builds again only the entries whose files changed. An edit shows up on the next call.
+- A file read within 2 seconds of an edit is read again on every call until it's older, because some file systems record modification times only to the second or two.
+- `augment`, `filter`, and `sort` still run on every call, over every entry, so a `filter` that reads the clock or an `augment` that reads other data stays fresh. A sync `augment` adds little. An async one adds a promise per entry.
+- Entries are kept per collection instance and view, so the first call for a view on an instance still builds every entry.
+- Other reads build their entries on every call, as without the option: `getEntry`, `getPaginatedEntries` on a view that neither filters nor sorts, and every tree and item getter.
+
+With the option on:
+
+- A reused entry skips its relation and media `parse` callbacks, as a cached file skips its schema transforms, so they don't run on every call. Read other data in `augment` instead.
+- A lazy relation target, `() => collection`, must return the same collection every time.
+- Entries that reference one target can hold different objects for it. Group them by the target's `_meta.filePath` or slug, not by object.
+- Nested objects are shared between calls made one after another, not only between concurrent ones. Treat entries as read-only.
+
+It's meant for dev. A production build prerenders its pages, and a content change ships in a new deploy. The checks block the event loop while they run, which is quick on a local disk but slower on a network drive or a Docker bind mount.
 
 ## Throws
 

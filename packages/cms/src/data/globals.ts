@@ -77,3 +77,10 @@ export const QinoPrimitives = {
  * Lambda. 64 leaves room under that limit and reads as fast as no cap.
  */
 export const MAX_CONCURRENT_FILE_READS = 64;
+
+/**
+ * Timestamps can be as coarse as 2s (FAT), so a file edited this close to a
+ * read can change again without its stats changing. Caches compare such a
+ * file by content, or read it again, until its mtime is old enough to trust.
+ */
+export const RECENT_EDIT_MS = 2_000;

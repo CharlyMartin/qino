@@ -5,6 +5,7 @@ import type {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../data/globals";
+import type { DependencyCollector } from "../lib/cache/create-dependency-collector";
 import type { PrimitiveCloudConfig } from "./cloud";
 import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
@@ -44,13 +45,15 @@ export type ItemMeta<
   readonly media: AnyMediaConfig;
   readonly markdown: ResolvedMarkdownConfig;
   readonly cloud?: PrimitiveCloudConfig;
-  readonly readEntry: () => Promise<ResolvedItemView<Schema, Ext, Rels>>;
+  readonly readEntry: (
+    dependencies?: DependencyCollector,
+  ) => Promise<ResolvedItemView<Schema, Ext, Rels>>;
 };
 
 // Erased entries, so typed items compare structurally, not by variance.
 export type AnyItem = {
   readonly [QinoPrimitiveMarker]: Omit<ItemMeta<ObjectSchema>, "readEntry"> & {
-    readonly readEntry: () => Promise<
+    readonly readEntry: (dependencies?: DependencyCollector) => Promise<
       Record<string, unknown> & {
         [K in typeof META_FIELD_NAME]: ItemEntryMeta;
       }

@@ -5,6 +5,7 @@ import type {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../data/globals";
+import type { DependencyCollector } from "../lib/cache/create-dependency-collector";
 import type { PrimitiveCloudConfig } from "./cloud";
 import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
@@ -65,6 +66,7 @@ export type TreeMeta<
   readonly cloud?: PrimitiveCloudConfig;
   readonly readEntry: (
     slug: Slug,
+    dependencies?: DependencyCollector,
   ) => Promise<ResolvedTreeEntry<Schema, Ext, Rels>>;
 };
 
@@ -137,6 +139,7 @@ export type AnyTreeMeta = {
   readonly cloud?: PrimitiveCloudConfig;
   readonly readEntry: (
     slug: Slug,
+    dependencies?: DependencyCollector,
   ) => Promise<
     Record<string, unknown> & { [K in typeof META_FIELD_NAME]: TreeEntryMeta }
   >;

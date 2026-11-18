@@ -5,6 +5,7 @@ import type {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../data/globals";
+import type { DependencyCollector } from "../lib/cache/create-dependency-collector";
 import type { PrimitiveCloudConfig } from "./cloud";
 import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
@@ -131,6 +132,7 @@ export type CollectionMeta<
   >;
   readonly readEntry: (
     slug: Slug,
+    dependencies?: DependencyCollector,
   ) => Promise<ResolvedCollectionView<Schema, Ext, Rels>>;
 };
 
@@ -145,7 +147,10 @@ export type AnyCollection = {
     "readEntries" | "readEntry"
   > & {
     readonly readEntries: () => Promise<Array<AnyCollectionEntry>>;
-    readonly readEntry: (slug: Slug) => Promise<AnyCollectionEntry>;
+    readonly readEntry: (
+      slug: Slug,
+      dependencies?: DependencyCollector,
+    ) => Promise<AnyCollectionEntry>;
   };
   getAllSlugs(): Promise<Array<Slug>>;
   getEntries(options?: GetterOptions<undefined>): Promise<

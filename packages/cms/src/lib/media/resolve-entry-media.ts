@@ -6,6 +6,8 @@ import { parsePath } from "@qino/tooling/relations";
 import { lookup } from "mrmime";
 
 import type { AnyMediaConfig } from "../../types/media";
+import type { DependencyCollector } from "../cache/create-dependency-collector";
+import { observeFile } from "../cache/observe-file";
 import { applyParse } from "../parse/apply-parse";
 import { walkAndSet } from "../relations/walk-and-set";
 import { describeMediaMismatch } from "./describe-media-mismatch";
@@ -18,6 +20,8 @@ type ResolveEntryMediaParams<Entry> = {
   media: AnyMediaConfig;
   mediaFolder: string;
   filePath: string;
+  /** Records each image file read, with the stat it was checked against. */
+  dependencies?: DependencyCollector;
 };
 
 /**
@@ -25,12 +29,15 @@ type ResolveEntryMediaParams<Entry> = {
  * blur placeholder, read from `mediaFolder`. Fails when the file isn't of the
  * field's `accepted` type or is over its `maxSize`. Other media fields stay
  * strings. A field's `parse` runs first, and its URL replaces the raw value.
+ * One stat per image serves the type and size checks and the decode, so they
+ * all describe the same file.
  */
 export async function resolveEntryMedia<Entry>({
   entry,
   media,
   mediaFolder,
   filePath,
+  dependencies,
 }: ResolveEntryMediaParams<Entry>) {
   let value: unknown = entry;
 
@@ -87,13 +94,18 @@ export async function resolveEntryMedia<Entry>({
         let mismatch: string | undefined;
 
         try {
-          const { size } = await fs.stat(absolutePath);
+          const observedAt = Date.now();
+          const stats = await fs.stat(absolutePath, { bigint: true });
+          const observation = observeFile(stats, observedAt);
+          dependencies?.record(absolutePath, observation);
           mismatch = describeMediaMismatch({
             type: lookup(mediaPath),
-            size,
+            size: Number(stats.size),
             rules: [{ accepted, maxSize: maxBytes }],
           });
-          if (!mismatch) return await getImageData(absolutePath, url);
+          if (!mismatch) {
+            return await getImageData(absolutePath, url, observation);
+          }
         } catch (cause) {
           const message =
             (cause as NodeJS.ErrnoException)?.code == "ENOENT"

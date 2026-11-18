@@ -8,20 +8,40 @@ import {
   BLURRABLE_MEDIA_TYPES,
 } from "../../data/globals";
 import type { QinoImage } from "../../types/media";
+import { createInFlightCache } from "../cache/create-in-flight-cache";
+import { type FileObservation, observeFile } from "../cache/observe-file";
 import { isImageMediaType } from "./is-image-media-type";
 
 type ImageData = Omit<QinoImage, "src">;
 
 // Entries share images across reads; a changed file gets a new key.
 const cache = new Map<string, Promise<ImageData>>();
+// Entries reading a just-edited image at once share its decode, kept only
+// while it runs.
+const recentDecodes = createInFlightCache();
 
 /**
  * Reads an image's dimensions and, for JPEG, PNG, WebP, and AVIF, an 8px blur
  * placeholder, as Next does for static imports. sharp is only loaded here.
+ * Pass the observation of a stat already taken, so the data matches the file
+ * that stat describes. An image edited within 2s of it is decoded again.
  */
-export async function getImageData(filePath: string, src: string) {
-  const { mtimeMs } = await fs.stat(filePath);
-  const key = `${filePath}:${mtimeMs}`;
+export async function getImageData(
+  filePath: string,
+  src: string,
+  observation?: FileObservation,
+) {
+  const { version, untrusted } =
+    observation ??
+    observeFile(await fs.stat(filePath, { bigint: true }), Date.now());
+  const key = `${filePath}:${version}`;
+
+  if (untrusted) {
+    // Its stats can't prove a cached decode matches, so it isn't kept either.
+    cache.delete(key);
+    const data = await recentDecodes.run(key, () => readImageData(filePath));
+    return { src, ...data } satisfies QinoImage;
+  }
 
   if (!cache.has(key)) {
     const data = readImageData(filePath);

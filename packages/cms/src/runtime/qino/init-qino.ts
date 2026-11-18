@@ -34,6 +34,16 @@ export type QinoConfig = {
    * cloud UI; `qino check` fails when it's stale.
    */
   readonly cloud?: CloudConfig;
+  /**
+   * Keeps the entries a collection's `getEntries` builds between calls, and
+   * builds again only those whose files changed, checked with one sync stat
+   * per file. So does `getPaginatedEntries` on a view that filters or sorts.
+   * `augment`, `filter`, and `sort` still run on every call. Meant for a
+   * long-running dev server, such as
+   * `incrementalEntries: process.env.NODE_ENV == "development"`. Off by
+   * default.
+   */
+  readonly incrementalEntries?: boolean;
 };
 
 export type QinoContext = {

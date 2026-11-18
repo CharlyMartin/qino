@@ -1,9 +1,10 @@
 import { MAX_RESOLVE_DEPTH } from "../../data/globals";
 import type { AnyRelations } from "../../types/relations";
 import type { AnyEntry } from "../../types/utils";
-import { augmentEntry } from "../augment/augment-entry";
+import { settleInOrder } from "../async/settle-in-order";
 import { createRelationResolver } from "../relations/create-relation-resolver";
 import { createResolveCache } from "../relations/create-resolve-cache";
+import { applyAugment } from "./apply-augment";
 import type { RuntimeView } from "./select-view";
 
 export async function applyView(
@@ -13,7 +14,8 @@ export async function applyView(
   instanceId: symbol,
 ) {
   const resolver = createRelationResolver(createResolveCache());
-  return Promise.all(
+  // Waits for every entry, then throws the first failure in their order.
+  return settleInOrder(
     entries.map(async (entry) => {
       const resolved = (await resolver.resolveEntry(entry, {
         relations,
@@ -22,11 +24,7 @@ export async function applyView(
         viewDepths: view.resolveDepth,
         sourceInstanceId: instanceId,
       })) as AnyEntry;
-      const augment = view.augment;
-      return augmentEntry(
-        resolved,
-        augment ? (value) => augment(value as never) : undefined,
-      );
+      return applyAugment(resolved, view);
     }),
   );
 }
