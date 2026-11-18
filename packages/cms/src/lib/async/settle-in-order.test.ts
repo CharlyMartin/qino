@@ -42,6 +42,29 @@ describe("settleInOrder", () => {
     expect(await settleInOrder([1, foreign, 3])).toEqual([1, 2, 3]);
   });
 
+  test("waits for a function with a then method", async () => {
+    const thenable = Object.assign(() => {}, {
+      // biome-ignore lint/suspicious/noThenProperty: a callable thenable
+      then: (resolve: (value: number) => void) => resolve(2),
+    }) as unknown as PromiseLike<number>;
+
+    expect(await settleInOrder([1, thenable, 3])).toEqual([1, 2, 3]);
+  });
+
+  test("keeps each result in place when a thenable drops its then", async () => {
+    const thenable = {
+      // biome-ignore lint/suspicious/noThenProperty: a thenable that drops its then
+      then(resolve: (value: number) => void) {
+        Reflect.deleteProperty(this, "then");
+        resolve(2);
+      },
+    } as unknown as PromiseLike<number>;
+
+    expect(await settleInOrder([1, thenable, Promise.resolve(3)])).toEqual([
+      1, 2, 3,
+    ]);
+  });
+
   test("returns an empty list for no values", async () => {
     expect(await settleInOrder([])).toEqual([]);
   });

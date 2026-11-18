@@ -11,15 +11,21 @@ import { unwrapSettled } from "./unwrap-settled";
 export async function settleInOrder<Value>(
   values: ReadonlyArray<Value | PromiseLike<Value>>,
 ) {
-  const isPending = (value: Value | PromiseLike<Value>) =>
-    typeof value == "object" && value != null && "then" in value;
-  const pending = values.filter(isPending);
-  const settled = await Promise.allSettled(pending);
+  // Checked once: settling a thenable can remove its `then`.
+  const isPending = values.map(
+    (value) =>
+      ((typeof value == "object" && value != null) ||
+        typeof value == "function") &&
+      "then" in value,
+  );
+  const settled = await Promise.allSettled(
+    values.filter((_, index) => isPending[index]),
+  );
 
   let next = 0;
   return unwrapSettled(
-    values.map((value) =>
-      isPending(value)
+    values.map((value, index) =>
+      isPending[index]
         ? (settled[next++] as PromiseSettledResult<Value>)
         : ({ status: "fulfilled", value } as PromiseFulfilledResult<Value>),
     ),
