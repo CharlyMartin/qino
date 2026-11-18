@@ -467,3 +467,304 @@ describe("collection filter and sort", () => {
     }
   });
 });
+
+describe("getPaginatedEntries", () => {
+  function makePagedCollection(augment = vi.fn(() => ({}))) {
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
+    return qino.defineCollection({
+      directory: "posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      views: (view) => ({
+        default: view({ augment }),
+        listing: view({
+          augment: (entry) => ({ draft: entry.title.startsWith("Draft") }),
+          filter: (entry) => !entry.draft,
+          sort: (a, b) => b.title.localeCompare(a.title),
+        }),
+      }),
+    });
+  }
+
+  test("pages a sorted, filtered view and counts entries after the filter", async () => {
+    for (const title of ["A", "B", "Draft one", "C", "D", "E"]) {
+      await writeMd(`${title.toLowerCase().replace(" ", "-")}.md`, title);
+    }
+    const collection = makePagedCollection();
+
+    const first = await collection.getPaginatedEntries(1, {
+      view: "listing",
+      perPage: 2,
+    });
+    expect(first.entries.map((entry) => entry.title)).toEqual(["E", "D"]);
+    expect(first).toMatchObject({
+      page: 1,
+      perPage: 2,
+      pageCount: 3,
+      total: 5,
+    });
+    expect(first.entries[0]?.draft).toBe(false);
+    const last = await collection.getPaginatedEntries(3, {
+      view: "listing",
+      perPage: 2,
+    });
+    expect(last.entries.map((entry) => entry.title)).toEqual(["A"]);
+  });
+
+  test("pages an unsorted view in slug order, reading only that page's files", async () => {
+    for (const slug of ["d", "b", "e", "a", "c"]) {
+      await writeMd(`${slug}.md`, slug.toUpperCase());
+    }
+    const augment = vi.fn(() => ({}));
+    const collection = makePagedCollection(augment);
+    const readFile = vi.spyOn(fs, "readFile");
+
+    const result = await collection.getPaginatedEntries(2, { perPage: 2 });
+
+    expect(result.entries.map((entry) => entry._meta.slug)).toEqual(["c", "d"]);
+    expect(result).toMatchObject({ page: 2, pageCount: 3, total: 5 });
+    expect(augment).toHaveBeenCalledTimes(2);
+    expect(readFile).toHaveBeenCalledTimes(2);
+  });
+
+  test("only validates the files on the requested page of an unsorted view", async () => {
+    await writeMd("a.md", "A");
+    await fs.writeFile(nodePath.join(tmp, "posts", "b.md"), "---\n---\n");
+    const collection = makePagedCollection();
+
+    await expect(
+      collection.getPaginatedEntries(1, { perPage: 1 }),
+    ).resolves.toMatchObject({ total: 2 });
+    await expect(
+      collection.getPaginatedEntries(2, { perPage: 1 }),
+    ).rejects.toThrow(/Validation failed/);
+  });
+
+  test("returns an empty first page for an empty or missing directory", async () => {
+    const collection = makePagedCollection();
+    const empty = { entries: [], page: 1, perPage: 10, pageCount: 1, total: 0 };
+
+    expect(await collection.getPaginatedEntries(1, { perPage: 10 })).toEqual(
+      empty,
+    );
+    await fs.mkdir(nodePath.join(tmp, "posts"));
+    expect(
+      await collection.getPaginatedEntries(1, {
+        view: "listing",
+        perPage: 10,
+      }),
+    ).toEqual(empty);
+  });
+
+  test("rejects a bad page or perPage before reading any entry", async () => {
+    await writeMd("a.md", "A");
+    await fs.writeFile(nodePath.join(tmp, "posts", "b.md"), "---\n---\n");
+    const augment = vi.fn(() => ({}));
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
+    const collection = qino.defineCollection({
+      directory: "posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      views: (view) => ({
+        default: view({
+          augment,
+          sort: (a, b) => a.title.localeCompare(b.title),
+        }),
+      }),
+    });
+    const readFile = vi.spyOn(fs, "readFile");
+
+    await expect(
+      collection.getPaginatedEntries(0, { perPage: 2 }),
+    ).rejects.toThrow(/page must be a positive integer, got 0/);
+    await expect(
+      collection.getPaginatedEntries(1, { perPage: 0 }),
+    ).rejects.toThrow(/perPage must be a positive integer, got 0/);
+    expect(readFile).not.toHaveBeenCalled();
+    expect(augment).not.toHaveBeenCalled();
+  });
+
+  test("rejects out-of-range pages, invalid sizes, unknown views, and getter callbacks", async () => {
+    await writeMd("a.md", "A");
+    await writeMd("b.md", "B");
+    const collection = makePagedCollection();
+
+    await expect(
+      collection.getPaginatedEntries(2, { view: "listing", perPage: 2 }),
+    ).rejects.toThrow(
+      'Collection "posts" (view "listing"): page 2 is out of range, expected 1 to 1.',
+    );
+    await expect(
+      collection.getPaginatedEntries(0, { perPage: 2 }),
+    ).rejects.toThrow(
+      'Collection "posts" (view "default"): page must be a positive integer, got 0.',
+    );
+    await expect(
+      collection.getPaginatedEntries(1, { perPage: 0 }),
+    ).rejects.toThrow(/perPage must be a positive integer, got 0/);
+    await expect(
+      collection.getPaginatedEntries(1, undefined as never),
+    ).rejects.toThrow(/perPage must be a positive integer, got undefined/);
+    await expect(
+      collection.getPaginatedEntries(1, {
+        view: "missing",
+        perPage: 2,
+      } as never),
+    ).rejects.toThrow(/Unknown view "missing"/);
+    await expect(
+      collection.getPaginatedEntries(1, {
+        perPage: 2,
+        sort: () => 0,
+      } as never),
+    ).rejects.toThrow(/Getter filter and sort are not supported/);
+  });
+});
+
+describe("collection read cache", () => {
+  async function touch(relPath: string, seconds: number) {
+    const filePath = nodePath.join(tmp, relPath);
+    await fs.utimes(filePath, seconds, seconds);
+  }
+
+  test("reuses parsed files between calls, relation targets included", async () => {
+    await fs.mkdir(nodePath.join(tmp, "authors"));
+    await fs.writeFile(
+      nodePath.join(tmp, "authors/ada.json"),
+      JSON.stringify({ name: "Ada" }),
+    );
+    await writeMd("a.md", "A");
+    await writeMd("b.md", "B");
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
+    const parseAuthor = vi.fn((author: { name: string }) => author);
+    const parsePost = vi.fn((post: { title: string; author: string }) => post);
+    const authors = qino.defineCollection({
+      directory: "authors",
+      extension: ".json",
+      schema: z.object({ name: z.string() }).transform(parseAuthor),
+    });
+    const posts = qino.defineCollection({
+      directory: "posts",
+      extension: ".md",
+      schema: z
+        .object({
+          title: z.string(),
+          author: z.string().default("authors/ada.json"),
+        })
+        .transform(parsePost),
+      relations: { author: authors },
+    });
+
+    await posts.getEntries();
+    const second = await posts.getEntries();
+
+    expect(parsePost).toHaveBeenCalledTimes(2);
+    expect(parseAuthor).toHaveBeenCalledTimes(1);
+    expect(second.map((post) => post.author.name)).toEqual(["Ada", "Ada"]);
+  });
+
+  test("re-reads a file once it changes", async () => {
+    await writeMd("a.md", "Before");
+    await touch("posts/a.md", 1_000);
+    const collection = makeCollection();
+    expect((await collection.getEntry("a")).title).toBe("Before");
+
+    await writeMd("a.md", "After!");
+    await touch("posts/a.md", 2_000);
+
+    expect((await collection.getEntry("a")).title).toBe("After!");
+    expect((await collection.getEntries()).map((post) => post.title)).toEqual([
+      "After!",
+    ]);
+  });
+
+  test("re-reads a just-edited file whose rewrite keeps its size and mtime", async () => {
+    const seconds = Math.floor(Date.now() / 1_000);
+    await writeMd("a.md", "Before");
+    await touch("posts/a.md", seconds);
+    const collection = makeCollection();
+    expect((await collection.getEntry("a")).title).toBe("Before");
+
+    await writeMd("a.md", "After!");
+    await touch("posts/a.md", seconds);
+
+    expect((await collection.getEntry("a")).title).toBe("After!");
+  });
+
+  test("does not cache a file that fails validation", async () => {
+    await fs.mkdir(nodePath.join(tmp, "posts"));
+    await fs.writeFile(nodePath.join(tmp, "posts/a.md"), "---\n---\n");
+    await touch("posts/a.md", 1_000);
+    const collection = makeCollection();
+    await expect(collection.getEntry("a")).rejects.toThrow(/Validation failed/);
+
+    await writeMd("a.md", "Fixed");
+    await touch("posts/a.md", 2_000);
+
+    expect((await collection.getEntry("a")).title).toBe("Fixed");
+  });
+
+  test("drops a removed file once a listing no longer finds it", async () => {
+    await writeMd("a.md", "A");
+    await touch("posts/a.md", 1_000);
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
+    const parse = vi.fn((post: { title: string }) => post);
+    const collection = qino.defineCollection({
+      directory: "posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }).transform(parse),
+    });
+    await collection.getEntry("a");
+    const postPath = nodePath.join(tmp, "posts/a.md");
+    const awayPath = nodePath.join(tmp, "a.md");
+
+    // Moving it away and back keeps its inode, mtime, and size.
+    await fs.rename(postPath, awayPath);
+    expect(await collection.getAllSlugs()).toEqual([]);
+    await fs.rename(awayPath, postPath);
+
+    await collection.getEntry("a");
+    expect(parse).toHaveBeenCalledTimes(2);
+  });
+
+  test("keeps top-level writes to a returned entry out of later reads", async () => {
+    await writeMd("a.md", "Original");
+    const collection = makeCollection();
+
+    const entry = await collection.getEntry("a");
+    entry.title = "Changed";
+
+    expect((await collection.getEntry("a")).title).toBe("Original");
+  });
+
+  test("keeps collections over the same directory apart", async () => {
+    await writeMd("a.md", "Hello");
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
+    const plain = qino.defineCollection({
+      directory: "posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+    });
+    const loud = qino.defineCollection({
+      directory: "posts",
+      extension: ".md",
+      schema: z
+        .object({ title: z.string() })
+        .transform(({ title }) => ({ title: title.toUpperCase() })),
+    });
+
+    expect((await plain.getEntry("a")).title).toBe("Hello");
+    expect((await loud.getEntry("a")).title).toBe("HELLO");
+  });
+});
+
+describe("getEntries order", () => {
+  test("returns unsorted views in slug order", async () => {
+    for (const slug of ["c", "a-b", "b", "a"]) {
+      await writeMd(`${slug}.md`, slug);
+    }
+
+    expect(
+      (await makeCollection().getEntries()).map((post) => post._meta.slug),
+    ).toEqual(["a", "a-b", "b", "c"]);
+  });
+});

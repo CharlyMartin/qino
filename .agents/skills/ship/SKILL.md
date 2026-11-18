@@ -77,6 +77,24 @@ Also:
 
 When the Codex review changed something worth knowing, or rejected a finding a reviewer might raise again, add a one-line "Review" note.
 
-## 5. Report
+## 5. Greptile findings
 
-The PR URL, the list of commits, and the branch name.
+Greptile reviews the PR once, a few minutes after it opens (`.greptile/config.json`). It doesn't review a later push: the user asks for another review by commenting `@greptileai`, so never post that comment yourself. Read its comments, if there are any:
+
+```sh
+gh api repos/{owner}/{repo}/pulls/<number>/comments
+```
+
+Triage each finding the way the `codex-review` skill does: apply the valid ones, skip the false positives and out-of-scope suggestions with a reason. Get the checks green again, then commit and push the fixes to the same branch.
+
+Reply on each thread once the fixes are pushed: what was applied and in which commit, or why the finding was skipped.
+
+```sh
+gh api repos/{owner}/{repo}/pulls/<number>/comments/<comment-id>/replies -f body="<reply>"
+```
+
+A PR with no Greptile comments needs nothing here.
+
+## 6. Report
+
+The PR URL, the list of commits, and the branch name. If Greptile left findings, add what was applied and what was skipped.

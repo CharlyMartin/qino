@@ -33,6 +33,12 @@ export type GetterOptions<View extends string | undefined = string> = {
   sort?: never;
 };
 
+export type PageOptions<View extends string | undefined = string> =
+  GetterOptions<View> & {
+    /** Entries per page, a positive integer. */
+    perPage: number;
+  };
+
 export type Slug<S extends string = string> = S;
 
 export type AnyPrimitive = AnyCollection | AnyItem | AnyTree;

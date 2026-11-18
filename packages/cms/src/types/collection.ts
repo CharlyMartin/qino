@@ -18,10 +18,16 @@ import type {
   ContentPath,
   EmptyObject,
   GetterOptions,
+  PageOptions,
   Slug,
   SupportedFileExtension,
 } from "./utils";
-import type { SelectedView, ViewArguments, ViewSelection } from "./views";
+import type {
+  SelectedView,
+  ViewArguments,
+  ViewNames,
+  ViewSelection,
+} from "./views";
 
 export type CollectionEntryMeta<
   Ext extends SupportedFileExtension = SupportedFileExtension,
@@ -53,6 +59,22 @@ export type Collection<
       >
     >
   >;
+  getPaginatedEntries<
+    Options extends PageOptions<ViewNames<Views> | undefined>,
+  >(
+    page: number,
+    options: Options,
+  ): Promise<
+    PaginatedEntries<
+      SelectedView<
+        Schema,
+        CollectionEntryMeta<Ext>,
+        Rels,
+        Views,
+        ViewSelection<Options>
+      >
+    >
+  >;
   getEntry<Args extends ViewArguments<Views> = []>(
     slug: SlugFor<Dir>,
     ...args: Args
@@ -65,6 +87,17 @@ export type Collection<
       ViewSelection<Args[0]>
     >
   >;
+};
+
+/** One page of `getPaginatedEntries`, 1-indexed. */
+export type PaginatedEntries<Entry> = {
+  entries: Array<Entry>;
+  page: number;
+  perPage: number;
+  /** At least 1, so an empty collection still has a first page. */
+  pageCount: number;
+  /** Entries across every page, after the view's `filter`. */
+  total: number;
 };
 
 // An entry as read, before a view resolves its relations.
@@ -117,6 +150,16 @@ export type AnyCollection = {
   getAllSlugs(): Promise<Array<Slug>>;
   getEntries(options?: GetterOptions<undefined>): Promise<
     Array<
+      Record<string, unknown> & {
+        [K in typeof META_FIELD_NAME]: CollectionEntryMeta;
+      }
+    >
+  >;
+  getPaginatedEntries(
+    page: number,
+    options: PageOptions<undefined>,
+  ): Promise<
+    PaginatedEntries<
       Record<string, unknown> & {
         [K in typeof META_FIELD_NAME]: CollectionEntryMeta;
       }

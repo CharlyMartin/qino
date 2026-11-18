@@ -1,10 +1,12 @@
 import { QinoPrimitiveMarker, QinoPrimitives } from "../data/globals";
+import { paginate } from "../lib/pagination/paginate";
 import type { AnyCollection } from "../types/collection";
 import type { AnyRelations } from "../types/relations";
 import type { ResolveDepths } from "../types/resolve";
 import type {
   AnyEntry,
   ContentPath,
+  PageOptions,
   Slug,
   SupportedFileExtension,
 } from "../types/utils";
@@ -45,6 +47,12 @@ export function makeDummyCollection({
       },
     },
     getEntries: async () => Array.from(store.values()) as never,
+    getPaginatedEntries: async (page: number, { perPage }: PageOptions) =>
+      paginate(Array.from(store.values()), {
+        page,
+        perPage,
+        owner: `Collection "${directory}"`,
+      }) as never,
     getAllSlugs: async () => Array.from(store.keys()).sort(),
     getEntry: async (slug: Slug) => {
       const found = store.get(slug);

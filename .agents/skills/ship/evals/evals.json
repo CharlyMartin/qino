@@ -43,6 +43,22 @@
         "The response does not push or open a PR before the changeset exists.",
         "The changeset is in the same commit as the `parse-frontmatter.ts` fix, not in a separate commit."
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Handle the review comments on this open PR from this isolated context. Do not inspect the repository, run commands, or edit files. List the exact commands you would run, in order, with the commit message and the reply you would post on each thread, then the final message you would send the user.\n\nContext:\n- PR #42 on `CharlyMartin/qino` is open from `feat/tree-get-entries`. Tests, types and Biome pass, and the Codex review ended clean.\n- Greptile left two inline comments:\n  - Comment 101 on `packages/cms/src/runtime/trees/define-tree.ts`: `getEntries` reads the `_order.json` file once per node instead of once per folder. This is correct.\n  - Comment 102 on `packages/cms/src/runtime/trees/walk-tree.ts`: asks for an explicit return type on `walkTree`. AGENTS.md says to avoid return types unless necessary.",
+      "expected_output": "Claude fixes the valid finding, pushes it to the same branch, replies on both threads with what was applied in which commit or why it was skipped, and never asks Greptile for another review.",
+      "files": [],
+      "assertions": [
+        "The response reads the PR's review comments with `gh api repos/CharlyMartin/qino/pulls/42/comments` or an equivalent `gh` call.",
+        "The response fixes the `_order.json` finding and skips the return type finding, citing the AGENTS.md rule on return types.",
+        "The fix is committed with a Conventional Commit subject with a scope, and pushed to `feat/tree-get-entries` without `--force`, before any reply is posted.",
+        "Each comment gets a reply through `gh api repos/CharlyMartin/qino/pulls/42/comments/<comment-id>/replies`, on comment 101 and on comment 102.",
+        "The reply on comment 101 names the commit that fixes it, and the reply on comment 102 gives the reason it was skipped.",
+        "The response never posts an `@greptileai` comment or otherwise asks Greptile for another review.",
+        "No commit message or reply contains `Co-Authored-By` or `Generated with Claude Code`.",
+        "The final message to the user says the `_order.json` finding was applied and the return type finding was skipped."
+      ]
     }
   ]
 }

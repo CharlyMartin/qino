@@ -14,9 +14,16 @@ Every getter builds its entries through the same steps, in the same order. Each 
 5. **Resolve relations.** Relation references are replaced by their target entries, up to each relation's `resolveDepth`, or the depth the view sets for it. See [Relations](/docs/concepts/relations).
 6. **Augment.** The view's `augment` adds derived fields.
 7. **Filter.** For collections, the view's `filter` drops entries. `getEntry` throws when its entry is dropped.
-8. **Sort.** For `getEntries`, the view's `sort` orders the result.
+8. **Sort.** For `getEntries` and `getPaginatedEntries`, the view's `sort` orders the result. Without one, entries stay in slug order.
+9. **Paginate.** For `getPaginatedEntries`, qino keeps the requested page. When the view has no `filter` and no `sort`, it picks the page from the slugs before step 1, and reads only that page's files.
 
 Steps 5 to 8 come from the selected view. See [Views](/docs/concepts/views).
+
+Collections cache steps 1 to 3 per file between calls, and redo them only once the file changes. Images, relations, and views run on every call. Entries can share nested objects between calls, so treat them as read-only.
+
+A file counts as changed when its size, modification time, or inode changes. For 2 seconds after an edit, qino also compares its content, because some file systems record modification times only to the second or two. A file rewritten in place with the same size, then given back its old modification time, by a script for example, is still served from the cache.
+
+The cache follows each file, not what its schema reads. A schema transform that reads another file, or anything else outside the entry, runs again only when the entry's own file changes. Read that data in a view's `augment` instead, which runs on every call.
 
 | Step                | Receives                                                       |
 | ------------------- | -------------------------------------------------------------- |

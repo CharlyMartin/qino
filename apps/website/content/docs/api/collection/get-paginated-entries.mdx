@@ -1,0 +1,79 @@
+---
+title: getPaginatedEntries
+description: Read one page of a collection, with the totals to link the others.
+---
+
+Returns one page of the selected view, 1-indexed, with the page count and total. Use it for listings too long to render at once.
+
+```ts title="src/app/posts/page/[page]/page.tsx"
+const PER_PAGE = 24;
+
+export async function generateStaticParams() {
+  const { pageCount } = await postCollection.getPaginatedEntries(1, {
+    view: "listing",
+    perPage: PER_PAGE,
+  });
+  return Array.from({ length: pageCount }, (_, i) => ({ page: `${i + 1}` }));
+}
+
+export default async function PostsPage({ params }: PageProps) {
+  const { page } = await params;
+  const { entries, pageCount } = await postCollection.getPaginatedEntries(
+    Number(page),
+    { view: "listing", perPage: PER_PAGE },
+  );
+  // Render entries, and links to pages 1 to pageCount.
+}
+```
+
+## Signature
+
+```ts title="@qino/cms"
+collection.getPaginatedEntries(
+  page: number,
+  options: { view?: ViewName; perPage: number },
+): Promise<PaginatedEntries<Entry>>;
+```
+
+## Parameters
+
+| Name              | Type      | Required | Default     | Description                                     |
+| ----------------- | --------- | -------- | ----------- | ----------------------------------------------- |
+| `page`            | `number`  | yes      |             | The page to read, from `1`                      |
+| `options.perPage` | `number`  | yes      |             | Entries per page, a positive integer            |
+| `options.view`    | view name | no       | `"default"` | A view declared in `views`. Unknown names throw |
+
+Like [getEntries](/docs/api/collection/get-entries), passing `resolveDepth`, `filter`, or `sort` throws.
+
+## Returns
+
+`Promise<PaginatedEntries<Entry>>`:
+
+| Field       | Type           | Description                                                         |
+| ----------- | -------------- | ------------------------------------------------------------------- |
+| `entries`   | `Array<Entry>` | This page's entries, shaped like `getEntries` entries for this view |
+| `page`      | `number`       | The page you asked for                                              |
+| `perPage`   | `number`       | The page size you asked for                                         |
+| `pageCount` | `number`       | The number of pages, at least `1`                                   |
+| `total`     | `number`       | Entries across every page, after the view's `filter`                |
+
+Page boundaries follow the view's `sort`, otherwise slug order, so they're the same on every call. An empty collection has one empty page, so a listing can render its empty state.
+
+## What it reads
+
+When the view has no `filter` and no `sort`, qino finds the page from the slugs alone. It reads, validates, and resolves only that page's files. Invalid files on other pages aren't reported, so run [`qino check`](/docs/guide/cli#qino-check) to validate everything.
+
+When the view filters or sorts, every entry has to be read before qino knows which entries are on the page. Repeated calls stay cheap: each collection keeps its parsed files between calls and re-reads a file only once it changes. See [Entry pipeline](/docs/concepts/pipeline).
+
+## Throws
+
+- `Collection "<directory>" (view "<name>"): page <n> is out of range, expected 1 to <pageCount>.`
+- `Collection "<directory>" (view "<name>"): page must be a positive integer, got <value>.`
+- `Collection "<directory>" (view "<name>"): perPage must be a positive integer, got <value>.`
+- `Unknown view "<name>". Available views: <names>.`
+- The getter option, validation, relation, and augment errors of [getEntries](/docs/api/collection/get-entries).
+
+## See also
+
+- [getEntries](/docs/api/collection/get-entries)
+- [Views](/docs/concepts/views)

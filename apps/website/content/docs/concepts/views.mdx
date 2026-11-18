@@ -70,6 +70,7 @@ Spreading copies settings; it does not compose callbacks. Set `filter: undefined
 ## Selecting
 
 - Omit `view`, or pass `{ view: "default" }`, to use the default.
+- `getPaginatedEntries(page, { view, perPage })` takes `view` the same way, next to its page size.
 - Unknown names fail in TypeScript and at runtime.
 - Passing `resolveDepth`, `filter`, or `sort` to a getter throws. Configure them in a view.
 - An explicit `undefined` in getter options is treated as omitted.
