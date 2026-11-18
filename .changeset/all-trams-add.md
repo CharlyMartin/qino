@@ -19,4 +19,4 @@ export default initQino({
 
 On 10,000 posts with a stand-in for `next dev`'s async tracking, a repeated call drops from about 3.6 s to about 50 ms, and editing an author of 879 posts costs about 0.4 s. The first call for each view still builds every entry.
 
-Also changes which error a listing throws when several entries fail, with or without the option: the first in slug order, and a read or validation error before a relation or `augment` error, instead of whichever failed first.
+Also changes which error a collection's `getEntries` and `getPaginatedEntries` throw when several entries fail, with or without the option: the first in slug order, and a read or validation error before a relation or `augment` error, instead of whichever failed first.
