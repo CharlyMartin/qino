@@ -1,5 +1,7 @@
 import fs from "node:fs/promises";
 
+import { readTextFile } from "../fs/read-text-file";
+
 // Timestamps can be as coarse as 2s (FAT), so an edit this close to a read can
 // leave the file's stats as they were.
 const RECENT_EDIT_MS = 2_000;
@@ -34,7 +36,7 @@ export function createFileCache() {
       .catch(() => undefined);
     if (!stats) {
       slots.delete(filePath);
-      return load(await fs.readFile(filePath, "utf-8"));
+      return load(await readTextFile(filePath));
     }
 
     const version = `${stats.ino}:${stats.mtimeNs}:${stats.size}`;
@@ -44,7 +46,7 @@ export function createFileCache() {
       return slot.value as Promise<Value>;
     }
 
-    const text = fs.readFile(filePath, "utf-8");
+    const text = readTextFile(filePath);
     if (slot?.version == version && slot.text) {
       const [cached, data] = await Promise.all([
         slot.text.catch(() => undefined),

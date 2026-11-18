@@ -1,7 +1,7 @@
-import fs from "node:fs/promises";
 import nodePath from "node:path";
 
 import { isFile } from "../../lib/fs/is-file";
+import { readTextFile } from "../../lib/fs/read-text-file";
 import type { SupportedFileExtension } from "../../types/utils";
 
 type GetOrderFromFileParams = {
@@ -23,7 +23,7 @@ export async function getOrderFromFile({
   const orderPath = nodePath.join(folder, fileName);
   if (!(await isFile(orderPath))) return;
 
-  const raw = await fs.readFile(orderPath, "utf-8");
+  const raw = await readTextFile(orderPath);
 
   let parsed: unknown;
   try {
