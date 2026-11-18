@@ -143,9 +143,9 @@ function DocsPage() {
           <DocsPagination previousNode={previousNode} nextNode={nextNode} />
         </article>
       </div>
-      {/* On the right edge, as wide as the sidebar on the left, and kept on
-          pages without a TOC so every page centers the same way. */}
-      <div className="hidden xl:block xl:w-60 xl:shrink-0">
+      {/* On the right edge, and kept on pages without a TOC so every page
+          lines up the same way. */}
+      <div className="hidden xl:block xl:w-52 xl:shrink-0">
         {hasToc ? (
           // Sticks where it starts: below the 3.5rem header and main's 4rem padding.
           <aside className="sticky top-30 max-h-[calc(100dvh-9.5rem)] overflow-y-auto overscroll-contain">
