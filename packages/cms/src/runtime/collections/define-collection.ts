@@ -5,6 +5,7 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
+import { unwrapSettled } from "../../lib/async/unwrap-settled";
 import type { DependencyCollector } from "../../lib/cache/create-dependency-collector";
 import { createFileCache } from "../../lib/cache/create-file-cache";
 import { createInFlightCache } from "../../lib/cache/create-in-flight-cache";
@@ -319,8 +320,9 @@ export function defineCollection<
     slugPage: PaginatedEntries<Slug>,
     view: CollectionViewDefinition,
   ) {
-    const entries = await Promise.all(
-      slugPage.entries.map((slug) => readEntry(slug)),
+    // Every read settles before any relation resolves, as in a full listing.
+    const entries = unwrapSettled(
+      await Promise.allSettled(slugPage.entries.map((slug) => readEntry(slug))),
     );
     // A view without filter or sort: the page only needs its view applied.
     return {

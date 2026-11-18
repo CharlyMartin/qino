@@ -544,6 +544,51 @@ describe("getPaginatedEntries", () => {
     ).rejects.toThrow(/Validation failed/);
   });
 
+  test("throws the first read failure in slug order on a page of an unsorted view", async () => {
+    await fs.mkdir(nodePath.join(tmp, "posts"));
+    await fs.writeFile(nodePath.join(tmp, "posts", "a.md"), "---\n---\n");
+    await fs.writeFile(nodePath.join(tmp, "posts", "b.md"), "---\n---\n");
+    const readFile = fs.readFile;
+    vi.spyOn(fs, "readFile").mockImplementation(
+      async (...args: Parameters<typeof fs.readFile>) => {
+        // a.md fails last, so only slug order makes its error win.
+        if (String(args[0]).endsWith("a.md")) {
+          await new Promise((resolve) => setTimeout(resolve, 20));
+        }
+        return readFile(...args);
+      },
+    );
+
+    await expect(
+      makePagedCollection().getPaginatedEntries(1, { perPage: 2 }),
+    ).rejects.toThrow(/a\.md/);
+  });
+
+  test("throws the first augment failure in slug order on a page of an unsorted view", async () => {
+    await writeMd("a.md", "A");
+    await writeMd("b.md", "B");
+    const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
+    const collection = qino.defineCollection({
+      directory: "posts",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      views: (view) => ({
+        default: view({
+          augment: async ({ title }) => {
+            await new Promise((resolve) =>
+              setTimeout(resolve, title == "A" ? 20 : 0),
+            );
+            throw new Error(`${title} failed`);
+          },
+        }),
+      }),
+    });
+
+    await expect(
+      collection.getPaginatedEntries(1, { perPage: 2 }),
+    ).rejects.toThrow(/A failed/);
+  });
+
   test("returns an empty first page for an empty or missing directory", async () => {
     const collection = makePagedCollection();
     const empty = { entries: [], page: 1, perPage: 10, pageCount: 1, total: 0 };

@@ -1,6 +1,7 @@
 import { MAX_RESOLVE_DEPTH } from "../../data/globals";
 import type { AnyRelations } from "../../types/relations";
 import type { AnyEntry } from "../../types/utils";
+import { settleInOrder } from "../async/settle-in-order";
 import { createRelationResolver } from "../relations/create-relation-resolver";
 import { createResolveCache } from "../relations/create-resolve-cache";
 import { applyAugment } from "./apply-augment";
@@ -13,7 +14,8 @@ export async function applyView(
   instanceId: symbol,
 ) {
   const resolver = createRelationResolver(createResolveCache());
-  return Promise.all(
+  // Waits for every entry, then throws the first failure in their order.
+  return settleInOrder(
     entries.map(async (entry) => {
       const resolved = (await resolver.resolveEntry(entry, {
         relations,
