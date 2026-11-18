@@ -4,6 +4,7 @@ import { AgentSection } from "@/components/marketing/agent-section";
 import { CliSection } from "@/components/marketing/cli-section";
 import { FileTypes } from "@/components/marketing/file-types";
 import { Hero } from "@/components/marketing/hero";
+import { LatestPostBanner } from "@/components/marketing/latest-post-banner";
 import { Pipeline } from "@/components/marketing/pipeline";
 import { PrimitivesSection } from "@/components/marketing/primitives-section";
 import { RelationsSection } from "@/components/marketing/relations-section";
@@ -72,9 +73,10 @@ function HomePage() {
   return (
     <>
       <SkipLink />
+      {latestPost && <LatestPostBanner {...latestPost} />}
       <SiteHeader />
       <main id="main-content">
-        <Hero stats={stats} latestPost={latestPost} />
+        <Hero stats={stats} />
         <TestimonialsSection testimonials={testimonials} />
         <StorySection {...story} />
         <Pipeline

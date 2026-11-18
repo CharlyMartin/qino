@@ -8,14 +8,17 @@ import {
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, test } from "vitest";
 
-import { LatestPostLink, type LatestPostLinkProps } from "./latest-post-link";
+import {
+  LatestPostBanner,
+  type LatestPostBannerProps,
+} from "./latest-post-banner";
 
-async function renderLatestPostLink(post: LatestPostLinkProps) {
+async function renderLatestPostBanner(post: LatestPostBannerProps) {
   const root = createRootRoute();
   const home = createRoute({
     getParentRoute: () => root,
     path: "/",
-    component: () => <LatestPostLink {...post} />,
+    component: () => <LatestPostBanner {...post} />,
   });
   const router = createRouter({
     routeTree: root.addChildren([home]),
@@ -27,7 +30,7 @@ async function renderLatestPostLink(post: LatestPostLinkProps) {
 }
 
 test("links to the post, with its title", async () => {
-  const html = await renderLatestPostLink({
+  const html = await renderLatestPostBanner({
     slug: "qino-0-23",
     title: "qino 0.23: 8× faster builds on large content",
   });
