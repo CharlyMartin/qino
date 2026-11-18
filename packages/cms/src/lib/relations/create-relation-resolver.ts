@@ -4,10 +4,10 @@ import { META_FIELD_NAME, QinoPrimitiveMarker } from "../../data/globals";
 import type { AnyRelations } from "../../types/relations";
 import type { ResolveDepths } from "../../types/resolve";
 import type { AnyEntry, AnyPrimitive, Slug } from "../../types/utils";
-import { isItem } from "../guards/is-item";
 import type { ResolveCache } from "./create-resolve-cache";
 import { fetchTargetEntry } from "./fetch-target-entry";
 import { getRelationTargets } from "./get-relation-targets";
+import { readTargetEntry } from "./read-target-entry";
 import { resolveRelationLeaf } from "./resolve-relation-leaf";
 import { walkAndSet } from "./walk-and-set";
 
@@ -110,33 +110,28 @@ export function createRelationResolver(cache: ResolveCache) {
     slug: Slug,
     ctx: RelationErrorContext,
   ) {
-    const cacheKey = getTargetUniquePath(target);
-    const entryCache = getOrCreateEntryCache(cache, cacheKey);
+    const entryCache = getOrCreateEntryCache(cache, target);
 
     let entryPromise = entryCache.get(slug);
 
     if (!entryPromise) {
-      entryPromise = fetchTargetEntry(target, slug, ctx);
+      entryPromise = readTargetEntry(target, slug);
       entryCache.set(slug, entryPromise);
     }
 
-    return entryPromise;
+    // The read is shared, the error context isn't: each reference names its
+    // own source in a failure.
+    return fetchTargetEntry(target, slug, ctx, entryPromise);
   }
 }
 
-function getOrCreateEntryCache(cache: ResolveCache, cacheKey: string) {
-  let entryCache = cache.get(cacheKey);
+function getOrCreateEntryCache(cache: ResolveCache, target: AnyPrimitive) {
+  let entryCache = cache.get(target);
 
   if (!entryCache) {
     entryCache = new Map();
-    cache.set(cacheKey, entryCache);
+    cache.set(target, entryCache);
   }
 
   return entryCache;
-}
-
-function getTargetUniquePath(target: AnyPrimitive) {
-  return isItem(target)
-    ? target[QinoPrimitiveMarker].file
-    : target[QinoPrimitiveMarker].directory;
 }

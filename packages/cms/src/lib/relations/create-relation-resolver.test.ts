@@ -340,6 +340,58 @@ describe("createRelationResolver", () => {
       expect(authorsSpy).toHaveBeenCalledTimes(1);
       expect(editorsSpy).toHaveBeenCalledTimes(1);
     });
+
+    test("keys the cache per target, so two collections over one directory read apart", async () => {
+      const people = makeDummyCollection({
+        directory: "people",
+        extension: ".json",
+        store: new Map([
+          [
+            "alice",
+            makeDummyEntry({
+              slug: "alice",
+              extension: ".json",
+              fields: { name: "Alice" },
+            }),
+          ],
+        ]),
+      });
+      const loudPeople = makeDummyCollection({
+        directory: "people",
+        extension: ".json",
+        store: new Map([
+          [
+            "alice",
+            makeDummyEntry({
+              slug: "alice",
+              extension: ".json",
+              fields: { name: "ALICE" },
+            }),
+          ],
+        ]),
+      });
+      const resolver = createRelationResolver(createResolveCache());
+
+      const result = await resolver.resolveEntry(
+        makeDummyEntry({
+          slug: "post",
+          extension: ".json",
+          fields: {
+            author: "people/alice.json",
+            editor: "people/alice.json",
+          },
+        }),
+        {
+          relations: { author: people, editor: loudPeople },
+          depth: 1,
+          override: true,
+          sourceInstanceId,
+        },
+      );
+
+      expect(result.author).toMatchObject({ name: "Alice" });
+      expect(result.editor).toMatchObject({ name: "ALICE" });
+    });
   });
 
   describe("error propagation", () => {
@@ -365,6 +417,42 @@ describe("createRelationResolver", () => {
           },
         ),
       ).rejects.toThrow(/author.*authors\/missing.*post\.json/);
+    });
+
+    test("names each entry's own source when entries share a missing target", async () => {
+      const target = makeDummyCollection({
+        directory: "authors",
+        extension: ".json",
+      });
+      const readSpy = vi.spyOn(target[QinoPrimitiveMarker], "readEntry");
+      const resolver = createRelationResolver(createResolveCache());
+      const resolvePost = (slug: string, relationKey: string) =>
+        resolver.resolveEntry(
+          makeDummyEntry({
+            slug,
+            extension: ".json",
+            fields: { [relationKey]: "authors/missing.json" },
+          }),
+          {
+            relations: { [relationKey]: target },
+            depth: 1,
+            override: true,
+            sourceInstanceId,
+          },
+        );
+
+      const [first, second] = await Promise.allSettled([
+        resolvePost("first", "author"),
+        resolvePost("second", "editor"),
+      ]);
+
+      expect(readSpy).toHaveBeenCalledTimes(1);
+      expect(first).toMatchObject({
+        reason: { message: expect.stringMatching(/"author".*first\.json/) },
+      });
+      expect(second).toMatchObject({
+        reason: { message: expect.stringMatching(/"editor".*second\.json/) },
+      });
     });
   });
 
