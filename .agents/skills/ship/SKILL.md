@@ -79,7 +79,7 @@ When the Codex review changed something worth knowing, or rejected a finding a r
 
 ## 5. Greptile findings
 
-Greptile reviews the PR once, a few minutes after it opens (`.greptile/config.json`). It doesn't review a later push: the user asks for another review by commenting `@greptileai`, so never post that comment yourself. Read its comments, if there are any:
+Greptile reviews a PR once, a few minutes after it opens, and only when it changes a file in `packages/` (`.greptile/config.json` turns automatic reviews off, `packages/.greptile/config.json` turns them back on). It doesn't review a later push: the user asks for another review by commenting `@greptileai`, so never post that comment yourself. Read its comments, if there are any:
 
 ```sh
 gh api repos/{owner}/{repo}/pulls/<number>/comments

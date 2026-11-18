@@ -4,6 +4,7 @@ import { AgentSection } from "@/components/marketing/agent-section";
 import { CliSection } from "@/components/marketing/cli-section";
 import { FileTypes } from "@/components/marketing/file-types";
 import { Hero } from "@/components/marketing/hero";
+import { LatestPostBanner } from "@/components/marketing/latest-post-banner";
 import { Pipeline } from "@/components/marketing/pipeline";
 import { PrimitivesSection } from "@/components/marketing/primitives-section";
 import { RelationsSection } from "@/components/marketing/relations-section";
@@ -15,6 +16,7 @@ import { TestimonialsSection } from "@/components/marketing/testimonials-section
 import { externalLinks } from "@/lib/external-links";
 import { getPageHead } from "@/lib/get-page-head";
 import { site } from "@/lib/site";
+import { getLatestPost } from "@/server/get-latest-post";
 import { getProjectStats } from "@/server/get-project-stats";
 import { getSection } from "@/server/get-section";
 import { getSnippets } from "@/server/get-snippets";
@@ -22,13 +24,15 @@ import { getTestimonials } from "@/server/get-testimonials";
 
 export const Route = createFileRoute("/")({
   loader: async () => {
-    const [snippets, testimonials, stats, story] = await Promise.all([
-      getSnippets(),
-      getTestimonials(),
-      getProjectStats(),
-      getSection({ data: "why-i-built-qino" }),
-    ]);
-    return { ...snippets, testimonials, stats, story };
+    const [snippets, testimonials, stats, story, latestPost] =
+      await Promise.all([
+        getSnippets(),
+        getTestimonials(),
+        getProjectStats(),
+        getSection({ data: "why-i-built-qino" }),
+        getLatestPost(),
+      ]);
+    return { ...snippets, testimonials, stats, story, latestPost };
   },
   head: () =>
     getPageHead({
@@ -63,11 +67,13 @@ function HomePage() {
     testimonials,
     stats,
     story,
+    latestPost,
   } = Route.useLoaderData();
 
   return (
     <>
       <SkipLink />
+      {latestPost && <LatestPostBanner {...latestPost} />}
       <SiteHeader />
       <main id="main-content">
         <Hero stats={stats} />
