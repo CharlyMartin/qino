@@ -201,7 +201,7 @@
 
 /* Below xl, the sticky "On this page" select sits under the header too. */
 .prose :where(h2, h3, h4) {
-  @apply scroll-mt-36 font-extrabold tracking-tighter xl:scroll-mt-24;
+  @apply scroll-mt-34 font-extrabold tracking-tighter xl:scroll-mt-22;
 }
 
 .prose :where(h2) {
@@ -238,9 +238,9 @@
   content: none;
 }
 
-/* Wide tables scroll on their own instead of widening the page. */
+/* DocsTable scrolls wide tables and holds their margin. */
 .prose table {
-  @apply block overflow-x-auto;
+  @apply my-0;
 }
 
 .prose pre:not(:where(.not-prose *)) {

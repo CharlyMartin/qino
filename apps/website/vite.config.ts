@@ -16,9 +16,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     tailwindcss(),
     tanstackStart({
-      // /docs redirects and is excluded, so seed the first content page.
       pages: [
-        { path: "/docs/guide" },
         // Rendered per request so `?repo=` personalises the HTML; listed here for the sitemap.
         { path: "/contentlayer-exit", prerender: { enabled: false } },
         { path: "/llms.txt", sitemap: { exclude: true } },
@@ -28,16 +26,14 @@ export default defineConfig(({ mode }) => ({
         enabled: true,
         crawlLinks: true,
         failOnError: true,
-        // Skip the "/docs" redirect and duplicates of other pages: trailing slashes
-        // ("/blog/") and crawled anchors ("/docs/guide/cli#media"), which would also
-        // race to write the same file. Pages reach the sitemap before this filter
-        // runs, so exclude skipped ones there too.
+        // Skip duplicates of other pages: trailing slashes ("/blog/") and crawled
+        // anchors ("/docs/guide/cli#media"), which would also race to write the
+        // same file. Pages reach the sitemap before this filter runs, so exclude
+        // skipped ones there too.
         filter: (page) => {
           const keep =
             page.path == "/" ||
-            (page.path != "/docs" &&
-              !page.path.endsWith("/") &&
-              !page.path.includes("#"));
+            (!page.path.endsWith("/") && !page.path.includes("#"));
           if (!keep) page.sitemap = { exclude: true };
           return keep;
         },

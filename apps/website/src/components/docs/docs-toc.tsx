@@ -22,11 +22,14 @@ export function DocsToc({ toc, activeId }: DocsTocProps) {
       <ul className="flex flex-col border-l border-border-strong">
         {toc.map(({ heading, id, text }) => (
           <li key={id}>
+            {/* A long heading is cut short, and shown whole in the title or
+                on keyboard focus. */}
             <a
               href={`#${id}`}
+              title={text}
               aria-current={id == activeId ? "location" : undefined}
               className={cn(
-                "-ml-px block border-l border-transparent py-1 pr-2 font-medium text-muted-foreground transition-colors hover:text-foreground motion-reduce:transition-none aria-[current=location]:border-foreground aria-[current=location]:text-foreground",
+                "-ml-px block truncate border-l focus-visible:whitespace-normal focus-visible:wrap-break-word border-transparent py-1 pr-2 font-medium text-muted-foreground transition-colors hover:text-foreground motion-reduce:transition-none aria-[current=location]:border-foreground aria-[current=location]:text-foreground",
                 getTocIndent(heading - topHeading),
               )}
             >
