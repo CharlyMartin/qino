@@ -1,5 +1,49 @@
 # @qino/cms
 
+## 0.23.0
+
+### Minor Changes
+
+- [#331](https://github.com/CharlyMartin/qino/pull/331) [`286c27e`](https://github.com/CharlyMartin/qino/commit/286c27e3ea748241fea369542d21a5c08084e4b2) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Caches parsed files for trees and items, as collections already do. A file is parsed and validated again only once it changes.
+
+  - `getTree`, `getFlatTree`, `getAncestorNodes`, `getNextNode` and `getPreviousNode` share each file's cached parse with `getEntry` and `getEntries`. A docs page that renders a sidebar, previous and next links, and its own entry no longer re-reads and re-validates the whole tree on every call.
+  - Stats and the table of contents are built once per parse, and tree walks never build them.
+  - As with collections, tree and item entries can share nested objects between calls, so treat them as read-only. A schema transform that reads data outside its own file runs again only when that file changes.
+
+- [#329](https://github.com/CharlyMartin/qino/pull/329) [`64672a8`](https://github.com/CharlyMartin/qino/commit/64672a85ab3045d7517774842120d23c2f0d403b) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Adds `getPaginatedEntries` to collections, for listings too long to render at once. It returns one 1-indexed page of the selected view, with the totals to link the others:
+
+  ```ts
+  const { entries, page, perPage, pageCount, total } =
+    await postCollection.getPaginatedEntries(2, {
+      view: "listing",
+      perPage: 24,
+    });
+  ```
+
+  When the view has no `filter` and no `sort`, only that page's files are read. A page past `pageCount`, or a `page` or `perPage` that isn't a positive integer, throws.
+
+  #### Slug order
+
+  `getEntries` now returns entries in slug order when the view has no `sort`, instead of the order the file system lists them in, and `sort` ties keep that order. Pages stay the same on every call, and every machine returns the same order. Add a `sort` to a view to choose another order.
+
+  #### Parsed files are cached
+
+  Collections now keep each file's parsed, validated entry between calls, and re-read a file only once it changes. Repeated `getEntries` and `getPaginatedEntries` calls, such as one per static page, no longer parse and validate every file again. Images, relations, and views still run on every call.
+
+  - A file counts as changed when its size, modification time, or inode changes. For 2 seconds after an edit, its content is compared too.
+  - Entries can now share nested objects between calls, so treat them as read-only.
+  - A schema transform that reads data outside its own file, such as another file, runs again only when that file changes. Move that work to a view's `augment`, which runs on every call.
+
+### Patch Changes
+
+- [#332](https://github.com/CharlyMartin/qino/pull/332) [`2656e10`](https://github.com/CharlyMartin/qino/commit/2656e10cf6da9a3dab5f629ef4a535370b98c48d) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Shares work between calls that run at the same time, such as the pages a static build renders at once.
+
+  - `getEntries` and `getPaginatedEntries` calls for the same view share one listing, so the entries are resolved, filtered, and sorted once instead of once per call. Each call still gets its own array.
+  - Tree walks share one walk, so a page that calls `getTree`, `getPreviousNode`, and `getNextNode` together lists its files once. Each call still gets its own nodes.
+  - A call that starts while another is running gets that run's result, so an edit made during it shows up from the next call on.
+  - Tree walks read a folder's files and subfolders at the same time instead of one by one. When several files are invalid, the walk still throws the same error as before.
+  - Reads at most 64 content files at once, across trees, collections, items, and `qino check`. On Node 22, a tree or collection of more than about 1,000 files could fail with `EMFILE` under a 1,024 open-file limit, as on AWS Lambda.
+
 ## 0.22.1
 
 ### Patch Changes
