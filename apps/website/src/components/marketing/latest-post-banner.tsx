@@ -22,7 +22,7 @@ export function LatestPostBanner({ slug, title }: LatestPostBannerProps) {
           <span className="shrink-0 font-mono text-label uppercase text-muted-foreground">
             New post
           </span>
-          <span className="min-w-0 truncate underline-offset-4 group-hover:underline">
+          <span className="min-w-0 truncate font-medium underline-offset-4 group-hover:underline">
             {title}
           </span>
         </span>
