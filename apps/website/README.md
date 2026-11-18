@@ -2,7 +2,7 @@
 
 TanStack Start renders the Markdown documentation in `content/docs` through
 `@qino/cms`. Section pages include their body and child links. The homepage is a
-placeholder; releases are not rendered.
+placeholder.
 
 Run commands from the repository root:
 

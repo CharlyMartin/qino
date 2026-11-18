@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import qino from "./index";
-import { releaseCollection } from "./releases";
 
 export const docsTree = qino.defineTree({
   directory: "docs",
@@ -15,7 +14,4 @@ export const docsTree = qino.defineTree({
   extension: ".mdx",
   titleField: "title",
   markdown: { toc: { upTo: "h3" } },
-  relations: {
-    since: releaseCollection,
-  },
 });
