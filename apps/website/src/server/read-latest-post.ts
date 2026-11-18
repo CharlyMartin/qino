@@ -5,7 +5,6 @@ type PostMeta = {
 type PostEntry = {
   _meta: PostMeta;
   title: string;
-  publishedOn: string;
 };
 
 type PostPage = {
@@ -33,9 +32,5 @@ export async function readLatestPost(posts: PostSource) {
   } = await posts.getPaginatedEntries(1, { perPage: 1 });
   if (!post) return null;
 
-  return {
-    slug: post._meta.slug,
-    title: post.title,
-    publishedOn: post.publishedOn,
-  };
+  return { slug: post._meta.slug, title: post.title };
 }
