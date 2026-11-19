@@ -1,6 +1,6 @@
 # Agent-readiness scanners
 
-How to run the three scanners that check whether a site serves agents well, from a shell. Their web pages render with JavaScript, so fetching a page returns no results; call their APIs instead. Replace `<url>` with the deployment to check, such as a Vercel preview URL.
+How to run the three scanners that check whether a site serves agents well, from a shell. Their web pages render with JavaScript, so fetching a page returns no results; call their APIs instead. Replace `<url>` with the deployment to check, such as a Vercel preview URL, and `<domain>` with its host.
 
 ## isitagentready.com
 
@@ -16,13 +16,13 @@ The content checks are `linkHeaders` (under `discoverability`) and `markdownNego
 
 ## is-agentic.com
 
-The CLI scans a domain only when it has no completed report yet, and otherwise returns that report. So scan a deployment's own URL, such as `<project>-<hash>.vercel.app`, rather than a branch alias that earlier scans already cover, and check `scanned_at` in the output:
+The CLI scans a domain only when it has no completed report yet, and otherwise returns that report. So scan a deployment's own URL, such as `<project>-<hash>.vercel.app`, rather than a branch alias that earlier scans already cover. The report is fresh when its `scanned_at` is later than the deployment:
 
 ```sh
 npx is-agentic <domain> --json
 ```
 
-`GET https://is-agentic.com/api/v1/report?url=<url-encoded url>` reads the same latest report. `issues` lists only the checks that failed or passed partially, each with an `id`, a `tier` and a `result`: a check passes when its `id` is absent. The content checks are `markdown-negotiation-vary`, `agent-friendly-404` and `agent-instruction`.
+`GET https://is-agentic.com/api/v1/report?url=<url-encoded url>` reads the same latest report. `issues` lists only the checks that failed or passed partially, each with an `id`, a `tier` and a `result`: a check whose `id` is absent passed or didn't apply, and `eligible_checks` counts the ones that applied. The content checks are `markdown-negotiation-vary`, `agent-friendly-404` and `agent-instruction`.
 
 ## acceptmarkdown.com
 

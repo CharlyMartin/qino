@@ -71,11 +71,13 @@ The quoted heredoc keeps backticks in the body from running as shell commands.
 
 ## 5. Greptile findings
 
-Greptile reviews a PR once, a few minutes after it opens, and only when it changes a file in `packages/` (`.greptile/config.json` turns automatic reviews off, `packages/.greptile/config.json` turns them back on). It doesn't review a later push: the user asks for another review by commenting `@greptileai`, so never post that comment yourself. Check for its comments every minute or so, for up to 10 minutes. If none arrive in that time, or the user says Greptile is down, carry on to the report:
+Greptile reviews a PR once, a few minutes after it opens, and only when it changes a file in `packages/` (`.greptile/config.json` turns automatic reviews off, `packages/.greptile/config.json` turns them back on). It doesn't review a later push: the user asks for another review by commenting `@greptileai`, so never post that comment yourself. When the PR changes `packages/`, check for its comments every minute or so, for up to 10 minutes:
 
 ```sh
 gh api repos/{owner}/{repo}/pulls/<number>/comments
 ```
+
+If none arrive in that time, or the user says Greptile is down, carry on to the report.
 
 Triage each finding the way the `codex-review` skill does: apply the valid ones, skip the false positives and out-of-scope suggestions with a reason. Get the checks green again, then commit and push the fixes to the same branch.
 
