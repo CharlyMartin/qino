@@ -25,7 +25,7 @@ Make atomic commits. A typical split:
 2. Docs in `apps/website`
 3. Usage in `examples/*`
 
-A small change is one commit. Stage by path (`git add <paths>`). You're done when `git status` shows nothing from the task.
+A small change is one commit. Commits already on the branch, such as those from `/implement`, stay as they are; commit what's left. Stage by path (`git add <paths>`). You're done when `git status` shows nothing from the task.
 
 Subjects are Conventional Commits with a scope, like the history:
 
@@ -60,22 +60,10 @@ The quoted heredoc keeps backticks in the body from running as shell commands.
 
 **Title:** a Conventional Commit subject for the whole PR. PRs are squash-merged, so it becomes the commit on `main`.
 
-**Body:** for a reviewer, about the change itself. Lead with what the PR adds or fixes and why, naming the public APIs in backticks, then list the other changes:
+**Body:** write it with the `pr` skill, naming the public APIs in backticks. Below the template, add:
 
-```md
-Adds two tree getters:
-
-- `getEntries(options?)`: every entry in reading order, with the selected view. Replaces `getFlatTree()` + `getEntry()` per node for sitemaps, search indexes, feeds.
-- `getAncestorNodes(slug)`: nodes above a slug, root down, for breadcrumbs.
-
-Also:
-
-- Docs: new `getEntries` and `getAncestorNodes` pages.
-- `examples/next-js`: breadcrumbs on doc pages.
-- Changeset: `@qino/cms` minor.
-```
-
-When the Codex review changed something worth knowing, or rejected a finding a reviewer might raise again, add a one-line "Review" note.
+- `Closes #<n>` for each spec and ticket issue the PR resolves.
+- A one-line "Review" note when the Codex review changed something worth knowing, or rejected a finding a reviewer might raise again.
 
 ## 5. Greptile findings
 
