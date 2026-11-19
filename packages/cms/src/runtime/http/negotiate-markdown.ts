@@ -1,7 +1,5 @@
 import { prefersMarkdown } from "../../lib/http/prefers-markdown";
-
-/** Returns a page's agent Markdown, or `null` when the page doesn't exist. */
-export type LoadAgentMarkdown = () => string | null | Promise<string | null>;
+import type { LoadAgentMarkdown } from "../../types/agent-markdown";
 
 /**
  * Answers a request that wants agent Markdown: its path is a Markdown URL,

@@ -2,6 +2,8 @@ import { describe, expect, test } from "vitest";
 
 import { negotiateMarkdown } from "./negotiate-markdown";
 
+const loadHello = () => "# Hello\n";
+
 const markdownHeaders = {
   "Content-Type": "text/markdown; charset=utf-8",
   Vary: "Accept",
@@ -24,7 +26,7 @@ describe("negotiateMarkdown", () => {
   test("serves the agent Markdown when the request prefers it", async () => {
     const response = await negotiateMarkdown(
       requestPage("text/markdown"),
-      () => "# Hello\n",
+      loadHello,
     );
 
     expect(response?.status).toBe(200);
@@ -38,10 +40,7 @@ describe("negotiateMarkdown", () => {
     "text/markdown, text/html, */*",
     "text/html;q=0.9, text/markdown",
   ])("serves agent Markdown for Accept: %s", async (accept) => {
-    const response = await negotiateMarkdown(
-      requestPage(accept),
-      () => "# Hello\n",
-    );
+    const response = await negotiateMarkdown(requestPage(accept), loadHello);
 
     expect(response?.status).toBe(200);
   });
@@ -57,10 +56,7 @@ describe("negotiateMarkdown", () => {
     "application/x-content-negotiation-probe",
     undefined,
   ])("resolves to null, never 406, for Accept: %s", async (accept) => {
-    const response = await negotiateMarkdown(
-      requestPage(accept),
-      () => "# Hello\n",
-    );
+    const response = await negotiateMarkdown(requestPage(accept), loadHello);
 
     expect(response).toBeNull();
   });
@@ -88,7 +84,7 @@ describe("negotiateMarkdown", () => {
   test("serves agent Markdown at a Markdown URL, whatever Accept says", async () => {
     const response = await negotiateMarkdown(
       requestPage("text/html", "/blog/hello.md?ref=llms"),
-      () => "# Hello\n",
+      loadHello,
     );
 
     expect(response?.status).toBe(200);
@@ -113,7 +109,7 @@ describe("negotiateMarkdown", () => {
       method: "HEAD",
     });
 
-    const found = await negotiateMarkdown(request, () => "# Hello\n");
+    const found = await negotiateMarkdown(request, loadHello);
     const missing = await negotiateMarkdown(request, () => null);
 
     expect(found?.status).toBe(200);

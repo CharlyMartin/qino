@@ -53,11 +53,20 @@ describe("prefersMarkdown", () => {
     );
   });
 
-  test("caps q-values at 1", () => {
-    expect(prefersMarkdown("text/html, text/markdown;q=1.5")).toBe(false);
-  });
+  test.each(["oops", "", "1.5", "0x1", "1e-1", "0.5000"])(
+    "ignores a range whose q-value is %j, outside RFC 9110's grammar",
+    (q) => {
+      // Read as numbers, these q-values would let Markdown win.
+      expect(
+        prefersMarkdown(`text/markdown;q=0.5, */*, text/html;q=${q}`),
+      ).toBe(false);
+      expect(prefersMarkdown(`text/html;q=0.8, text/markdown;q=${q}`)).toBe(
+        false,
+      );
+    },
+  );
 
-  test("ignores a range whose q-value can't be read", () => {
-    expect(prefersMarkdown("text/markdown, text/html;q=oops")).toBe(true);
+  test("ignores a range with a q parameter but no value", () => {
+    expect(prefersMarkdown("text/html;q=0.8, text/markdown;q")).toBe(false);
   });
 });
