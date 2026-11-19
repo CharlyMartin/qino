@@ -46,6 +46,20 @@ Then go through these steps in order, without asking the user between them:
 2. Run the `codex-review` skill until the review is clean. If it ends not clean, stop and report to the user.
 3. Run the `ship` skill.
 
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues on `CharlyMartin/qino`, via `gh`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
+
 <!-- BEGIN:turborepo-agent-rules -->
 
 # This is NOT the Turborepo you know
