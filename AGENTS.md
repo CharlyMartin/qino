@@ -23,7 +23,7 @@ Scripts live in the root `package.json`. To run one in a single workspace packag
 ## Conventions specific to this repo
 
 - `.env*` files are declared as build inputs in `turbo.json`; don't rely on env vars outside that pattern without updating it.
-- Pin exact versions when adding a dependency, without `^` or `~`.
+- Pin exact versions when adding a dependency, without `^` or `~`. Then check that `git diff pnpm-lock.yaml` touches only that dependency, and run `pnpm check-types`: `pnpm add` can report success while linking a store path that doesn't exist.
 - Before changing `turbo.json` or Turbo commands, read `docs/README.md` in the installed `turbo` package (`node -p "require.resolve('turbo/package.json')"`): its bundled docs match the installed version.
 
 ## Coding principles
