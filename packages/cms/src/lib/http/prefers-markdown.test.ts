@@ -40,4 +40,18 @@ describe("prefersMarkdown", () => {
   test("ignores case in types and parameter names", () => {
     expect(prefersMarkdown("Text/Markdown, text/html;Q=0.5")).toBe(true);
   });
+
+  test("reads a q-value with spaces around the equals sign", () => {
+    expect(prefersMarkdown("text/html;q=0.9, text/markdown;q = 0.5")).toBe(
+      false,
+    );
+  });
+
+  test("caps q-values at 1", () => {
+    expect(prefersMarkdown("text/html, text/markdown;q=1.5")).toBe(false);
+  });
+
+  test("ignores a range whose q-value can't be read", () => {
+    expect(prefersMarkdown("text/markdown, text/html;q=oops")).toBe(true);
+  });
 });

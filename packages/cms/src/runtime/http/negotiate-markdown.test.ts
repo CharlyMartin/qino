@@ -2,93 +2,125 @@ import { describe, expect, test } from "vitest";
 
 import { negotiateMarkdown } from "./negotiate-markdown";
 
-const markdownRequest = new Request("https://example.com/blog/hello", {
-  headers: { Accept: "text/markdown" },
-});
+const markdownHeaders = {
+  "Content-Type": "text/markdown; charset=utf-8",
+  Vary: "Accept",
+};
+
+function requestPage(accept?: string, path = "/blog/hello") {
+  return new Request(`https://example.com${path}`, {
+    headers: accept == null ? {} : { Accept: accept },
+  });
+}
+
+function headersOf(response: Response | null) {
+  return {
+    "Content-Type": response?.headers.get("Content-Type"),
+    Vary: response?.headers.get("Vary"),
+  };
+}
 
 describe("negotiateMarkdown", () => {
-  test("serves the loaded Markdown when the request accepts it", async () => {
+  test("serves the agent Markdown when the request prefers it", async () => {
     const response = await negotiateMarkdown(
-      markdownRequest,
+      requestPage("text/markdown"),
       () => "# Hello\n",
     );
 
     expect(response?.status).toBe(200);
+    expect(headersOf(response)).toEqual(markdownHeaders);
     expect(await response?.text()).toBe("# Hello\n");
-    expect(response?.headers.get("Content-Type")).toBe(
-      "text/markdown; charset=utf-8",
-    );
-    expect(response?.headers.get("Vary")).toBe("Accept");
   });
 
-  test("resolves to null without loading when the request wants HTML", async () => {
-    const request = new Request("https://example.com/blog/hello", {
-      headers: { Accept: "text/html,application/xhtml+xml,*/*;q=0.8" },
-    });
+  test.each([
+    "text/markdown",
+    "text/x-markdown",
+    "text/markdown, text/html, */*",
+    "text/html;q=0.9, text/markdown",
+  ])("serves agent Markdown for Accept: %s", async (accept) => {
+    const response = await negotiateMarkdown(
+      requestPage(accept),
+      () => "# Hello\n",
+    );
+
+    expect(response?.status).toBe(200);
+  });
+
+  test.each([
+    "text/html,application/xhtml+xml,*/*;q=0.8",
+    "text/html;q=1, text/markdown;q=0.5",
+    "text/html, text/markdown",
+    "*/*",
+    "text/*",
+    "text/plain",
+    "text/markdown;q=0",
+    "application/x-content-negotiation-probe",
+    undefined,
+  ])("resolves to null, never 406, for Accept: %s", async (accept) => {
+    const response = await negotiateMarkdown(
+      requestPage(accept),
+      () => "# Hello\n",
+    );
+
+    expect(response).toBeNull();
+  });
+
+  test("doesn't load the agent Markdown when the request wants HTML", async () => {
     let loaded = false;
 
-    const response = await negotiateMarkdown(request, () => {
+    await negotiateMarkdown(requestPage("text/html"), () => {
       loaded = true;
       return "# Hello\n";
     });
 
-    expect(response).toBeNull();
     expect(loaded).toBe(false);
-  });
-
-  test("resolves to null rather than 406 for a type it can't serve", async () => {
-    const request = new Request("https://example.com/blog/hello", {
-      headers: { Accept: "application/x-content-negotiation-probe" },
-    });
-
-    expect(await negotiateMarkdown(request, () => "# Hello\n")).toBeNull();
   });
 
   test("waits for an async loader", async () => {
     const response = await negotiateMarkdown(
-      markdownRequest,
+      requestPage("text/markdown"),
       async () => "# Hello\n",
     );
 
     expect(await response?.text()).toBe("# Hello\n");
   });
 
-  test("serves Markdown for a path ending in .md, whatever Accept says", async () => {
-    const request = new Request("https://example.com/blog/hello.md", {
-      headers: { Accept: "text/html" },
-    });
-
-    const response = await negotiateMarkdown(request, () => "# Hello\n");
+  test("serves agent Markdown at a Markdown URL, whatever Accept says", async () => {
+    const response = await negotiateMarkdown(
+      requestPage("text/html", "/blog/hello.md?ref=llms"),
+      () => "# Hello\n",
+    );
 
     expect(response?.status).toBe(200);
     expect(await response?.text()).toBe("# Hello\n");
   });
 
   test("answers a Markdown 404 linking to llms.txt when nothing loads", async () => {
-    const response = await negotiateMarkdown(markdownRequest, () => null);
+    const response = await negotiateMarkdown(
+      requestPage("text/markdown"),
+      () => null,
+    );
 
     expect(response?.status).toBe(404);
-    expect(response?.headers.get("Content-Type")).toBe(
-      "text/markdown; charset=utf-8",
-    );
-    expect(response?.headers.get("Vary")).toBe("Accept");
+    expect(headersOf(response)).toEqual(markdownHeaders);
     expect(await response?.text()).toBe(
-      "# Not found\n\nThis page doesn't exist. See https://example.com/llms.txt for the pages that do.\n",
+      "# Not found\n\nThis page doesn't exist. See [llms.txt](https://example.com/llms.txt) for the pages that do.\n",
     );
   });
 
   test("answers HEAD with the same status and headers, and no body", async () => {
-    const request = new Request(markdownRequest, { method: "HEAD" });
+    const request = new Request(requestPage("text/markdown"), {
+      method: "HEAD",
+    });
 
     const found = await negotiateMarkdown(request, () => "# Hello\n");
     const missing = await negotiateMarkdown(request, () => null);
 
     expect(found?.status).toBe(200);
-    expect(found?.headers.get("Content-Type")).toBe(
-      "text/markdown; charset=utf-8",
-    );
+    expect(headersOf(found)).toEqual(markdownHeaders);
     expect(found?.body).toBeNull();
     expect(missing?.status).toBe(404);
+    expect(headersOf(missing)).toEqual(markdownHeaders);
     expect(missing?.body).toBeNull();
   });
 });
