@@ -53,14 +53,14 @@ Push without `--force`. If the push is rejected, stop and tell the user.
 ## 4. Open the PR
 
 ```sh
-gh pr create --base main --title "<title>" --body-file - <<'EOF'
+gh pr create --base <base> --title "<title>" --body-file - <<'EOF'
 <body>
 EOF
 ```
 
 The quoted heredoc keeps backticks in the body from running as shell commands.
 
-In a ticket stack, `--base` is the previous ticket's branch while its PR is unmerged, and `main` once it has merged.
+**Base:** `main`. In a ticket stack, it's the previous ticket's branch while that branch's PR is unmerged.
 
 **Title:** a Conventional Commit subject for the whole PR. PRs are squash-merged, so it becomes the commit on `main`.
 
@@ -71,7 +71,7 @@ In a ticket stack, `--base` is the previous ticket's branch while its PR is unme
 
 ## 5. Greptile findings
 
-Greptile reviews a PR once, a few minutes after it opens, and only when it changes a file in `packages/` (`.greptile/config.json` turns automatic reviews off, `packages/.greptile/config.json` turns them back on). It doesn't review a later push: the user asks for another review by commenting `@greptileai`, so never post that comment yourself. Read its comments, if there are any:
+Greptile reviews a PR once, a few minutes after it opens, and only when it changes a file in `packages/` (`.greptile/config.json` turns automatic reviews off, `packages/.greptile/config.json` turns them back on). It doesn't review a later push: the user asks for another review by commenting `@greptileai`, so never post that comment yourself. Check for its comments every minute or so, for up to 10 minutes. If none arrive in that time, or the user says Greptile is down, carry on to the report:
 
 ```sh
 gh api repos/{owner}/{repo}/pulls/<number>/comments
@@ -85,7 +85,7 @@ Reply on each thread once the fixes are pushed: what was applied and in which co
 gh api repos/{owner}/{repo}/pulls/<number>/comments/<comment-id>/replies -f body="<reply>"
 ```
 
-Read the comments once, right after opening the PR. A PR with no Greptile comments yet needs nothing here: carry on to the report.
+A PR with no Greptile comments needs nothing here.
 
 ## 6. Report
 

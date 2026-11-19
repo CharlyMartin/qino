@@ -16,13 +16,13 @@ The content checks are `linkHeaders` (under `discoverability`) and `markdownNego
 
 ## is-agentic.com
 
-The CLI creates a report when the domain has none, so a fresh preview URL gets a fresh scan:
+The CLI scans a domain only when it has no completed report yet, and otherwise returns that report. So scan a deployment's own URL, such as `<project>-<hash>.vercel.app`, rather than a branch alias that earlier scans already cover, and check `scanned_at` in the output:
 
 ```sh
 npx is-agentic <domain> --json
 ```
 
-`GET https://is-agentic.com/api/v1/report?url=<url-encoded url>` reads the latest completed report without scanning again. Results are in `issues`, each with an `id`, a `tier` and a `result`. The content checks are `markdown-negotiation-vary`, `agent-friendly-404` and `agent-instruction`.
+`GET https://is-agentic.com/api/v1/report?url=<url-encoded url>` reads the same latest report. `issues` lists only the checks that failed or passed partially, each with an `id`, a `tier` and a `result`: a check passes when its `id` is absent. The content checks are `markdown-negotiation-vary`, `agent-friendly-404` and `agent-instruction`.
 
 ## acceptmarkdown.com
 
@@ -34,4 +34,4 @@ curl -sN -X POST https://acceptmarkdown.com/api/readiness \
   -d '{"url":"<url>"}'
 ```
 
-It checks four things: `serves-markdown`, `varies-by-accept`, `rejects-unsupported` (406) and `q-values`. qino never answers 406, and a host rewrite can't read q-values, so those two warn on a prerendered site.
+It checks four things: `serves-markdown`, `varies-by-accept`, `rejects-unsupported` (406) and `q-values`. `rejects-unsupported` always warns, because qino never answers 406. `q-values` warns on a prerendered site, where a host rewrite does the negotiation and can't read q-values.
