@@ -34,7 +34,8 @@ export function prefersMarkdown(accept: string | null) {
       .split(";")
       .map((part) => part.trim().toLowerCase());
     const qParam = params
-      .map((param) => param.split("=").map((part) => part.trim()))
+      // Splits at the first `=` only, so `q=0.5=1` keeps `0.5=1` and fails.
+      .map((param) => param.split(/=(.*)/).map((part) => part.trim()))
       .find(([name]) => name == "q");
     const qValue = qParam ? (qParam[1] ?? "") : "1";
     if (!QVALUE.test(qValue)) continue;
