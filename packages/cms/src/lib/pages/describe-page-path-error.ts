@@ -23,8 +23,17 @@ export function describePagePathError(
   if (/[?#]/.test(path)) {
     return `${name} must be a path, without "?" or "#".`;
   }
-  // URLs resolve them, so every page would share one Markdown URL.
-  if (path.split("/").some((segment) => segment == "." || segment == "..")) {
+  // URLs read `\` as `/` and drop tabs and line breaks, which would hide the
+  // dot segments below.
+  if (/[\\\t\n\r]/.test(path)) {
+    return `${name} must not contain "\\", tabs or line breaks.`;
+  }
+  // URLs resolve them, `%2e` included, moving pages' Markdown URLs elsewhere
+  // or onto one another.
+  const segments = path
+    .split("/")
+    .map((segment) => segment.replace(/%2e/gi, "."));
+  if (segments.some((segment) => segment == "." || segment == "..")) {
     return `${name} must not contain "." or ".." segments.`;
   }
 

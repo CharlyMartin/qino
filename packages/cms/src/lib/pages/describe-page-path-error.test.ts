@@ -42,6 +42,26 @@ describe("describePagePathError", () => {
       index,
       'pages.index "/./blog" must not contain "." or ".." segments.',
     ],
+    [
+      "/{slug}/%2e%2e/x",
+      entry,
+      'pages.entry "/{slug}/%2e%2e/x" must not contain "." or ".." segments.',
+    ],
+    [
+      "/{slug}/.%2E/x",
+      entry,
+      'pages.entry "/{slug}/.%2E/x" must not contain "." or ".." segments.',
+    ],
+    [
+      "/{slug}\\..\\x",
+      entry,
+      'pages.entry "/{slug}\\..\\x" must not contain "\\", tabs or line breaks.',
+    ],
+    [
+      "/{slug}/\t../x",
+      entry,
+      'pages.entry "/{slug}/\t../x" must not contain "\\", tabs or line breaks.',
+    ],
     ["/blog/{slug}", index, 'pages.index "/blog/{slug}" takes no token.'],
     ["/blog", entry, 'pages.entry "/blog" must contain {slug} once.'],
     [
