@@ -3,6 +3,8 @@ import { gfm } from "micromark-extension-gfm";
 import { mdxjs } from "micromark-extension-mdxjs";
 import type { Extension } from "micromark-util-types";
 
+import { micromarkHeadingId } from "./micromark-heading-id";
+
 type TokenizeMarkdownBodyOptions = {
   /** Parses MDX, falling back to Markdown when it fails. */
   mdx: boolean;
@@ -26,7 +28,9 @@ export function tokenizeMarkdownBody(
 
   if (!mdx) return run([gfm()]);
   try {
-    return run([gfm(), mdxjs()]);
+    // After `mdxjs`, so `{#id}` is tried before an MDX expression, as in
+    // `parseMarkdownBody`.
+    return run([gfm(), mdxjs(), micromarkHeadingId()]);
   } catch {
     // Valid Markdown (such as HTML comments) is not always valid MDX.
     return run([gfm()]);

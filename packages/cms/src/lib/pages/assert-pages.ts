@@ -1,5 +1,5 @@
 import type { PagesConfig } from "../../types/pages";
-import { findPagePathError } from "./find-page-path-error";
+import { describePagePathError } from "./describe-page-path-error";
 
 type AssertPagesParams = {
   pages: PagesConfig | undefined;
@@ -18,10 +18,13 @@ export function assertPages({ pages, siteUrl, owner }: AssertPagesParams) {
   }
 
   const error =
-    findPagePathError(pages.index, {
+    describePagePathError(pages.index, {
       label: "pages.index",
       takesSlug: false,
     }) ??
-    findPagePathError(pages.entry, { label: "pages.entry", takesSlug: true });
+    describePagePathError(pages.entry, {
+      label: "pages.entry",
+      takesSlug: true,
+    });
   if (error) throw new Error(`${owner}: ${error}`);
 }

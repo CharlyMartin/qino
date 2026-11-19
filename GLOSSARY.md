@@ -17,7 +17,7 @@ The standalone Markdown document served to agents in place of an entry page or a
 _Avoid_: LLM Markdown, Markdown view, raw, markdown (the entry's body field)
 
 **Markdown URL**:
-The URL of a page's agent Markdown: the page's URL with `.md` appended, or `/index.md` for the homepage.
+The URL of a page's agent Markdown: the page's URL, without a trailing `/`, with `.md` appended, or `/index.md` for the homepage.
 _Avoid_: Twin, .md route, raw URL
 
 **llms.txt template**:

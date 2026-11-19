@@ -1,5 +1,5 @@
 import { QinoConfigMarker } from "../../data/globals";
-import { assertSiteUrl } from "../../lib/agent-markdown/assert-site-url";
+import { assertSiteUrl } from "../../lib/pages/assert-site-url";
 import type { CliConfig } from "../../types/cli";
 import type { CloudConfig } from "../../types/cloud";
 import type { Collection } from "../../types/collection";
@@ -61,6 +61,8 @@ export function initQino(config: QinoConfig) {
   const ctx: QinoContext = {
     instanceId: Symbol("qino.instance"),
     ...config,
+    // Without a trailing `/`, so links append a path to it.
+    ...(config.siteUrl && { siteUrl: new URL(config.siteUrl).origin }),
   };
 
   return {

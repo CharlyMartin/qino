@@ -76,8 +76,12 @@ describe("pages", () => {
       'pages.index "blog" must start with "/".',
     ],
     [
-      { index: "/blog/", entry: "/blog/{slug}" },
-      'pages.index "/blog/" must not end with "/".',
+      { index: "//evil.com", entry: "/blog/{slug}" },
+      'pages.index "//evil.com" must be a path on the site, not "//".',
+    ],
+    [
+      { index: "/blog", entry: "/blog/{slug}#top" },
+      'pages.entry "/blog/{slug}#top" must be a path, without "?" or "#".',
     ],
     [
       { index: "/blog/{slug}", entry: "/blog/{slug}" },
@@ -113,6 +117,23 @@ describe("Markdown URLs of collection entries", () => {
     );
     expect(posts.getMarkdownUrl("hello world")).toBe(
       "https://example.com/blog/hello%20world.md",
+    );
+  });
+
+  test("drop an entry page's trailing slash before .md", () => {
+    const posts = initQino({
+      contentFolder: tmp,
+      mediaFolder: tmp,
+      siteUrl: "https://example.com",
+    }).defineCollection({
+      directory: "posts",
+      extension: ".md",
+      schema: z.object({}),
+      pages: { index: "/blog/", entry: "/blog/{slug}/" },
+    });
+
+    expect(posts.getMarkdownUrl("hello")).toBe(
+      "https://example.com/blog/hello.md",
     );
   });
 
@@ -257,11 +278,61 @@ describe("agent Markdown for collection entries", () => {
     );
   });
 
+  test("quotes every line of a multi-line description, and keeps the title on one line", async () => {
+    await writePost(
+      "multi",
+      '---\ntitle: "Two\\nlines"\ndescription: "First.\\n\\n# Not a heading"\n---\n\nBody.\n',
+    );
+    const { posts } = setup();
+
+    expect(await posts.getAgentMarkdown("multi")).toBe(
+      "# Two lines\n\n> First.\n>\n> # Not a heading\n\nBody.\n",
+    );
+  });
+
+  test("ends every line with LF when the file uses CRLF", async () => {
+    await writePost(
+      "crlf",
+      "---\r\ntitle: CRLF\r\n---\r\n\r\nFirst line.\r\nSecond line.\r\n",
+    );
+    const { posts } = setup();
+
+    expect(await posts.getAgentMarkdown("crlf")).toBe(
+      "# CRLF\n\nFirst line.\nSecond line.\n",
+    );
+  });
+
+  test("reaches links inside MDX components past qino's {#id} headings", async () => {
+    await fs.mkdir(nodePath.join(tmp, "docs"));
+    await fs.writeFile(
+      nodePath.join(tmp, "docs", "ids.mdx"),
+      "---\ntitle: Ids\n---\n\n## Install {#install}\n\n<Card>\n[the guide](/docs/guide)\n</Card>\n",
+    );
+    const docs = initQino({
+      contentFolder: tmp,
+      mediaFolder: tmp,
+      siteUrl: "https://example.com",
+    }).defineCollection({
+      directory: "docs",
+      extension: ".mdx",
+      schema: z.object({ title: z.string() }),
+      pages: { index: "/docs", entry: "/docs/{slug}" },
+    });
+
+    expect(await docs.getAgentMarkdown("ids")).toBe(
+      "# Ids\n\n## Install {#install}\n\n<Card>\n[the guide](https://example.com/docs/guide)\n</Card>\n",
+    );
+  });
+
   test("is the heading and description alone for a JSON entry", async () => {
     await fs.mkdir(nodePath.join(tmp, "authors"));
     await fs.writeFile(
       nodePath.join(tmp, "authors", "jane.json"),
-      JSON.stringify({ title: "Jane", description: "Writes the posts." }),
+      JSON.stringify({
+        title: "Jane",
+        description: "Writes the posts.",
+        markdown: "A field named markdown is data, not a body.",
+      }),
     );
     const qino = initQino({
       contentFolder: tmp,
@@ -271,7 +342,11 @@ describe("agent Markdown for collection entries", () => {
     const authors = qino.defineCollection({
       directory: "authors",
       extension: ".json",
-      schema: z.object({ title: z.string(), description: z.string() }),
+      schema: z.object({
+        title: z.string(),
+        description: z.string(),
+        markdown: z.string(),
+      }),
       pages: { index: "/authors", entry: "/authors/{slug}" },
     });
 

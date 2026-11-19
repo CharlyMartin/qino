@@ -1,4 +1,4 @@
-type FindPagePathErrorOptions = {
+type DescribePagePathErrorOptions = {
   /** Names the option in the message, such as `"pages.entry"`. */
   label: string;
   /** Whether the path takes `{slug}`, once. */
@@ -6,18 +6,24 @@ type FindPagePathErrorOptions = {
 };
 
 /** What's wrong with a `pages` path, or `undefined` when nothing is. */
-export function findPagePathError(
+export function describePagePathError(
   path: string,
-  { label, takesSlug }: FindPagePathErrorOptions,
+  { label, takesSlug }: DescribePagePathErrorOptions,
 ) {
   const name = `${label} "${path}"`;
   if (!path.startsWith("/")) return `${name} must start with "/".`;
-  if (path != "/" && path.endsWith("/"))
-    return `${name} must not end with "/".`;
+  // A URL resolves `//host/…` to another host.
+  if (path.startsWith("//")) {
+    return `${name} must be a path on the site, not "//".`;
+  }
+  if (/[?#]/.test(path)) {
+    return `${name} must be a path, without "?" or "#".`;
+  }
 
   const tokens = path.match(/\{[^}]*\}/g) ?? [];
-  if (!takesSlug)
+  if (!takesSlug) {
     return tokens.length > 0 ? `${name} takes no token.` : undefined;
+  }
 
   const slugCount = tokens.filter((token) => token == "{slug}").length;
   if (slugCount != 1) return `${name} must contain {slug} once.`;
