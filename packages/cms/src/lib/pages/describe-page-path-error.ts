@@ -7,6 +7,8 @@ type DescribePagePathErrorOptions = {
   takesSlug: boolean;
 };
 
+const TOKEN = /\{[^}]*\}/g;
+
 /** What's wrong with a `pages` path, or `undefined` when nothing is. */
 export function describePagePathError(
   path: string,
@@ -14,14 +16,19 @@ export function describePagePathError(
 ) {
   const name = `${label} "${path}"`;
   if (!path.startsWith("/")) return `${name} must start with "/".`;
-  if (!staysOnSite(path.replace(/\{[^}]*\}/g, "x"))) {
+  // A slug stands in for each token, as when a link fills the path.
+  if (!staysOnSite(path.replace(TOKEN, "slug"))) {
     return `${name} must stay on the site.`;
   }
   if (/[?#]/.test(path)) {
     return `${name} must be a path, without "?" or "#".`;
   }
+  // URLs resolve them, so every page would share one Markdown URL.
+  if (path.split("/").some((segment) => segment == "." || segment == "..")) {
+    return `${name} must not contain "." or ".." segments.`;
+  }
 
-  const tokens = path.match(/\{[^}]*\}/g) ?? [];
+  const tokens = path.match(TOKEN) ?? [];
   if (!takesSlug) {
     return tokens.length > 0 ? `${name} takes no token.` : undefined;
   }

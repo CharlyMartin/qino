@@ -120,6 +120,25 @@ describe("Markdown URLs of collection entries", () => {
     );
   });
 
+  test("stay on the site, whatever string the slug is", () => {
+    const pages = initQino({
+      contentFolder: tmp,
+      mediaFolder: tmp,
+      siteUrl: "https://example.com",
+    }).defineCollection({
+      directory: "pages",
+      extension: ".md",
+      schema: z.object({}),
+      pages: { index: "/", entry: "/{slug}" },
+    });
+
+    for (const slug of ["/evil.com", "//evil.com", "\\evil.com"]) {
+      expect(new URL(pages.getMarkdownUrl(slug)).origin).toBe(
+        "https://example.com",
+      );
+    }
+  });
+
   test("drop an entry page's trailing slash before .md", () => {
     const posts = initQino({
       contentFolder: tmp,

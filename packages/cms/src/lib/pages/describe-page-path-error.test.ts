@@ -32,6 +32,16 @@ describe("describePagePathError", () => {
       index,
       'pages.index "/blog?page=1" must be a path, without "?" or "#".',
     ],
+    [
+      "/blog/../{slug}",
+      entry,
+      'pages.entry "/blog/../{slug}" must not contain "." or ".." segments.',
+    ],
+    [
+      "/./blog",
+      index,
+      'pages.index "/./blog" must not contain "." or ".." segments.',
+    ],
     ["/blog/{slug}", index, 'pages.index "/blog/{slug}" takes no token.'],
     ["/blog", entry, 'pages.entry "/blog" must contain {slug} once.'],
     [
