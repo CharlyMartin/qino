@@ -1,3 +1,4 @@
+export { negotiateMarkdown } from "./runtime/http/negotiate-markdown";
 export { initQino } from "./runtime/qino/init-qino";
 export type {
   Collection,
