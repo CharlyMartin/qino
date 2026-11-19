@@ -12,3 +12,8 @@ export type PagesConfig = {
   /** Whether `llms-full.txt` holds the entry pages. Defaults to `true`. */
   readonly llmsFull?: boolean;
 };
+
+/** Checked `pages`, with the site's origin their links resolve against. */
+export type ResolvedPages = PagesConfig & {
+  readonly siteUrl: string;
+};

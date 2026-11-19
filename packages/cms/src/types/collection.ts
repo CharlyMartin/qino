@@ -96,7 +96,10 @@ export type Collection<
     slug: Slug,
     ...args: Args
   ): Promise<string | null>;
-  /** An entry page's Markdown URL: its URL on `siteUrl`, with `.md` appended. */
+  /**
+   * An entry page's Markdown URL: its URL on `siteUrl`, without a trailing
+   * `/`, with `.md` appended.
+   */
   getMarkdownUrl(slug: SlugFor<Dir>): string;
 };
 

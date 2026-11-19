@@ -1,0 +1,19 @@
+import { describe, expect, test } from "vitest";
+
+import { startsWithH1 } from "./starts-with-h1";
+
+describe("startsWithH1", () => {
+  test("finds an MDX body's H1 after its imports, with a {#id}", () => {
+    // The import keeps the MDX parse, which `{#id}` would otherwise break.
+    const body = 'import X from "x";\n\n# Title {#title}\n\nBody.\n';
+
+    expect(startsWithH1(body, { mdx: true })).toBe(true);
+  });
+
+  test.each(["## Section\n\nBody.\n", "Intro.\n\n# Title\n", ""])(
+    "is false for a body opening otherwise: %j",
+    (body) => {
+      expect(startsWithH1(body, { mdx: false })).toBe(false);
+    },
+  );
+});

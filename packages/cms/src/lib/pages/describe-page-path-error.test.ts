@@ -19,10 +19,13 @@ describe("describePagePathError", () => {
 
   test.each([
     ["blog", index, 'pages.index "blog" must start with "/".'],
+    ["//cdn.com", index, 'pages.index "//cdn.com" must stay on the site.'],
+    ["/\\cdn.com", index, 'pages.index "/\\cdn.com" must stay on the site.'],
+    ["/\t/cdn.com", index, 'pages.index "/\t/cdn.com" must stay on the site.'],
     [
-      "//cdn.com",
-      index,
-      'pages.index "//cdn.com" must be a path on the site, not "//".',
+      "/\n/cdn.com/{slug}",
+      entry,
+      'pages.entry "/\n/cdn.com/{slug}" must stay on the site.',
     ],
     [
       "/blog?page=1",

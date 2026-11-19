@@ -1,19 +1,11 @@
-import type { PagesConfig } from "../../types/pages";
+import type { ResolvedPages } from "../../types/pages";
 
-type RequirePagesParams = {
-  pages: PagesConfig | undefined;
-  siteUrl: string | undefined;
-  /** Names the primitive in the message, such as `Collection "posts"`. */
-  owner: string;
-};
-
-/** Returns `pages` with the `siteUrl` they need, or throws when the primitive declares none. */
-export function requirePages({ pages, siteUrl, owner }: RequirePagesParams) {
-  // `assertPages` already rejected pages without a siteUrl.
-  if (!pages || !siteUrl) {
+/** Returns a primitive's resolved `pages`, or throws when it declares none. */
+export function requirePages(pages: ResolvedPages | undefined, owner: string) {
+  if (!pages) {
     throw new Error(
       `${owner} has no pages: declare them to get agent Markdown and Markdown URLs.`,
     );
   }
-  return { ...pages, siteUrl };
+  return pages;
 }

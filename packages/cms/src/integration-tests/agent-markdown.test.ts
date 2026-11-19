@@ -77,7 +77,7 @@ describe("pages", () => {
     ],
     [
       { index: "//evil.com", entry: "/blog/{slug}" },
-      'pages.index "//evil.com" must be a path on the site, not "//".',
+      'pages.index "//evil.com" must stay on the site.',
     ],
     [
       { index: "/blog", entry: "/blog/{slug}#top" },

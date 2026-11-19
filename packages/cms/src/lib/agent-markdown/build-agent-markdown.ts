@@ -34,12 +34,21 @@ export function buildAgentMarkdown({
         )
       : "";
 
+  const title =
+    typeof entry.title == "string"
+      ? entry.title.replace(/\s+/g, " ").trim()
+      : "";
+  // YAML block scalars (`|`, `>`) end a description with a newline.
+  const description =
+    typeof entry.description == "string"
+      ? entry.description.replace(/\r\n?/g, "\n").trim()
+      : "";
+
   const blocks = [];
   if (!startsWithH1(body, { mdx })) {
-    const title = typeof entry.title == "string" ? entry.title : slug;
-    blocks.push(`# ${title.replace(/\s+/g, " ").trim()}`);
-    if (typeof entry.description == "string" && entry.description) {
-      const lines = entry.description.replace(/\r\n?/g, "\n").split("\n");
+    blocks.push(`# ${title || slug}`);
+    if (description) {
+      const lines = description.split("\n");
       blocks.push(lines.map((line) => (line ? `> ${line}` : ">")).join("\n"));
     }
   }

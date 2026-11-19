@@ -16,9 +16,9 @@ import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-confi
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
-import { assertPages } from "../../lib/pages/assert-pages";
 import { fillEntryPagePath } from "../../lib/pages/fill-entry-page-path";
 import { requirePages } from "../../lib/pages/require-pages";
+import { resolvePages } from "../../lib/pages/resolve-pages";
 import { toMarkdownUrl } from "../../lib/pages/to-markdown-url";
 import { assertPageOptions } from "../../lib/pagination/assert-page-options";
 import { copyPage } from "../../lib/pagination/copy-page";
@@ -148,18 +148,14 @@ export function defineCollection<
   >,
 ) {
   type TaggedRels = TaggedRelations<Rels, Media, Stats, Toc>;
-  const {
-    directory,
-    schema,
-    extension,
-    relations,
-    media = {},
-    cloud,
-    pages,
-  } = params;
+  const { directory, schema, extension, relations, media = {}, cloud } = params;
   assertContentPath(directory, "directory");
   const owner = `Collection "${directory}"`;
-  assertPages({ pages, siteUrl: ctx.siteUrl, owner });
+  const resolvedPages = resolvePages({
+    pages: params.pages,
+    siteUrl: ctx.siteUrl,
+    owner,
+  });
   assertCloudEnabled(ctx, cloud, directory);
   const collectionRelations = (relations ?? {}) as TaggedRels;
   assertMediaConfig({
@@ -395,7 +391,7 @@ export function defineCollection<
   async function getAgentMarkdown<
     Args extends ViewArguments<ConfiguredViews<Views>> = [],
   >(slug: Slug, ...[options]: Args) {
-    const { siteUrl } = requirePages({ pages, siteUrl: ctx.siteUrl, owner });
+    const { siteUrl } = requirePages(resolvedPages, owner);
     // Only a listed slug reads a file: a route param can't reach past the
     // collection with `..`.
     if (!(await getAllSlugs()).includes(slug as SlugFor<Dir>)) return null;
@@ -412,11 +408,7 @@ export function defineCollection<
   }
 
   function getMarkdownUrl(slug: SlugFor<Dir>) {
-    const { entry, siteUrl } = requirePages({
-      pages,
-      siteUrl: ctx.siteUrl,
-      owner,
-    });
+    const { entry, siteUrl } = requirePages(resolvedPages, owner);
     return toMarkdownUrl(fillEntryPagePath(entry, slug), siteUrl);
   }
 }

@@ -1,3 +1,5 @@
+import { staysOnSite } from "./stays-on-site";
+
 type DescribePagePathErrorOptions = {
   /** Names the option in the message, such as `"pages.entry"`. */
   label: string;
@@ -12,9 +14,8 @@ export function describePagePathError(
 ) {
   const name = `${label} "${path}"`;
   if (!path.startsWith("/")) return `${name} must start with "/".`;
-  // A URL resolves `//host/…` to another host.
-  if (path.startsWith("//")) {
-    return `${name} must be a path on the site, not "//".`;
+  if (!staysOnSite(path.replace(/\{[^}]*\}/g, "x"))) {
+    return `${name} must stay on the site.`;
   }
   if (/[?#]/.test(path)) {
     return `${name} must be a path, without "?" or "#".`;

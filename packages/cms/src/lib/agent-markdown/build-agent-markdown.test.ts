@@ -39,11 +39,38 @@ describe("buildAgentMarkdown", () => {
     ).toBe("# Jane\n");
   });
 
-  test("falls back to the slug when the title isn't a string", () => {
-    const entry = { title: 42, markdown: "Body.\n" };
+  test.each([42, "", "  \n "])(
+    "falls back to the slug for the title %j",
+    (title) => {
+      const entry = { title, markdown: "Body.\n" };
+
+      expect(
+        buildAgentMarkdown({
+          entry,
+          slug: "untitled",
+          extension: ".md",
+          origin,
+        }),
+      ).toBe("# untitled\n\nBody.\n");
+    },
+  );
+
+  test("quotes a description without the newline YAML block scalars end it with", () => {
+    const entry = { title: "Hello", description: "Some text.\n" };
 
     expect(
-      buildAgentMarkdown({ entry, slug: "untitled", extension: ".md", origin }),
-    ).toBe("# untitled\n\nBody.\n");
+      buildAgentMarkdown({ entry, slug: "hello", extension: ".md", origin }),
+    ).toBe("# Hello\n\n> Some text.\n");
   });
+
+  test.each(["", "\n\n", "   "])(
+    "leaves out the blank description %j",
+    (description) => {
+      const entry = { title: "Hello", description };
+
+      expect(
+        buildAgentMarkdown({ entry, slug: "hello", extension: ".md", origin }),
+      ).toBe("# Hello\n");
+    },
+  );
 });
