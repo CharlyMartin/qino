@@ -17,6 +17,7 @@ Pick the scope. Codex rejects a prompt next to `--uncommitted` or `--base`, so t
 
 - Uncommitted work: `codex review "Review the uncommitted changes: staged, unstaged, and untracked files. <prompt>" 2>/dev/null`
 - Committed work on a feature branch: `codex review "Review the changes on this branch against main: the diff from \`git diff main...HEAD\`. <prompt>" 2>/dev/null`
+- Both, such as `/implement` commits plus later fixes: `codex review "Review the changes on this branch against main, the diff from \`git diff main...HEAD\`, plus the uncommitted changes: staged, unstaged, and untracked files. <prompt>" 2>/dev/null`
 
 `2>/dev/null` drops Codex's progress logs, and its errors with them: if the output is empty, run the command again without the redirect to see the error.
 

@@ -1,13 +1,16 @@
-## What
+## Summary
 
-<!-- One or two lines summarizing the change. -->
+<!-- Diagram, diff sketch, or tree: the smallest view that makes the key point clear. -->
 
-## Why
+## Evidence
 
-<!-- Motivation, linked issue (e.g. Closes #123). -->
+- **Before:** <!-- screenshot, output, or failing test run -->
+  **After:** <!-- screenshot, output, or passing test run -->
 
-## Key changes
+## Merge Danger
 
-<!-- One bullet point per key change. -->
+**Door:** <!-- one-way or two-way -->
 
--
+**Blast Radius:** <!-- one word -->
+
+<!-- Closes #123 -->

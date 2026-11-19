@@ -4,36 +4,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-qino is a flat-file Markdown CMS. See local-only `SPECS.md` and `specs/**.md` (gitignored) for the design intent (config/collection/page APIs, `qino-lock.json`, CLI commands `qino build` / `qino watch`, generated `.d.ts` types). The repo is in early scaffolding — `examples/` and `packages/` are empty workspaces awaiting the first packages.
+qino is a flat-file Markdown CMS. See local-only `SPECS.md` and `specs/**.md` (gitignored) for the design intent (config/collection/page APIs, `qino-lock.json`, CLI commands `qino build` / `qino watch`, generated `.d.ts` types).
 
 ## Monorepo layout
 
 - pnpm workspaces (`pnpm-workspace.yaml`) + Turborepo (`turbo.json`)
-- `examples/*` — consumer apps (e.g. example/demo Next.js sites that exercise qino)
-- `packages/*` — publishable libraries (the `qino` core, CLI, schema helpers, etc.)
+- `packages/*` — published libraries (`@qino/cms`, `@qino/tooling`)
+- `apps/website` — the qino website and docs
+- `examples/*` — demo apps that exercise qino
 - Node `>=22`, package manager pinned via `packageManager` in `package.json`
 
-When adding a new package, place library code in `packages/<name>` and demo/host apps in `examples/<name>`. Each package needs its own `package.json` with `build`, `lint`, `check-types`, and (where relevant) `dev` scripts so Turbo can pick them up.
+Each package needs its own `package.json` with `build`, `lint`, `check-types`, and (where relevant) `dev` and `test` scripts so Turbo can pick them up.
 
 ## Commands
 
-Run from the repo root:
-
-- `pnpm build` — `turbo run build` across the workspace
-- `pnpm dev` — `turbo run dev` (persistent, no cache)
-- `pnpm lint` — `turbo run lint`
-- `pnpm check-types` — `turbo run check-types`
-- `pnpm format` — Prettier on `**/*.{ts,tsx,md}`
-
-To run a script in a single workspace package: `pnpm --filter <pkg-name> <script>` (e.g. `pnpm --filter @qino/cms build`).
-
-No test runner is configured yet — pick one when introducing the first package and wire a `test` task into `turbo.json`.
+Scripts live in the root `package.json`. To run one in a single workspace package: `pnpm --filter <pkg-name> <script>` (e.g. `pnpm --filter @qino/cms build`).
 
 ## Conventions specific to this repo
 
-- Turbo `build` task expects outputs in `.next/**` (excluding cache) or none — adjust `turbo.json` `outputs` if a package emits to `dist/` instead.
 - `.env*` files are declared as build inputs in `turbo.json`; don't rely on env vars outside that pattern without updating it.
-- When installing packages via `npm`, also use the exact version, so ~ or carret.
+- Pin exact versions when adding a dependency, without `^` or `~`.
 
 ## Coding principles
 
@@ -44,13 +34,31 @@ No test runner is configured yet — pick one when introducing the first package
 
 ## Definition of done
 
-A code change is done once it's in an open pull request. Go through these steps in order, without asking the user between them:
+A code change is done once it's in an open pull request. How it gets built depends on the change:
 
-1. Write the code until the checks are green: `pnpm test`, `pnpm check-types` and `pnpm biome check .`.
-2. Run the `codex-review` skill until the review is clean.
+- **Feature:** create the feature branch first (`ship` step 1), because `/implement` commits to the current branch. The user types each slash command; when one finishes, name the next: `/grill-with-docs` → `/to-spec` → `/to-tickets` → `/implement` → `/retro`. Apply the retro improvements the user picks, then continue below.
+- **Bug fix:** fix it test-first with `tdd`; use `diagnosing-bugs` when the cause isn't obvious.
+- **Docs-only or trivial changes, and changes the user wants to try out without committing:** stop once the checks are green.
+
+Then go through these steps in order, without asking the user between them:
+
+1. Get the checks green: `pnpm test`, `pnpm check-types` and `pnpm biome check .`.
+2. Run the `codex-review` skill until the review is clean. If it ends not clean, stop and report to the user.
 3. Run the `ship` skill.
 
-If the review ends not clean, stop after step 2 and report to the user. Docs-only or trivial changes, and changes the user wants to try out without committing, end after step 1.
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues on `CharlyMartin/qino`, via `gh`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
 
 <!-- BEGIN:turborepo-agent-rules -->
 
