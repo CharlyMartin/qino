@@ -21,7 +21,7 @@ Pick the scope. Codex rejects a prompt next to `--uncommitted` or `--base`, so t
 
 `2>/dev/null` drops Codex's progress logs, and its errors with them: if the output is empty, run the command again without the redirect to see the error.
 
-The base is the one the `ship` skill's step 4 names: `main`, or the previous ticket's branch in a ticket stack. Use it wherever this skill says `main`.
+Use the base the `ship` skill's step 4 names wherever this skill says `main`.
 
 When Codex can't run (at capacity, not installed, not signed in), run the `code-review` skill against that base for the round instead, and triage its findings with the same rules below.
 
