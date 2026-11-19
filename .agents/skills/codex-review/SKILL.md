@@ -21,6 +21,8 @@ Pick the scope. Codex rejects a prompt next to `--uncommitted` or `--base`, so t
 
 `2>/dev/null` drops Codex's progress logs, and its errors with them: if the output is empty, run the command again without the redirect to see the error.
 
+When Codex can't run (at capacity, not installed, not signed in), run the `code-review` skill against `main` for that round instead, and triage its findings with the same rules below.
+
 Use a Bash timeout of `600000`. Prompt for round 1:
 
 ```

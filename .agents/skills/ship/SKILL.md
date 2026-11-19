@@ -17,6 +17,8 @@ Work on a feature branch. If you're on `main`, create one named after the main c
 git switch -c <type>/<short-slug>   # e.g. feat/tree-get-entries-ancestors
 ```
 
+In a **ticket stack** (one PR per ticket of a spec), each ticket gets its own branch, created from the previous ticket's branch.
+
 ## 2. Commit
 
 Make atomic commits. A typical split:
@@ -58,6 +60,8 @@ EOF
 
 The quoted heredoc keeps backticks in the body from running as shell commands.
 
+In a ticket stack, `--base` is the previous ticket's branch while its PR is unmerged, and `main` once it has merged.
+
 **Title:** a Conventional Commit subject for the whole PR. PRs are squash-merged, so it becomes the commit on `main`.
 
 **Body:** write it with the `pr` skill, naming the public APIs in backticks. Below the template, add:
@@ -81,7 +85,7 @@ Reply on each thread once the fixes are pushed: what was applied and in which co
 gh api repos/{owner}/{repo}/pulls/<number>/comments/<comment-id>/replies -f body="<reply>"
 ```
 
-A PR with no Greptile comments needs nothing here.
+Read the comments once, right after opening the PR. A PR with no Greptile comments yet needs nothing here: carry on to the report.
 
 ## 6. Report
 
