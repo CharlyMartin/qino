@@ -24,10 +24,11 @@ Scripts live in the root `package.json`. To run one in a single workspace packag
 
 - `.env*` files are declared as build inputs in `turbo.json`; don't rely on env vars outside that pattern without updating it.
 - Pin exact versions when adding a dependency, without `^` or `~`.
+- Before changing `turbo.json` or Turbo commands, read `docs/README.md` in the installed `turbo` package (`node -p "require.resolve('turbo/package.json')"`): its bundled docs match the installed version.
 
 ## Coding principles
 
-1. Stick to one function per file, and name if after it: `create-collection.ts` should export a single `createCollection` function. Important functions shoudld also have a test file with the same name: `create-collection.test.ts`.
+1. Stick to one function per file, and name the file after it: `create-collection.ts` should export a single `createCollection` function. Important functions should also have a test file with the same name: `create-collection.test.ts`.
 2. Avoid return types unless necessary. Let TypeScript infer them where possible, to keep code DRY and maintainable.
 3. Only use `===` when necessary, when types don't match and you want to avoid coercion, for instance. When types match, use `==`.
 4. Don't inline types. Declare them as named types outside the function (e.g. `type CheckOptions = { … }`) and reference them in the signature or body, for readability.
@@ -59,14 +60,3 @@ Default five: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`
 ### Domain docs
 
 Single-context: root `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
-
-<!-- BEGIN:turborepo-agent-rules -->
-
-# This is NOT the Turborepo you know
-
-Turborepo configuration, task behavior, and CLI commands can vary between installed versions and may differ from your training data. Resolve the `turbo` package from this file's directory or relevant workspace; in monorepos, it may not be visible from the repository root. For example, run `node -p "require.resolve('turbo/package.json')"` from a workspace that depends on `turbo`.
-
-Read `docs/README.md` inside that installed package first, then read the relevant pages from its `docs/` directory before changing Turborepo configuration or commands. Heed deprecation notices. These bundled docs match the installed package version and are available without network access.
-
-This block is written and re-added by `turbo` before repository-scoped commands when an AI agent is detected. In the Turborepo source repository, its template is defined in `crates/turborepo-cli/src/cli/agent_guidance.rs`. Removing the managed block while updates are enabled means a later qualifying invocation will add it again. Set `"agentGuidance": false` in the root `turbo.json` or `turbo.jsonc` to opt out; this does not remove an existing block. Keep the block committed with your work to avoid an uncommitted change on the next agent invocation.
-<!-- END:turborepo-agent-rules -->
