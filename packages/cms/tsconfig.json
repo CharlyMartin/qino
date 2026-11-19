@@ -13,7 +13,9 @@
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,
     "resolveJsonModule": true,
-    "noUncheckedIndexedAccess": true
+    "noUncheckedIndexedAccess": true,
+    "declaration": true
   },
-  "include": ["build", "src", "tsdown.config.ts", "vitest.config.ts"]
+  "include": ["build", "src", "tsdown.config.ts", "vitest.config.ts"],
+  "//": "`declaration` makes `check-types` report types the published declarations can't name (TS2883), which the build would otherwise fail on."
 }
