@@ -53,18 +53,23 @@ describe("prefersMarkdown", () => {
     );
   });
 
+  // Each header gets Markdown only when the grammar accepts its q-value.
   test.each([
-    ["1.000", true],
-    ["1.", true],
-    ["0.", false],
-    ["0.123", false],
-  ])("reads the q-value %j, inside RFC 9110's grammar", (q, wantsMarkdown) => {
-    expect(prefersMarkdown(`text/html;q=0.5, text/markdown;q=${q}`)).toBe(
-      wantsMarkdown,
+    "text/html;q=0.5, text/markdown;q=1.000",
+    "text/html;q=0.5, text/markdown;q=1.",
+    "text/html;q=0.1, text/markdown;q=0.123",
+    "text/markdown;q=0.5, */*, text/html;q=0.",
+  ])("reads q-values inside RFC 9110's grammar: %s", (accept) => {
+    expect(prefersMarkdown(accept)).toBe(true);
+  });
+
+  test("reads a q parameter up to its first equals sign", () => {
+    expect(prefersMarkdown("text/markdown;q=0.5, */*, text/html;q=0.5=1")).toBe(
+      false,
     );
   });
 
-  test.each(["", "1.5", "0x1", "1e-1", "0.5000", "0.5=1"])(
+  test.each(["", "1.5", "0x1", "1e-1", "0.5000"])(
     "ignores a range whose q-value is %j, outside RFC 9110's grammar",
     (q) => {
       // Read as numbers, these q-values would let Markdown win.
