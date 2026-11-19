@@ -17,6 +17,12 @@ describe("prefersMarkdown", () => {
     expect(prefersMarkdown("text/html, text/markdown")).toBe(false);
   });
 
+  test("breaks a tie in favor of a named type over a wildcard", () => {
+    expect(prefersMarkdown("*/*, text/markdown")).toBe(true);
+    expect(prefersMarkdown("text/*, text/markdown")).toBe(true);
+    expect(prefersMarkdown("*/*, text/markdown, text/html")).toBe(true);
+  });
+
   test("accepts text/x-markdown as an alias", () => {
     expect(prefersMarkdown("text/x-markdown, text/html;q=0.9")).toBe(true);
   });

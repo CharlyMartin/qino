@@ -17,9 +17,10 @@ const MARKDOWN_TYPES = ["text/markdown", "text/x-markdown"];
 
 /**
  * Whether an `Accept` header prefers Markdown to HTML: `text/markdown` (or
- * `text/x-markdown`) has the higher q-value, or the same one and comes first,
- * so `text/markdown, text/html` gets Markdown. Wildcards count toward HTML,
- * the default: so does a missing header, `text/plain`, or `q=0` on Markdown.
+ * `text/x-markdown`) has the higher q-value, or the same one and either comes
+ * before `text/html` or ties only with a wildcard, so `text/markdown,
+ * text/html` gets Markdown. Wildcards count toward HTML, the default: so does
+ * a missing header, `text/plain`, or `q=0` on Markdown.
  * q-values are capped at 1, and a range whose q-value can't be read is
  * ignored.
  */
@@ -44,10 +45,11 @@ export function prefersMarkdown(accept: string | null) {
     if (specificity > html.specificity) html = { q, position, specificity };
   }
 
+  const isHtmlNamed = html.specificity == HTML_RANGES.length;
   return (
     markdown.q > html.q ||
     (markdown.q > 0 &&
       markdown.q == html.q &&
-      markdown.position < html.position)
+      (!isHtmlNamed || markdown.position < html.position))
   );
 }
