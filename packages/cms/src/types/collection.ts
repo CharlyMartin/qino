@@ -88,6 +88,16 @@ export type Collection<
       ViewSelection<Args[0]>
     >
   >;
+  /**
+   * An entry page's agent Markdown, or `null` when the slug is unknown or the
+   * view excludes the entry. Takes any string, such as a route param.
+   */
+  getAgentMarkdown<Args extends ViewArguments<Views> = []>(
+    slug: Slug,
+    ...args: Args
+  ): Promise<string | null>;
+  /** An entry page's Markdown URL: its URL on `siteUrl`, with `.md` appended. */
+  getMarkdownUrl(slug: SlugFor<Dir>): string;
 };
 
 /** One page of `getPaginatedEntries`, 1-indexed. */

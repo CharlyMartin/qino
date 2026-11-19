@@ -1,4 +1,5 @@
 import { QinoConfigMarker } from "../../data/globals";
+import { assertSiteUrl } from "../../lib/agent-markdown/assert-site-url";
 import type { CliConfig } from "../../types/cli";
 import type { CloudConfig } from "../../types/cloud";
 import type { Collection } from "../../types/collection";
@@ -44,6 +45,11 @@ export type QinoConfig = {
    * default.
    */
   readonly incrementalEntries?: boolean;
+  /**
+   * The site's origin, such as `"https://example.com"`. Agent Markdown makes
+   * site-relative links absolute against it. Required by `pages`.
+   */
+  readonly siteUrl?: string;
 };
 
 export type QinoContext = {
@@ -51,6 +57,7 @@ export type QinoContext = {
 } & QinoConfig;
 
 export function initQino(config: QinoConfig) {
+  assertSiteUrl(config.siteUrl);
   const ctx: QinoContext = {
     instanceId: Symbol("qino.instance"),
     ...config,

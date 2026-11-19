@@ -5,6 +5,11 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
+import { assertPages } from "../../lib/agent-markdown/assert-pages";
+import { buildAgentMarkdown } from "../../lib/agent-markdown/build-agent-markdown";
+import { fillEntryPath } from "../../lib/agent-markdown/fill-entry-path";
+import { requirePages } from "../../lib/agent-markdown/require-pages";
+import { toMarkdownUrl } from "../../lib/agent-markdown/to-markdown-url";
 import { unwrapSettled } from "../../lib/async/unwrap-settled";
 import type { DependencyCollector } from "../../lib/cache/create-dependency-collector";
 import { createFileCache } from "../../lib/cache/create-file-cache";
@@ -53,6 +58,7 @@ import type {
   MediaConfig,
   TaggedRelations,
 } from "../../types/media";
+import type { PagesConfig } from "../../types/pages";
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
@@ -111,6 +117,8 @@ export type DefineCollectionParams<
   cloud?: NoInfer<CollectionCloudConfig<Schema>> &
     SaveEntryAsConfig<SaveEntryAs, Schema> &
     DisplayEntryAsConfig<DisplayEntryAs, Schema>;
+  /** Where the index page and entry pages live, for agent Markdown and links. */
+  pages?: PagesConfig;
 } & RootViewSettings;
 
 export function defineCollection<
@@ -140,8 +148,20 @@ export function defineCollection<
   >,
 ) {
   type TaggedRels = TaggedRelations<Rels, Media, Stats, Toc>;
-  const { directory, schema, extension, relations, media = {}, cloud } = params;
+  const {
+    directory,
+    schema,
+    extension,
+    relations,
+    media = {},
+    cloud,
+    pages,
+  } = params;
   assertContentPath(directory, "directory");
+  const owner = `Collection "${directory}"`;
+  assertPages({ pages, siteUrl: ctx.siteUrl, owner });
+  // `assertPages` made sure pages come with a siteUrl.
+  const siteOrigin = pages ? new URL(ctx.siteUrl ?? "").origin : "";
   assertCloudEnabled(ctx, cloud, directory);
   const collectionRelations = (relations ?? {}) as TaggedRels;
   assertMediaConfig({
@@ -191,6 +211,8 @@ export function defineCollection<
     getPaginatedEntries,
     getAllSlugs,
     getEntry,
+    getAgentMarkdown,
+    getMarkdownUrl,
   } as const satisfies Collection<
     S,
     Ext,
@@ -359,5 +381,35 @@ export function defineCollection<
       ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;
+  }
+
+  async function getAgentMarkdown<
+    Args extends ViewArguments<ConfiguredViews<Views>> = [],
+  >(slug: Slug, ...[options]: Args) {
+    requirePages(pages, owner);
+    // Only a listed slug reads a file: a route param can't reach past the
+    // collection with `..`.
+    if (!(await getAllSlugs()).includes(slug as SlugFor<Dir>)) return null;
+
+    const view = selectView(views, options) as CollectionViewDefinition;
+    const [entry] = await applyView(
+      [await readEntry(slug)],
+      view,
+      collectionRelations,
+      ctx.instanceId,
+    );
+    if (view.filter && !view.filter(entry as never)) return null;
+
+    return buildAgentMarkdown({
+      entry: entry as Record<string, unknown>,
+      slug,
+      origin: siteOrigin,
+      mdx: extension == ".mdx",
+    });
+  }
+
+  function getMarkdownUrl(slug: SlugFor<Dir>) {
+    const { entry } = requirePages(pages, owner);
+    return toMarkdownUrl(fillEntryPath(entry, slug), siteOrigin);
   }
 }
