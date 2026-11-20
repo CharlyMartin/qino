@@ -15,7 +15,8 @@
     "release": "changeset publish",
     "pack:cms": "pnpm --filter @qino/cms run pack",
     "lint": "turbo run lint",
-    "knip": "knip"
+    "knip": "knip",
+    "check": "pnpm build && pnpm check-types && pnpm biome check . && pnpm knip && pnpm --filter @qino/cms check-dist && pnpm --filter @qino/tooling check-dist && pnpm test"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.6",

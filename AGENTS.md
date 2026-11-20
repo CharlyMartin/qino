@@ -45,7 +45,7 @@ A code change is done once it's in an open pull request. How it gets built depen
 
 Then go through these steps in order, without asking the user between them:
 
-1. Get the checks green: `pnpm test`, `pnpm check-types`, `pnpm biome check .` and `pnpm knip`.
+1. Get `pnpm check` green: it runs every check CI runs.
 2. Run the `ship` skill. It commits, then reviews what `/implement` didn't, before opening the PR.
 
 ## Agent skills
