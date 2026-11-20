@@ -11,9 +11,14 @@ import type { AnyItem } from "../../types/item";
 import type { AnyTree } from "../../types/tree";
 
 export async function loadQinoPrimitives(rootDirPath: string, jiti: Jiti) {
+  // Test files sit beside definitions but run only under a test runner.
   const files = await glob(
     SUPPORTED_CODE_EXTENSIONS.map((ext) => `**/*${ext}`),
-    { cwd: rootDirPath, absolute: true },
+    {
+      cwd: rootDirPath,
+      absolute: true,
+      ignore: ["**/*.test.*", "**/*.test-d.*", "**/*.spec.*"],
+    },
   );
 
   const collections: AnyCollection[] = [];
