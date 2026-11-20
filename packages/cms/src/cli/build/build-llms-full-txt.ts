@@ -1,6 +1,5 @@
 import { rendersNothing } from "../../lib/agent-markdown/renders-nothing";
-import { parseMarkdownBody } from "../../utils/markdown/parse-markdown-body";
-import { cleanLlmsTxtTemplate } from "./clean-llms-txt-template";
+import { parseLlmsTxtTemplate } from "./parse-llms-txt-template";
 
 type BuildLlmsFullTxtParams = {
   /** The `llms.txt` template, as read. */
@@ -18,18 +17,14 @@ export function buildLlmsFullTxt({
   template,
   documents,
 }: BuildLlmsFullTxtParams) {
-  const text = cleanLlmsTxtTemplate(template);
-  // Parsed, so a `#` line inside a code block isn't taken for the H1, and
-  // without the blocks that render nothing, such as comments.
-  const blocks = parseMarkdownBody(text, {
-    mdx: false,
-    headingIds: true,
-  }).children.filter((node) => !rendersNothing(node));
-  const at = blocks.findIndex(
+  const { text, blocks } = parseLlmsTxtTemplate(template);
+  // Without the blocks that render nothing, such as comments.
+  const shown = blocks.filter((node) => !rendersNothing(node));
+  const h1Index = shown.findIndex(
     (node) => node.type == "heading" && node.depth == 1,
   );
-  const h1 = blocks[at];
-  const summary = blocks[at + 1];
+  const h1 = shown[h1Index];
+  const summary = shown[h1Index + 1];
   const end = (summary?.type == "blockquote" ? summary : h1)?.position?.end
     .offset;
   const head = h1 ? text.slice(h1.position?.start.offset, end) : "";

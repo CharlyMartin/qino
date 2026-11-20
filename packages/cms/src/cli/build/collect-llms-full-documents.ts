@@ -18,13 +18,13 @@ type CollectLlmsFullDocumentsParams = {
 export async function collectLlmsFullDocuments(
   primitives: CollectLlmsFullDocumentsParams,
 ) {
-  const { listed, items } = sortLlmsTxtPrimitives(primitives);
+  const { treesAndCollections, items } = sortLlmsTxtPrimitives(primitives);
 
   const documents = [];
-  for (const primitive of listed) {
+  for (const primitive of treesAndCollections) {
     const pages = primitive[QinoPrimitiveMarker].pages;
     if (pages && pages.llmsFull != false) {
-      documents.push(...(await pages.getEntryAgentMarkdown()));
+      documents.push(...(await pages.getEntryPagesAgentMarkdown()));
     }
   }
   for (const item of items) {

@@ -213,7 +213,11 @@ export function defineCollection<
       markdown,
       cloud,
       ...(resolvedPages && {
-        pages: { ...resolvedPages, getListingSections, getEntryAgentMarkdown },
+        pages: {
+          ...resolvedPages,
+          getListingSections,
+          getEntryPagesAgentMarkdown,
+        },
       }),
       readEntries,
       readEntry,
@@ -433,7 +437,7 @@ export function defineCollection<
   }
 
   // `llms-full.txt`'s documents: the index page's entries, in its order.
-  async function getEntryAgentMarkdown() {
+  async function getEntryPagesAgentMarkdown() {
     const entries = await getEntries();
     return Promise.all(
       entries.map(async (entry) =>

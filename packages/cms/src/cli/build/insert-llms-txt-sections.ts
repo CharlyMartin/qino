@@ -1,6 +1,5 @@
 import { getHeadingText } from "../../utils/markdown/get-heading-text";
-import { parseMarkdownBody } from "../../utils/markdown/parse-markdown-body";
-import { cleanLlmsTxtTemplate } from "./clean-llms-txt-template";
+import { parseLlmsTxtTemplate } from "./parse-llms-txt-template";
 
 type InsertLlmsTxtSectionsParams = {
   /** The `llms.txt` template, as read. */
@@ -19,12 +18,8 @@ export function insertLlmsTxtSections({
   template,
   sections,
 }: InsertLlmsTxtSectionsParams) {
-  const text = cleanLlmsTxtTemplate(template);
-  // Parsed, so a `## Optional` inside a code block isn't taken for one.
-  const optional = parseMarkdownBody(text, {
-    mdx: false,
-    headingIds: true,
-  }).children.find(
+  const { text, blocks } = parseLlmsTxtTemplate(template);
+  const optional = blocks.find(
     (node) =>
       node.type == "heading" &&
       node.depth == 2 &&
@@ -32,10 +27,10 @@ export function insertLlmsTxtSections({
         "Optional",
   );
   const offset = optional?.position?.start.offset ?? text.length;
-  const blocks = [
+  const parts = [
     text.slice(0, offset).trimEnd(),
     sections,
     text.slice(offset).trimEnd(),
   ];
-  return `${blocks.filter(Boolean).join("\n\n")}\n`;
+  return `${parts.filter(Boolean).join("\n\n")}\n`;
 }

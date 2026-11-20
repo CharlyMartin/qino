@@ -10,11 +10,11 @@ type SortLlmsTxtPrimitivesParams = {
   trees: Array<AnyTree>;
 };
 
-type ListedPrimitive = AnyCollection | AnyTree;
+type TreeOrCollection = AnyCollection | AnyTree;
 
 /**
  * The primitives in `llms.txt`'s order: the trees, then the collections, as
- * `listed`, then the items. Each kind is in code-unit order of its directory
+ * `treesAndCollections`, then the items. Each kind is in code-unit order of its directory
  * or file, since primitives are found by glob, so every build writes the same
  * files.
  */
@@ -23,7 +23,7 @@ export function sortLlmsTxtPrimitives({
   items,
   trees,
 }: SortLlmsTxtPrimitivesParams) {
-  const byDirectory = (primitives: Array<ListedPrimitive>) =>
+  const byDirectory = (primitives: Array<TreeOrCollection>) =>
     primitives.toSorted((a, b) =>
       compareCodeUnits(
         a[QinoPrimitiveMarker].directory,
@@ -32,7 +32,7 @@ export function sortLlmsTxtPrimitives({
     );
 
   return {
-    listed: [...byDirectory(trees), ...byDirectory(collections)],
+    treesAndCollections: [...byDirectory(trees), ...byDirectory(collections)],
     items: items.toSorted((a, b) =>
       compareCodeUnits(
         a[QinoPrimitiveMarker].file,

@@ -17,7 +17,7 @@ function primitive(
       directory,
       pages: documents && {
         llmsFull,
-        getEntryAgentMarkdown: async () => documents,
+        getEntryPagesAgentMarkdown: async () => documents,
       },
     },
   } as never;
@@ -68,7 +68,7 @@ describe("collectLlmsFullDocuments", () => {
         directory: "logs",
         pages: {
           llmsFull: false,
-          getEntryAgentMarkdown: () => {
+          getEntryPagesAgentMarkdown: () => {
             throw new Error("read");
           },
         },

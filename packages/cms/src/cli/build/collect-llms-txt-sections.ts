@@ -19,10 +19,10 @@ type CollectLlmsTxtSectionsParams = {
 export async function collectLlmsTxtSections(
   primitives: CollectLlmsTxtSectionsParams,
 ) {
-  const { listed, items } = sortLlmsTxtPrimitives(primitives);
+  const { treesAndCollections, items } = sortLlmsTxtPrimitives(primitives);
 
   const sections: Array<ListingSection> = [];
-  for (const primitive of listed) {
+  for (const primitive of treesAndCollections) {
     const pages = primitive[QinoPrimitiveMarker].pages;
     if (pages) sections.push(...(await pages.getListingSections()));
   }

@@ -216,7 +216,11 @@ export function defineTree<
       markdown,
       cloud,
       ...(resolvedPages && {
-        pages: { ...resolvedPages, getListingSections, getEntryAgentMarkdown },
+        pages: {
+          ...resolvedPages,
+          getListingSections,
+          getEntryPagesAgentMarkdown,
+        },
       }),
       readEntry,
     },
@@ -409,7 +413,7 @@ export function defineTree<
   }
 
   // `llms-full.txt`'s documents: every node, in its sections' order.
-  async function getEntryAgentMarkdown() {
+  async function getEntryPagesAgentMarkdown() {
     const nodes = await getFlatTree();
     return Promise.all(nodes.map((node) => readEntryAgentMarkdown(node.slug)));
   }
