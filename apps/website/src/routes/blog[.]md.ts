@@ -1,17 +1,16 @@
-import { negotiateMarkdown } from "@qino/cms";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { postCollection } from "../../qino/posts";
+import { serveIndexAgentMarkdown } from "../server/serve-index-agent-markdown";
 
-// The blog index page's agent Markdown. The path ends in `.md`, so
-// negotiateMarkdown always answers.
+// The blog index page's agent Markdown.
 export const Route = createFileRoute("/blog.md")({
   server: {
     handlers: {
-      GET: async ({ request, next }) =>
-        (await negotiateMarkdown(request, () =>
+      GET: ({ request }) =>
+        serveIndexAgentMarkdown(request, () =>
           postCollection.getAgentMarkdown(),
-        )) ?? next(),
+        ),
     },
   },
 });

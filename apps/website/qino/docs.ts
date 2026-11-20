@@ -1,12 +1,7 @@
 import { z } from "zod";
 
-import {
-  getInstallCommands,
-  type InstallCommand,
-} from "../src/lib/get-install-commands";
+import { installBoxToMarkdown } from "../src/lib/install-box-to-markdown";
 import qino from "./index";
-
-const npmCommands = getInstallCommands("npm");
 
 export const docsTree = qino.defineTree({
   directory: "docs",
@@ -23,16 +18,7 @@ export const docsTree = qino.defineTree({
   pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" },
   agentMarkdown: {
     components: {
-      InstallBox: ({ props }) => {
-        const { command = "install" } = props;
-        if (
-          typeof command != "string" ||
-          !Object.hasOwn(npmCommands, command)
-        ) {
-          return null;
-        }
-        return `\`\`\`sh\n${npmCommands[command as InstallCommand]}\n\`\`\``;
-      },
+      InstallBox: installBoxToMarkdown,
       // The page's children, as the rendered grid shows them. Annotated, as it
       // reads `docsTree`, whose type it's part of.
       LinkGrid: async ({ entry }): Promise<string> => {

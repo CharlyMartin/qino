@@ -59,11 +59,13 @@ SEO and LLM endpoints:
 - `/llms.txt` and `/llms-full.txt` are generated from the docs tree and prerendered.
 - Docs pages, blog posts, `/docs` and `/blog` serve qino's agent Markdown at their
   Markdown URL (`/docs/<slug>.md`, `/blog/<slug>.md`, `/docs.md`, `/blog.md`), or
-  when `Accept` prefers `text/markdown`, through `negotiateMarkdown`. Their
-  `pages` and the `InstallBox` and `LinkGrid` replacements live in `qino/`, and
-  each page advertises its Markdown URL with `<link rel="alternate">`. Pages with
-  a "View Markdown" link are prerendered through the crawler; the rest are served
-  by the Start runtime. Both stay out of the sitemap.
+  when `Accept` prefers `text/markdown`, through `negotiateMarkdown`. A
+  prerendered page is a static file, so only the Start runtime's pages read
+  `Accept`. Their `pages` and `agentMarkdown.components`, for `InstallBox` and
+  `LinkGrid`, live in `qino/`, and each page advertises its Markdown URL with
+  `<link rel="alternate">`. Markdown URLs with a "View Markdown" link are
+  prerendered through the crawler; the rest are served by the Start runtime.
+  Both stay out of the sitemap.
 - `public/og.png` (1200×630), `public/favicon.svg` and `public/apple-touch-icon.png`
   are referenced from the root route.
 

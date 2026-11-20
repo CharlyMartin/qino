@@ -7,7 +7,7 @@ import { postCollection } from "../../qino/posts";
 // The index pages' Markdown URLs, for their heads.
 export const getIndexMarkdownUrls = createServerFn({ method: "GET" })
   .middleware([staticFunctionMiddleware])
-  .handler(async () => ({
+  .handler(() => ({
     docs: docsTree.getMarkdownUrl(),
     blog: postCollection.getMarkdownUrl(),
   }));

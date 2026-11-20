@@ -1,6 +1,7 @@
 import { expect, test } from "vitest";
 
 import { docsTree } from "../../qino/docs";
+import { postCollection } from "../../qino/posts";
 
 test("a section landing's LinkGrid lists its pages with their Markdown URLs", async () => {
   const markdown = await docsTree.getAgentMarkdown("guide");
@@ -30,5 +31,12 @@ test("InstallBox becomes its npm command, install by default", async () => {
   expect(markdown).toContain(
     "```sh\nnpx skills add CharlyMartin/qino --skill set-up-qino-cms\n```",
   );
+  expect(markdown).not.toContain("<InstallBox");
+});
+
+test("a blog post's InstallBox becomes the npm install command", async () => {
+  const markdown = await postCollection.getAgentMarkdown("hello-qino");
+
+  expect(markdown).toContain("```sh\nnpm install @qino/cms zod\n```");
   expect(markdown).not.toContain("<InstallBox");
 });

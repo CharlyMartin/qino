@@ -1,6 +1,7 @@
 import camelcaseKeys from "camelcase-keys";
 import { z } from "zod";
 
+import { installBoxToMarkdown } from "../src/lib/install-box-to-markdown";
 import { authorCollection } from "./authors";
 import qino from "./index";
 
@@ -19,6 +20,7 @@ export const postCollection = qino.defineCollection({
     .transform((post) => camelcaseKeys(post)),
   markdown: { stats: true },
   pages: { index: "/blog", entry: "/blog/{slug}", title: "Blog" },
+  agentMarkdown: { components: { InstallBox: installBoxToMarkdown } },
   relations: {
     author: authorCollection,
   },

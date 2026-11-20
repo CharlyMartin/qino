@@ -1,16 +1,14 @@
-import { negotiateMarkdown } from "@qino/cms";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { docsTree } from "../../qino/docs";
+import { serveIndexAgentMarkdown } from "../server/serve-index-agent-markdown";
 
-// The docs index page's agent Markdown. The path ends in `.md`, so
-// negotiateMarkdown always answers.
+// The docs index page's agent Markdown.
 export const Route = createFileRoute("/docs.md")({
   server: {
     handlers: {
-      GET: async ({ request, next }) =>
-        (await negotiateMarkdown(request, () => docsTree.getAgentMarkdown())) ??
-        next(),
+      GET: ({ request }) =>
+        serveIndexAgentMarkdown(request, () => docsTree.getAgentMarkdown()),
     },
   },
 });
