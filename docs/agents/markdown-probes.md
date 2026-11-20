@@ -3,11 +3,11 @@
 Each of these edge cases broke something in an earlier change. Probe each one that applies through the public API. Each line gives the input, then what should come out.
 
 - **CRLF and lone CR line endings:** qino's output, `children` and props are LF only. `entry` is passed as read, so its `markdown` and `description` keep CRLF.
-- **Leading blank lines and frontmatter,** in a body or in a template qino copies: neither appears in the output.
+- **Leading blank lines and frontmatter,** in a body or in the `llms.txt` template: neither appears in the output.
 - **`{#id}` headings:** they keep their ids, and the rest of the body still parses as MDX. A parser needs `headingIds: true`, or `micromarkHeadingId()` after `mdxjs()`. Otherwise MDX fails on `{#id}` and the whole body falls back to plain Markdown.
 - **A body that isn't valid MDX,** such as one with `<!-- comment -->` or `a { b`: it falls back to plain Markdown, and its components stay as written. Links still become absolute, except inside an HTML block. A line that opens with a tag such as `<Tabs>` starts one, which runs to the next blank line.
 - **Output from a component function that isn't valid MDX:** it affects only its own replacement, and links elsewhere still become absolute.
-- **A body that opens with its own H1:** this includes after `import` or `export` lines, after HTML or MDX comments (indented, or several on one line), as a setext heading (`Title` over `===`), or from a component's output. qino adds no `# title` or description. Text between two comments still renders, so a body that opens with it gets qino's heading.
+- **A body that opens with its own H1:** this includes after `import` or `export` lines, as a setext heading (`Title` over `===`), or from a component's output, or after HTML or MDX comments, indented or several on a line. qino adds no `# title` or description. Text between two comments still renders, so qino adds the heading.
 - **Code fences and inline code:** links and components inside them stay as written.
 - **Link forms:**
   - `/x` destinations become absolute, in links, images and reference definitions.

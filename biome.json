@@ -124,11 +124,11 @@
             "noRestrictedImports": {
               "level": "error",
               "options": {
-                "paths": {
-                  "node:fs": "Write generated files with `writeGeneratedFile`, which skips unchanged ones.",
-                  "node:fs/promises": "Write generated files with `writeGeneratedFile`, which skips unchanged ones."
-                },
                 "patterns": [
+                  {
+                    "group": ["node:fs", "node:fs/*", "fs", "fs/*"],
+                    "message": "Write generated files with `writeGeneratedFile`, which skips unchanged ones, and read files through `lib/fs`."
+                  },
                   {
                     "group": ["**/utils", "**/utils/index", "!**/types/utils"],
                     "message": "Import internal helpers from their leaf modules."
