@@ -51,7 +51,9 @@ Commit messages and PRs carry no `Co-Authored-By` trailers or "Generated with Cl
 
 ## 3. Review
 
-`code-review` reads committed work, so review after committing. Run it against the base (step 5) on whatever `/implement`'s review didn't cover: the whole change for a bug fix, or the commits made after it other than the fixes for its findings, such as retro improvements. Skip this step when nothing is left.
+`code-review` reads committed work, so review after committing, against the base (step 5). Give its spec reviewer the scratchpad directory's path, and have it probe edge cases by running the code and name the probes it ran.
+
+Review whatever `/implement`'s review didn't cover: the whole change for a bug fix, or the commits made after it other than the fixes for its findings, such as retro improvements. Skip this step when nothing is left.
 
 Fix each finding or skip it with a reason, get the checks green again, and commit the fixes. If a finding you can't resolve is still open, stop and report it to the user.
 
