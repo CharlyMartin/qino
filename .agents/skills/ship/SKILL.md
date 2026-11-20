@@ -67,6 +67,8 @@ git push -u origin <branch>
 
 Push without `--force`. The one exception is a ticket-stack branch you just moved onto `main` (step 1): push it with `--force-with-lease`. If a push is rejected, stop and tell the user.
 
+Before pushing more commits to a branch whose PR is open, check it still is: `gh pr view <number> --json state`. Commits pushed after a squash merge never reach `main`, so put them on the next branch instead.
+
 ## 5. Open the PR
 
 ```sh
