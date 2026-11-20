@@ -101,6 +101,15 @@ describe("findMissingMedia", () => {
     ).toEqual([]);
   });
 
+  test("reads MDX with {#id} heading ids", async () => {
+    const mdx = nodePath.join(contentFolder, "posts/hello.mdx");
+    await fs.writeFile(mdx, "## Install {#install}\n\n![](/images/b.png)\n");
+
+    expect(
+      await findMissingMedia({ contentFolder, mediaFolder: folder }),
+    ).toEqual([{ file: mdx, line: 3, url: "/images/b.png" }]);
+  });
+
   test("names the MDX file when it cannot be parsed", async () => {
     const mdx = nodePath.join(contentFolder, "broken.mdx");
     await fs.writeFile(mdx, "<Image src=");

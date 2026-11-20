@@ -82,7 +82,8 @@
         "packages/cms/src/cli/index.ts",
         "packages/tooling/src/index.ts",
         "packages/tooling/src/relations/index.ts",
-        "packages/tooling/src/media/index.ts"
+        "packages/tooling/src/media/index.ts",
+        "packages/tooling/src/markdown/index.ts"
       ],
       "linter": {
         "rules": {
