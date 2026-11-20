@@ -18,6 +18,7 @@ pnpm add @qino/tooling
   - `extractMediaLinks(source, extension)`: the local media URLs of a Markdown, MDX or JSON file, normalized, with their line: frontmatter or JSON strings, and the body's images, links, and `src` or `poster` attributes. Code is never read
   - `extractMediaCandidates(source, extension)`: every URL as written, local or not, with `image` set on images
   - `isLocalMediaUrl(url)` and `normalizeMediaUrl(url)`: a URL in `mediaFolder` starts with one `/`; normalizing drops the query and hash and decodes each segment
+- `micromarkHeadingId()`, from `@qino/tooling/markdown`: a micromark extension that tokenizes `{#id}` heading ids as qino does. Add it after `mdxjs()`, so MDX doesn't take `{#id}` for an expression. It makes no mdast nodes, so through `fromMarkdown` alone the id stays in the heading's text. Needs no zod
 
 ## License
 
