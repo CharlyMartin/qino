@@ -15,7 +15,8 @@ const rightCurlyBrace = 125;
 
 /**
  * Tokenizes `{#id}`, the syntax of `remark-custom-heading-id`. Added after
- * `remark-mdx`, it runs before MDX expressions, so `{#id}` isn't one.
+ * `mdxjs()` or `remark-mdx`, it runs before MDX expressions, so `{#id}`
+ * isn't one.
  */
 export function micromarkHeadingId() {
   const extension: Extension = {
