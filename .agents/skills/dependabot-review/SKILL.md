@@ -81,7 +81,7 @@ Rate the **change**, not the package. `unified` parses every entry, but a bump i
 | `medium` | A used API changed behavior: parsed entries from `@qino/cms`, the website's rendered pages, or `dist/` |
 | `high`   | A breaking change hits an API qino uses, or a security fix in a code path qino uses                    |
 
-CI runs `pnpm install --frozen-lockfile`, then `pnpm check`, on every PR: `pnpm build` (which runs `qino build` and builds the website and the example), `pnpm check-types`, `pnpm biome check .`, `pnpm knip`, `check-dist` for both packages (`publint`, `attw`, importing `dist/`), and `pnpm test`. Vercel deploys a preview of the website. Raise the risk only for CI's **blind spots**:
+CI runs `pnpm install --frozen-lockfile`, then the root `pnpm check`, on every PR. Its `pnpm build` runs `qino build` and builds the website and the example, and its `check-dist` runs `publint` and `attw` and imports `dist/`. Vercel deploys a preview of the website. Raise the risk only for CI's **blind spots**:
 
 - Different output for the same content: parsed Markdown/MDX, frontmatter values, glob matches, image metadata
 - What visitors see on the website: highlighting, headings, links, styles
