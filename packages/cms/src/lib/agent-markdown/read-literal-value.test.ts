@@ -41,6 +41,7 @@ describe("readLiteralValue", () => {
     "1 + 1",
     "-x",
     "!true",
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: a template literal's source
     "`a${b}`",
     "/re/",
     "10n",
