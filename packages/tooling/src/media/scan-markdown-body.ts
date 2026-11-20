@@ -23,7 +23,7 @@ export function scanMarkdownBody(
   { mdx }: ScanMarkdownBodyOptions,
 ) {
   // GFM matches how most sites render; without it a table is one paragraph.
-  // In MDX, `{#id}` would otherwise be an invalid expression.
+  // `micromarkHeadingId` keeps MDX from taking `{#id}` for an expression.
   const tree = fromMarkdown(content, {
     extensions: mdx ? [gfm(), mdxjs(), micromarkHeadingId()] : [gfm()],
     mdastExtensions: mdx
