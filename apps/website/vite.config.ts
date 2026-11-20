@@ -19,8 +19,6 @@ export default defineConfig(({ mode }) => ({
       pages: [
         // Rendered per request so `?repo=` personalises the HTML; listed here for the sitemap.
         { path: "/contentlayer-exit", prerender: { enabled: false } },
-        { path: "/llms.txt", sitemap: { exclude: true } },
-        { path: "/llms-full.txt", sitemap: { exclude: true } },
       ],
       prerender: {
         enabled: true,

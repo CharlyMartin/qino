@@ -56,7 +56,7 @@ SEO and LLM endpoints:
 - Each page sets a canonical URL, Open Graph/Twitter tags and JSON-LD through
   `src/lib/get-page-head.ts`. The site URL lives in `src/lib/site.ts`.
 - The build writes `sitemap.xml`; `public/robots.txt` points to it.
-- `/llms.txt` and `/llms-full.txt` are generated from the docs tree and prerendered.
+- `qino build` (the `prebuild` script) writes `public/llms.txt`, `public/llms-full.txt` and `public/index.md`, the homepage's Markdown URL, from the `content/llms.md` template. They're gitignored, and as fresh as the last `qino build`.
 - Docs pages, blog posts, `/docs` and `/blog` serve qino's agent Markdown at their
   Markdown URL (`/docs/<slug>.md`, `/blog/<slug>.md`, `/docs.md`, `/blog.md`), or
   when `Accept` prefers `text/markdown`, through `negotiateMarkdown`. A
