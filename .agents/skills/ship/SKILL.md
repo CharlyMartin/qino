@@ -26,6 +26,8 @@ git fetch origin main
 git rebase --onto origin/main <previous ticket's branch> <branch>
 ```
 
+When you ship a PR off `main` while a ticket stack is open, test it against the stack before telling the user how the two interact: merge it into the stack's last branch on a throwaway branch and run `pnpm check`, since a merge without conflicts can still break a rebased branch. Tell the user what the rebase will need, then delete the throwaway branch.
+
 ## 2. Commit
 
 Make atomic commits. A typical split:
