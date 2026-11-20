@@ -105,7 +105,11 @@
                     "group": ["**/utils", "**/utils/index", "!**/types/utils"],
                     "message": "Import internal helpers from their leaf modules."
                   }
-                ]
+                ],
+                "paths": {
+                  "remark-mdx": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, or `scanMarkdownBody` in `@qino/tooling`. They read `{#id}` heading ids, on which MDX fails otherwise.",
+                  "micromark-extension-mdxjs": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, or `scanMarkdownBody` in `@qino/tooling`. They read `{#id}` heading ids, on which MDX fails otherwise."
+                }
               }
             }
           }
@@ -133,7 +137,11 @@
                     "group": ["**/utils", "**/utils/index", "!**/types/utils"],
                     "message": "Import internal helpers from their leaf modules."
                   }
-                ]
+                ],
+                "paths": {
+                  "remark-mdx": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, or `scanMarkdownBody` in `@qino/tooling`. They read `{#id}` heading ids, on which MDX fails otherwise.",
+                  "micromark-extension-mdxjs": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, or `scanMarkdownBody` in `@qino/tooling`. They read `{#id}` heading ids, on which MDX fails otherwise."
+                }
               }
             }
           }
@@ -159,6 +167,53 @@
                     "message": "Import internal helpers from their leaf modules."
                   }
                 ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/cms/src/utils/markdown/parse-markdown-body.ts",
+        "packages/cms/src/utils/markdown/tokenize-markdown-body.ts",
+        "packages/cms/src/**/*.test.ts",
+        "!packages/cms/src/types/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/utils", "**/utils/index", "!**/types/utils"],
+                    "message": "Import internal helpers from their leaf modules."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/tooling/src/**",
+        "!packages/tooling/src/media/scan-markdown-body.ts",
+        "!**/*.test.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "remark-mdx": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, or `scanMarkdownBody` in `@qino/tooling`. They read `{#id}` heading ids, on which MDX fails otherwise.",
+                  "micromark-extension-mdxjs": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, or `scanMarkdownBody` in `@qino/tooling`. They read `{#id}` heading ids, on which MDX fails otherwise."
+                }
               }
             }
           }
