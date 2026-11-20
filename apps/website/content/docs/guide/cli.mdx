@@ -20,7 +20,7 @@ Every command runs from the working directory and expects:
 
 1. A `qino/` folder.
 2. `qino/index.ts` that default-exports an `initQino` instance.
-3. Definitions exported from any `.ts`, `.tsx`, `.js`, or `.mjs` file under `qino/`.
+3. Definitions exported from any `.ts`, `.tsx`, `.js`, or `.mjs` file under `qino/`, test files aside.
 
 The CLI loads `qino/index.ts`, definitions, and their imports with [jiti](https://github.com/unjs/jiti). TypeScript requires no separate compilation step. See [Project structure](/docs/guide/project-structure).
 
