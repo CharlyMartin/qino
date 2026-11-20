@@ -1,13 +1,11 @@
-import type { Nodes } from "mdast";
 import { describe, expect, test } from "vitest";
 
+import type { MdxJsxElement } from "../../types/agent-markdown";
 import { parseMarkdownBody } from "../../utils/markdown/parse-markdown-body";
 import { readComponentProps } from "./read-component-props";
 
 function attributesOf(jsx: string) {
-  const [element] = parseMarkdownBody(jsx).children as Array<
-    Extract<Nodes, { type: "mdxJsxFlowElement" }>
-  >;
+  const [element] = parseMarkdownBody(jsx).children as Array<MdxJsxElement>;
   return element?.attributes ?? [];
 }
 

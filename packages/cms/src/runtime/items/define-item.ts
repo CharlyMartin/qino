@@ -232,12 +232,13 @@ export function defineItem<
   async function getAgentMarkdown() {
     const { siteUrl } = requirePages(resolvedPage, { owner, option: "page" });
     // Item views can't filter, so no view can exclude the entry.
+    const entry = await readEntry();
     return buildAgentMarkdown({
-      entry: await readEntry(),
+      entry: entry as Record<string, unknown>,
       fallbackTitle: removeExtension(nodePath.basename(file)),
       extension,
       origin: siteUrl,
-      components: params.agentMarkdown?.components,
+      replacement: { components: params.agentMarkdown?.components, entry },
     });
   }
 

@@ -373,16 +373,16 @@ export function defineCollection<
     options: ViewArguments<ConfiguredViews<Views>>[0],
   ) {
     const view = selectView(views, options) as CollectionViewDefinition;
-    const read = await readEntry(slug);
+    const entryAsRead = await readEntry(slug);
     const [entry] = await applyView(
-      [read],
+      [entryAsRead],
       view,
       collectionRelations,
       ctx.instanceId,
     );
     return {
       entry,
-      read,
+      entryAsRead,
       isExcluded: view.filter != null && !view.filter(entry as never),
     };
   }
@@ -435,17 +435,18 @@ export function defineCollection<
     // collection with `..`.
     if (!(await getAllSlugs()).includes(slug as SlugFor<Dir>)) return null;
 
-    // The view only decides whether the entry shows: views add fields and
-    // resolve relations, but can't change the title, description or body.
-    const { read, isExcluded } = await readInView(slug, options);
+    const { entry, entryAsRead, isExcluded } = await readInView(slug, options);
     if (isExcluded) return null;
 
     return buildAgentMarkdown({
-      entry: read,
+      entry: entry as Record<string, unknown>,
       fallbackTitle: slug,
       extension,
       origin: siteUrl,
-      components: params.agentMarkdown?.components,
+      replacement: {
+        components: params.agentMarkdown?.components,
+        entry: entryAsRead,
+      },
     });
   }
 

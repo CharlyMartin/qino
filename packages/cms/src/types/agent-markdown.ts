@@ -47,11 +47,26 @@ export type AgentMarkdownComponent<Entry = unknown> = (
   context: AgentMarkdownComponentContext<Entry>,
 ) => Awaitable<string | null>;
 
-/** Configures a primitive's agent Markdown. */
+/** Functions that replace MDX components, by component name. */
+export type AgentMarkdownComponents<Entry = unknown> = Readonly<
+  Record<string, AgentMarkdownComponent<Entry>>
+>;
+
+/** Configures the agent Markdown of a primitive's entry pages. */
 export type AgentMarkdownConfig<Entry> = {
   /** Replaces MDX components, by name. A component missing here stays as written. */
-  readonly components?: Readonly<Record<string, AgentMarkdownComponent<Entry>>>;
+  readonly components?: AgentMarkdownComponents<Entry>;
 };
+
+/** The functions that replace an entry's MDX components, and the entry they receive. */
+export type ComponentReplacement<Entry> = {
+  components?: AgentMarkdownComponents<Entry>;
+  /** The entry as read, before any view. */
+  entry: Entry;
+};
+
+/** Where a node lies in the source, by offset. */
+export type SourceRange = { start: number; end: number };
 
 /** An MDX component in a parsed body, as a block or inline. */
 export type MdxJsxElement = Extract<

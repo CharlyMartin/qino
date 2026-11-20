@@ -423,13 +423,14 @@ export function defineTree<
     if (!nodes.some((node) => node.slug == slug)) return null;
 
     // Tree views can't filter, so no view can exclude the entry.
+    const entry = await readEntry(slug);
     return buildAgentMarkdown({
-      entry: await readEntry(slug),
+      entry: entry as Record<string, unknown>,
       titleField,
       fallbackTitle: slug,
       extension,
       origin: siteUrl,
-      components: params.agentMarkdown?.components,
+      replacement: { components: params.agentMarkdown?.components, entry },
     });
   }
 

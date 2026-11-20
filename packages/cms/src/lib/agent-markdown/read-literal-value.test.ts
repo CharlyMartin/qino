@@ -1,14 +1,13 @@
-import type { Nodes } from "mdast";
 import { describe, expect, test } from "vitest";
 
+import type { MdxJsxElement } from "../../types/agent-markdown";
 import { parseMarkdownBody } from "../../utils/markdown/parse-markdown-body";
 import { readLiteralValue } from "./read-literal-value";
 
 // The expression of `<X v={source} />`, as remark-mdx parses it.
 function parseExpression(source: string) {
-  const [element] = parseMarkdownBody(`<X v={${source}} />`).children as Array<
-    Extract<Nodes, { type: "mdxJsxFlowElement" }>
-  >;
+  const [element] = parseMarkdownBody(`<X v={${source}} />`)
+    .children as Array<MdxJsxElement>;
   const attribute = element?.attributes[0];
   if (
     attribute?.type != "mdxJsxAttribute" ||

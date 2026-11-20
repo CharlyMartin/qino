@@ -1,91 +1,104 @@
-import type { Nodes } from "mdast";
-
 import type {
-  AgentMarkdownComponent,
+  ComponentReplacement,
   MdxJsxElement,
+  SourceRange,
 } from "../../types/agent-markdown";
 import { parseMarkdownBody } from "../../utils/markdown/parse-markdown-body";
+import { absolutizeLinks } from "./absolutize-links";
 import { dedentLines } from "./dedent-lines";
 import { findJsxElements } from "./find-jsx-elements";
 import { indentLines } from "./indent-lines";
+import { rangeOf } from "./range-of";
 import { readComponentProps } from "./read-component-props";
 
-type ReplaceComponentsParams<Entry> = {
-  /** An MDX body. */
+type ReplaceComponentsParams<Entry> = ComponentReplacement<Entry> & {
+  /** An MDX body, with LF line endings. */
   body: string;
-  components: Readonly<Record<string, AgentMarkdownComponent<Entry>>>;
-  /** The entry the body belongs to, passed to every function. */
-  entry: Entry;
+  /** The origin site-relative links in replacements resolve against. */
+  origin: string;
 };
+
+// Blockquote markers, list markers and indentation, which a line can open
+// with before a block.
+const CONTAINER_PREFIX = /^(?:[ \t]*(?:>|[-+*][ \t]|\d{1,9}[.)][ \t]))*[ \t]*$/;
 
 /**
  * Replaces each MDX component that has a function with what it returns,
- * inside out, so a function's `children` hold their own replacements. Each
- * replacement is spliced in by position, indented to its component's column,
- * and everything else stays as written, a kept component's tags included.
+ * inside out, so a function's `children` hold their own replacements. A
+ * replacement gets LF line endings and absolute site-relative links, and is
+ * spliced in by position, its lines kept in its component's list item or
+ * blockquote. Everything else stays as written, a kept component's tags
+ * included.
  */
 export async function replaceComponents<Entry>({
   body,
-  components,
+  components = {},
   entry,
+  origin,
 }: ReplaceComponentsParams<Entry>) {
   const tree = parseMarkdownBody(body, { mdx: true, headingIds: true });
-  return renderRange(0, body.length, findJsxElements(tree));
+  return renderRange({ start: 0, end: body.length }, findJsxElements(tree));
 
-  // The body from `start` to `end`, with `elements`, which lie inside it, rendered.
+  // The body over `range`, with `elements`, which lie inside it, rendered.
   async function renderRange(
-    start: number,
-    end: number,
+    range: SourceRange,
     elements: Array<MdxJsxElement>,
   ) {
     let result = "";
-    let cursor = start;
+    let cursor = range.start;
     for (const element of elements) {
-      const [elementStart, elementEnd] = offsetsOf(element);
-      result += body.slice(cursor, elementStart) + (await render(element));
-      cursor = elementEnd;
+      const { start, end } = rangeOf(element);
+      result += body.slice(cursor, start) + (await render(element));
+      cursor = end;
     }
-    return result + body.slice(cursor, end);
+    return result + body.slice(cursor, range.end);
   }
 
   async function render(element: MdxJsxElement) {
-    const [start, end] = offsetsOf(element);
+    const range = rangeOf(element);
     const first = element.children[0];
     const last = element.children.at(-1);
-    const [innerStart] = first ? offsetsOf(first) : [start];
-    const [, innerEnd] = last ? offsetsOf(last) : [start, start];
-    const inner = first
-      ? await renderRange(innerStart, innerEnd, findJsxElements(element))
+    const inner =
+      first && last
+        ? { start: rangeOf(first).start, end: rangeOf(last).end }
+        : undefined;
+    const children = inner
+      ? await renderRange(inner, findJsxElements(element))
       : "";
 
     const { name } = element;
-    const replace =
+    const component =
       name != null && Object.hasOwn(components, name)
         ? components[name]
         : undefined;
-    const replacement = await replace?.({
+    const replacement = await component?.({
       props: readComponentProps(element.attributes),
-      children: dedentLines(inner, indentAt(innerStart)),
+      children: inner
+        ? dedentLines(children, continuationPrefixAt(inner.start))
+        : "",
       entry,
     });
-    if (replacement != null) return indentLines(replacement, indentAt(start));
+    if (replacement != null) {
+      const markdown = absolutizeLinks(replacement.replace(/\r\n?/g, "\n"), {
+        origin,
+        mdx: true,
+      });
+      return indentLines(markdown, continuationPrefixAt(range.start));
+    }
 
     // Kept as written, with the components inside it replaced.
-    return first
-      ? body.slice(start, innerStart) + inner + body.slice(innerEnd, end)
-      : body.slice(start, end);
+    return inner
+      ? body.slice(range.start, inner.start) +
+          children +
+          body.slice(inner.end, range.end)
+      : body.slice(range.start, range.end);
   }
 
-  // The spaces and tabs before `offset` on its line, when nothing else is.
-  function indentAt(offset: number) {
+  // What the lines after `offset`'s need before them to stay in its blocks:
+  // its line's blockquote markers and indentation, with list markers turned
+  // into spaces. Empty when text comes before `offset` on its line.
+  function continuationPrefixAt(offset: number) {
     const prefix = body.slice(body.lastIndexOf("\n", offset - 1) + 1, offset);
-    return /^[ \t]*$/.test(prefix) ? prefix : "";
-  }
-
-  function offsetsOf(node: Nodes) {
-    return [
-      node.position?.start.offset ?? 0,
-      node.position?.end.offset ?? 0,
-    ] as const;
+    return CONTAINER_PREFIX.test(prefix) ? prefix.replace(/[^>\s]/g, " ") : "";
   }
 }

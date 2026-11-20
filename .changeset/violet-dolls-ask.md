@@ -24,4 +24,4 @@ const docs = qino.defineTree({
 });
 ```
 
-`props` holds strings, numbers, booleans, `null`, and arrays and objects of them. Attributes set by any other expression are left out, and qino never runs one. A component missing from the map stays as written, and components inside it are still replaced. Replacements are spliced in by position and indented to their component's column, and their site-relative links are made absolute.
+`props` holds strings, numbers, booleans, `null`, and arrays and objects of them. Attributes set by any other expression are left out, and qino never runs one. A component missing from the map stays as written, and components inside it are still replaced. Replacements are spliced in by position and stay inside their component's list item or blockquote. Their site-relative links are made absolute, as `children`'s already are.

@@ -3,6 +3,7 @@ import { describe, expect, test } from "vitest";
 import { replaceComponents } from "./replace-components";
 
 const entry = { title: "Hello" };
+const origin = "https://example.com";
 
 describe("replaceComponents", () => {
   test("replaces inline components where they are, without indenting", async () => {
@@ -11,6 +12,7 @@ describe("replaceComponents", () => {
         body: "Run <Cmd /> now.\n",
         components: { Cmd: () => "`a`\n`b`" },
         entry,
+        origin,
       }),
     ).toBe("Run `a`\n`b` now.\n");
   });
@@ -21,6 +23,7 @@ describe("replaceComponents", () => {
         body: "<>\n  <A />\n</>\n",
         components: { A: () => "a" },
         entry,
+        origin,
       }),
     ).toBe("<>\n  a\n</>\n");
   });
@@ -31,6 +34,7 @@ describe("replaceComponents", () => {
         body: "<constructor />\n",
         components: {},
         entry,
+        origin,
       }),
     ).toBe("<constructor />\n");
   });
@@ -39,7 +43,12 @@ describe("replaceComponents", () => {
     const body = "<!-- note -->\n\n<A />\n";
 
     expect(
-      await replaceComponents({ body, components: { A: () => "a" }, entry }),
+      await replaceComponents({
+        body,
+        components: { A: () => "a" },
+        entry,
+        origin,
+      }),
     ).toBe(body);
   });
 });

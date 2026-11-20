@@ -65,7 +65,7 @@ describe("buildAgentMarkdown", () => {
         fallbackTitle: "hello",
         extension: ".mdx",
         origin,
-        components,
+        replacement: { components, entry },
       }),
     ).toBe("# Hello\n\n[Next](https://example.com/next)\n");
     expect(
@@ -74,7 +74,7 @@ describe("buildAgentMarkdown", () => {
         fallbackTitle: "hello",
         extension: ".md",
         origin,
-        components,
+        replacement: { components, entry },
       }),
     ).toBe("# Hello\n\n<Next />\n");
   });

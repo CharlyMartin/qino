@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
 import { initQino } from "../runtime/qino/init-qino";
-import type { AgentMarkdownComponent } from "../types/agent-markdown";
+import type { AgentMarkdownComponents } from "../types/agent-markdown";
 
 let tmp: string;
 
@@ -26,7 +26,7 @@ async function writeDoc(slug: string, body: string) {
   );
 }
 
-function defineDocs(components: Record<string, AgentMarkdownComponent>) {
+function defineDocs(components: AgentMarkdownComponents) {
   return initQino({
     contentFolder: tmp,
     mediaFolder: tmp,
@@ -103,16 +103,33 @@ describe("MDX components in agent Markdown", () => {
     );
   });
 
-  test("receive the entry as read, and may be async", async () => {
-    await writeDoc("hello", "<Slug />\n");
-    const docs = defineDocs({
-      Slug: async ({ entry }) => {
-        await new Promise((resolve) => setTimeout(resolve, 1));
-        return `Slug: ${(entry as { _meta: { slug: string } })._meta.slug}`;
+  test("receive the entry as read, while the heading comes through the view, and may be async", async () => {
+    await writeDoc("hello", "<Fields />\n");
+    const docs = initQino({
+      contentFolder: tmp,
+      mediaFolder: tmp,
+      siteUrl: "https://example.com",
+    }).defineCollection({
+      directory: "docs",
+      extension: ".mdx",
+      schema: z.object({ title: z.string() }),
+      pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" },
+      views: (view) => ({
+        default: view({ augment: () => ({ description: "From augment." }) }),
+      }),
+      agentMarkdown: {
+        components: {
+          Fields: async ({ entry }) => {
+            await new Promise((resolve) => setTimeout(resolve, 1));
+            return `${entry._meta.slug}: ${Object.keys(entry).includes("description")}`;
+          },
+        },
       },
     });
 
-    expect(await docs.getAgentMarkdown("hello")).toBe("# Doc\n\nSlug: hello\n");
+    expect(await docs.getAgentMarkdown("hello")).toBe(
+      "# Doc\n\n> From augment.\n\nhello: false\n",
+    );
   });
 
   test("have the site-relative links they return made absolute", async () => {
@@ -122,6 +139,49 @@ describe("MDX components in agent Markdown", () => {
     expect(await docs.getAgentMarkdown("links")).toBe(
       "# Doc\n\nNext: [CLI](https://example.com/docs/cli).\n",
     );
+  });
+
+  test("leave links elsewhere absolute when what they return isn't valid MDX", async () => {
+    await writeDoc(
+      "invalid",
+      "<Tabs>\n  [Inside](/inside)\n</Tabs>\n\n<Odd />\n",
+    );
+    const docs = defineDocs({ Odd: () => "a { b" });
+
+    expect(await docs.getAgentMarkdown("invalid")).toBe(
+      "# Doc\n\n<Tabs>\n  [Inside](https://example.com/inside)\n</Tabs>\n\na { b\n",
+    );
+  });
+
+  test("stay in their list item or blockquote", async () => {
+    await writeDoc(
+      "blocks",
+      "- <Install />\n\n> <Note>\n> First.\n>\n> Second.\n> </Note>\n",
+    );
+    const docs = defineDocs({
+      Install: () => "```sh\nnpm i @qino/cms\n```",
+      Note: ({ children }) => `**Note:** ${children}`,
+    });
+
+    expect(await docs.getAgentMarkdown("blocks")).toBe(
+      "# Doc\n\n- ```sh\n  npm i @qino/cms\n  ```\n\n> **Note:** First.\n>\n> Second.\n",
+    );
+  });
+
+  test("give their functions LF children, whatever the file uses", async () => {
+    await writeDoc("crlf", "<Echo>\r\n  a\r\n\r\n  b\r\n</Echo>\r\n");
+    const docs = defineDocs({
+      Echo: ({ children }) => JSON.stringify(children),
+    });
+
+    expect(await docs.getAgentMarkdown("crlf")).toBe('# Doc\n\n"a\\n\\nb"\n');
+  });
+
+  test("replace the heading when what they return opens with an H1", async () => {
+    await writeDoc("h1", "<Title />\n\nBody.\n");
+    const docs = defineDocs({ Title: () => "# Custom" });
+
+    expect(await docs.getAgentMarkdown("h1")).toBe("# Custom\n\nBody.\n");
   });
 });
 
