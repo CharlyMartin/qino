@@ -123,6 +123,8 @@ export function defineItem<
   const { file, schema, relations, media = {}, cloud } = params;
   assertContentPath(file, "file");
   const owner = `Item "${file}"`;
+  // The title of an entry without one, in its agent Markdown and llms.txt.
+  const fallbackTitle = removeExtension(nodePath.basename(file));
   const resolvedPage = resolveItemPage({
     page: params.page,
     siteUrl: ctx.siteUrl,
@@ -166,7 +168,7 @@ export function defineItem<
       media,
       markdown,
       cloud,
-      ...(resolvedPage && { page: resolvedPage, getListingLink }),
+      ...(resolvedPage && { page: { ...resolvedPage, getListingLink } }),
       readEntry,
     },
     getEntry,
@@ -237,7 +239,7 @@ export function defineItem<
     const entry = await readEntry();
     return buildAgentMarkdown({
       entry: entry as Record<string, unknown>,
-      fallbackTitle: removeExtension(nodePath.basename(file)),
+      fallbackTitle,
       extension,
       origin: siteUrl,
       replacement: { components: params.agentMarkdown?.components, entry },
@@ -248,7 +250,7 @@ export function defineItem<
   async function getListingLink() {
     return toListingLink({
       entry: (await readEntry()) as Record<string, unknown>,
-      fallbackTitle: removeExtension(nodePath.basename(file)),
+      fallbackTitle,
       url: getMarkdownUrl(),
     });
   }

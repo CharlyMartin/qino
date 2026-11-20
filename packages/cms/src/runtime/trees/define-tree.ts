@@ -215,7 +215,9 @@ export function defineTree<
       media,
       markdown,
       cloud,
-      ...(resolvedPages && { pages: resolvedPages, getListingSections }),
+      ...(resolvedPages && {
+        pages: { ...resolvedPages, getListingSections },
+      }),
       readEntry,
     },
     getTree,

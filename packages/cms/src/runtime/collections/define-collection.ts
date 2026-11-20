@@ -212,7 +212,9 @@ export function defineCollection<
       media,
       markdown,
       cloud,
-      ...(resolvedPages && { pages: resolvedPages, getListingSections }),
+      ...(resolvedPages && {
+        pages: { ...resolvedPages, getListingSections },
+      }),
       readEntries,
       readEntry,
     },

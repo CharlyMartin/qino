@@ -1,3 +1,5 @@
+import type { ListingLink, ListingSection } from "./agent-markdown";
+
 /** A page's path on the site, such as `"/about"`. */
 export type PagePath = `/${string}`;
 
@@ -26,4 +28,16 @@ export type ResolvedPages = PagesConfig & {
 export type ResolvedItemPage = {
   readonly page: PagePath;
   readonly siteUrl: string;
+};
+
+/** What `qino build` reads from a collection or a tree that declares pages. */
+export type PagesMeta = ResolvedPages & {
+  /** Its `llms.txt` sections. */
+  readonly getListingSections: () => Promise<Array<ListingSection>>;
+};
+
+/** What `qino build` reads from an item that declares a page. */
+export type PageMeta = ResolvedItemPage & {
+  /** Its link in `llms.txt`'s `## Pages` section. */
+  readonly getListingLink: () => Promise<ListingLink>;
 };

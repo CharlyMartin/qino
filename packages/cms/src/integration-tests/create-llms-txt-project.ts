@@ -1,8 +1,4 @@
-import fs from "node:fs/promises";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-const packageRoot = fileURLToPath(new URL("../../", import.meta.url));
+import { createCliProject } from "./create-cli-project";
 
 type LlmsTxtProjectOptions = {
   /** The object `qino/index.ts` passes to `initQino`, as source. */
@@ -14,29 +10,13 @@ type LlmsTxtProjectOptions = {
 /**
  * Writes a project with a docs tree, a posts collection whose default view
  * drops drafts, a notes collection, an about item, a snippets collection
- * without pages and an `llms.txt` template, linked to this package and its
- * zod.
+ * without pages and an `llms.txt` template.
  */
 export async function createLlmsTxtProject(
   cwd: string,
   { config, files = {} }: LlmsTxtProjectOptions,
 ) {
-  for (const directory of ["qino", "public", "node_modules/@qino"]) {
-    await fs.mkdir(path.join(cwd, directory), { recursive: true });
-  }
-  await fs.symlink(
-    packageRoot,
-    path.join(cwd, "node_modules/@qino/cms"),
-    "junction",
-  );
-  await fs.symlink(
-    path.join(packageRoot, "node_modules/zod"),
-    path.join(cwd, "node_modules/zod"),
-    "junction",
-  );
-
   const project = {
-    "package.json": JSON.stringify({ private: true, type: "module" }),
     "qino/index.ts": `
       import { initQino } from "@qino/cms";
       export default initQino(${config});
@@ -102,8 +82,5 @@ export async function createLlmsTxtProject(
       "# Example\n\n> A site.\n\n## When to use\n\nAlways.\n\n## Optional\n\n- [GitHub](https://github.com/example): Source\n",
     ...files,
   };
-  for (const [file, content] of Object.entries(project)) {
-    await fs.mkdir(path.dirname(path.join(cwd, file)), { recursive: true });
-    await fs.writeFile(path.join(cwd, file), content);
-  }
+  await createCliProject(cwd, project);
 }

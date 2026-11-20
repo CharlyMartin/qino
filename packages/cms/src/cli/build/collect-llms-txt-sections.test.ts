@@ -15,7 +15,7 @@ function primitive(directory: string, sections?: Array<ListingSection>) {
   return {
     [QinoPrimitiveMarker]: {
       directory,
-      getListingSections: sections && (async () => sections),
+      pages: sections && { getListingSections: async () => sections },
     },
   } as never;
 }
@@ -24,24 +24,21 @@ function item(file: string, title?: string) {
   return {
     [QinoPrimitiveMarker]: {
       file,
-      getListingLink: title && (async () => section(title).links[0]),
+      page: title && { getListingLink: async () => section(title).links[0] },
     },
   } as never;
 }
 
 describe("collectLlmsTxtSections", () => {
-  test("lists trees, then collections, then items, each by path, once each", async () => {
-    const posts = primitive("posts", [section("Blog")]);
-
+  test("lists trees, then collections, then items, each by path", async () => {
     const sections = await collectLlmsTxtSections({
       trees: [
         primitive("guides", [section("Guide")]),
         primitive("docs", [section("API"), section("Concepts")]),
       ],
       collections: [
-        posts,
+        primitive("posts", [section("Blog")]),
         primitive("authors", [section("Authors")]),
-        posts,
         primitive("snippets"),
       ],
       items: [

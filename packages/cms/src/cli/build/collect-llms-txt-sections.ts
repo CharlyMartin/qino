@@ -11,6 +11,8 @@ type CollectLlmsTxtSectionsParams = {
   trees: Array<AnyTree>;
 };
 
+type ListedPrimitive = AnyCollection | AnyTree;
+
 /**
  * `llms.txt`'s link sections: the trees', then the collections', then the
  * items' shared `## Pages`. Each kind is in code-unit order of its directory
@@ -22,11 +24,8 @@ export async function collectLlmsTxtSections({
   items,
   trees,
 }: CollectLlmsTxtSectionsParams) {
-  // A primitive exported from two files is found twice.
-  const byDirectory = <Primitive extends AnyCollection | AnyTree>(
-    primitives: Array<Primitive>,
-  ) =>
-    [...new Set(primitives)].toSorted((a, b) =>
+  const byDirectory = (primitives: Array<ListedPrimitive>) =>
+    primitives.toSorted((a, b) =>
       compareCodeUnits(
         a[QinoPrimitiveMarker].directory,
         b[QinoPrimitiveMarker].directory,
@@ -38,18 +37,17 @@ export async function collectLlmsTxtSections({
     ...byDirectory(trees),
     ...byDirectory(collections),
   ]) {
-    sections.push(
-      ...((await primitive[QinoPrimitiveMarker].getListingSections?.()) ?? []),
-    );
+    const pages = primitive[QinoPrimitiveMarker].pages;
+    if (pages) sections.push(...(await pages.getListingSections()));
   }
 
   const links = [];
-  const sortedItems = [...new Set(items)].toSorted((a, b) =>
+  const sortedItems = items.toSorted((a, b) =>
     compareCodeUnits(a[QinoPrimitiveMarker].file, b[QinoPrimitiveMarker].file),
   );
   for (const item of sortedItems) {
-    const link = await item[QinoPrimitiveMarker].getListingLink?.();
-    if (link) links.push(link);
+    const page = item[QinoPrimitiveMarker].page;
+    if (page) links.push(await page.getListingLink());
   }
   if (links.length > 0) sections.push({ title: "Pages", links });
 

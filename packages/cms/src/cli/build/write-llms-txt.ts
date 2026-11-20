@@ -1,10 +1,9 @@
-import fs from "node:fs/promises";
 import nodePath from "node:path";
 
 import { consola } from "consola";
 
 import {
-  DEFAULT_LLMS_TXT_TEMPLATE,
+  DEFAULT_LLMS_TXT_TEMPLATE_FILE_NAME,
   INDEX_MD_FILE_NAME,
   LLMS_TXT_FILE_NAME,
   QinoPrimitiveMarker,
@@ -12,12 +11,15 @@ import {
 import { formatListingSection } from "../../lib/agent-markdown/format-listing-section";
 import { isFile } from "../../lib/fs/is-file";
 import { readTextFile } from "../../lib/fs/read-text-file";
+import { toMarkdownUrl } from "../../lib/pages/to-markdown-url";
+import { toPagesMarkdownUrl } from "../../lib/pages/to-pages-markdown-url";
 import type { QinoContext } from "../../runtime/qino/init-qino";
 import type { AnyCollection } from "../../types/collection";
 import type { AnyItem } from "../../types/item";
 import type { AnyTree } from "../../types/tree";
 import { collectLlmsTxtSections } from "./collect-llms-txt-sections";
 import { insertLlmsTxtSections } from "./insert-llms-txt-sections";
+import { writeGeneratedFile } from "./write-generated-file";
 
 type WriteLlmsTxtParams = {
   context: QinoContext;
@@ -27,9 +29,9 @@ type WriteLlmsTxtParams = {
 };
 
 /**
- * With `cli.build.llmsTxt` on, writes `llms.txt` and `index.md`, the same
- * file, at the root of `mediaFolder`. `index.md` is left out when a primitive
- * puts a page at the site root, which owns `/index.md`.
+ * Writes `llms.txt`, and `index.md`, the same file, at the root of
+ * `mediaFolder`, each only when it changed. `index.md` is left out when a
+ * page's Markdown URL is `/index.md`, which that page owns.
  */
 export async function writeLlmsTxt({
   context,
@@ -37,17 +39,18 @@ export async function writeLlmsTxt({
   items,
   trees,
 }: WriteLlmsTxtParams) {
-  const option = context.cli?.build?.llmsTxt;
-  if (!option) return;
-  if (!context.siteUrl) {
+  const { siteUrl, mediaFolder } = context;
+  if (!siteUrl) {
     throw new Error(
       '`cli.build.llmsTxt` needs a siteUrl: set one in initQino, such as "https://example.com".',
     );
   }
 
+  const option = context.cli?.build?.llmsTxt;
   const templatePath = nodePath.join(
     context.contentFolder,
-    (typeof option == "object" && option.template) || DEFAULT_LLMS_TXT_TEMPLATE,
+    (typeof option == "object" && option.template) ||
+      DEFAULT_LLMS_TXT_TEMPLATE_FILE_NAME,
   );
   if (!(await isFile(templatePath))) {
     throw new Error(
@@ -56,28 +59,39 @@ export async function writeLlmsTxt({
   }
 
   const sections = await collectLlmsTxtSections({ collections, items, trees });
-  const llmsTxt = insertLlmsTxtSections(
-    await readTextFile(templatePath),
-    sections.map(formatListingSection).join("\n\n"),
-  );
-  const claimsSiteRoot =
-    [...collections, ...trees].some(
-      (primitive) => primitive[QinoPrimitiveMarker].pages?.index == "/",
-    ) || items.some((item) => item[QinoPrimitiveMarker].page?.page == "/");
+  const llmsTxt = insertLlmsTxtSections({
+    template: await readTextFile(templatePath),
+    sections: sections.map(formatListingSection).join("\n\n"),
+  });
 
-  const files = claimsSiteRoot
+  // Entry pages and items are in the sections; index pages aren't.
+  const markdownUrls = [
+    ...sections.flatMap((section) => section.links.map((link) => link.url)),
+    ...[...collections, ...trees].flatMap((primitive) => {
+      const pages = primitive[QinoPrimitiveMarker].pages;
+      return pages ? [toPagesMarkdownUrl(pages)] : [];
+    }),
+  ];
+  const indexMdIsTaken = markdownUrls.includes(toMarkdownUrl("/", siteUrl));
+  const indexMdPath = nodePath.join(mediaFolder, INDEX_MD_FILE_NAME);
+
+  const written = [];
+  for (const file of indexMdIsTaken
     ? [LLMS_TXT_FILE_NAME]
-    : [LLMS_TXT_FILE_NAME, INDEX_MD_FILE_NAME];
-  await fs.mkdir(context.mediaFolder, { recursive: true });
-  for (const file of files) {
-    await fs.writeFile(nodePath.join(context.mediaFolder, file), llmsTxt);
+    : [LLMS_TXT_FILE_NAME, INDEX_MD_FILE_NAME]) {
+    const filePath = nodePath.join(mediaFolder, file);
+    if (await writeGeneratedFile(filePath, llmsTxt)) written.push(filePath);
   }
+  if (written.length > 0) consola.success(`Wrote ${written.join(" and ")}.`);
 
-  const written = files.map((file) => nodePath.join(context.mediaFolder, file));
-  consola.success(`Wrote ${written.join(" and ")}.`);
-  if (claimsSiteRoot) {
+  if (indexMdIsTaken) {
     consola.info(
-      `${INDEX_MD_FILE_NAME} skipped: a primitive's page is the site root, which serves /index.md.`,
+      `${INDEX_MD_FILE_NAME} skipped: a page's Markdown URL is /index.md.`,
     );
+    if (await isFile(indexMdPath)) {
+      consola.warn(
+        `"${indexMdPath}" hides that page's Markdown. Delete it: qino build no longer writes it.`,
+      );
+    }
   }
 }

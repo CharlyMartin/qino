@@ -34,5 +34,7 @@ export async function build(
     await generateConfigFile({ context, collections, items, trees });
   }
 
-  await writeLlmsTxt({ context, collections, items, trees });
+  if (context.cli?.build?.llmsTxt) {
+    await writeLlmsTxt({ context, collections, items, trees });
+  }
 }
