@@ -41,7 +41,7 @@ test("a blog post's InstallBox becomes the npm install command", async () => {
   expect(markdown).not.toContain("<InstallBox");
 });
 
-test("no docs page or post keeps a component the maps replace", async () => {
+test("no docs page or post keeps InstallBox or LinkGrid", async () => {
   const [nodes, postSlugs] = await Promise.all([
     docsTree.getFlatTree(),
     postCollection.getAllSlugs(),
@@ -59,8 +59,9 @@ test("no docs page or post keeps a component the maps replace", async () => {
 
   expect(
     pages
-      .filter(({ markdown }) =>
-        /<(?:InstallBox|LinkGrid)\b/.test(markdown ?? ""),
+      .filter(
+        ({ markdown }) =>
+          markdown == null || /<(?:InstallBox|LinkGrid)\b/.test(markdown),
       )
       .map(({ url }) => url),
   ).toEqual([]);

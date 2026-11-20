@@ -53,7 +53,7 @@ Commit messages and PRs carry no `Co-Authored-By` trailers or "Generated with Cl
 
 ## 3. Review
 
-`code-review` reads committed work, so review after committing, against the base (step 5). Give its spec reviewer the scratchpad directory's path, and have it probe edge cases by running the code and name the probes it ran. A probe that has to sit in the repo to run is named `zz-probe-*`, which git ignores, and deleted afterwards. When the change reads or rewrites Markdown or MDX bodies, such as agent Markdown, the table of contents or stats, have the spec reviewer also run the probes in `docs/agents/markdown-probes.md`. When it changes how the website answers Markdown or HTML requests, have it also run `apps/website/scripts/probe-agent-markdown.sh` against the dev server, and add a line there for each case the change adds.
+`code-review` reads committed work, so review after committing, against the base (step 5). Give its spec reviewer the scratchpad directory's path, and have it probe edge cases by running the code and name the probes it ran. A probe that has to sit in the repo to run is named `zz-probe-*`, which git ignores, and deleted afterwards. When the change reads or rewrites Markdown or MDX bodies, such as agent Markdown, the table of contents or stats, have the spec reviewer also run the probes in `docs/agents/markdown-probes.md`. When the change alters how the website answers Markdown or HTML requests, have the spec reviewer also run `apps/website/scripts/probe-agent-markdown.sh` against the dev server, and add a probe there for each case the change adds.
 
 Review whatever `/implement`'s review didn't cover: the whole change for a bug fix, or the commits made after it other than the fixes for its findings, such as retro improvements. Skip this step when nothing is left.
 
@@ -61,13 +61,13 @@ Fix each finding or skip it with a reason, get the checks green again, and commi
 
 ## 4. Push
 
+Before pushing to a branch whose PR is already open, check that it still is: `gh pr view <number> --json state`. Commits pushed after a merge never reach `main`, so put them on a new branch, such as the next ticket's.
+
 ```sh
 git push -u origin <branch>
 ```
 
 Push without `--force`. The one exception is a ticket-stack branch you just moved onto `main` (step 1): push it with `--force-with-lease`. If a push is rejected, stop and tell the user.
-
-Before pushing more commits to a branch whose PR is open, check it still is: `gh pr view <number> --json state`. Commits pushed after a squash merge never reach `main`, so put them on the next branch instead.
 
 ## 5. Open the PR
 
