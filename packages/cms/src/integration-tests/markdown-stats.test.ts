@@ -97,7 +97,7 @@ describe("markdown.stats", () => {
     expect((await docs.getEntry("intro"))._stats.wordCount).toBe(2);
   });
 
-  test("leave {#id} heading ids out, and keep an MDX body's components out", async () => {
+  test("leaves {#id} heading ids out, and an MDX body's components with them", async () => {
     await fs.writeFile(
       nodePath.join(tmp, "docs", "ids.mdx"),
       "---\ntitle: Ids\n---\n\n## Install {#install}\n\nRun <Callout>Ignored</Callout> it.\n",
