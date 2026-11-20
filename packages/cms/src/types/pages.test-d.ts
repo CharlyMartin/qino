@@ -26,7 +26,22 @@ describe("pages on collections", () => {
       directory: "notes",
       schema: z.object({}),
       extension: ".md",
-      pages: { index: "/", entry: "/notes/{slug}", llmsFull: false },
+      pages: {
+        index: "/",
+        entry: "/notes/{slug}",
+        title: "Notes",
+        llmsFull: false,
+      },
+    });
+  });
+
+  test("need a title for the index page", () => {
+    defineCollection({
+      directory: "notes",
+      schema: z.object({}),
+      extension: ".md",
+      // @ts-expect-error: pages take a title
+      pages: { index: "/notes", entry: "/notes/{slug}" },
     });
   });
 
@@ -36,7 +51,7 @@ describe("pages on collections", () => {
       schema: z.object({}),
       extension: ".md",
       // @ts-expect-error: the index path starts with "/"
-      pages: { index: "notes", entry: "/notes/{slug}" },
+      pages: { index: "notes", entry: "/notes/{slug}", title: "Notes" },
     });
   });
 
@@ -46,7 +61,7 @@ describe("pages on collections", () => {
       schema: z.object({}),
       extension: ".md",
       // @ts-expect-error: the entry path contains {slug}
-      pages: { index: "/notes", entry: "/notes" },
+      pages: { index: "/notes", entry: "/notes", title: "Notes" },
     });
   });
 });
@@ -94,7 +109,7 @@ const docsTree = defineTree({
   schema: z.object({ label: z.string() }),
   extension: ".mdx",
   titleField: "label",
-  pages: { index: "/docs", entry: "/docs/{slug}" },
+  pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" },
 });
 
 const aboutItem = defineItem({
@@ -125,7 +140,7 @@ describe("pages on trees and items", () => {
       file: "about.md",
       schema: z.object({}),
       // @ts-expect-error: items take `page`
-      pages: { index: "/about", entry: "/about/{slug}" },
+      pages: { index: "/about", entry: "/about/{slug}", title: "About" },
     });
   });
 

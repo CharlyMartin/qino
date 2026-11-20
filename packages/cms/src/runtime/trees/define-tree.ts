@@ -165,7 +165,6 @@ export function defineTree<
     pages: params.pages,
     siteUrl: ctx.siteUrl,
     owner,
-    directory,
   });
   assertCloudEnabled(ctx, cloud, directory);
 

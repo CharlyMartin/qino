@@ -11,4 +11,4 @@ Adds agent Markdown for index pages. Called without a slug, `getAgentMarkdown()`
 - [World](https://example.com/blog/world.md)
 ```
 
-A collection lists the entries its default view keeps, in its order. A tree gives each root node a `##` section that lists the node and then its descendants. The title is `pages.title`, which defaults to the directory name in sentence case, so `blog-posts` gives "Blog posts". `getMarkdownUrl()` without a slug returns the index page's Markdown URL, such as `https://example.com/blog.md`.
+A collection lists the entries its default view keeps, in its order. A tree gives each root node a `##` section that lists the node and then its descendants. The heading is `pages.title`, which `pages` requires. `getMarkdownUrl()` without a slug returns the index page's Markdown URL, such as `https://example.com/blog.md`.

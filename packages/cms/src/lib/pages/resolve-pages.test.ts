@@ -3,48 +3,35 @@ import { describe, expect, test } from "vitest";
 import { resolvePages } from "./resolve-pages";
 
 const owner = 'Collection "posts"';
-const directory = "posts";
-const pages = { index: "/blog", entry: "/blog/{slug}" } as const;
+const siteUrl = "https://example.com";
+const pages = { index: "/blog", entry: "/blog/{slug}", title: "Blog" } as const;
 
 describe("resolvePages", () => {
-  test("returns the pages with their siteUrl, titled after the directory", () => {
-    expect(
-      resolvePages({ pages, siteUrl: "https://example.com", owner, directory }),
-    ).toEqual({ ...pages, title: "Posts", siteUrl: "https://example.com" });
+  test("returns the pages with their siteUrl", () => {
+    expect(resolvePages({ pages, siteUrl, owner })).toEqual({
+      ...pages,
+      siteUrl,
+    });
   });
 
-  test("keeps a given title, on one line", () => {
+  test("puts the title on one line", () => {
     expect(
       resolvePages({
         pages: { ...pages, title: " The\n blog " },
-        siteUrl: "https://example.com",
+        siteUrl,
         owner,
-        directory,
       })?.title,
     ).toBe("The blog");
   });
 
-  test("titles the index page after the directory when the title is blank", () => {
-    expect(
-      resolvePages({
-        pages: { ...pages, title: " " },
-        siteUrl: "https://example.com",
-        owner,
-        directory,
-      })?.title,
-    ).toBe("Posts");
-  });
-
   test("is undefined without pages", () => {
     expect(
-      resolvePages({ pages: undefined, siteUrl: undefined, owner, directory }),
+      resolvePages({ pages: undefined, siteUrl: undefined, owner }),
     ).toBeUndefined();
   });
 
   test("needs a siteUrl", () => {
-    expect(() =>
-      resolvePages({ pages, siteUrl: undefined, owner, directory }),
-    ).toThrow(
+    expect(() => resolvePages({ pages, siteUrl: undefined, owner })).toThrow(
       'Collection "posts" declares pages, so initQino needs a siteUrl, such as "https://example.com".',
     );
   });
@@ -53,13 +40,23 @@ describe("resolvePages", () => {
     expect(() =>
       resolvePages({
         // As a JavaScript caller could pass it.
-        pages: { index: "/blog", entry: "/blog" } as never,
-        siteUrl: "https://example.com",
+        pages: { ...pages, entry: "/blog" } as never,
+        siteUrl,
         owner,
-        directory,
       }),
     ).toThrow(
       'Collection "posts": pages.entry "/blog" must contain {slug} once.',
+    );
+  });
+
+  test.each([
+    { index: "/blog", entry: "/blog/{slug}" },
+    { ...pages, title: " " },
+  ])("needs a title, which %j lacks", (pages) => {
+    expect(() =>
+      resolvePages({ pages: pages as never, siteUrl, owner }),
+    ).toThrow(
+      'Collection "posts": pages.title must name the index page, such as "Blog".',
     );
   });
 });

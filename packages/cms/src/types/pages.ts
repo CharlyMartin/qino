@@ -7,11 +7,8 @@ export type PagesConfig = {
   readonly index: PagePath;
   /** The entry page's path, with `{slug}` where the slug goes, such as `"/blog/{slug}"`. */
   readonly entry: `/${string}{slug}${string}`;
-  /**
-   * The index page's title, in its agent Markdown and its `llms.txt` section.
-   * Defaults to the directory name in sentence case.
-   */
-  readonly title?: string;
+  /** The index page's title, in its agent Markdown and its `llms.txt` section, such as `"Blog"`. */
+  readonly title: string;
   /** Whether `llms-full.txt` holds the entry pages. Defaults to `true`. */
   readonly llmsFull?: boolean;
 };

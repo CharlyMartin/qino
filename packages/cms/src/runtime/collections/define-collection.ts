@@ -157,7 +157,6 @@ export function defineCollection<
     pages: params.pages,
     siteUrl: ctx.siteUrl,
     owner,
-    directory,
   });
   assertCloudEnabled(ctx, cloud, directory);
   const collectionRelations = (relations ?? {}) as TaggedRels;

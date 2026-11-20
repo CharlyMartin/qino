@@ -1,28 +1,20 @@
 import type { PagesConfig } from "../../types/pages";
 import { toOneLine } from "../agent-markdown/to-one-line";
 import { describePagePathError } from "./describe-page-path-error";
-import { titleFromDirectory } from "./title-from-directory";
 
 type ResolvePagesParams = {
   pages: PagesConfig | undefined;
   siteUrl: string | undefined;
   /** Names the primitive in messages, such as `Collection "posts"`. */
   owner: string;
-  /** The primitive's directory, which titles the index page by default. */
-  directory: string;
 };
 
 /**
- * Checks `pages` when a primitive is defined, so a bad path fails before any
- * link, and returns them with the `siteUrl` they need and the index page's
- * title, on one line.
+ * Checks `pages` when a primitive is defined, so a bad path or title fails
+ * before any link, and returns them with the `siteUrl` they need and their
+ * title on one line.
  */
-export function resolvePages({
-  pages,
-  siteUrl,
-  owner,
-  directory,
-}: ResolvePagesParams) {
+export function resolvePages({ pages, siteUrl, owner }: ResolvePagesParams) {
   if (!pages) return undefined;
   if (!siteUrl) {
     throw new Error(
@@ -41,6 +33,13 @@ export function resolvePages({
     });
   if (error) throw new Error(`${owner}: ${error}`);
 
-  const title = toOneLine(pages.title ?? "") || titleFromDirectory(directory);
+  // A JavaScript caller can leave the title out.
+  const title = typeof pages.title == "string" ? toOneLine(pages.title) : "";
+  if (!title) {
+    throw new Error(
+      `${owner}: pages.title must name the index page, such as "Blog".`,
+    );
+  }
+
   return { ...pages, title, siteUrl };
 }

@@ -36,7 +36,7 @@ function setup() {
       title: z.string().optional(),
       description: z.string().optional(),
     }),
-    pages: { index: "/blog", entry: "/blog/{slug}" },
+    pages: { index: "/blog", entry: "/blog/{slug}", title: "Blog" },
   });
 
   return { posts };
@@ -63,7 +63,7 @@ describe("pages", () => {
         directory: "posts",
         extension: ".md",
         schema: z.object({}),
-        pages: { index: "/blog", entry: "/blog/{slug}" },
+        pages: { index: "/blog", entry: "/blog/{slug}", title: "Blog" },
       });
 
     expect(define).toThrow(
@@ -73,39 +73,45 @@ describe("pages", () => {
 
   test.each([
     [
-      { index: "blog", entry: "/blog/{slug}" },
+      { index: "blog", entry: "/blog/{slug}", title: "Blog" },
       'pages.index "blog" must start with "/".',
     ],
     [
-      { index: "//evil.com", entry: "/blog/{slug}" },
+      { index: "//evil.com", entry: "/blog/{slug}", title: "Blog" },
       'pages.index "//evil.com" must stay on the site.',
     ],
     [
-      { index: "/blog", entry: "/blog/{slug}#top" },
+      { index: "/blog", entry: "/blog/{slug}#top", title: "Blog" },
       'pages.entry "/blog/{slug}#top" must be a path, without "?" or "#".',
     ],
     [
-      { index: "/blog/{slug}", entry: "/blog/{slug}" },
+      { index: "/blog/{slug}", entry: "/blog/{slug}", title: "Blog" },
       'pages.index "/blog/{slug}" takes no token.',
     ],
     [
-      { index: "/blog", entry: "/blog" },
+      { index: "/blog", entry: "/blog", title: "Blog" },
       'pages.entry "/blog" must contain {slug} once.',
     ],
     [
-      { index: "/blog", entry: "/blog/{slug}/{slug}" },
+      { index: "/blog", entry: "/blog/{slug}/{slug}", title: "Blog" },
       'pages.entry "/blog/{slug}/{slug}" must contain {slug} once.',
     ],
     [
-      { index: "/blog", entry: "/blog/{year}/{slug}" },
+      { index: "/blog", entry: "/blog/{year}/{slug}", title: "Blog" },
       'pages.entry "/blog/{year}/{slug}" takes no token but {slug}.',
+    ],
+    [
+      { index: "/blog", entry: "/blog/{slug}" },
+      'pages.title must name the index page, such as "Blog".',
     ],
   ])("reject %j", (pages, message) => {
     expect(definePages(pages)).toThrow(`Collection "posts": ${message}`);
   });
 
   test("accept the site root as the index", () => {
-    expect(definePages({ index: "/", entry: "/{slug}" })).not.toThrow();
+    expect(
+      definePages({ index: "/", entry: "/{slug}", title: "Pages" }),
+    ).not.toThrow();
   });
 });
 
@@ -130,7 +136,7 @@ describe("Markdown URLs of collection entries", () => {
       directory: "pages",
       extension: ".md",
       schema: z.object({}),
-      pages: { index: "/", entry: "/{slug}" },
+      pages: { index: "/", entry: "/{slug}", title: "Pages" },
     });
 
     for (const slug of ["/evil.com", "//evil.com", "\\evil.com"]) {
@@ -149,7 +155,7 @@ describe("Markdown URLs of collection entries", () => {
       directory: "posts",
       extension: ".md",
       schema: z.object({}),
-      pages: { index: "/blog/", entry: "/blog/{slug}/" },
+      pages: { index: "/blog/", entry: "/blog/{slug}/", title: "Blog" },
     });
 
     expect(posts.getMarkdownUrl("hello")).toBe(
@@ -292,7 +298,7 @@ describe("agent Markdown for collection entries", () => {
       directory: "docs",
       extension: ".mdx",
       schema: z.object({ title: z.string() }),
-      pages: { index: "/docs", entry: "/docs/{slug}" },
+      pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" },
     });
 
     expect(await docs.getAgentMarkdown("intro")).toBe(
@@ -338,7 +344,7 @@ describe("agent Markdown for collection entries", () => {
       directory: "docs",
       extension: ".mdx",
       schema: z.object({ title: z.string() }),
-      pages: { index: "/docs", entry: "/docs/{slug}" },
+      pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" },
     });
 
     expect(await docs.getAgentMarkdown("ids")).toBe(
@@ -369,7 +375,7 @@ describe("agent Markdown for collection entries", () => {
         description: z.string(),
         markdown: z.string(),
       }),
-      pages: { index: "/authors", entry: "/authors/{slug}" },
+      pages: { index: "/authors", entry: "/authors/{slug}", title: "Authors" },
     });
 
     expect(await authors.getAgentMarkdown("jane")).toBe(
@@ -399,7 +405,7 @@ describe("agent Markdown for collection entries", () => {
       directory: "posts",
       extension: ".md",
       schema: z.object({ title: z.string(), draft: z.boolean().optional() }),
-      pages: { index: "/blog", entry: "/blog/{slug}" },
+      pages: { index: "/blog", entry: "/blog/{slug}", title: "Blog" },
       views: (view) => ({
         default: view({ filter: (post) => !post.draft }),
         all: view({}),
@@ -414,7 +420,7 @@ describe("agent Markdown for collection entries", () => {
 });
 
 describe("agent Markdown for a collection's index page", () => {
-  test("opens with the directory name, then links each entry's Markdown URL with its description", async () => {
+  test("opens with the pages title, then links each entry's Markdown URL with its description", async () => {
     await writePost(
       "hello",
       "---\ntitle: Hello\ndescription: The first post.\n---\n\nHi.\n",
@@ -423,11 +429,11 @@ describe("agent Markdown for a collection's index page", () => {
     const { posts } = setup();
 
     expect(await posts.getAgentMarkdown()).toBe(
-      "# Posts\n\n- [Hello](https://example.com/blog/hello.md): The first post.\n- [World](https://example.com/blog/world.md)\n",
+      "# Blog\n\n- [Hello](https://example.com/blog/hello.md): The first post.\n- [World](https://example.com/blog/world.md)\n",
     );
   });
 
-  test("lists the default view's entries in its order, under the pages title", async () => {
+  test("lists the default view's entries in its order", async () => {
     await writePost("a", "---\ntitle: Old\ndate: 2024-01-01\n---\n");
     await writePost("b", "---\ntitle: New\ndate: 2025-01-01\n---\n");
     await writePost(
@@ -469,14 +475,14 @@ describe("agent Markdown for a collection's index page", () => {
     const { posts } = setup();
 
     expect(await posts.getAgentMarkdown()).toBe(
-      "# Posts\n\n- [Arrays \\[part 1](https://example.com/blog/hello.md): Two lines.\n- [untitled](https://example.com/blog/untitled.md)\n",
+      "# Blog\n\n- [Arrays \\[part 1](https://example.com/blog/hello.md): Two lines.\n- [untitled](https://example.com/blog/untitled.md)\n",
     );
   });
 
   test("is the heading alone when there are no entries", async () => {
     const { posts } = setup();
 
-    expect(await posts.getAgentMarkdown()).toBe("# Posts\n");
+    expect(await posts.getAgentMarkdown()).toBe("# Blog\n");
   });
 
   test('leaves the slug "" to the entry pages, where no entry has it', async () => {
@@ -498,7 +504,7 @@ describe("Markdown URLs of index pages", () => {
       directory: "posts",
       extension: ".md",
       schema: z.object({}),
-      pages: { index: "/", entry: "/{slug}" },
+      pages: { index: "/", entry: "/{slug}", title: "Pages" },
     });
 
     expect(posts.getMarkdownUrl()).toBe("https://example.com/blog.md");
@@ -522,7 +528,7 @@ function defineDocs() {
     extension: ".mdx",
     schema: z.object({ label: z.string(), description: z.string() }),
     titleField: "label",
-    pages: { index: "/docs", entry: "/docs/{slug}" },
+    pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" },
   });
 }
 
@@ -550,7 +556,7 @@ describe("pages on trees", () => {
         extension: ".mdx",
         schema: z.object({ label: z.string() }),
         titleField: "label",
-        pages: { index: "/docs", entry: "/docs" } as never,
+        pages: { index: "/docs", entry: "/docs", title: "Docs" } as never,
       });
 
     expect(define).toThrow(
