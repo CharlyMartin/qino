@@ -4,7 +4,7 @@ Each of these edge cases broke something in an earlier change. Probe each one th
 
 - **CRLF and lone CR line endings:** qino's output, `children` and props are LF only. `entry` is passed as read, so its `markdown` and `description` keep CRLF.
 - **Leading blank lines and frontmatter,** in a body or in the `llms.txt` template: neither appears in the output.
-- **`{#id}` headings:** they keep their ids, and the rest of the body still parses as MDX. Biome allows MDX parsers only in `parseMarkdownBody`, `tokenizeMarkdownBody` and `scanMarkdownBody`, and each adds `micromarkHeadingId()` after `mdxjs()`, `scanMarkdownBody` from #373 on. Without it, MDX fails on `{#id}`, and the body falls back to plain Markdown or, in `scanMarkdownBody`, throws.
+- **`{#id}` headings:** they keep their ids, and the rest of the body still parses as MDX: it neither falls back to plain Markdown nor, when scanned for media, throws.
 - **A body that isn't valid MDX,** such as one with `<!-- comment -->` or `a { b`: it falls back to plain Markdown, and its components stay as written. Links still become absolute, except inside an HTML block. A line that opens with a tag such as `<Tabs>` starts one, which runs to the next blank line.
 - **Output from a component function that isn't valid MDX:** it affects only its own replacement, and links elsewhere still become absolute.
 - **A body that opens with its own H1:** this includes after `import` or `export` lines, as a setext heading (`Title` over `===`), or from a component's output, or after HTML or MDX comments, indented or several on a line. qino adds no `# title` or description. Text between two comments still renders, so qino adds the heading.

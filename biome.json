@@ -107,8 +107,8 @@
                   }
                 ],
                 "paths": {
-                  "remark-mdx": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, or `scanMarkdownBody` in `@qino/tooling`. They read `{#id}` heading ids, on which MDX fails otherwise.",
-                  "micromark-extension-mdxjs": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, or `scanMarkdownBody` in `@qino/tooling`. They read `{#id}` heading ids, on which MDX fails otherwise."
+                  "remark-mdx": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, which read `{#id}` heading ids: MDX fails on them otherwise.",
+                  "micromark-extension-mdxjs": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, which read `{#id}` heading ids: MDX fails on them otherwise."
                 }
               }
             }
@@ -139,8 +139,8 @@
                   }
                 ],
                 "paths": {
-                  "remark-mdx": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, or `scanMarkdownBody` in `@qino/tooling`. They read `{#id}` heading ids, on which MDX fails otherwise.",
-                  "micromark-extension-mdxjs": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, or `scanMarkdownBody` in `@qino/tooling`. They read `{#id}` heading ids, on which MDX fails otherwise."
+                  "remark-mdx": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, which read `{#id}` heading ids: MDX fails on them otherwise.",
+                  "micromark-extension-mdxjs": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, which read `{#id}` heading ids: MDX fails on them otherwise."
                 }
               }
             }
@@ -166,7 +166,11 @@
                     ],
                     "message": "Import internal helpers from their leaf modules."
                   }
-                ]
+                ],
+                "paths": {
+                  "remark-mdx": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, which read `{#id}` heading ids: MDX fails on them otherwise.",
+                  "micromark-extension-mdxjs": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, which read `{#id}` heading ids: MDX fails on them otherwise."
+                }
               }
             }
           }
@@ -192,28 +196,6 @@
                     "message": "Import internal helpers from their leaf modules."
                   }
                 ]
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "includes": [
-        "packages/tooling/src/**",
-        "!packages/tooling/src/media/scan-markdown-body.ts",
-        "!**/*.test.ts"
-      ],
-      "linter": {
-        "rules": {
-          "style": {
-            "noRestrictedImports": {
-              "level": "error",
-              "options": {
-                "paths": {
-                  "remark-mdx": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, or `scanMarkdownBody` in `@qino/tooling`. They read `{#id}` heading ids, on which MDX fails otherwise.",
-                  "micromark-extension-mdxjs": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, or `scanMarkdownBody` in `@qino/tooling`. They read `{#id}` heading ids, on which MDX fails otherwise."
-                }
               }
             }
           }

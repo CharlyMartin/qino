@@ -10,11 +10,11 @@ type ParseMarkdownBodyOptions = {
   mdx?: boolean;
 };
 
-// Every parser reads `{#id}` into `headingId` nodes: without it, MDX fails on
-// `{#id}`. After `remark-mdx`, so `{#id}` is tried before an MDX expression.
-const parser = unified().use(remarkParse).use(remarkGfm);
-const markdownParser = parser().use(remarkHeadingId);
-const mdxParser = parser().use(remarkMdx).use(remarkHeadingId);
+const gfmParser = unified().use(remarkParse).use(remarkGfm);
+// Both read `{#id}` into `headingId` nodes, as MDX fails on `{#id}` otherwise.
+// After `remark-mdx`, so `{#id}` is tried before an MDX expression.
+const markdownParser = gfmParser().use(remarkHeadingId);
+const mdxParser = gfmParser().use(remarkMdx).use(remarkHeadingId);
 
 export function parseMarkdownBody(
   body: string,
