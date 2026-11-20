@@ -5,6 +5,7 @@ import { mdxFromMarkdown } from "mdast-util-mdx";
 import { gfm } from "micromark-extension-gfm";
 import { mdxjs } from "micromark-extension-mdxjs";
 
+import { micromarkHeadingId } from "../markdown/micromark-heading-id";
 import { extractHtmlAttributeUrls } from "./extract-html-attribute-urls";
 
 const MEDIA_ATTRIBUTES = new Set(["src", "poster"]);
@@ -22,8 +23,9 @@ export function scanMarkdownBody(
   { mdx }: ScanMarkdownBodyOptions,
 ) {
   // GFM matches how most sites render; without it a table is one paragraph.
+  // In MDX, `{#id}` would otherwise be an invalid expression.
   const tree = fromMarkdown(content, {
-    extensions: mdx ? [gfm(), mdxjs()] : [gfm()],
+    extensions: mdx ? [gfm(), mdxjs(), micromarkHeadingId()] : [gfm()],
     mdastExtensions: mdx
       ? [gfmFromMarkdown(), mdxFromMarkdown()]
       : [gfmFromMarkdown()],
