@@ -7,7 +7,7 @@ metadata:
 
 # Ship
 
-Ship when the checks from AGENTS.md are green and every finding from `/implement`'s `/code-review` is fixed or skipped with a reason. If a finding you couldn't resolve is still open, stop and report it to the user instead. If the change touches a published package in a way users notice, add a changeset first with the `changeset` skill.
+Ship when the checks from AGENTS.md are green. If the change touches a published package in a way users notice, add a changeset first with the `changeset` skill.
 
 ## 1. Branch
 
@@ -49,7 +49,13 @@ Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`. Scopes: `cms`, `tooli
 
 Commit messages and PRs carry no `Co-Authored-By` trailers or "Generated with Claude Code" lines.
 
-## 3. Push
+## 3. Review
+
+`code-review` reads committed work, so review after committing. Run it against the base (step 5) on whatever `/implement`'s review didn't cover: the whole change for a bug fix, or the commits made after it other than the fixes for its findings, such as retro improvements. Skip this step when nothing is left.
+
+Fix each finding or skip it with a reason, get the checks green again, and commit the fixes. If a finding you can't resolve is still open, stop and report it to the user.
+
+## 4. Push
 
 ```sh
 git push -u origin <branch>
@@ -57,7 +63,7 @@ git push -u origin <branch>
 
 Push without `--force`. The one exception is a ticket-stack branch you just moved onto `main` (step 1): push it with `--force-with-lease`. If a push is rejected, stop and tell the user.
 
-## 4. Open the PR
+## 5. Open the PR
 
 ```sh
 gh pr create --base <base> --title "<title>" --body-file - <<'EOF'
@@ -74,8 +80,8 @@ The quoted heredoc keeps backticks in the body from running as shell commands.
 **Body:** write it with the `pr` skill, naming the public APIs in backticks. Below the template, add:
 
 - `Closes #<n>` for each spec and ticket issue the PR resolves.
-- A one-line "Review" note when `/code-review` changed something worth knowing, or a finding was skipped that a reviewer might raise again.
+- A one-line "Review" note when a review changed something worth knowing, or a finding was skipped that a reviewer might raise again.
 
-## 5. Report
+## 6. Report
 
 The PR URL, the list of commits, and the branch name.
