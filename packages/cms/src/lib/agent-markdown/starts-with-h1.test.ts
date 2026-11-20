@@ -18,8 +18,11 @@ describe("startsWithH1", () => {
     expect(startsWithH1(body, { mdx })).toBe(true);
   });
 
-  test("is false after an expression that renders", () => {
-    expect(startsWithH1("{intro}\n\n# Title\n", { mdx: true })).toBe(false);
+  test.each([
+    ["{intro}\n\n# Title\n", true],
+    ["<!-- a --> Intro <!-- b -->\n\n# Title\n", false],
+  ])("is false after a block that renders: %j (MDX: %s)", (body, mdx) => {
+    expect(startsWithH1(body, { mdx })).toBe(false);
   });
 
   test.each(["## Section\n\nBody.\n", "Intro.\n\n# Title\n", ""])(
