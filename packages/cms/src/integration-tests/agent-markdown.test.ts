@@ -171,7 +171,9 @@ describe("Markdown URLs of collection entries", () => {
       'Collection "posts" has no pages: declare them to get agent Markdown and Markdown URLs.';
 
     expect(() => posts.getMarkdownUrl("hello")).toThrow(message);
+    expect(() => posts.getMarkdownUrl()).toThrow(message);
     await expect(posts.getAgentMarkdown("hello")).rejects.toThrow(message);
+    await expect(posts.getAgentMarkdown()).rejects.toThrow(message);
   });
 });
 
@@ -411,6 +413,99 @@ describe("agent Markdown for collection entries", () => {
   });
 });
 
+describe("agent Markdown for a collection's index page", () => {
+  test("opens with the directory name, then links each entry's Markdown URL with its description", async () => {
+    await writePost(
+      "hello",
+      "---\ntitle: Hello\ndescription: The first post.\n---\n\nHi.\n",
+    );
+    await writePost("world", "---\ntitle: World\n---\n\nHi.\n");
+    const { posts } = setup();
+
+    expect(await posts.getAgentMarkdown()).toBe(
+      "# Posts\n\n- [Hello](https://example.com/blog/hello.md): The first post.\n- [World](https://example.com/blog/world.md)\n",
+    );
+  });
+
+  test("lists the default view's entries in its order, under the pages title", async () => {
+    await writePost("a", "---\ntitle: Old\ndate: 2024-01-01\n---\n");
+    await writePost("b", "---\ntitle: New\ndate: 2025-01-01\n---\n");
+    await writePost(
+      "c",
+      "---\ntitle: Draft\ndate: 2026-01-01\ndraft: true\n---\n",
+    );
+    const posts = initQino({
+      contentFolder: tmp,
+      mediaFolder: tmp,
+      siteUrl: "https://example.com",
+    }).defineCollection({
+      directory: "posts",
+      extension: ".md",
+      schema: z.object({
+        title: z.string(),
+        date: z.coerce.date(),
+        draft: z.boolean().optional(),
+      }),
+      pages: { index: "/blog", entry: "/blog/{slug}", title: "Blog" },
+      views: (view) => ({
+        default: view({
+          filter: (post) => !post.draft,
+          sort: (a, b) => b.date.getTime() - a.date.getTime(),
+        }),
+      }),
+    });
+
+    expect(await posts.getAgentMarkdown()).toBe(
+      "# Blog\n\n- [New](https://example.com/blog/b.md)\n- [Old](https://example.com/blog/a.md)\n",
+    );
+  });
+
+  test("keeps each link on one line, falling back to the slug for the title", async () => {
+    await writePost(
+      "hello",
+      "---\ntitle: Arrays [part 1\ndescription: |\n  Two\n  lines.\n---\n",
+    );
+    await writePost("untitled", "Hi.\n");
+    const { posts } = setup();
+
+    expect(await posts.getAgentMarkdown()).toBe(
+      "# Posts\n\n- [Arrays \\[part 1](https://example.com/blog/hello.md): Two lines.\n- [untitled](https://example.com/blog/untitled.md)\n",
+    );
+  });
+
+  test("is the heading alone when there are no entries", async () => {
+    const { posts } = setup();
+
+    expect(await posts.getAgentMarkdown()).toBe("# Posts\n");
+  });
+
+  test('leaves the slug "" to the entry pages, where no entry has it', async () => {
+    await writePost("hello", "---\ntitle: Hello\n---\n");
+    const { posts } = setup();
+
+    expect(await posts.getAgentMarkdown("")).toBeNull();
+  });
+});
+
+describe("Markdown URLs of index pages", () => {
+  test("are the index page's URL with .md appended, and /index.md at the site root", () => {
+    const { posts } = setup();
+    const atRoot = initQino({
+      contentFolder: tmp,
+      mediaFolder: tmp,
+      siteUrl: "https://example.com",
+    }).defineCollection({
+      directory: "posts",
+      extension: ".md",
+      schema: z.object({}),
+      pages: { index: "/", entry: "/{slug}" },
+    });
+
+    expect(posts.getMarkdownUrl()).toBe("https://example.com/blog.md");
+    expect(atRoot.getMarkdownUrl()).toBe("https://example.com/index.md");
+  });
+});
+
 async function writeDoc(slug: string, content: string) {
   const filePath = nodePath.join(tmp, "docs", `${slug}.mdx`);
   await fs.mkdir(nodePath.dirname(filePath), { recursive: true });
@@ -478,7 +573,9 @@ describe("pages on trees", () => {
       'Tree "docs" has no pages: declare them to get agent Markdown and Markdown URLs.';
 
     expect(() => docs.getMarkdownUrl("guide")).toThrow(message);
+    expect(() => docs.getMarkdownUrl()).toThrow(message);
     await expect(docs.getAgentMarkdown("guide")).rejects.toThrow(message);
+    await expect(docs.getAgentMarkdown()).rejects.toThrow(message);
   });
 });
 
@@ -526,6 +623,47 @@ describe("agent Markdown for tree entries", () => {
       expect(await docs.getAgentMarkdown(slug)).toBeNull();
     },
   );
+});
+
+describe("agent Markdown for a tree's index page", () => {
+  test("gives each root node a section listing it and its descendants, in tree order", async () => {
+    await writeDoc(
+      "guide",
+      "---\nlabel: Guide\ndescription: Start here.\n---\n",
+    );
+    await writeDoc(
+      "guide/cli",
+      "---\nlabel: CLI\ndescription: Commands.\n---\n",
+    );
+    await writeDoc(
+      "guide/cli/flags",
+      '---\nlabel: Flags\ndescription: ""\n---\n',
+    );
+    await writeDoc("api", "---\nlabel: API\ndescription: Reference.\n---\n");
+    await fs.writeFile(
+      nodePath.join(tmp, "docs", "_order.json"),
+      JSON.stringify(["guide.mdx", "api.mdx"]),
+    );
+    const docs = defineDocs();
+
+    expect(await docs.getAgentMarkdown()).toBe(
+      [
+        "# Docs",
+        "",
+        "## Guide",
+        "",
+        "- [Guide](https://example.com/docs/guide.md): Start here.",
+        "- [CLI](https://example.com/docs/guide/cli.md): Commands.",
+        "- [Flags](https://example.com/docs/guide/cli/flags.md)",
+        "",
+        "## API",
+        "",
+        "- [API](https://example.com/docs/api.md): Reference.",
+        "",
+      ].join("\n"),
+    );
+    expect(docs.getMarkdownUrl()).toBe("https://example.com/docs.md");
+  });
 });
 
 describe("page on items", () => {

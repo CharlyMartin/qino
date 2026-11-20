@@ -1,6 +1,8 @@
 import { MARKDOWN_FIELD_NAME } from "../../data/globals";
 import type { SupportedFileExtension } from "../../types/utils";
 import { absolutizeLinks } from "./absolutize-links";
+import { readEntryDescription } from "./read-entry-description";
+import { readEntryTitle } from "./read-entry-title";
 import { startsWithH1 } from "./starts-with-h1";
 
 type BuildAgentMarkdownParams = {
@@ -38,18 +40,10 @@ export function buildAgentMarkdown({
         )
       : "";
 
-  const rawTitle = entry[titleField];
-  const title =
-    typeof rawTitle == "string" ? rawTitle.replace(/\s+/g, " ").trim() : "";
-  // YAML block scalars (`|`, `>`) end a description with a newline.
-  const description =
-    typeof entry.description == "string"
-      ? entry.description.replace(/\r\n?/g, "\n").trim()
-      : "";
-
   const blocks = [];
   if (!startsWithH1(body, { mdx })) {
-    blocks.push(`# ${title || fallbackTitle}`);
+    blocks.push(`# ${readEntryTitle({ entry, titleField, fallbackTitle })}`);
+    const description = readEntryDescription(entry);
     if (description) {
       const lines = description.split("\n");
       blocks.push(lines.map((line) => (line ? `> ${line}` : ">")).join("\n"));

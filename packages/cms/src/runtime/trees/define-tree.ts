@@ -7,6 +7,8 @@ import {
   QinoPrimitives,
 } from "../../data/globals";
 import { buildAgentMarkdown } from "../../lib/agent-markdown/build-agent-markdown";
+import { buildIndexAgentMarkdown } from "../../lib/agent-markdown/build-index-agent-markdown";
+import { toListingLink } from "../../lib/agent-markdown/to-listing-link";
 import type { DependencyCollector } from "../../lib/cache/create-dependency-collector";
 import { createDerivedCache } from "../../lib/cache/create-derived-cache";
 import { createFileCache } from "../../lib/cache/create-file-cache";
@@ -164,6 +166,7 @@ export function defineTree<
     pages: params.pages,
     siteUrl: ctx.siteUrl,
     owner,
+    directory,
   });
   assertCloudEnabled(ctx, cloud, directory);
 
@@ -376,8 +379,34 @@ export function defineTree<
     });
   }
 
-  async function getAgentMarkdown(slug: Slug) {
-    const { siteUrl } = requirePages(resolvedPages, { owner, option: "pages" });
+  async function getAgentMarkdown(): Promise<string>;
+  async function getAgentMarkdown(slug: Slug): Promise<string | null>;
+  async function getAgentMarkdown(slug?: Slug) {
+    const { title, siteUrl } = requirePages(resolvedPages, {
+      owner,
+      option: "pages",
+    });
+    // Only a missing slug means the index page: `""` is a slug no node has.
+    if (typeof slug == "undefined") {
+      const sections = await Promise.all(
+        (await getTree()).map(async (root) => {
+          const links = await Promise.all(
+            flattenTree([root]).map(async (node) =>
+              toListingLink({
+                entry: (await readEntry(node.slug)) as Record<string, unknown>,
+                titleField,
+                fallbackTitle: node.slug,
+                url: getMarkdownUrl(node.slug as SlugFor<Dir>),
+              }),
+            ),
+          );
+          // The root node's link comes first and titles its section.
+          return { title: links[0]?.title ?? root.slug, links };
+        }),
+      );
+      return buildIndexAgentMarkdown({ title, sections });
+    }
+
     // Only a listed slug reads a file: a route param can't reach past the
     // tree with `..`.
     const nodes = await getFlatTree();
@@ -393,11 +422,13 @@ export function defineTree<
     });
   }
 
-  function getMarkdownUrl(slug: SlugFor<Dir>) {
-    const { entry, siteUrl } = requirePages(resolvedPages, {
+  function getMarkdownUrl(slug?: SlugFor<Dir>) {
+    const { index, entry, siteUrl } = requirePages(resolvedPages, {
       owner,
       option: "pages",
     });
-    return toMarkdownUrl(fillEntryPagePath(entry, slug), siteUrl);
+    const path =
+      typeof slug == "undefined" ? index : fillEntryPagePath(entry, slug);
+    return toMarkdownUrl(path, siteUrl);
   }
 }

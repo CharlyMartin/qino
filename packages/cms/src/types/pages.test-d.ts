@@ -65,13 +65,27 @@ describe("getAgentMarkdown", () => {
     // @ts-expect-error: no such view
     postCollection.getAgentMarkdown("hello", { view: "missing" });
   });
+
+  test("resolves to the index page's Markdown without a slug", () => {
+    expectTypeOf(postCollection.getAgentMarkdown()).toEqualTypeOf<
+      Promise<string>
+    >();
+  });
+
+  test("rejects a slug that may be undefined, which would read the index page", () => {
+    const slug = undefined as string | undefined;
+
+    // @ts-expect-error: pass a string, or no argument for the index page
+    postCollection.getAgentMarkdown(slug);
+  });
 });
 
 describe("getMarkdownUrl", () => {
-  test("returns a URL", () => {
+  test("returns a URL, for an entry page or the index page", () => {
     expectTypeOf(
       postCollection.getMarkdownUrl("hello"),
     ).toEqualTypeOf<string>();
+    expectTypeOf(postCollection.getMarkdownUrl()).toEqualTypeOf<string>();
   });
 });
 
@@ -95,6 +109,15 @@ describe("pages on trees and items", () => {
       Promise<string | null>
     >();
     expectTypeOf(docsTree.getMarkdownUrl("guide/cli")).toEqualTypeOf<string>();
+  });
+
+  test("give trees an index page without a slug", () => {
+    expectTypeOf(docsTree.getAgentMarkdown()).toEqualTypeOf<Promise<string>>();
+    expectTypeOf(docsTree.getMarkdownUrl()).toEqualTypeOf<string>();
+
+    const slug = undefined as string | undefined;
+    // @ts-expect-error: pass a string, or no argument for the index page
+    docsTree.getAgentMarkdown(slug);
   });
 
   test("are rejected on items, which take a page", () => {
