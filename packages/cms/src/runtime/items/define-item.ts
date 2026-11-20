@@ -90,7 +90,7 @@ export type DefineItemParams<
     >
   >;
   cloud?: NoInfer<ItemCloudConfig<Schema>>;
-  /** Where the item's page lives, such as `"/about"`, for agent Markdown and links. */
+  /** Where the item's entry page lives, such as `"/about"`, for agent Markdown and links. */
   page?: PagePath;
 } & RootViewSettings;
 

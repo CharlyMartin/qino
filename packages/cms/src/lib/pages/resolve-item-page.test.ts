@@ -29,6 +29,16 @@ describe("resolveItemPage", () => {
     );
   });
 
+  test("rejects an empty page rather than reading it as none", () => {
+    expect(() =>
+      resolveItemPage({
+        page: "" as never,
+        siteUrl: "https://example.com",
+        owner,
+      }),
+    ).toThrow('Item "about.md": page "" must start with "/".');
+  });
+
   test("names the item and the bad path", () => {
     expect(() =>
       resolveItemPage({

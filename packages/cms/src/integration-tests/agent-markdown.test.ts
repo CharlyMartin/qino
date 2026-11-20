@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
 import { initQino } from "../runtime/qino/init-qino";
+import type { PagePath } from "../types/pages";
 
 let tmp: string;
 
@@ -410,27 +411,86 @@ describe("agent Markdown for collection entries", () => {
   });
 });
 
-describe("agent Markdown for tree entries", () => {
-  async function writeDoc(slug: string, content: string) {
-    const filePath = nodePath.join(tmp, "docs", `${slug}.mdx`);
-    await fs.mkdir(nodePath.dirname(filePath), { recursive: true });
-    await fs.writeFile(filePath, content);
-  }
+async function writeDoc(slug: string, content: string) {
+  const filePath = nodePath.join(tmp, "docs", `${slug}.mdx`);
+  await fs.mkdir(nodePath.dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, content);
+}
 
-  function defineDocs() {
-    return initQino({
+function defineDocs() {
+  return initQino({
+    contentFolder: tmp,
+    mediaFolder: tmp,
+    siteUrl: "https://example.com",
+  }).defineTree({
+    directory: "docs",
+    extension: ".mdx",
+    schema: z.object({ label: z.string(), description: z.string() }),
+    titleField: "label",
+    pages: { index: "/docs", entry: "/docs/{slug}" },
+  });
+}
+
+function defineItem(file: `${string}.md`, page?: PagePath) {
+  return initQino({
+    contentFolder: tmp,
+    mediaFolder: tmp,
+    siteUrl: "https://example.com",
+  }).defineItem({
+    file,
+    schema: z.object({ title: z.string().optional() }),
+    page,
+  });
+}
+
+describe("pages on trees", () => {
+  test("are checked like a collection's", () => {
+    const define = () =>
+      initQino({
+        contentFolder: tmp,
+        mediaFolder: tmp,
+        siteUrl: "https://example.com",
+      }).defineTree({
+        directory: "docs",
+        extension: ".mdx",
+        schema: z.object({ label: z.string() }),
+        titleField: "label",
+        pages: { index: "/docs", entry: "/docs" } as never,
+      });
+
+    expect(define).toThrow(
+      'Tree "docs": pages.entry "/docs" must contain {slug} once.',
+    );
+  });
+
+  test("are needed for agent Markdown and Markdown URLs", async () => {
+    const docs = initQino({
       contentFolder: tmp,
       mediaFolder: tmp,
       siteUrl: "https://example.com",
     }).defineTree({
       directory: "docs",
       extension: ".mdx",
-      schema: z.object({ label: z.string(), description: z.string() }),
+      schema: z.object({ label: z.string() }),
       titleField: "label",
-      pages: { index: "/docs", entry: "/docs/{slug}" },
     });
-  }
+    const message =
+      'Tree "docs" has no pages: declare them to get agent Markdown and Markdown URLs.';
 
+    expect(() => docs.getMarkdownUrl("guide")).toThrow(message);
+    await expect(docs.getAgentMarkdown("guide")).rejects.toThrow(message);
+  });
+});
+
+describe("Markdown URLs of tree entries", () => {
+  test("keep a nested slug's slashes", () => {
+    expect(defineDocs().getMarkdownUrl("guide/cli")).toBe(
+      "https://example.com/docs/guide/cli.md",
+    );
+  });
+});
+
+describe("agent Markdown for tree entries", () => {
   test("takes the title from the tree's titleField", async () => {
     await writeDoc(
       "guide",
@@ -466,65 +526,51 @@ describe("agent Markdown for tree entries", () => {
       expect(await docs.getAgentMarkdown(slug)).toBeNull();
     },
   );
+});
 
-  test("keep a nested slug's slashes in its Markdown URL", () => {
-    expect(defineDocs().getMarkdownUrl("guide/cli")).toBe(
-      "https://example.com/docs/guide/cli.md",
+describe("page on items", () => {
+  test("takes no token", () => {
+    expect(() => defineItem("about.md", "/{slug}")).toThrow(
+      'Item "about.md": page "/{slug}" takes no token.',
     );
   });
 
-  test("check pages like a collection does", () => {
+  test("needs a siteUrl", () => {
     const define = () =>
-      initQino({
-        contentFolder: tmp,
-        mediaFolder: tmp,
-        siteUrl: "https://example.com",
-      }).defineTree({
-        directory: "docs",
-        extension: ".mdx",
-        schema: z.object({ label: z.string() }),
-        titleField: "label",
-        pages: { index: "/docs", entry: "/docs" } as never,
+      initQino({ contentFolder: tmp, mediaFolder: tmp }).defineItem({
+        file: "about.md",
+        schema: z.object({}),
+        page: "/about",
       });
 
     expect(define).toThrow(
-      'Tree "docs": pages.entry "/docs" must contain {slug} once.',
+      'Item "about.md" declares a page, so initQino needs a siteUrl, such as "https://example.com".',
     );
   });
 
-  test("need pages", async () => {
-    const docs = initQino({
-      contentFolder: tmp,
-      mediaFolder: tmp,
-      siteUrl: "https://example.com",
-    }).defineTree({
-      directory: "docs",
-      extension: ".mdx",
-      schema: z.object({ label: z.string() }),
-      titleField: "label",
-    });
+  test("is needed for agent Markdown and a Markdown URL", async () => {
+    const about = defineItem("about.md");
     const message =
-      'Tree "docs" has no pages: declare them to get agent Markdown and Markdown URLs.';
+      'Item "about.md" has no page: declare it to get agent Markdown and a Markdown URL.';
 
-    expect(() => docs.getMarkdownUrl("guide")).toThrow(message);
-    await expect(docs.getAgentMarkdown("guide")).rejects.toThrow(message);
+    expect(() => about.getMarkdownUrl()).toThrow(message);
+    await expect(about.getAgentMarkdown()).rejects.toThrow(message);
+  });
+});
+
+describe("Markdown URLs of items", () => {
+  test("are their page's URL with .md appended, and /index.md at the site root", () => {
+    expect(defineItem("about.md", "/about").getMarkdownUrl()).toBe(
+      "https://example.com/about.md",
+    );
+    expect(defineItem("home.md", "/").getMarkdownUrl()).toBe(
+      "https://example.com/index.md",
+    );
   });
 });
 
 describe("agent Markdown for items", () => {
-  function defineItem(file: `${string}.md`, page?: string) {
-    return initQino({
-      contentFolder: tmp,
-      mediaFolder: tmp,
-      siteUrl: "https://example.com",
-    }).defineItem({
-      file,
-      schema: z.object({ title: z.string().optional() }),
-      page: page as never,
-    });
-  }
-
-  test("is the item's agent Markdown, with its title falling back to the file name", async () => {
+  test("falls back to the file name for the title", async () => {
     await fs.writeFile(
       nodePath.join(tmp, "about.md"),
       "---\ntitle: About us\n---\n\nSee [the team](/team).\n",
@@ -540,42 +586,5 @@ describe("agent Markdown for items", () => {
     expect(
       await defineItem("untitled.md", "/untitled").getAgentMarkdown(),
     ).toBe("# untitled\n\nBody.\n");
-  });
-
-  test("has the Markdown URL of its page, and /index.md at the site root", () => {
-    expect(defineItem("about.md", "/about").getMarkdownUrl()).toBe(
-      "https://example.com/about.md",
-    );
-    expect(defineItem("home.md", "/").getMarkdownUrl()).toBe(
-      "https://example.com/index.md",
-    );
-  });
-
-  test("takes a page without tokens", () => {
-    expect(() => defineItem("about.md", "/{slug}")).toThrow(
-      'Item "about.md": page "/{slug}" takes no token.',
-    );
-  });
-
-  test("needs a siteUrl for its page", () => {
-    const define = () =>
-      initQino({ contentFolder: tmp, mediaFolder: tmp }).defineItem({
-        file: "about.md",
-        schema: z.object({}),
-        page: "/about",
-      });
-
-    expect(define).toThrow(
-      'Item "about.md" declares a page, so initQino needs a siteUrl, such as "https://example.com".',
-    );
-  });
-
-  test("needs a page", async () => {
-    const about = defineItem("about.md");
-    const message =
-      'Item "about.md" has no page: declare it to get agent Markdown and a Markdown URL.';
-
-    expect(() => about.getMarkdownUrl()).toThrow(message);
-    await expect(about.getAgentMarkdown()).rejects.toThrow(message);
   });
 });

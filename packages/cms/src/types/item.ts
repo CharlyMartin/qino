@@ -86,10 +86,10 @@ export type Item<
       ViewSelection<Args[0]>
     >
   >;
-  /** The item page's agent Markdown. */
+  /** The agent Markdown of the item's entry page. */
   getAgentMarkdown(): Promise<string>;
   /**
-   * The item page's Markdown URL: its URL on `siteUrl`, without a trailing
+   * The Markdown URL of the item's entry page: its URL on `siteUrl`, without a trailing
    * `/`, with `.md` appended, or `/index.md` for `/`.
    */
   getMarkdownUrl(): string;

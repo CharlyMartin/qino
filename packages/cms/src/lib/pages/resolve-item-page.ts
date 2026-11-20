@@ -17,7 +17,8 @@ export function resolveItemPage({
   siteUrl,
   owner,
 }: ResolveItemPageParams) {
-  if (!page) return undefined;
+  // `""` is a page too, and fails the path check below.
+  if (page == undefined) return undefined;
   if (!siteUrl) {
     throw new Error(
       `${owner} declares a page, so initQino needs a siteUrl, such as "https://example.com".`,

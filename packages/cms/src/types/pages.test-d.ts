@@ -129,7 +129,7 @@ describe("pages on trees and items", () => {
     });
   });
 
-  test("reject an item page without a leading /", () => {
+  test("reject an item's page without a leading /", () => {
     defineItem({
       file: "about.md",
       schema: z.object({}),

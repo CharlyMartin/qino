@@ -41,6 +41,20 @@ describe("buildAgentMarkdown", () => {
     ).toBe("# Hello, world\n\nBody.\n");
   });
 
+  test("reads the title from titleField", () => {
+    const entry = { title: "Not this", label: "Guide", markdown: "Body.\n" };
+
+    expect(
+      buildAgentMarkdown({
+        entry,
+        titleField: "label",
+        fallbackTitle: "guide",
+        extension: ".md",
+        origin,
+      }),
+    ).toBe("# Guide\n\nBody.\n");
+  });
+
   test("reads no body from a JSON entry", () => {
     const entry = { title: "Jane", markdown: "Data, not a body." };
 
