@@ -1,0 +1,17 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignore": [".agents/**"],
+  "ignoreExportsUsedInFile": true,
+  "workspaces": {
+    "packages/cms": {
+      "entry": ["src/**/*.test-d.ts"],
+      "ignoreDependencies": ["rolldown"]
+    },
+    "apps/website": {
+      "entry": ["qino/**/*.ts"]
+    },
+    "examples/*": {
+      "entry": ["qino/**/*.ts"]
+    }
+  }
+}
