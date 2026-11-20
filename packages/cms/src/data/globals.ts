@@ -33,6 +33,7 @@ export const CONFIG_FILE_VERSION = 1;
 export const DEFAULT_ORDER_FILE_NAME = "_order.json";
 export const DEFAULT_LLMS_TXT_TEMPLATE_FILE_NAME = "llms.md";
 export const LLMS_TXT_FILE_NAME = "llms.txt";
+export const LLMS_FULL_TXT_FILE_NAME = "llms-full.txt";
 export const INDEX_MD_FILE_NAME = "index.md";
 export const DEFAULT_BRANCH_PREFIX = "qino/";
 export const DEFAULT_MEDIA_SAVE_AS = "{id}/{name}-{hash}";

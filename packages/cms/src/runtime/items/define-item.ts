@@ -168,7 +168,9 @@ export function defineItem<
       media,
       markdown,
       cloud,
-      ...(resolvedPage && { page: { ...resolvedPage, getListingLink } }),
+      ...(resolvedPage && {
+        page: { ...resolvedPage, getListingLink, getAgentMarkdown },
+      }),
       readEntry,
     },
     getEntry,

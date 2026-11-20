@@ -213,7 +213,7 @@ export function defineCollection<
       markdown,
       cloud,
       ...(resolvedPages && {
-        pages: { ...resolvedPages, getListingSections },
+        pages: { ...resolvedPages, getListingSections, getEntryAgentMarkdown },
       }),
       readEntries,
       readEntry,
@@ -416,10 +416,7 @@ export function defineCollection<
     slug?: Slug,
     ...[options]: ViewArguments<ConfiguredViews<Views>>
   ) {
-    const { title, siteUrl } = requirePages(resolvedPages, {
-      owner,
-      option: "pages",
-    });
+    const { title } = requirePages(resolvedPages, { owner, option: "pages" });
     // Only a missing slug means the index page: `""` is a slug no entry has.
     if (typeof slug == "undefined") {
       return buildIndexAgentMarkdown({ title, links: await listLinks() });
@@ -432,9 +429,29 @@ export function defineCollection<
     const { entry, entryAsRead, isExcluded } = await readInView(slug, options);
     if (isExcluded) return null;
 
+    return buildEntryAgentMarkdown(entry, entryAsRead);
+  }
+
+  // `llms-full.txt`'s documents: the index page's entries, in its order.
+  async function getEntryAgentMarkdown() {
+    const entries = await getEntries();
+    return Promise.all(
+      entries.map(async (entry) =>
+        buildEntryAgentMarkdown(entry, await readEntry(getEntrySlug(entry))),
+      ),
+    );
+  }
+
+  // An entry page's: the heading from the entry through its view, and the
+  // entry as read for the components.
+  function buildEntryAgentMarkdown(
+    entry: unknown,
+    entryAsRead: ResolvedCollectionView<S, Ext, TaggedRels>,
+  ) {
+    const { siteUrl } = requirePages(resolvedPages, { owner, option: "pages" });
     return buildAgentMarkdown({
       entry: entry as Record<string, unknown>,
-      fallbackTitle: slug,
+      fallbackTitle: getEntrySlug(entryAsRead),
       extension,
       origin: siteUrl,
       replacement: {

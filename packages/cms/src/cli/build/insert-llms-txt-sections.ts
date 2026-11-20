@@ -1,7 +1,6 @@
-import { parseFrontmatter } from "@qino/tooling/frontmatter";
-
 import { getHeadingText } from "../../utils/markdown/get-heading-text";
 import { parseMarkdownBody } from "../../utils/markdown/parse-markdown-body";
+import { cleanLlmsTxtTemplate } from "./clean-llms-txt-template";
 
 type InsertLlmsTxtSectionsParams = {
   /** The `llms.txt` template, as read. */
@@ -20,9 +19,7 @@ export function insertLlmsTxtSections({
   template,
   sections,
 }: InsertLlmsTxtSectionsParams) {
-  const text = parseFrontmatter(template)
-    .body.replace(/\r\n?/g, "\n")
-    .replace(/^(?:[ \t]*\n)+/, "");
+  const text = cleanLlmsTxtTemplate(template);
   // Parsed, so a `## Optional` inside a code block isn't taken for one.
   const optional = parseMarkdownBody(text, {
     mdx: false,

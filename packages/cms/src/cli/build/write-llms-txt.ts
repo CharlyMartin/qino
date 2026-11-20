@@ -5,6 +5,7 @@ import { consola } from "consola";
 import {
   DEFAULT_LLMS_TXT_TEMPLATE_FILE_NAME,
   INDEX_MD_FILE_NAME,
+  LLMS_FULL_TXT_FILE_NAME,
   LLMS_TXT_FILE_NAME,
   QinoPrimitiveMarker,
 } from "../../data/globals";
@@ -17,6 +18,8 @@ import type { QinoContext } from "../../runtime/qino/init-qino";
 import type { AnyCollection } from "../../types/collection";
 import type { AnyItem } from "../../types/item";
 import type { AnyTree } from "../../types/tree";
+import { buildLlmsFullTxt } from "./build-llms-full-txt";
+import { collectLlmsFullDocuments } from "./collect-llms-full-documents";
 import { collectLlmsTxtSections } from "./collect-llms-txt-sections";
 import { insertLlmsTxtSections } from "./insert-llms-txt-sections";
 import { writeGeneratedFile } from "./write-generated-file";
@@ -29,9 +32,10 @@ type WriteLlmsTxtParams = {
 };
 
 /**
- * Writes `llms.txt`, and `index.md`, the same file, at the root of
- * `mediaFolder`, each only when it changed. `index.md` is left out when a
- * page's Markdown URL is `/index.md`, which that page owns.
+ * Writes `llms.txt`, `llms-full.txt` and `index.md`, the same file as
+ * `llms.txt`, at the root of `mediaFolder`, each only when it changed.
+ * `index.md` is left out when a page's Markdown URL is `/index.md`, which
+ * that page owns.
  */
 export async function writeLlmsTxt({
   context,
@@ -58,11 +62,16 @@ export async function writeLlmsTxt({
     );
   }
 
-  const sections = await collectLlmsTxtSections({ collections, items, trees });
+  const template = await readTextFile(templatePath);
+  const [sections, documents] = await Promise.all([
+    collectLlmsTxtSections({ collections, items, trees }),
+    collectLlmsFullDocuments({ collections, items, trees }),
+  ]);
   const llmsTxt = insertLlmsTxtSections({
-    template: await readTextFile(templatePath),
+    template,
     sections: sections.map(formatListingSection).join("\n\n"),
   });
+  const llmsFullTxt = buildLlmsFullTxt({ template, documents });
 
   // Entry pages and items are in the sections; index pages aren't.
   const markdownUrls = [
@@ -75,14 +84,19 @@ export async function writeLlmsTxt({
   const indexMdIsTaken = markdownUrls.includes(toMarkdownUrl("/", siteUrl));
   const indexMdPath = nodePath.join(mediaFolder, INDEX_MD_FILE_NAME);
 
+  const files = {
+    [LLMS_TXT_FILE_NAME]: llmsTxt,
+    [LLMS_FULL_TXT_FILE_NAME]: llmsFullTxt,
+    ...(!indexMdIsTaken && { [INDEX_MD_FILE_NAME]: llmsTxt }),
+  };
   const written = [];
-  for (const file of indexMdIsTaken
-    ? [LLMS_TXT_FILE_NAME]
-    : [LLMS_TXT_FILE_NAME, INDEX_MD_FILE_NAME]) {
+  for (const [file, content] of Object.entries(files)) {
     const filePath = nodePath.join(mediaFolder, file);
-    if (await writeGeneratedFile(filePath, llmsTxt)) written.push(filePath);
+    if (await writeGeneratedFile(filePath, content)) written.push(filePath);
   }
-  if (written.length > 0) consola.success(`Wrote ${written.join(" and ")}.`);
+  if (written.length > 0) {
+    consola.success(`Wrote ${new Intl.ListFormat("en-GB").format(written)}.`);
+  }
 
   if (indexMdIsTaken) {
     consola.info(
