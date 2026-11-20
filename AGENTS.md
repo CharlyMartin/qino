@@ -41,6 +41,11 @@ A code change is done once it's in an open pull request. How it gets built depen
 - **Bug fix:** fix it test-first with `tdd`; use `diagnosing-bugs` when the cause isn't obvious.
 - **Docs-only or trivial changes, and changes the user wants to try out without committing:** stop once the checks are green.
 
+Two rules for every `/implement`:
+
+- When the ticket has a parent, read the parent's "Decisions while implementing" comment first. Add each decision you take that the spec doesn't cover, under the ticket's heading, and post the comment if there isn't one.
+- `code-review` reads committed work, so commit before running it, against the base `ship` step 5 names. Have its spec reviewer probe edge cases by running the code with throwaway scripts in the scratchpad.
+
 Then go through these steps in order, without asking the user between them:
 
 1. Get the checks green: `pnpm test`, `pnpm check-types` and `pnpm biome check .`.
