@@ -18,10 +18,9 @@ import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-confi
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
-import { fillEntryPagePath } from "../../lib/pages/fill-entry-page-path";
 import { requirePages } from "../../lib/pages/require-pages";
 import { resolvePages } from "../../lib/pages/resolve-pages";
-import { toMarkdownUrl } from "../../lib/pages/to-markdown-url";
+import { toPagesMarkdownUrl } from "../../lib/pages/to-pages-markdown-url";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { addEntryStats } from "../../lib/stats/add-entry-stats";
@@ -388,20 +387,24 @@ export function defineTree<
     });
     // Only a missing slug means the index page: `""` is a slug no node has.
     if (typeof slug == "undefined") {
+      const toLink = async (node: TreeNode) =>
+        toListingLink({
+          entry: (await readEntry(node.slug)) as Record<string, unknown>,
+          titleField,
+          fallbackTitle: node.slug,
+          url: getMarkdownUrl(node.slug as SlugFor<Dir>),
+        });
       const sections = await Promise.all(
         (await getTree()).map(async (root) => {
-          const links = await Promise.all(
-            flattenTree([root]).map(async (node) =>
-              toListingLink({
-                entry: (await readEntry(node.slug)) as Record<string, unknown>,
-                titleField,
-                fallbackTitle: node.slug,
-                url: getMarkdownUrl(node.slug as SlugFor<Dir>),
-              }),
-            ),
-          );
-          // The root node's link comes first and titles its section.
-          return { title: links[0]?.title ?? root.slug, links };
+          const [rootLink, descendantLinks] = await Promise.all([
+            toLink(root),
+            Promise.all(flattenTree(root.children).map(toLink)),
+          ]);
+          // The root node titles its section, then lists first.
+          return {
+            title: rootLink.title,
+            links: [rootLink, ...descendantLinks],
+          };
         }),
       );
       return buildIndexAgentMarkdown({ title, sections });
@@ -423,12 +426,7 @@ export function defineTree<
   }
 
   function getMarkdownUrl(slug?: SlugFor<Dir>) {
-    const { index, entry, siteUrl } = requirePages(resolvedPages, {
-      owner,
-      option: "pages",
-    });
-    const path =
-      typeof slug == "undefined" ? index : fillEntryPagePath(entry, slug);
-    return toMarkdownUrl(path, siteUrl);
+    const pages = requirePages(resolvedPages, { owner, option: "pages" });
+    return toPagesMarkdownUrl(pages, slug);
   }
 }

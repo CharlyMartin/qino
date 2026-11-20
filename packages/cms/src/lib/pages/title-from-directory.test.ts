@@ -7,6 +7,8 @@ test.each([
   ["blog-posts", "Blog posts"],
   ["_team_members", "Team members"],
   ["en/posts", "Posts"],
+  ["posts/", "Posts"],
+  ["./posts", "Posts"],
   ["API", "API"],
 ])("titles %j as %j", (directory, title) => {
   expect(titleFromDirectory(directory)).toBe(title);

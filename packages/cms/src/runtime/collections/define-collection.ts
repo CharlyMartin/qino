@@ -19,10 +19,9 @@ import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
 import { getEntrySlug } from "../../lib/meta/get-entry-slug";
-import { fillEntryPagePath } from "../../lib/pages/fill-entry-page-path";
 import { requirePages } from "../../lib/pages/require-pages";
 import { resolvePages } from "../../lib/pages/resolve-pages";
-import { toMarkdownUrl } from "../../lib/pages/to-markdown-url";
+import { toPagesMarkdownUrl } from "../../lib/pages/to-pages-markdown-url";
 import { assertPageOptions } from "../../lib/pagination/assert-page-options";
 import { copyPage } from "../../lib/pagination/copy-page";
 import { paginate } from "../../lib/pagination/paginate";
@@ -434,12 +433,7 @@ export function defineCollection<
   }
 
   function getMarkdownUrl(slug?: SlugFor<Dir>) {
-    const { index, entry, siteUrl } = requirePages(resolvedPages, {
-      owner,
-      option: "pages",
-    });
-    const path =
-      typeof slug == "undefined" ? index : fillEntryPagePath(entry, slug);
-    return toMarkdownUrl(path, siteUrl);
+    const pages = requirePages(resolvedPages, { owner, option: "pages" });
+    return toPagesMarkdownUrl(pages, slug);
   }
 }

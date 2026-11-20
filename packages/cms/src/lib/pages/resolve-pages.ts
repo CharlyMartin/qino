@@ -1,4 +1,5 @@
 import type { PagesConfig } from "../../types/pages";
+import { toOneLine } from "../agent-markdown/to-one-line";
 import { describePagePathError } from "./describe-page-path-error";
 import { titleFromDirectory } from "./title-from-directory";
 
@@ -40,7 +41,6 @@ export function resolvePages({
     });
   if (error) throw new Error(`${owner}: ${error}`);
 
-  const title =
-    pages.title?.replace(/\s+/g, " ").trim() || titleFromDirectory(directory);
+  const title = toOneLine(pages.title ?? "") || titleFromDirectory(directory);
   return { ...pages, title, siteUrl };
 }

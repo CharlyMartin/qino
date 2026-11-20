@@ -123,7 +123,7 @@ export type Tree<
   getAgentMarkdown(slug: Slug): Promise<string | null>;
   /**
    * The index page's Markdown URL: its URL on `siteUrl`, without a trailing
-   * `/`, with `.md` appended.
+   * `/`, with `.md` appended, or `/index.md` at the site root.
    */
   getMarkdownUrl(): string;
   /**

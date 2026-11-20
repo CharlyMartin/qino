@@ -17,6 +17,16 @@ describe("formatListingLink", () => {
     );
   });
 
+  test("percent-encodes parentheses in the URL", () => {
+    expect(
+      formatListingLink({
+        title: "A",
+        url: "https://example.com/blog/a).md",
+        description: "",
+      }),
+    ).toBe("- [A](https://example.com/blog/a%29.md)");
+  });
+
   test("escapes brackets and backslashes in the title", () => {
     expect(formatListingLink({ title: "a\\b [c", url, description: "" })).toBe(
       "- [a\\\\b \\[c](https://example.com/blog/hello.md)",

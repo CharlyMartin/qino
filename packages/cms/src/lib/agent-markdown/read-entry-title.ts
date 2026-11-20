@@ -1,4 +1,6 @@
-type ReadEntryTitleParams = {
+import { toOneLine } from "./to-one-line";
+
+export type ReadEntryTitleParams = {
   entry: Record<string, unknown>;
   /** The field holding the title. Defaults to `"title"`. */
   titleField?: string;
@@ -13,8 +15,5 @@ export function readEntryTitle({
   fallbackTitle,
 }: ReadEntryTitleParams) {
   const title = entry[titleField];
-  return (
-    (typeof title == "string" && title.replace(/\s+/g, " ").trim()) ||
-    fallbackTitle
-  );
+  return (typeof title == "string" && toOneLine(title)) || fallbackTitle;
 }
