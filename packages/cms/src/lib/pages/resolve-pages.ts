@@ -22,6 +22,8 @@ export function resolvePages({ pages, siteUrl, owner }: ResolvePagesParams) {
     );
   }
 
+  // A JavaScript caller can leave the title out.
+  const title = typeof pages.title == "string" ? toOneLine(pages.title) : "";
   const error =
     describePagePathError(pages.index, {
       label: "pages.index",
@@ -30,16 +32,11 @@ export function resolvePages({ pages, siteUrl, owner }: ResolvePagesParams) {
     describePagePathError(pages.entry, {
       label: "pages.entry",
       takesSlug: true,
-    });
+    }) ??
+    (title
+      ? undefined
+      : 'pages.title must name the index page, such as "Blog".');
   if (error) throw new Error(`${owner}: ${error}`);
-
-  // A JavaScript caller can leave the title out.
-  const title = typeof pages.title == "string" ? toOneLine(pages.title) : "";
-  if (!title) {
-    throw new Error(
-      `${owner}: pages.title must name the index page, such as "Blog".`,
-    );
-  }
 
   return { ...pages, title, siteUrl };
 }

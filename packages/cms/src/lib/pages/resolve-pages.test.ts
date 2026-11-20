@@ -50,11 +50,11 @@ describe("resolvePages", () => {
   });
 
   test.each([
-    { index: "/blog", entry: "/blog/{slug}" },
+    { ...pages, title: undefined },
     { ...pages, title: " " },
-  ])("needs a title, which %j lacks", (pages) => {
+  ])("needs a title, which %j lacks", (untitled) => {
     expect(() =>
-      resolvePages({ pages: pages as never, siteUrl, owner }),
+      resolvePages({ pages: untitled as never, siteUrl, owner }),
     ).toThrow(
       'Collection "posts": pages.title must name the index page, such as "Blog".',
     );

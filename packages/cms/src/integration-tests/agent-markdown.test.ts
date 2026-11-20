@@ -71,37 +71,36 @@ describe("pages", () => {
     );
   });
 
+  const blog = { index: "/blog", entry: "/blog/{slug}", title: "Blog" };
+
   test.each([
+    [{ ...blog, index: "blog" }, 'pages.index "blog" must start with "/".'],
     [
-      { index: "blog", entry: "/blog/{slug}", title: "Blog" },
-      'pages.index "blog" must start with "/".',
-    ],
-    [
-      { index: "//evil.com", entry: "/blog/{slug}", title: "Blog" },
+      { ...blog, index: "//evil.com" },
       'pages.index "//evil.com" must stay on the site.',
     ],
     [
-      { index: "/blog", entry: "/blog/{slug}#top", title: "Blog" },
+      { ...blog, entry: "/blog/{slug}#top" },
       'pages.entry "/blog/{slug}#top" must be a path, without "?" or "#".',
     ],
     [
-      { index: "/blog/{slug}", entry: "/blog/{slug}", title: "Blog" },
+      { ...blog, index: "/blog/{slug}" },
       'pages.index "/blog/{slug}" takes no token.',
     ],
     [
-      { index: "/blog", entry: "/blog", title: "Blog" },
+      { ...blog, entry: "/blog" },
       'pages.entry "/blog" must contain {slug} once.',
     ],
     [
-      { index: "/blog", entry: "/blog/{slug}/{slug}", title: "Blog" },
+      { ...blog, entry: "/blog/{slug}/{slug}" },
       'pages.entry "/blog/{slug}/{slug}" must contain {slug} once.',
     ],
     [
-      { index: "/blog", entry: "/blog/{year}/{slug}", title: "Blog" },
+      { ...blog, entry: "/blog/{year}/{slug}" },
       'pages.entry "/blog/{year}/{slug}" takes no token but {slug}.',
     ],
     [
-      { index: "/blog", entry: "/blog/{slug}" },
+      { ...blog, title: undefined },
       'pages.title must name the index page, such as "Blog".',
     ],
   ])("reject %j", (pages, message) => {
@@ -110,7 +109,7 @@ describe("pages", () => {
 
   test("accept the site root as the index", () => {
     expect(
-      definePages({ index: "/", entry: "/{slug}", title: "Pages" }),
+      definePages({ ...blog, index: "/", entry: "/{slug}" }),
     ).not.toThrow();
   });
 });
@@ -420,7 +419,7 @@ describe("agent Markdown for collection entries", () => {
 });
 
 describe("agent Markdown for a collection's index page", () => {
-  test("opens with the pages title, then links each entry's Markdown URL with its description", async () => {
+  test("opens with the index page's title, then links each entry's Markdown URL with its description", async () => {
     await writePost(
       "hello",
       "---\ntitle: Hello\ndescription: The first post.\n---\n\nHi.\n",
