@@ -40,3 +40,28 @@ test("a blog post's InstallBox becomes the npm install command", async () => {
   expect(markdown).toContain("```sh\nnpm install @qino/cms zod\n```");
   expect(markdown).not.toContain("<InstallBox");
 });
+
+test("no docs page or post keeps a component the maps replace", async () => {
+  const [nodes, postSlugs] = await Promise.all([
+    docsTree.getFlatTree(),
+    postCollection.getAllSlugs(),
+  ]);
+  const pages = await Promise.all([
+    ...nodes.map(async ({ slug }) => ({
+      url: docsTree.getMarkdownUrl(slug),
+      markdown: await docsTree.getAgentMarkdown(slug),
+    })),
+    ...postSlugs.map(async (slug) => ({
+      url: postCollection.getMarkdownUrl(slug),
+      markdown: await postCollection.getAgentMarkdown(slug),
+    })),
+  ]);
+
+  expect(
+    pages
+      .filter(({ markdown }) =>
+        /<(?:InstallBox|LinkGrid)\b/.test(markdown ?? ""),
+      )
+      .map(({ url }) => url),
+  ).toEqual([]);
+});
