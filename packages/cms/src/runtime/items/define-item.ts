@@ -26,6 +26,7 @@ import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
 import { buildViews } from "../../lib/views/build-views";
 import { selectView } from "../../lib/views/select-view";
+import type { AgentMarkdownConfig } from "../../types/agent-markdown";
 import type { ItemCloudConfig } from "../../types/cloud";
 import type {
   ExtractItemExtension,
@@ -92,6 +93,17 @@ export type DefineItemParams<
   cloud?: NoInfer<ItemCloudConfig<Schema>>;
   /** Where the item's entry page lives, such as `"/about"`, for agent Markdown and links. */
   page?: PagePath;
+  /** Configures the entry page's agent Markdown: how MDX components read. */
+  agentMarkdown?: NoInfer<
+    AgentMarkdownConfig<
+      ResolvedItemView<
+        Schema,
+        ExtractItemExtension<F>,
+        TaggedRelations<Rels, Media, Stats, Toc>
+      >
+    >
+  > &
+    NoInfer<CheckMarkdownConfig<ExtractItemExtension<F>>>;
 } & RootViewSettings;
 
 export function defineItem<
@@ -221,10 +233,11 @@ export function defineItem<
     const { siteUrl } = requirePages(resolvedPage, { owner, option: "page" });
     // Item views can't filter, so no view can exclude the entry.
     return buildAgentMarkdown({
-      entry: (await readEntry()) as Record<string, unknown>,
+      entry: await readEntry(),
       fallbackTitle: removeExtension(nodePath.basename(file)),
       extension,
       origin: siteUrl,
+      components: params.agentMarkdown?.components,
     });
   }
 

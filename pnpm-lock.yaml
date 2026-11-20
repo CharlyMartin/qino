@@ -355,6 +355,9 @@ importers:
       '@qino/tooling':
         specifier: workspace:*
         version: link:../tooling
+      '@types/estree':
+        specifier: 1.0.9
+        version: 1.0.9
       '@types/hast':
         specifier: 3.0.5
         version: 3.0.5

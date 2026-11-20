@@ -35,6 +35,7 @@ import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
 import { buildViews } from "../../lib/views/build-views";
 import { selectView } from "../../lib/views/select-view";
+import type { AgentMarkdownConfig } from "../../types/agent-markdown";
 import type {
   CollectionCloudConfig,
   DisplayEntryAsConfig,
@@ -121,6 +122,17 @@ export type DefineCollectionParams<
     DisplayEntryAsConfig<DisplayEntryAs, Schema>;
   /** Where the index page and entry pages live, for agent Markdown and links. */
   pages?: PagesConfig;
+  /** Configures the entry pages' agent Markdown: how MDX components read. */
+  agentMarkdown?: NoInfer<
+    AgentMarkdownConfig<
+      ResolvedCollectionView<
+        Schema,
+        Ext,
+        TaggedRelations<Rels, Media, Stats, Toc>
+      >
+    >
+  > &
+    NoInfer<CheckMarkdownConfig<Ext>>;
 } & RootViewSettings;
 
 export function defineCollection<
@@ -354,20 +366,23 @@ export function defineCollection<
     };
   }
 
-  // An entry through a view, and whether the view's filter excludes it.
+  // An entry through a view, as read before it, and whether the view's filter
+  // excludes it.
   async function readInView(
     slug: Slug,
     options: ViewArguments<ConfiguredViews<Views>>[0],
   ) {
     const view = selectView(views, options) as CollectionViewDefinition;
+    const read = await readEntry(slug);
     const [entry] = await applyView(
-      [await readEntry(slug)],
+      [read],
       view,
       collectionRelations,
       ctx.instanceId,
     );
     return {
       entry,
+      read,
       isExcluded: view.filter != null && !view.filter(entry as never),
     };
   }
@@ -420,14 +435,17 @@ export function defineCollection<
     // collection with `..`.
     if (!(await getAllSlugs()).includes(slug as SlugFor<Dir>)) return null;
 
-    const { entry, isExcluded } = await readInView(slug, options);
+    // The view only decides whether the entry shows: views add fields and
+    // resolve relations, but can't change the title, description or body.
+    const { read, isExcluded } = await readInView(slug, options);
     if (isExcluded) return null;
 
     return buildAgentMarkdown({
-      entry: entry as Record<string, unknown>,
+      entry: read,
       fallbackTitle: slug,
       extension,
       origin: siteUrl,
+      components: params.agentMarkdown?.components,
     });
   }
 
