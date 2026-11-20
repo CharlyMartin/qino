@@ -38,7 +38,7 @@ Scripts live in the root `package.json`. To run one in a single workspace packag
 A code change is done once it's in an open pull request. How it gets built depends on the change:
 
 - **Feature:** create the feature branch first (`ship` step 1), because `/implement` commits to the current branch. The user types each slash command; when one finishes, name the next: `/grill-with-docs` → `/to-spec` → `/to-tickets` → `/implement` → `/retro`. Apply the retro improvements the user picks, then continue below.
-  - Before `/implement`, read the parent ticket's "Decisions while implementing" comment. Add each decision you take that the spec doesn't cover, under the ticket's heading, and post the comment if there isn't one. A ticket without a parent records its decisions in its PR description. When the user changes a spec decision, edit the spec and the ticket to match.
+  - Before `/implement`, read the parent ticket's "Decisions while implementing" comment. Add each decision you take that the spec doesn't cover, under the ticket's heading, and post the comment if there isn't one. A ticket without a parent records its decisions in its PR description. When the user changes a spec decision, edit the spec and the ticket to match. A note you leave for a later ticket names the function or file to start from, and leaves the design to that ticket.
   - Ask the user before building a decision that changes the public surface, such as an option's default or an output format, or that changes what an earlier ticket shipped.
   - Run `/implement`'s `code-review` the way `ship`'s Review step describes.
 - **Bug fix:** fix it test-first with `tdd`; use `diagnosing-bugs` when the cause isn't obvious.
