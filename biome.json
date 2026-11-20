@@ -113,6 +113,34 @@
       }
     },
     {
+      "includes": [
+        "packages/cms/src/cli/build/**",
+        "!packages/cms/src/cli/build/write-generated-file.ts",
+        "!**/*.test.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "node:fs": "Write generated files with `writeGeneratedFile`, which skips unchanged ones.",
+                  "node:fs/promises": "Write generated files with `writeGeneratedFile`, which skips unchanged ones."
+                },
+                "patterns": [
+                  {
+                    "group": ["**/utils", "**/utils/index", "!**/types/utils"],
+                    "message": "Import internal helpers from their leaf modules."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "includes": ["packages/cms/src/types/**"],
       "linter": {
         "rules": {
