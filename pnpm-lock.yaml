@@ -385,6 +385,9 @@ importers:
       micromark-extension-mdxjs:
         specifier: 3.0.0
         version: 3.0.0
+      micromark-util-types:
+        specifier: 2.0.3
+        version: 2.0.3
       publint:
         specifier: 0.3.25
         version: 0.3.25
