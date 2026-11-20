@@ -215,6 +215,7 @@ export function defineTree<
       media,
       markdown,
       cloud,
+      ...(resolvedPages && { pages: resolvedPages, getListingSections }),
       readEntry,
     },
     getTree,
@@ -394,27 +395,10 @@ export function defineTree<
     });
     // Only a missing slug means the index page: `""` is a slug no node has.
     if (typeof slug == "undefined") {
-      const toLink = async (node: TreeNode) =>
-        toListingLink({
-          entry: (await readEntry(node.slug)) as Record<string, unknown>,
-          titleField,
-          fallbackTitle: node.slug,
-          url: getMarkdownUrl(node.slug as SlugFor<Dir>),
-        });
-      const sections = await Promise.all(
-        (await getTree()).map(async (root) => {
-          const [rootLink, descendantLinks] = await Promise.all([
-            toLink(root),
-            Promise.all(flattenTree(root.children).map(toLink)),
-          ]);
-          // The root node titles its section, then lists first.
-          return {
-            title: rootLink.title,
-            links: [rootLink, ...descendantLinks],
-          };
-        }),
-      );
-      return buildIndexAgentMarkdown({ title, sections });
+      return buildIndexAgentMarkdown({
+        title,
+        sections: await getListingSections(),
+      });
     }
 
     // Only a listed slug reads a file: a route param can't reach past the
@@ -432,6 +416,28 @@ export function defineTree<
       origin: siteUrl,
       replacement: { components: params.agentMarkdown?.components, entry },
     });
+  }
+
+  // A section per root node, listing it and then its descendants, in tree
+  // order: the index page's and `llms.txt`'s.
+  async function getListingSections() {
+    const toLink = async (node: TreeNode) =>
+      toListingLink({
+        entry: (await readEntry(node.slug)) as Record<string, unknown>,
+        titleField,
+        fallbackTitle: node.slug,
+        url: getMarkdownUrl(node.slug as SlugFor<Dir>),
+      });
+    return Promise.all(
+      (await getTree()).map(async (root) => {
+        const [rootLink, descendantLinks] = await Promise.all([
+          toLink(root),
+          Promise.all(flattenTree(root.children).map(toLink)),
+        ]);
+        // The root node titles its section, then lists first.
+        return { title: rootLink.title, links: [rootLink, ...descendantLinks] };
+      }),
+    );
   }
 
   function getMarkdownUrl(slug?: SlugFor<Dir>) {

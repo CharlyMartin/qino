@@ -6,6 +6,7 @@ import {
   QinoPrimitives,
 } from "../../data/globals";
 import { buildAgentMarkdown } from "../../lib/agent-markdown/build-agent-markdown";
+import { toListingLink } from "../../lib/agent-markdown/to-listing-link";
 import type { DependencyCollector } from "../../lib/cache/create-dependency-collector";
 import { createFileCache } from "../../lib/cache/create-file-cache";
 import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
@@ -165,6 +166,7 @@ export function defineItem<
       media,
       markdown,
       cloud,
+      ...(resolvedPage && { page: resolvedPage, getListingLink }),
       readEntry,
     },
     getEntry,
@@ -239,6 +241,15 @@ export function defineItem<
       extension,
       origin: siteUrl,
       replacement: { components: params.agentMarkdown?.components, entry },
+    });
+  }
+
+  // The item's link in `llms.txt`'s `## Pages` section.
+  async function getListingLink() {
+    return toListingLink({
+      entry: (await readEntry()) as Record<string, unknown>,
+      fallbackTitle: removeExtension(nodePath.basename(file)),
+      url: getMarkdownUrl(),
     });
   }
 

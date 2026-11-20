@@ -15,3 +15,15 @@ export type PagesConfig = {
   /** Whether `llms-full.txt` holds the entry pages. Defaults to `true`. */
   readonly llmsFull?: boolean;
 };
+
+/** `pages` once checked: the index page's title on one line, and the site's URL. */
+export type ResolvedPages = PagesConfig & {
+  readonly title: string;
+  readonly siteUrl: string;
+};
+
+/** An item's `page` once checked, with the site's URL. */
+export type ResolvedItemPage = {
+  readonly page: PagePath;
+  readonly siteUrl: string;
+};

@@ -6,6 +6,7 @@ import type { AnyItem } from "../../types/item";
 import type { AnyTree } from "../../types/tree";
 import { generateConfigFile } from "./generate-config-file";
 import { generateTypes } from "./generate-types";
+import { writeLlmsTxt } from "./write-llms-txt";
 
 type BuildParams = {
   context: QinoContext;
@@ -32,4 +33,6 @@ export async function build(
   if (context.cloud && !isConfigFileChecked) {
     await generateConfigFile({ context, collections, items, trees });
   }
+
+  await writeLlmsTxt({ context, collections, items, trees });
 }

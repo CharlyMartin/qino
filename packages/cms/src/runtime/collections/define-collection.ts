@@ -212,6 +212,7 @@ export function defineCollection<
       media,
       markdown,
       cloud,
+      ...(resolvedPages && { pages: resolvedPages, getListingSections }),
       readEntries,
       readEntry,
     },
@@ -419,16 +420,7 @@ export function defineCollection<
     });
     // Only a missing slug means the index page: `""` is a slug no entry has.
     if (typeof slug == "undefined") {
-      const entries = await getEntries();
-      const links = entries.map((entry) => {
-        const entrySlug = getEntrySlug(entry);
-        return toListingLink({
-          entry,
-          fallbackTitle: entrySlug,
-          url: getMarkdownUrl(entrySlug as SlugFor<Dir>),
-        });
-      });
-      return buildIndexAgentMarkdown({ title, links });
+      return buildIndexAgentMarkdown({ title, links: await listLinks() });
     }
 
     // Only a listed slug reads a file: a route param can't reach past the
@@ -448,6 +440,26 @@ export function defineCollection<
         entry: entryAsRead,
       },
     });
+  }
+
+  // The index page's links, in default-view order.
+  async function listLinks() {
+    const entries = await getEntries();
+    return entries.map((entry) => {
+      const entrySlug = getEntrySlug(entry);
+      return toListingLink({
+        entry,
+        fallbackTitle: entrySlug,
+        url: getMarkdownUrl(entrySlug as SlugFor<Dir>),
+      });
+    });
+  }
+
+  // `llms.txt`'s section: the index page's links under its title, or none.
+  async function getListingSections() {
+    const { title } = requirePages(resolvedPages, { owner, option: "pages" });
+    const links = await listLinks();
+    return links.length > 0 ? [{ title, links }] : [];
   }
 
   function getMarkdownUrl(slug?: SlugFor<Dir>) {

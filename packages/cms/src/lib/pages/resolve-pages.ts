@@ -1,4 +1,4 @@
-import type { PagesConfig } from "../../types/pages";
+import type { PagesConfig, ResolvedPages } from "../../types/pages";
 import { toOneLine } from "../agent-markdown/to-one-line";
 import { describePagePathError } from "./describe-page-path-error";
 
@@ -38,5 +38,5 @@ export function resolvePages({ pages, siteUrl, owner }: ResolvePagesParams) {
       : 'pages.title must name the index page, such as "Blog".');
   if (error) throw new Error(`${owner}: ${error}`);
 
-  return { ...pages, title, siteUrl };
+  return { ...pages, title, siteUrl } satisfies ResolvedPages;
 }
