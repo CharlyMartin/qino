@@ -13,7 +13,12 @@ describe("buildAgentMarkdown", () => {
     };
 
     expect(
-      buildAgentMarkdown({ entry, slug: "hello", extension: ".md", origin }),
+      buildAgentMarkdown({
+        entry,
+        fallbackTitle: "hello",
+        extension: ".md",
+        origin,
+      }),
     ).toBe(
       "# Hello\n\n> A first post.\n\nSee [the guide](https://example.com/docs/guide).\n",
     );
@@ -27,7 +32,12 @@ describe("buildAgentMarkdown", () => {
     };
 
     expect(
-      buildAgentMarkdown({ entry, slug: "hello", extension: ".md", origin }),
+      buildAgentMarkdown({
+        entry,
+        fallbackTitle: "hello",
+        extension: ".md",
+        origin,
+      }),
     ).toBe("# Hello, world\n\nBody.\n");
   });
 
@@ -35,7 +45,12 @@ describe("buildAgentMarkdown", () => {
     const entry = { title: "Jane", markdown: "Data, not a body." };
 
     expect(
-      buildAgentMarkdown({ entry, slug: "jane", extension: ".json", origin }),
+      buildAgentMarkdown({
+        entry,
+        fallbackTitle: "jane",
+        extension: ".json",
+        origin,
+      }),
     ).toBe("# Jane\n");
   });
 
@@ -47,7 +62,7 @@ describe("buildAgentMarkdown", () => {
       expect(
         buildAgentMarkdown({
           entry,
-          slug: "untitled",
+          fallbackTitle: "untitled",
           extension: ".md",
           origin,
         }),
@@ -59,7 +74,12 @@ describe("buildAgentMarkdown", () => {
     const entry = { title: "Hello", description: "Some text.\n" };
 
     expect(
-      buildAgentMarkdown({ entry, slug: "hello", extension: ".md", origin }),
+      buildAgentMarkdown({
+        entry,
+        fallbackTitle: "hello",
+        extension: ".md",
+        origin,
+      }),
     ).toBe("# Hello\n\n> Some text.\n");
   });
 
@@ -69,7 +89,12 @@ describe("buildAgentMarkdown", () => {
       const entry = { title: "Hello", description };
 
       expect(
-        buildAgentMarkdown({ entry, slug: "hello", extension: ".md", origin }),
+        buildAgentMarkdown({
+          entry,
+          fallbackTitle: "hello",
+          extension: ".md",
+          origin,
+        }),
       ).toBe("# Hello\n");
     },
   );

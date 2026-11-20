@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { initQino } from "../runtime/qino/init-qino";
 
-const { defineCollection } = initQino({
+const { defineCollection, defineItem, defineTree } = initQino({
   contentFolder: "src/content",
   mediaFolder: "public",
   siteUrl: "https://example.com",
@@ -72,5 +72,69 @@ describe("getMarkdownUrl", () => {
     expectTypeOf(
       postCollection.getMarkdownUrl("hello"),
     ).toEqualTypeOf<string>();
+  });
+});
+
+const docsTree = defineTree({
+  directory: "docs",
+  schema: z.object({ label: z.string() }),
+  extension: ".mdx",
+  titleField: "label",
+  pages: { index: "/docs", entry: "/docs/{slug}" },
+});
+
+const aboutItem = defineItem({
+  file: "about.md",
+  schema: z.object({ title: z.string() }),
+  page: "/about",
+});
+
+describe("pages on trees and items", () => {
+  test("are accepted on trees", () => {
+    expectTypeOf(docsTree.getAgentMarkdown("guide/cli")).toEqualTypeOf<
+      Promise<string | null>
+    >();
+    expectTypeOf(docsTree.getMarkdownUrl("guide/cli")).toEqualTypeOf<string>();
+  });
+
+  test("are rejected on items, which take a page", () => {
+    defineItem({
+      file: "about.md",
+      schema: z.object({}),
+      // @ts-expect-error: items take `page`
+      pages: { index: "/about", entry: "/about/{slug}" },
+    });
+  });
+
+  test("give items agent Markdown and a Markdown URL without a slug", () => {
+    expectTypeOf(aboutItem.getAgentMarkdown()).toEqualTypeOf<Promise<string>>();
+    expectTypeOf(aboutItem.getMarkdownUrl()).toEqualTypeOf<string>();
+  });
+
+  test("take page on items only", () => {
+    defineCollection({
+      directory: "notes",
+      schema: z.object({}),
+      extension: ".md",
+      // @ts-expect-error: collections take `pages`
+      page: "/notes",
+    });
+    defineTree({
+      directory: "guides",
+      schema: z.object({ label: z.string() }),
+      extension: ".mdx",
+      titleField: "label",
+      // @ts-expect-error: trees take `pages`
+      page: "/guides",
+    });
+  });
+
+  test("reject an item page without a leading /", () => {
+    defineItem({
+      file: "about.md",
+      schema: z.object({}),
+      // @ts-expect-error: the page starts with "/"
+      page: "about",
+    });
   });
 });

@@ -1,0 +1,34 @@
+import type { PagePath } from "../../types/pages";
+import { describePagePathError } from "./describe-page-path-error";
+
+type ResolveItemPageParams = {
+  page: PagePath | undefined;
+  siteUrl: string | undefined;
+  /** Names the item in messages, such as `Item "about.md"`. */
+  owner: string;
+};
+
+/**
+ * Checks an item's `page` when the item is defined, so a bad path fails
+ * before any link, and returns it with the `siteUrl` it needs.
+ */
+export function resolveItemPage({
+  page,
+  siteUrl,
+  owner,
+}: ResolveItemPageParams) {
+  if (!page) return undefined;
+  if (!siteUrl) {
+    throw new Error(
+      `${owner} declares a page, so initQino needs a siteUrl, such as "https://example.com".`,
+    );
+  }
+
+  const error = describePagePathError(page, {
+    label: "page",
+    takesSlug: false,
+  });
+  if (error) throw new Error(`${owner}: ${error}`);
+
+  return { page, siteUrl };
+}

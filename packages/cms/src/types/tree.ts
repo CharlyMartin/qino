@@ -110,6 +110,16 @@ export type Tree<
   getAncestorNodes(slug: SlugFor<Dir>): Promise<Array<TreeNode>>;
   getNextNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
   getPreviousNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
+  /**
+   * An entry page's agent Markdown, or `null` when the slug names no node.
+   * Takes any string, such as a route param.
+   */
+  getAgentMarkdown(slug: Slug): Promise<string | null>;
+  /**
+   * An entry page's Markdown URL: its URL on `siteUrl`, without a trailing
+   * `/`, with `.md` appended.
+   */
+  getMarkdownUrl(slug: SlugFor<Dir>): string;
 };
 
 // An entry as read, before a view resolves its relations.
