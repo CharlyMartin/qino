@@ -65,6 +65,8 @@ export const SUPPORTED_CODE_EXTENSIONS = [
   ".js",
   ".mjs",
 ] as const;
+/** A test file's name, such as `posts.test.ts`: definitions can sit beside their tests. */
+export const TEST_FILE_NAME = /\.(?:test|test-d|spec)\./;
 
 export const QinoPrimitives = {
   collection: "collection",

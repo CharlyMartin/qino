@@ -41,7 +41,7 @@ The CLI fails with a clear message when the default export is not an `initQino` 
 
 ## Definition files
 
-Each definition is a named export from any `.ts`, `.tsx`, `.js`, or `.mjs` file under `qino/`. The CLI globs the folder and picks up every export created by `defineCollection`, `defineTree`, or `defineItem`. Nothing needs to be registered by hand. Test files are skipped, so `*.test.*`, `*.test-d.*` and `*.spec.*` can sit beside the definitions they test.
+Each definition is a named export from any `.ts`, `.tsx`, `.js`, or `.mjs` file under `qino/`. The CLI globs the folder and picks up every export created by `defineCollection`, `defineTree`, or `defineItem`. Nothing needs to be registered by hand. Test files, named `*.test.*`, `*.test-d.*`, or `*.spec.*`, are skipped, so they can sit beside the definitions they test.
 
 Grouping by primitive (`collections/`, `trees/`, `items/`) is the layout used by the reference example. It is a convention, not a requirement.
 
