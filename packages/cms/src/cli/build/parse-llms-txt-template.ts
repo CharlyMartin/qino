@@ -14,7 +14,6 @@ export function parseLlmsTxtTemplate(template: string) {
     .replace(/^(?:[ \t]*\n)+/, "");
   const blocks = parseMarkdownBody(text, {
     mdx: false,
-    headingIds: true,
   }).children;
   return { text, blocks };
 }

@@ -3,7 +3,7 @@ import { normalizeMarkdownProse } from "./normalize-markdown-prose";
 import { parseMarkdownBody } from "./parse-markdown-body";
 
 export function getMarkdownProse(body: string) {
-  // With heading ids, `{#id}` is left out and doesn't break the MDX parse.
-  const tree = parseMarkdownBody(body, { headingIds: true });
+  // `{#id}` parses to a `headingId` node, not text, so it isn't prose.
+  const tree = parseMarkdownBody(body);
   return normalizeMarkdownProse(getMarkdownNodeProse(tree));
 }
