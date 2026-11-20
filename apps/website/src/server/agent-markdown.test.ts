@@ -41,7 +41,11 @@ test("a blog post's InstallBox becomes the npm install command", async () => {
   expect(markdown).not.toContain("<InstallBox");
 });
 
-test("no docs page or post keeps InstallBox or LinkGrid", async () => {
+// Components agents get as written. A new one in the content fails the test
+// below until it's mapped in `qino/` or listed here.
+const keptComponents = ["Callout"];
+
+test("pages keep only the components listed as kept", async () => {
   const [nodes, postSlugs] = await Promise.all([
     docsTree.getFlatTree(),
     postCollection.getAllSlugs(),
@@ -57,12 +61,14 @@ test("no docs page or post keeps InstallBox or LinkGrid", async () => {
     })),
   ]);
 
-  expect(
-    pages
-      .filter(
-        ({ markdown }) =>
-          markdown == null || /<(?:InstallBox|LinkGrid)\b/.test(markdown),
-      )
-      .map(({ url }) => url),
-  ).toEqual([]);
+  const kept = new Set<string>();
+  for (const { url, markdown } of pages) {
+    expect(markdown, url).not.toBeNull();
+    // Code shows components as examples, and TypeScript generics look like tags.
+    const prose = (markdown ?? "")
+      .replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1[ \t]*$/gm, "")
+      .replace(/(`+)[^\n]*?\1/g, "");
+    for (const [, name] of prose.matchAll(/<([A-Z][\w.]*)/g)) kept.add(name);
+  }
+  expect([...kept].sort()).toEqual(keptComponents);
 });
