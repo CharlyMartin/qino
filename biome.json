@@ -95,6 +95,28 @@
       }
     },
     {
+      "includes": [
+        "packages/tooling/src/**",
+        "!packages/tooling/src/media/scan-markdown-body.ts",
+        "!**/*.test.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "remark-mdx": "Parse MDX with `scanMarkdownBody`, which reads `{#id}` heading ids: MDX fails on them otherwise.",
+                  "micromark-extension-mdxjs": "Parse MDX with `scanMarkdownBody`, which reads `{#id}` heading ids: MDX fails on them otherwise."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "includes": ["packages/cms/src/**", "!packages/cms/src/index.ts"],
       "linter": {
         "rules": {
