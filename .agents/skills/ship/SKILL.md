@@ -91,3 +91,5 @@ The quoted heredoc keeps backticks in the body from running as shell commands.
 ## 6. Report
 
 The PR URL, the list of commits, and the branch name.
+
+When the PR changes `apps/website`, check its Vercel preview first: wait for the PR's checks with `gh pr checks <number> --watch`, then run `apps/website/scripts/probe-agent-markdown.sh` against the preview URL from the Vercel bot's comment. Only the preview runs the deployed function and serves the prerendered files, so report each failure with the PR.
