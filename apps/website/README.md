@@ -57,9 +57,13 @@ SEO and LLM endpoints:
   `src/lib/get-page-head.ts`. The site URL lives in `src/lib/site.ts`.
 - The build writes `sitemap.xml`; `public/robots.txt` points to it.
 - `/llms.txt` and `/llms-full.txt` are generated from the docs tree and prerendered.
-- `/docs/<slug>.md` returns a page as plain Markdown (`src/server/get-docs-markdown.ts`).
-  Pages with a "View Markdown" link are prerendered through the crawler; section
-  landings are served by the Start runtime. Both stay out of the sitemap.
+- Docs pages, blog posts, `/docs` and `/blog` serve qino's agent Markdown at their
+  Markdown URL (`/docs/<slug>.md`, `/blog/<slug>.md`, `/docs.md`, `/blog.md`), or
+  when `Accept` prefers `text/markdown`, through `negotiateMarkdown`. Their
+  `pages` and the `InstallBox` and `LinkGrid` replacements live in `qino/`, and
+  each page advertises its Markdown URL with `<link rel="alternate">`. Pages with
+  a "View Markdown" link are prerendered through the crawler; the rest are served
+  by the Start runtime. Both stay out of the sitemap.
 - `public/og.png` (1200×630), `public/favicon.svg` and `public/apple-touch-icon.png`
   are referenced from the root route.
 

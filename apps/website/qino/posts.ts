@@ -18,6 +18,7 @@ export const postCollection = qino.defineCollection({
     .strict()
     .transform((post) => camelcaseKeys(post)),
   markdown: { stats: true },
+  pages: { index: "/blog", entry: "/blog/{slug}", title: "Blog" },
   relations: {
     author: authorCollection,
   },
