@@ -74,5 +74,6 @@ Checks:
 ```sh
 pnpm --filter website check-types
 pnpm --filter website test
+apps/website/scripts/probe-agent-markdown.sh http://localhost:3000   # against a running dev server
 pnpm biome check .
 ```
