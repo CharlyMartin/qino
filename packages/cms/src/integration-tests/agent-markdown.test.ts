@@ -283,6 +283,18 @@ describe("agent Markdown for collection entries", () => {
     );
   });
 
+  test("adds no heading when the body's H1 comes after a comment", async () => {
+    await writePost(
+      "commented",
+      "---\ntitle: Hello\n---\n\n<!-- note -->\n\n# Own title\n\nBody.\n",
+    );
+    const { posts } = setup();
+
+    expect(await posts.getAgentMarkdown("commented")).toBe(
+      "<!-- note -->\n\n# Own title\n\nBody.\n",
+    );
+  });
+
   test("reads an MDX body's H1 past its imports", async () => {
     await fs.mkdir(nodePath.join(tmp, "docs"));
     await fs.writeFile(
