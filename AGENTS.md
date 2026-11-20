@@ -48,7 +48,7 @@ Two rules for every `/implement`:
 
 Then go through these steps in order, without asking the user between them:
 
-1. Get the checks green: `pnpm test`, `pnpm check-types` and `pnpm biome check .`.
+1. Get the checks green: `pnpm test`, `pnpm check-types`, `pnpm biome check .` and `pnpm knip`.
 2. Run the `ship` skill. It commits, then reviews what `/implement` didn't, before opening the PR.
 
 ## Agent skills

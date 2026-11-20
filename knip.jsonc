@@ -1,0 +1,27 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  // Third-party skills, installed from skills-lock.json.
+  "ignore": [".agents/**"],
+  "ignoreExportsUsedInFile": true,
+  "workspaces": {
+    "packages/cms": {
+      // Vitest runs these through its typecheck setting, not as test files.
+      "entry": ["src/**/*.test-d.ts"],
+      "ignoreDependencies": [
+        // The bundled @qino/tooling imports them: as dependencies, they stay
+        // external instead of being inlined into dist.
+        "htmlparser2",
+        "js-yaml",
+        // The build resolves it through tsdown's install, on purpose.
+        "rolldown"
+      ]
+    },
+    // qino's CLI imports every export under qino/ to discover primitives.
+    "apps/website": {
+      "entry": ["qino/**/*.ts"]
+    },
+    "examples/*": {
+      "entry": ["qino/**/*.ts"]
+    }
+  }
+}
