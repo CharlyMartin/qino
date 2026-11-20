@@ -1,9 +1,8 @@
+import { micromarkHeadingId } from "@qino/tooling/markdown";
 import { parse, postprocess, preprocess } from "micromark";
 import { gfm } from "micromark-extension-gfm";
 import { mdxjs } from "micromark-extension-mdxjs";
 import type { Extension } from "micromark-util-types";
-
-import { micromarkHeadingId } from "./micromark-heading-id";
 
 type TokenizeMarkdownBodyOptions = {
   /** Parses MDX, falling back to Markdown when it fails. */
