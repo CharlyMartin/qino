@@ -37,14 +37,14 @@ Scripts live in the root `package.json`. To run one in a single workspace packag
 
 A code change is done once it's in an open pull request. How it gets built depends on the change:
 
-- **Feature:** create the feature branch first (`ship` step 1), because `/implement` commits to the current branch. The user types each slash command; when one finishes, name the next: `/grill-with-docs` → `/to-spec` → `/to-tickets` → `/implement` → `/retro`. Apply the retro improvements the user picks, then continue below.
+- **Feature:** create the feature branch first (`ship` step 1), because `/implement` commits to the current branch. The user types each slash command; when one finishes, name the next: `/grill-with-docs` → `/to-spec` → `/to-tickets` → `/implement` → `/retro`. `/implement` drives `/tdd` and ends with a `/code-review`. Apply the retro improvements the user picks, then continue below.
 - **Bug fix:** fix it test-first with `tdd`; use `diagnosing-bugs` when the cause isn't obvious.
 - **Docs-only or trivial changes, and changes the user wants to try out without committing:** stop once the checks are green.
 
 Then go through these steps in order, without asking the user between them:
 
 1. Get the checks green: `pnpm test`, `pnpm check-types` and `pnpm biome check .`.
-2. Run the `codex-review` skill until the review is clean. If it ends not clean, stop and report to the user.
+2. Review the change with the `code-review` skill, unless `/implement` already did. Fix each finding or skip it with a reason, then get the checks green again.
 3. Run the `ship` skill.
 
 ## Agent skills
