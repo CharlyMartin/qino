@@ -24,6 +24,10 @@
     "./media": {
       "types": "./src/media/index.ts",
       "default": "./src/media/index.ts"
+    },
+    "./markdown": {
+      "types": "./src/markdown/index.ts",
+      "default": "./src/markdown/index.ts"
     }
   },
   "files": [
@@ -39,7 +43,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "biome check .",
-    "check-dist": "node --input-type=module -e \"await import('./dist/index.mjs'); await import('./dist/frontmatter.mjs'); await import('./dist/relations.mjs'); await import('./dist/media.mjs')\" && publint && pnpm pack --out .check-dist.tgz && attw .check-dist.tgz --profile esm-only; status=$?; node -e \"require('node:fs').rmSync('.check-dist.tgz',{force:true})\"; exit $status"
+    "check-dist": "node --input-type=module -e \"await import('./dist/index.mjs'); await import('./dist/frontmatter.mjs'); await import('./dist/relations.mjs'); await import('./dist/media.mjs'); await import('./dist/markdown.mjs')\" && publint && pnpm pack --out .check-dist.tgz && attw .check-dist.tgz --profile esm-only; status=$?; node -e \"require('node:fs').rmSync('.check-dist.tgz',{force:true})\"; exit $status"
   },
   "publishConfig": {
     "access": "public",
@@ -59,6 +63,10 @@
       "./media": {
         "types": "./dist/media.d.mts",
         "import": "./dist/media.mjs"
+      },
+      "./markdown": {
+        "types": "./dist/markdown.d.mts",
+        "import": "./dist/markdown.mjs"
       }
     }
   },
@@ -69,7 +77,8 @@
     "mdast-util-gfm": "3.1.0",
     "mdast-util-mdx": "3.0.0",
     "micromark-extension-gfm": "3.0.0",
-    "micromark-extension-mdxjs": "3.0.0"
+    "micromark-extension-mdxjs": "3.0.0",
+    "micromark-util-types": "2.0.3"
   },
   "peerDependencies": {
     "zod": "^4.6.5"

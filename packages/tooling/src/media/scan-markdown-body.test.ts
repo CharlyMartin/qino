@@ -163,6 +163,12 @@ describe("scanMarkdownBody", () => {
     ).toEqual(["/e.png", "/f.png"]);
   });
 
+  test("reads MDX with {#id} heading ids, as qino does", () => {
+    expect(
+      mdx('## Install {#install}\n\n![a](/a.png)\n\n<Image src="/b.png" />'),
+    ).toEqual(["/a.png", "/b.png"]);
+  });
+
   test("throws on invalid MDX", () => {
     expect(() => mdx("<Image src=")).toThrow();
   });
