@@ -2,7 +2,6 @@ qino/_generated/
 *.tsbuildinfo
 .nitro/
 .output/
-# Written by qino build from content/llms.md.
 public/llms.txt
 public/llms-full.txt
 public/index.md
