@@ -47,14 +47,20 @@ describe("readImageManifest", () => {
     });
   });
 
-  test.each(["{ nope", "[]", "null"])(
-    "fails on %j, naming the file and qino build",
-    async (data) => {
-      await fs.writeFile(manifestPath, data);
+  test.each([
+    "{ nope",
+    "[]",
+    "null",
+    '{ "/a.png": null }',
+    '{ "/a.png": {} }',
+    '{ "/a.png": { "size": "120", "width": 4, "height": 2 } }',
+    '{ "/a.png": { "size": 120, "width": 4, "height": 2, "blurDataURL": 5 } }',
+    '{ "/a.png": { "size": 120, "width": 4, "height": 2, "blurWidth": "8" } }',
+  ])("fails on %j, naming the file and qino build", async (data) => {
+    await fs.writeFile(manifestPath, data);
 
-      await expect(readImageManifest(manifestPath)).rejects.toThrow(
-        `"${manifestPath}" isn't a valid image manifest. Run \`qino build\` to write it again.`,
-      );
-    },
-  );
+    await expect(readImageManifest(manifestPath)).rejects.toThrow(
+      `"${manifestPath}" isn't a valid image manifest. Run \`qino build\` to write it again.`,
+    );
+  });
 });

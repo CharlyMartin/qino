@@ -1,8 +1,6 @@
-import { isPlainObject } from "es-toolkit";
-
-import type { ImageManifest } from "../../types/media";
 import type { DependencyCollector } from "../cache/create-dependency-collector";
 import { createFileCache } from "../cache/create-file-cache";
+import { isImageManifest } from "../guards/is-image-manifest";
 
 // One per process, like decoded images: reloaded when `qino build` rewrites it.
 const fileCache = createFileCache();
@@ -22,7 +20,7 @@ export async function readImageManifest(
       async (data) => {
         try {
           const manifest: unknown = JSON.parse(data);
-          if (isPlainObject(manifest)) return manifest as ImageManifest;
+          if (isImageManifest(manifest)) return manifest;
         } catch {}
         throw new Error(
           `"${manifestPath}" isn't a valid image manifest. Run \`qino build\` to write it again.`,
