@@ -37,10 +37,10 @@ describe("readFileVersionSync", () => {
     expect(readFileVersionSync(filePath)).not.toBe(before);
   });
 
-  test("returns undefined for a missing file", () => {
-    expect(
-      readFileVersionSync(nodePath.join(tmp, "missing.md")),
-    ).toBeUndefined();
+  test("returns the absent version for a missing file", () => {
+    expect(readFileVersionSync(nodePath.join(tmp, "missing.md"))).toBe(
+      "absent",
+    );
   });
 
   test("returns undefined when the stat fails for another reason", () => {

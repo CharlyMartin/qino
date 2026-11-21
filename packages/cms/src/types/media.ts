@@ -89,6 +89,15 @@ export type QinoImage = {
   blurHeight?: number;
 };
 
+/** What `qino build` records of an image: its `QinoImage` data and its size. */
+export type RecordedImage = Omit<QinoImage, "src"> & {
+  /** In bytes, checked against each field's `maxSize`. */
+  size: number;
+};
+
+/** Images keyed by their URL in `mediaFolder`, normalized. */
+export type ImageManifest = Record<string, RecordedImage>;
+
 /** Paths of `media` whose `accepted` type is an image. */
 export type ImagePaths<Media> = {
   [K in keyof Media & string]: Media[K] extends {

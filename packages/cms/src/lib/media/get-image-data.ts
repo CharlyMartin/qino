@@ -11,6 +11,7 @@ import type { QinoImage } from "../../types/media";
 import { createInFlightCache } from "../cache/create-in-flight-cache";
 import { type FileObservation, observeFile } from "../cache/observe-file";
 import { isImageMediaType } from "./is-image-media-type";
+import { loadSharp } from "./load-sharp";
 
 type ImageData = Omit<QinoImage, "src">;
 
@@ -60,7 +61,7 @@ async function readImageData(filePath: string) {
     throw new Error(`"${filePath}" isn't an image.`);
   }
 
-  const { default: sharp } = await import("sharp");
+  const sharp = await loadSharp();
   const { autoOrient } = await sharp(filePath).metadata();
   const { width, height } = autoOrient;
 
