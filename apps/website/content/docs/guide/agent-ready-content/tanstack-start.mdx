@@ -9,13 +9,13 @@ A TanStack Start route can answer a request in its server handler before the pag
 
 The route's param holds the slug. For a Markdown URL such as `/blog/hello-world.md` it ends in `.md`, and the prerender crawler can add a trailing `/`, so strip both:
 
-```ts title="src/lib/to-entry-slug.ts"
+```ts title="src/lib/to-entry-slug.ts" source="apps/website/src/lib/to-entry-slug.ts"
 export function toEntrySlug(param: string) {
   return param.replace(/\/$/, "").replace(/\.md$/, "");
 }
 ```
 
-```tsx title="src/routes/blog.$slug.tsx"
+```tsx title="src/routes/blog.$slug.tsx" source="apps/website/src/routes/blog.$slug.tsx"
 import { negotiateMarkdown } from "@qino/cms";
 import { createFileRoute } from "@tanstack/react-router";
 
@@ -32,7 +32,7 @@ export const Route = createFileRoute("/blog/$slug")({
         )) ?? next(),
     },
   },
-  component: PostPage,
+  component: BlogPostPage,
 });
 ```
 
@@ -42,7 +42,7 @@ One handler serves the page and its Markdown URL, since a path ending in `.md` a
 
 The index page negotiates the same way, with `getAgentMarkdown()` and no slug:
 
-```tsx title="src/routes/blog.index.tsx"
+```tsx title="src/routes/blog.index.tsx" source="apps/website/src/routes/blog.index.tsx"
 export const Route = createFileRoute("/blog/")({
   server: {
     handlers: {
@@ -58,7 +58,7 @@ export const Route = createFileRoute("/blog/")({
 
 Its Markdown URL, `/blog.md`, matches no page route, so it needs a route of its own. The route has no component to fall through to. A path ending in `.md` always gets Markdown, so the helper below redirects `/blog.md/` to `/blog.md` first, as the router redirects other pages' trailing slashes:
 
-```ts title="src/server/serve-index-agent-markdown.ts"
+```ts title="src/server/serve-index-agent-markdown.ts" source="apps/website/src/server/serve-index-agent-markdown.ts"
 import { type LoadAgentMarkdown, negotiateMarkdown } from "@qino/cms";
 
 export async function serveIndexAgentMarkdown(
@@ -79,7 +79,7 @@ export async function serveIndexAgentMarkdown(
 }
 ```
 
-```ts title="src/routes/blog[.]md.ts"
+```ts title="src/routes/blog[.]md.ts" source="apps/website/src/routes/blog[.]md.ts"
 import { createFileRoute } from "@tanstack/react-router";
 
 import { postCollection } from "../../qino/posts";
@@ -101,7 +101,7 @@ export const Route = createFileRoute("/blog.md")({
 
 A request for Markdown on a path no route answers, such as `/nope`, should get a Markdown 404 too. Two global request middlewares in `src/start.ts` handle it:
 
-```ts title="src/start.ts"
+```ts title="src/start.ts" source="apps/website/src/start.ts"
 import { createCsrfMiddleware, createStart } from "@tanstack/react-start";
 
 import { htmlFallbackMiddleware } from "./server/html-fallback-middleware";
@@ -123,7 +123,7 @@ Setting `requestMiddleware` replaces Start's default CSRF middleware for server 
 
 Start answers `406 Not Acceptable` to a page request whose `Accept` header names neither `text/html` nor `*/*`, such as `Accept: text/markdown` alone, before any route or 404 runs. The first middleware adds `*/*;q=0`, so those requests reach their route, or the 404, instead. It never changes what `negotiateMarkdown` picks. Start reads the original request, so the header is changed in place:
 
-```ts title="src/server/html-fallback-middleware.ts"
+```ts title="src/server/html-fallback-middleware.ts" source="apps/website/src/server/html-fallback-middleware.ts"
 import { createMiddleware } from "@tanstack/react-start";
 
 // Start's own test: a page renders only when `Accept` names HTML or `*/*`.
@@ -142,7 +142,7 @@ export const htmlFallbackMiddleware = createMiddleware().server(
 
 The second turns a 404 into the Markdown 404 when the request wants Markdown. Its loader returns `null`, so `negotiateMarkdown` answers with its 404:
 
-```ts title="src/server/markdown-not-found-middleware.ts"
+```ts title="src/server/markdown-not-found-middleware.ts" source="apps/website/src/server/markdown-not-found-middleware.ts"
 import { negotiateMarkdown } from "@qino/cms";
 import { createMiddleware } from "@tanstack/react-start";
 

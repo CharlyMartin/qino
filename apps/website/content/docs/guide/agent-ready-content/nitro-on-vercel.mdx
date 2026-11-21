@@ -14,7 +14,7 @@ Each page gets two routes:
 - A header route with `continue: true` adds `Vary: Accept` and a `Link` header naming the Markdown URL, then lets routing go on.
 - A rewrite conditioned on the `Accept` header sends Markdown requests to the Markdown URL. With `check: true`, a Markdown URL that wasn't prerendered falls through to the server function, which answers it with `negotiateMarkdown`.
 
-```ts title="src/lib/vercel-markdown-routes.ts"
+```ts title="src/lib/vercel-markdown-routes.ts" source="apps/website/src/lib/vercel-markdown-routes.ts"
 // A range's parameters other than q, whose quoted values can hold `,` and `;`,
 // and RFC 9110's qvalue above 0.
 const OTHER_PARAMS = String.raw`(?:\s*;(?!\s*[qQ]\s*=)(?:[^;,"]|"(?:[^"\\]|\\.)*")*)*`;

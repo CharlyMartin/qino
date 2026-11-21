@@ -9,7 +9,7 @@ A Next.js page can't fall through to another handler, so Markdown requests go to
 
 The route handlers live under `/md`, a path no page uses. A rewritten request keeps its own URL, such as `/posts/hello-world`, so the helper reads it as the page's Markdown URL. That way it always answers Markdown, even when the rewrite let through an `Accept` header that prefers HTML:
 
-```ts title="src/lib/serve-agent-markdown.ts"
+```ts title="src/lib/serve-agent-markdown.ts" source="examples/next-js/src/lib/serve-agent-markdown.ts"
 import { type LoadAgentMarkdown, negotiateMarkdown } from "@qino/cms";
 
 export async function serveAgentMarkdown(
@@ -27,7 +27,7 @@ export async function serveAgentMarkdown(
 }
 ```
 
-```ts title="src/app/md/posts/[slug]/route.ts"
+```ts title="src/app/md/posts/[slug]/route.ts" source="examples/next-js/src/app/md/posts/[slug]/route.ts"
 import { serveAgentMarkdown } from "@/lib/serve-agent-markdown";
 import { postCollection } from "../../../../../qino/collections/posts";
 
@@ -46,7 +46,7 @@ An unknown slug gets the Markdown 404. The index page's route, `src/app/md/posts
 
 ## The rewrites
 
-```ts title="next.config.ts"
+```ts title="next.config.ts" source="examples/next-js/next.config.ts"
 import type { NextConfig } from "next";
 
 // A range's parameters other than q, whose quoted values can hold `,` and `;`,
@@ -67,7 +67,7 @@ const POST_PAGE = "/posts/:slug((?!tags$|authors$)[^/.]+)";
 
 const nextConfig: NextConfig = {
   // The route handlers under `/md` render on request, and read content then.
-  outputFileTracingIncludes: { "/md/**": ["./content/**/*"] },
+  outputFileTracingIncludes: { "/md/**": ["./src/content/**/*"] },
   // `beforeFiles` runs before prerendered pages, which would answer first.
   async rewrites() {
     return {
@@ -110,7 +110,7 @@ export default nextConfig;
 - **Markdown URLs** rewrite whatever the `Accept` header. Later rewrites match the rewritten path, `/md/posts/...`, so a `.md` request never reaches the `Accept` rewrites.
 - **`has`:** Next anchors the header's value with `^` and `$`. A looser value such as `(.*)text/markdown(.*)` also matches `text/html, text/markdown`, which prefers HTML.
 - **Sources** must match only entry pages. Leave out the static pages beside them, such as `/posts/tags`, or their Markdown requests get the Markdown 404.
-- **Content:** the route handlers read the request, so Next renders them on request rather than prerendering them, and the deployed server reads content then. That's why `outputFileTracingIncludes` lists the content folder: see [Runtime](/docs/guide/installation#runtime).
+- **Content:** the route handlers read the request, so Next renders them on request rather than prerendering them, and the deployed server reads content then. That's why `outputFileTracingIncludes` lists the content folder, `src/content` in the example: see [Runtime](/docs/guide/installation#runtime).
 - **A tree's** sources take several segments: `/docs/:slug+.md` for its Markdown URLs, and `/docs/:slug([^.]+)` for its pages.
 
 ## Check it
