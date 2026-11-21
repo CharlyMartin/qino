@@ -308,7 +308,7 @@ describe("resolveEntryMedia", () => {
       );
     });
 
-    test("records the manifest as the entry's dependency, in place of the image", async () => {
+    test("records the manifest and the image's absence as the entry's dependencies", async () => {
       await writeManifest({ "/images/gone.png": recorded });
       const dependencies = createDependencyCollector();
 
@@ -321,7 +321,13 @@ describe("resolveEntryMedia", () => {
         dependencies,
       });
 
-      expect([...dependencies.observations.keys()]).toEqual([manifestPath()]);
+      expect([...dependencies.observations]).toEqual([
+        [
+          nodePath.join(tmp, "images", "gone.png"),
+          { version: "absent", untrusted: false },
+        ],
+        [manifestPath(), expect.objectContaining({ untrusted: true })],
+      ]);
       expect(dependencies.isReusable()).toBe(true);
     });
 

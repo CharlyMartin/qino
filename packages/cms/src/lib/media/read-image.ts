@@ -4,6 +4,7 @@ import nodePath from "node:path";
 import { normalizeMediaUrl } from "@qino/tooling/media";
 import { lookup } from "mrmime";
 
+import { ABSENT_FILE_VERSION } from "../../data/globals";
 import type { QinoImage } from "../../types/media";
 import type { DependencyCollector } from "../cache/create-dependency-collector";
 import { observeFile } from "../cache/observe-file";
@@ -68,6 +69,11 @@ export async function readImage({
     });
   }
 
+  // Restoring the file changes its version, so a listing reads it again.
+  dependencies?.record(absolutePath, {
+    version: ABSENT_FILE_VERSION,
+    untrusted: false,
+  });
   return readRecorded(`"${url}" doesn't exist in "${mediaFolder}".`);
 
   /** Reads the image from the image manifest, or fails with `reason`. */
