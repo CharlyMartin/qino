@@ -39,6 +39,7 @@ describe("negotiateMarkdown", () => {
     "text/x-markdown",
     "text/markdown, text/html, */*",
     "text/html;q=0.9, text/markdown",
+    'text/html;note="a,b";q=0.5, text/markdown',
   ])("serves agent Markdown for Accept: %s", async (accept) => {
     const response = await negotiateMarkdown(requestPage(accept), loadHello);
 
@@ -53,6 +54,8 @@ describe("negotiateMarkdown", () => {
     "text/*",
     "text/plain",
     "text/markdown;q=0",
+    'text/markdown;note="a,b";q=0, text/html',
+    'text/markdown;note="x;q=1";q=0, text/html',
     "application/x-content-negotiation-probe",
     undefined,
   ])("resolves to null, never 406, for Accept: %s", async (accept) => {
