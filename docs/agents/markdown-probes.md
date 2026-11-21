@@ -28,11 +28,10 @@ Each of these edge cases broke something in an earlier change. Probe each one th
 
 ## `Accept` headers
 
-These apply to `negotiateMarkdown`. The host rewrites' regex reads only the first range, but it should agree on the first three:
+These apply to `negotiateMarkdown`. The host rewrites' regex reads only the first range, so on a header whose only Markdown range comes first, it should answer the same for quoted values, `q=0` and malformed q-values.
 
-- **Quoted parameter values:** `text/markdown;note="a,b";q=0` and `text/markdown;note="x;q=1";q=0` keep their `q=0`, and so does a value with an escaped quote, `note="say \"hi\""`.
+- **Quoted parameter values:** `text/markdown;note="a,b";q=0` and `text/markdown;note="x;q=1";q=0` keep their `q=0`, and so does a value with an escaped quote, `note="say \"hi\""`. An unclosed quote runs to the end of the header, so `text/markdown;note="x` gets Markdown from `negotiateMarkdown` and HTML from the regex.
 - **`q=0` after another parameter,** as in `text/markdown;charset=utf-8;q=0`, and `q=0.`, which RFC 9110 allows: Markdown isn't acceptable.
 - **Malformed q-values,** such as `q=1.5`, `q=oops` or `q=0.0001`: the range is ignored.
 - **Case:** both read `Q=` as `q=`. `TEXT/MARKDOWN` counts for `negotiateMarkdown`, while the regex matches lowercase types only.
 - **Ties:** `text/markdown, text/html` gets Markdown and `text/html, text/markdown` gets HTML, while `*/*, text/markdown` gets Markdown, since a named type beats a wildcard.
-- **Paths:** `.md` gets Markdown whatever the `Accept` header, and `.MD` doesn't.
