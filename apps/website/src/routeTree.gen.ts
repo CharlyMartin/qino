@@ -16,8 +16,6 @@ import { Route as CloudRouteImport } from './routes/cloud'
 import { Route as ContentlayerExitRouteImport } from './routes/contentlayer-exit'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as DocsDotmdRouteImport } from './routes/docs[.]md'
-import { Route as LlmsFullDottxtRouteImport } from './routes/llms-full[.]txt'
-import { Route as LlmsDottxtRouteImport } from './routes/llms[.]txt'
 import { Route as MigrateFromContentlayerRouteImport } from './routes/migrate-from-contentlayer'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
@@ -59,16 +57,6 @@ const DocsDotmdRoute = DocsDotmdRouteImport.update({
   path: '/docs.md',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LlmsFullDottxtRoute = LlmsFullDottxtRouteImport.update({
-  id: '/llms-full.txt',
-  path: '/llms-full.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LlmsDottxtRoute = LlmsDottxtRouteImport.update({
-  id: '/llms.txt',
-  path: '/llms.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MigrateFromContentlayerRoute = MigrateFromContentlayerRouteImport.update({
   id: '/migrate-from-contentlayer',
   path: '/migrate-from-contentlayer',
@@ -103,8 +91,6 @@ export interface FileRoutesByFullPath {
   '/contentlayer-exit': typeof ContentlayerExitRoute
   '/docs': typeof DocsRouteWithChildren
   '/docs.md': typeof DocsDotmdRoute
-  '/llms-full.txt': typeof LlmsFullDottxtRoute
-  '/llms.txt': typeof LlmsDottxtRoute
   '/migrate-from-contentlayer': typeof MigrateFromContentlayerRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/docs/$': typeof DocsSplatRoute
@@ -117,8 +103,6 @@ export interface FileRoutesByTo {
   '/cloud': typeof CloudRoute
   '/contentlayer-exit': typeof ContentlayerExitRoute
   '/docs.md': typeof DocsDotmdRoute
-  '/llms-full.txt': typeof LlmsFullDottxtRoute
-  '/llms.txt': typeof LlmsDottxtRoute
   '/migrate-from-contentlayer': typeof MigrateFromContentlayerRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/docs/$': typeof DocsSplatRoute
@@ -134,8 +118,6 @@ export interface FileRoutesById {
   '/contentlayer-exit': typeof ContentlayerExitRoute
   '/docs': typeof DocsRouteWithChildren
   '/docs.md': typeof DocsDotmdRoute
-  '/llms-full.txt': typeof LlmsFullDottxtRoute
-  '/llms.txt': typeof LlmsDottxtRoute
   '/migrate-from-contentlayer': typeof MigrateFromContentlayerRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/docs/$': typeof DocsSplatRoute
@@ -152,8 +134,6 @@ export interface FileRouteTypes {
     | '/contentlayer-exit'
     | '/docs'
     | '/docs.md'
-    | '/llms-full.txt'
-    | '/llms.txt'
     | '/migrate-from-contentlayer'
     | '/blog/$slug'
     | '/docs/$'
@@ -166,8 +146,6 @@ export interface FileRouteTypes {
     | '/cloud'
     | '/contentlayer-exit'
     | '/docs.md'
-    | '/llms-full.txt'
-    | '/llms.txt'
     | '/migrate-from-contentlayer'
     | '/blog/$slug'
     | '/docs/$'
@@ -182,8 +160,6 @@ export interface FileRouteTypes {
     | '/contentlayer-exit'
     | '/docs'
     | '/docs.md'
-    | '/llms-full.txt'
-    | '/llms.txt'
     | '/migrate-from-contentlayer'
     | '/blog/$slug'
     | '/docs/$'
@@ -199,8 +175,6 @@ export interface RootRouteChildren {
   ContentlayerExitRoute: typeof ContentlayerExitRoute
   DocsRoute: typeof DocsRouteWithChildren
   DocsDotmdRoute: typeof DocsDotmdRoute
-  LlmsFullDottxtRoute: typeof LlmsFullDottxtRoute
-  LlmsDottxtRoute: typeof LlmsDottxtRoute
   MigrateFromContentlayerRoute: typeof MigrateFromContentlayerRoute
 }
 
@@ -253,20 +227,6 @@ declare module '@tanstack/react-router' {
       path: '/docs.md'
       fullPath: '/docs.md'
       preLoaderRoute: typeof DocsDotmdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/llms-full.txt': {
-      id: '/llms-full.txt'
-      path: '/llms-full.txt'
-      fullPath: '/llms-full.txt'
-      preLoaderRoute: typeof LlmsFullDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/llms.txt': {
-      id: '/llms.txt'
-      path: '/llms.txt'
-      fullPath: '/llms.txt'
-      preLoaderRoute: typeof LlmsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/migrate-from-contentlayer': {
@@ -339,8 +299,6 @@ const rootRouteChildren: RootRouteChildren = {
   ContentlayerExitRoute: ContentlayerExitRoute,
   DocsRoute: DocsRouteWithChildren,
   DocsDotmdRoute: DocsDotmdRoute,
-  LlmsFullDottxtRoute: LlmsFullDottxtRoute,
-  LlmsDottxtRoute: LlmsDottxtRoute,
   MigrateFromContentlayerRoute: MigrateFromContentlayerRoute,
 }
 export const routeTree = rootRouteImport

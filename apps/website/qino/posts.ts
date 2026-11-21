@@ -20,7 +20,13 @@ export const postCollection = qino.defineCollection({
     .transform((post) => camelcaseKeys(post)),
   markdown: { stats: true },
   pages: { index: "/blog", entry: "/blog/{slug}", title: "Blog" },
-  agentMarkdown: { components: { InstallBox: installBoxToMarkdown } },
+  agentMarkdown: {
+    components: {
+      InstallBox: installBoxToMarkdown,
+      // It only styles its text, so agents get the text.
+      Underline: ({ children }) => children,
+    },
+  },
   relations: {
     author: authorCollection,
   },

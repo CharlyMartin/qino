@@ -41,7 +41,11 @@ test("a blog post's InstallBox becomes the npm install command", async () => {
   expect(markdown).not.toContain("<InstallBox");
 });
 
-test("no docs page or post keeps InstallBox or LinkGrid", async () => {
+// Components agents get as written. A new one in the content fails the test
+// below until it's mapped in `qino/` or listed here.
+const keptComponents = ["Callout"];
+
+test("every component a page keeps is listed as kept", async () => {
   const [nodes, postSlugs] = await Promise.all([
     docsTree.getFlatTree(),
     postCollection.getAllSlugs(),
@@ -57,12 +61,23 @@ test("no docs page or post keeps InstallBox or LinkGrid", async () => {
     })),
   ]);
 
-  expect(
-    pages
-      .filter(
-        ({ markdown }) =>
-          markdown == null || /<(?:InstallBox|LinkGrid)\b/.test(markdown),
-      )
-      .map(({ url }) => url),
-  ).toEqual([]);
+  // Each component left in a page, with the pages that keep it.
+  const kept: Record<string, Array<string>> = {};
+  for (const { url, markdown } of pages) {
+    expect(markdown, url).not.toBeNull();
+    // Code shows components as examples, and TypeScript generics look like
+    // tags. A fence closes on one as long or longer.
+    const prose = (markdown ?? "")
+      .replace(/^(`{3,})[^\n]*\n[\s\S]*?^\1`*[ \t]*$/gm, "")
+      .replace(/^(~{3,})[^\n]*\n[\s\S]*?^\1~*[ \t]*$/gm, "")
+      .replace(/(`+)[^\n]*?\1/g, "");
+    for (const [, name] of prose.matchAll(/<([A-Z][\w.]*)/g)) {
+      kept[name] = [...new Set([...(kept[name] ?? []), url])];
+    }
+  }
+  const unlisted = Object.fromEntries(
+    Object.entries(kept).filter(([name]) => !keptComponents.includes(name)),
+  );
+  expect(unlisted).toEqual({});
+  expect(Object.keys(kept).sort()).toEqual([...keptComponents].sort());
 });
