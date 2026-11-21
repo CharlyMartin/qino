@@ -9,6 +9,19 @@
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
       "env": ["CI"]
     },
+    "next-js#build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "public/llms.txt",
+        "public/llms-full.txt",
+        "public/index.md",
+        "src/content/.qino/**"
+      ],
+      "env": ["CI"]
+    },
     "website#build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
