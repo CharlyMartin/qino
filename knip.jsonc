@@ -1,0 +1,31 @@
+{
+  "$schema": "https://unpkg.com/knip@6.44.1/schema.json",
+  // Skills: third-party ones from skills-lock.json, and this repo's own
+  // ship, changeset and dependabot-review, which hold no code.
+  "ignore": [".agents/**"],
+  // An export used in its own file, such as a type a public type is built
+  // from, isn't dead code.
+  "ignoreExportsUsedInFile": true,
+  "workspaces": {
+    "packages/cms": {
+      // Vitest runs these through its typecheck setting, not as test files.
+      "entry": ["src/**/*.test-d.ts"],
+      "ignoreDependencies": [
+        // The bundled @qino/tooling imports them: as dependencies, they stay
+        // external instead of being inlined into dist.
+        "htmlparser2",
+        "js-yaml",
+        // The build resolves it through tsdown's install, on purpose.
+        "rolldown"
+      ]
+    },
+    // In both, qino's CLI imports every export under qino/ to discover
+    // primitives.
+    "apps/website": {
+      "entry": ["qino/**/*.ts"]
+    },
+    "examples/*": {
+      "entry": ["qino/**/*.ts"]
+    }
+  }
+}

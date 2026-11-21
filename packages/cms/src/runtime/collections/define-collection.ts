@@ -392,7 +392,7 @@ export function defineCollection<
   async function getAgentMarkdown<
     Args extends ViewArguments<ConfiguredViews<Views>> = [],
   >(slug: Slug, ...[options]: Args) {
-    const { siteUrl } = requirePages(resolvedPages, owner);
+    const { siteUrl } = requirePages(resolvedPages, { owner, option: "pages" });
     // Only a listed slug reads a file: a route param can't reach past the
     // collection with `..`.
     if (!(await getAllSlugs()).includes(slug as SlugFor<Dir>)) return null;
@@ -402,14 +402,17 @@ export function defineCollection<
 
     return buildAgentMarkdown({
       entry: entry as Record<string, unknown>,
-      slug,
+      fallbackTitle: slug,
       extension,
       origin: siteUrl,
     });
   }
 
   function getMarkdownUrl(slug: SlugFor<Dir>) {
-    const { entry, siteUrl } = requirePages(resolvedPages, owner);
+    const { entry, siteUrl } = requirePages(resolvedPages, {
+      owner,
+      option: "pages",
+    });
     return toMarkdownUrl(fillEntryPagePath(entry, slug), siteUrl);
   }
 }

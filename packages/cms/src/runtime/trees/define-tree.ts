@@ -6,6 +6,7 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
+import { buildAgentMarkdown } from "../../lib/agent-markdown/build-agent-markdown";
 import type { DependencyCollector } from "../../lib/cache/create-dependency-collector";
 import { createDerivedCache } from "../../lib/cache/create-derived-cache";
 import { createFileCache } from "../../lib/cache/create-file-cache";
@@ -15,6 +16,10 @@ import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-confi
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
+import { fillEntryPagePath } from "../../lib/pages/fill-entry-page-path";
+import { requirePages } from "../../lib/pages/require-pages";
+import { resolvePages } from "../../lib/pages/resolve-pages";
+import { toMarkdownUrl } from "../../lib/pages/to-markdown-url";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { addEntryStats } from "../../lib/stats/add-entry-stats";
@@ -39,9 +44,11 @@ import type {
   MediaConfig,
   TaggedRelations,
 } from "../../types/media";
+import type { PagesConfig } from "../../types/pages";
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
+import type { SlugFor } from "../../types/slug-registry";
 import type {
   ResolvedTreeEntry,
   StringKeys,
@@ -108,6 +115,8 @@ export type DefineTreeParams<
   cloud?: NoInfer<TreeCloudConfig<Schema>> &
     SaveEntryAsConfig<SaveEntryAs, Schema> &
     DisplayEntryAsConfig<DisplayEntryAs, Schema>;
+  /** Where the index page and entry pages live, for agent Markdown and links. */
+  pages?: PagesConfig;
 } & RootViewSettings;
 
 export function defineTree<
@@ -150,6 +159,12 @@ export function defineTree<
     cloud,
   } = params;
   assertContentPath(directory, "directory");
+  const owner = `Tree "${directory}"`;
+  const resolvedPages = resolvePages({
+    pages: params.pages,
+    siteUrl: ctx.siteUrl,
+    owner,
+  });
   assertCloudEnabled(ctx, cloud, directory);
 
   const treeRelations = (relations ?? {}) as TaggedRels;
@@ -200,6 +215,8 @@ export function defineTree<
     getAncestorNodes,
     getNextNode,
     getPreviousNode,
+    getAgentMarkdown,
+    getMarkdownUrl,
   } as const satisfies Tree<
     S,
     Ext,
@@ -358,5 +375,30 @@ export function defineTree<
       directory,
       offset: -1,
     });
+  }
+
+  async function getAgentMarkdown(slug: Slug) {
+    const { siteUrl } = requirePages(resolvedPages, { owner, option: "pages" });
+    // Only a listed slug reads a file: a route param can't reach past the
+    // tree with `..`.
+    const nodes = await getFlatTree();
+    if (!nodes.some((node) => node.slug == slug)) return null;
+
+    // Tree views can't filter, so no view can exclude the entry.
+    return buildAgentMarkdown({
+      entry: (await readEntry(slug)) as Record<string, unknown>,
+      titleField,
+      fallbackTitle: slug,
+      extension,
+      origin: siteUrl,
+    });
+  }
+
+  function getMarkdownUrl(slug: SlugFor<Dir>) {
+    const { entry, siteUrl } = requirePages(resolvedPages, {
+      owner,
+      option: "pages",
+    });
+    return toMarkdownUrl(fillEntryPagePath(entry, slug), siteUrl);
   }
 }

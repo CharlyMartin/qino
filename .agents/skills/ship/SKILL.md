@@ -7,7 +7,7 @@ metadata:
 
 # Ship
 
-Ship when the checks from AGENTS.md are green and the Codex review is clean. If the change touches a published package in a way users notice, add a changeset first with the `changeset` skill.
+Ship when the checks from AGENTS.md are green. If the change touches a published package in a way users notice, add a changeset first with the `changeset` skill.
 
 ## 1. Branch
 
@@ -49,7 +49,15 @@ Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`. Scopes: `cms`, `tooli
 
 Commit messages and PRs carry no `Co-Authored-By` trailers or "Generated with Claude Code" lines.
 
-## 3. Push
+## 3. Review
+
+`code-review` reads committed work, so review after committing, against the base (step 5). Give its spec reviewer the scratchpad directory's path, and have it probe edge cases by running the code and name the probes it ran.
+
+Review whatever `/implement`'s review didn't cover: the whole change for a bug fix, or the commits made after it other than the fixes for its findings, such as retro improvements. Skip this step when nothing is left.
+
+Fix each finding or skip it with a reason, get the checks green again, and commit the fixes. If a finding you can't resolve is still open, stop and report it to the user.
+
+## 4. Push
 
 ```sh
 git push -u origin <branch>
@@ -57,7 +65,7 @@ git push -u origin <branch>
 
 Push without `--force`. The one exception is a ticket-stack branch you just moved onto `main` (step 1): push it with `--force-with-lease`. If a push is rejected, stop and tell the user.
 
-## 4. Open the PR
+## 5. Open the PR
 
 ```sh
 gh pr create --base <base> --title "<title>" --body-file - <<'EOF'
@@ -74,28 +82,8 @@ The quoted heredoc keeps backticks in the body from running as shell commands.
 **Body:** write it with the `pr` skill, naming the public APIs in backticks. Below the template, add:
 
 - `Closes #<n>` for each spec and ticket issue the PR resolves.
-- A one-line "Review" note when the Codex review changed something worth knowing, or rejected a finding a reviewer might raise again.
-
-## 5. Greptile findings
-
-Greptile reviews a PR once, a few minutes after it opens, and only when it changes a file in `packages/` (`.greptile/config.json` turns automatic reviews off, `packages/.greptile/config.json` turns them back on). It doesn't review a later push: the user asks for another review by commenting `@greptileai`, so never post that comment yourself. When the PR changes `packages/`, check for its comments every minute or so, for up to 10 minutes:
-
-```sh
-gh api repos/{owner}/{repo}/pulls/<number>/comments
-```
-
-If none arrive in that time, or the user says Greptile is down, carry on to the report.
-
-Triage each finding the way the `codex-review` skill does: apply the valid ones, skip the false positives and out-of-scope suggestions with a reason. Get the checks green again, then commit and push the fixes to the same branch.
-
-Reply on each thread once the fixes are pushed: what was applied and in which commit, or why the finding was skipped.
-
-```sh
-gh api repos/{owner}/{repo}/pulls/<number>/comments/<comment-id>/replies -f body="<reply>"
-```
-
-A PR with no Greptile comments needs nothing here.
+- A one-line "Review" note when a review changed something worth knowing, or a finding was skipped that a reviewer might raise again.
 
 ## 6. Report
 
-The PR URL, the list of commits, and the branch name. If Greptile left findings, add what was applied and what was skipped.
+The PR URL, the list of commits, and the branch name.

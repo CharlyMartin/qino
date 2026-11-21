@@ -62,7 +62,6 @@
       "includes": [
         ".agents/skills/**",
         "!.agents/skills/changeset/**",
-        "!.agents/skills/codex-review/**",
         "!.agents/skills/ship/**"
       ],
       "formatter": {

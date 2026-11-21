@@ -66,8 +66,6 @@
     "@types/picomatch": "4.0.3",
     "@types/pluralize": "0.0.33",
     "mdast-util-from-markdown": "2.1.0",
-    "mdast-util-gfm": "3.1.0",
-    "mdast-util-mdx": "3.0.0",
     "micromark": "4.0.2",
     "micromark-extension-gfm": "3.0.0",
     "micromark-extension-mdxjs": "3.0.0",

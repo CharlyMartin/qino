@@ -5,15 +5,20 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
+import { buildAgentMarkdown } from "../../lib/agent-markdown/build-agent-markdown";
 import type { DependencyCollector } from "../../lib/cache/create-dependency-collector";
 import { createFileCache } from "../../lib/cache/create-file-cache";
 import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
 import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-config";
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
+import { requirePages } from "../../lib/pages/require-pages";
+import { resolveItemPage } from "../../lib/pages/resolve-item-page";
+import { toMarkdownUrl } from "../../lib/pages/to-markdown-url";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { extractExtension } from "../../lib/paths/extract-extension";
+import { removeExtension } from "../../lib/paths/remove-extension";
 import { addEntryStats } from "../../lib/stats/add-entry-stats";
 import { addEntryToc } from "../../lib/toc/add-entry-toc";
 import { validate } from "../../lib/validate/validate";
@@ -39,6 +44,7 @@ import type {
   MediaConfig,
   TaggedRelations,
 } from "../../types/media";
+import type { PagePath } from "../../types/pages";
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
@@ -84,6 +90,8 @@ export type DefineItemParams<
     >
   >;
   cloud?: NoInfer<ItemCloudConfig<Schema>>;
+  /** Where the item's entry page lives, such as `"/about"`, for agent Markdown and links. */
+  page?: PagePath;
 } & RootViewSettings;
 
 export function defineItem<
@@ -101,6 +109,12 @@ export function defineItem<
   type TaggedRels = TaggedRelations<Rels, Media, Stats, Toc>;
   const { file, schema, relations, media = {}, cloud } = params;
   assertContentPath(file, "file");
+  const owner = `Item "${file}"`;
+  const resolvedPage = resolveItemPage({
+    page: params.page,
+    siteUrl: ctx.siteUrl,
+    owner,
+  });
   assertCloudEnabled(ctx, cloud, file);
 
   type Ext = ExtractItemExtension<F>;
@@ -142,6 +156,8 @@ export function defineItem<
       readEntry,
     },
     getEntry,
+    getAgentMarkdown,
+    getMarkdownUrl,
   } as const satisfies Item<S, Ext, TaggedRels, ConfiguredViews<Views>>;
 
   return item;
@@ -200,5 +216,24 @@ export function defineItem<
       ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;
+  }
+
+  async function getAgentMarkdown() {
+    const { siteUrl } = requirePages(resolvedPage, { owner, option: "page" });
+    // Item views can't filter, so no view can exclude the entry.
+    return buildAgentMarkdown({
+      entry: (await readEntry()) as Record<string, unknown>,
+      fallbackTitle: removeExtension(nodePath.basename(file)),
+      extension,
+      origin: siteUrl,
+    });
+  }
+
+  function getMarkdownUrl() {
+    const { page, siteUrl } = requirePages(resolvedPage, {
+      owner,
+      option: "page",
+    });
+    return toMarkdownUrl(page, siteUrl);
   }
 }

@@ -86,6 +86,13 @@ export type Item<
       ViewSelection<Args[0]>
     >
   >;
+  /** The agent Markdown of the item's entry page. */
+  getAgentMarkdown(): Promise<string>;
+  /**
+   * The Markdown URL of the item's entry page: its URL on `siteUrl`, without a trailing
+   * `/`, with `.md` appended, or `/index.md` for `/`.
+   */
+  getMarkdownUrl(): string;
 };
 
 export type ItemFile = {
