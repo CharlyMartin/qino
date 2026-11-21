@@ -147,7 +147,9 @@ The output type follows: `post.cover` is `QinoImage`, `post.gallery` is `Array<Q
 
 Images are read with [sharp](https://sharp.pixelplumbing.com), loaded only when an entry has an image field. Results are cached by file and modification time, so an image shared by many entries is read once, and a changed file is read again.
 
-Reading an entry fails when an image field holds a URL outside `mediaFolder`, such as `https://example.com/a.png`, a file that doesn't exist, or a file of another type or over its `maxSize`. So `next dev` and `next build` catch a mismatched image even without `qino check`. `null` and missing values are left as they are.
+[`qino build`](/docs/guide/cli#image-manifest) also records each image an image field references, with its size, in `.qino/images.json` inside the content folder. A server without the file in `mediaFolder`, or where sharp can't load, reads the image from there instead: serverless functions usually ship neither. A file in `mediaFolder` is still read first, so `next dev` shows an edited image straight away.
+
+Reading an entry fails when an image field holds a URL outside `mediaFolder`, such as `https://example.com/a.png`, a file that's neither in `mediaFolder` nor recorded by `qino build`, or a file of another type or over its `maxSize`. So `next dev` and `next build` catch a mismatched image even without `qino check`. `null` and missing values are left as they are.
 
 ## Body images
 
