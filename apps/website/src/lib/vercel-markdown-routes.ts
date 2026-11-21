@@ -15,7 +15,7 @@ const pages = [
     markdownUrl: "/index.md",
     links: ['</llms.txt>; rel="describedby"'],
   },
-  { src: String.raw`^/(docs|blog)/?$`, markdownUrl: "/$1.md" },
+  { src: "^/(docs|blog)/?$", markdownUrl: "/$1.md" },
   {
     src: String.raw`^/(docs|blog)/([\w-]+(?:/[\w-]+)*)/?$`,
     markdownUrl: "/$1/$2.md",
