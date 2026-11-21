@@ -3,9 +3,8 @@ import nodePath from "node:path";
 import { normalizeMediaUrl } from "@qino/tooling/media";
 import { collectPathValues, parsePath } from "@qino/tooling/relations";
 
-import { QinoPrimitiveMarker } from "../../data/globals";
 import { getFileSize } from "../../lib/fs/get-file-size";
-import { isImageMediaType } from "../../lib/media/is-image-media-type";
+import { getImageFieldPaths } from "../../lib/media/get-image-field-paths";
 import type { ImageManifest, QinoImage } from "../../types/media";
 import type { AnyPrimitive } from "../../types/utils";
 import { readValidatedEntries } from "../check/read-validated-entries";
@@ -20,19 +19,17 @@ export async function collectImageManifest(
   primitives: Array<AnyPrimitive>,
   mediaFolder: string,
 ) {
-  const fields = primitives
+  const imagePrimitives = primitives
     .map((primitive) => ({
       primitive,
-      paths: Object.entries(primitive[QinoPrimitiveMarker].media)
-        .filter(([, rule]) => rule && isImageMediaType(rule.accepted))
-        .map(([path]) => parsePath(path)),
+      paths: getImageFieldPaths(primitive).map(parsePath),
     }))
     .filter(({ paths }) => paths.length);
 
-  if (fields.length == 0) return undefined;
+  if (imagePrimitives.length == 0) return undefined;
 
   const images = new Map<string, QinoImage>();
-  for (const { primitive, paths } of fields) {
+  for (const { primitive, paths } of imagePrimitives) {
     for (const entry of await readValidatedEntries(primitive)) {
       for (const segments of paths) {
         for (const value of collectPathValues(entry, segments)) {

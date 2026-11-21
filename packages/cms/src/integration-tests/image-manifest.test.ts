@@ -8,6 +8,8 @@ import { promisify } from "node:util";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { z } from "zod";
 
+import { check } from "../cli/check/check";
+import { QinoConfigMarker } from "../data/globals";
 import { initQino } from "../runtime/qino/init-qino";
 import { createCloudProject } from "./create-cloud-project";
 import { createImageProject } from "./create-image-project";
@@ -91,7 +93,7 @@ function setup() {
     views: (view) => ({ default: view({}) }),
   });
 
-  return { authors, posts };
+  return { context: qino[QinoConfigMarker], authors, posts };
 }
 
 describe("image manifest", () => {
@@ -182,5 +184,20 @@ describe("image manifest", () => {
     await expect(
       fs.access(path.join(project, "content/.qino")),
     ).rejects.toThrow("ENOENT");
+  }, 60_000);
+
+  test("qino check decodes images instead of reading the image manifest", async () => {
+    await build();
+    const { context, authors, posts } = setup();
+
+    await expect(
+      check({
+        entryFilePath: path.join(tmp, "qino/index.ts"),
+        context,
+        collections: [authors, posts],
+        items: [],
+        trees: [],
+      }),
+    ).rejects.toThrow("Image fields are read with sharp, which can't load");
   }, 60_000);
 });
