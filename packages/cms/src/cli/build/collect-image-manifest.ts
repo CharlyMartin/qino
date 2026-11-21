@@ -11,9 +11,9 @@ import { readValidatedEntries } from "../check/read-validated-entries";
 import { compareCodeUnits } from "./compare-code-units";
 
 /**
- * Records each image an image field references, read from the entries
- * `qino check` read: their images are already decoded, so none is decoded
- * again. `undefined` when no primitive has an image field.
+ * Records each image an image field references, reading again the entries
+ * `qino check` read. Their decodes are cached, so only an image edited in the
+ * last 2s is decoded again. `undefined` when no primitive has an image field.
  */
 export async function collectImageManifest(
   primitives: Array<AnyPrimitive>,
