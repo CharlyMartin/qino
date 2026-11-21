@@ -94,6 +94,28 @@
       }
     },
     {
+      "includes": [
+        "packages/tooling/src/**",
+        "!packages/tooling/src/media/scan-markdown-body.ts",
+        "!**/*.test.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "paths": {
+                  "remark-mdx": "Parse MDX with `scanMarkdownBody`, which reads `{#id}` heading ids: MDX fails on them otherwise.",
+                  "micromark-extension-mdxjs": "Parse MDX with `scanMarkdownBody`, which reads `{#id}` heading ids: MDX fails on them otherwise."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
       "includes": ["packages/cms/src/**", "!packages/cms/src/index.ts"],
       "linter": {
         "rules": {
@@ -106,7 +128,43 @@
                     "group": ["**/utils", "**/utils/index", "!**/types/utils"],
                     "message": "Import internal helpers from their leaf modules."
                   }
-                ]
+                ],
+                "paths": {
+                  "remark-mdx": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, which read `{#id}` heading ids: MDX fails on them otherwise.",
+                  "micromark-extension-mdxjs": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, which read `{#id}` heading ids: MDX fails on them otherwise."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/cms/src/cli/build/**",
+        "!packages/cms/src/cli/build/write-generated-file.ts",
+        "!**/*.test.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["node:fs", "node:fs/*", "fs", "fs/*"],
+                    "message": "Write generated files with `writeGeneratedFile`, which skips unchanged ones, and read files through `lib/fs`."
+                  },
+                  {
+                    "group": ["**/utils", "**/utils/index", "!**/types/utils"],
+                    "message": "Import internal helpers from their leaf modules."
+                  }
+                ],
+                "paths": {
+                  "remark-mdx": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, which read `{#id}` heading ids: MDX fails on them otherwise.",
+                  "micromark-extension-mdxjs": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, which read `{#id}` heading ids: MDX fails on them otherwise."
+                }
               }
             }
           }
@@ -129,6 +187,35 @@
                       "!**/types/utils",
                       "!./utils"
                     ],
+                    "message": "Import internal helpers from their leaf modules."
+                  }
+                ],
+                "paths": {
+                  "remark-mdx": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, which read `{#id}` heading ids: MDX fails on them otherwise.",
+                  "micromark-extension-mdxjs": "Parse MDX with `parseMarkdownBody` or `tokenizeMarkdownBody`, which read `{#id}` heading ids: MDX fails on them otherwise."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": [
+        "packages/cms/src/utils/markdown/parse-markdown-body.ts",
+        "packages/cms/src/utils/markdown/tokenize-markdown-body.ts",
+        "packages/cms/src/**/*.test.ts",
+        "!packages/cms/src/types/**"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["**/utils", "**/utils/index", "!**/types/utils"],
                     "message": "Import internal helpers from their leaf modules."
                   }
                 ]

@@ -3,13 +3,25 @@ import { describe, expect, test } from "vitest";
 import { resolvePages } from "./resolve-pages";
 
 const owner = 'Collection "posts"';
-const pages = { index: "/blog", entry: "/blog/{slug}" } as const;
+const siteUrl = "https://example.com";
+const pages = { index: "/blog", entry: "/blog/{slug}", title: "Blog" } as const;
 
 describe("resolvePages", () => {
   test("returns the pages with their siteUrl", () => {
+    expect(resolvePages({ pages, siteUrl, owner })).toEqual({
+      ...pages,
+      siteUrl,
+    });
+  });
+
+  test("puts the title on one line", () => {
     expect(
-      resolvePages({ pages, siteUrl: "https://example.com", owner }),
-    ).toEqual({ ...pages, siteUrl: "https://example.com" });
+      resolvePages({
+        pages: { ...pages, title: " The\n blog " },
+        siteUrl,
+        owner,
+      })?.title,
+    ).toBe("The blog");
   });
 
   test("is undefined without pages", () => {
@@ -28,12 +40,23 @@ describe("resolvePages", () => {
     expect(() =>
       resolvePages({
         // As a JavaScript caller could pass it.
-        pages: { index: "/blog", entry: "/blog" } as never,
-        siteUrl: "https://example.com",
+        pages: { ...pages, entry: "/blog" } as never,
+        siteUrl,
         owner,
       }),
     ).toThrow(
       'Collection "posts": pages.entry "/blog" must contain {slug} once.',
+    );
+  });
+
+  test.each([
+    { ...pages, title: undefined },
+    { ...pages, title: " " },
+  ])("needs a title, which %j lacks", (untitled) => {
+    expect(() =>
+      resolvePages({ pages: untitled as never, siteUrl, owner }),
+    ).toThrow(
+      'Collection "posts": pages.title must name the index page, such as "Blog".',
     );
   });
 });

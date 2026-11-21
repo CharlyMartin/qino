@@ -6,6 +6,8 @@ import {
   QinoPrimitives,
 } from "../../data/globals";
 import { buildAgentMarkdown } from "../../lib/agent-markdown/build-agent-markdown";
+import { buildIndexAgentMarkdown } from "../../lib/agent-markdown/build-index-agent-markdown";
+import { toListingLink } from "../../lib/agent-markdown/to-listing-link";
 import { unwrapSettled } from "../../lib/async/unwrap-settled";
 import type { DependencyCollector } from "../../lib/cache/create-dependency-collector";
 import { createFileCache } from "../../lib/cache/create-file-cache";
@@ -16,10 +18,10 @@ import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-confi
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
-import { fillEntryPagePath } from "../../lib/pages/fill-entry-page-path";
+import { getEntrySlug } from "../../lib/meta/get-entry-slug";
 import { requirePages } from "../../lib/pages/require-pages";
 import { resolvePages } from "../../lib/pages/resolve-pages";
-import { toMarkdownUrl } from "../../lib/pages/to-markdown-url";
+import { toPagesMarkdownUrl } from "../../lib/pages/to-pages-markdown-url";
 import { assertPageOptions } from "../../lib/pagination/assert-page-options";
 import { copyPage } from "../../lib/pagination/copy-page";
 import { paginate } from "../../lib/pagination/paginate";
@@ -33,6 +35,7 @@ import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
 import { buildViews } from "../../lib/views/build-views";
 import { selectView } from "../../lib/views/select-view";
+import type { AgentMarkdownConfig } from "../../types/agent-markdown";
 import type {
   CollectionCloudConfig,
   DisplayEntryAsConfig,
@@ -119,6 +122,17 @@ export type DefineCollectionParams<
     DisplayEntryAsConfig<DisplayEntryAs, Schema>;
   /** Where the index page and entry pages live, for agent Markdown and links. */
   pages?: PagesConfig;
+  /** Configures the entry pages' agent Markdown: how MDX components read. */
+  agentMarkdown?: NoInfer<
+    AgentMarkdownConfig<
+      ResolvedCollectionView<
+        Schema,
+        Ext,
+        TaggedRelations<Rels, Media, Stats, Toc>
+      >
+    >
+  > &
+    NoInfer<CheckMarkdownConfig<Ext>>;
 } & RootViewSettings;
 
 export function defineCollection<
@@ -198,6 +212,13 @@ export function defineCollection<
       media,
       markdown,
       cloud,
+      ...(resolvedPages && {
+        pages: {
+          ...resolvedPages,
+          getListingSections,
+          getEntryPagesAgentMarkdown,
+        },
+      }),
       readEntries,
       readEntry,
     },
@@ -353,20 +374,23 @@ export function defineCollection<
     };
   }
 
-  // An entry through a view, and whether the view's filter excludes it.
+  // An entry through a view, as read before it, and whether the view's filter
+  // excludes it.
   async function readInView(
     slug: Slug,
     options: ViewArguments<ConfiguredViews<Views>>[0],
   ) {
     const view = selectView(views, options) as CollectionViewDefinition;
+    const entryAsRead = await readEntry(slug);
     const [entry] = await applyView(
-      [await readEntry(slug)],
+      [entryAsRead],
       view,
       collectionRelations,
       ctx.instanceId,
     );
     return {
       entry,
+      entryAsRead,
       isExcluded: view.filter != null && !view.filter(entry as never),
     };
   }
@@ -389,30 +413,81 @@ export function defineCollection<
     >;
   }
 
+  async function getAgentMarkdown(): Promise<string>;
   async function getAgentMarkdown<
     Args extends ViewArguments<ConfiguredViews<Views>> = [],
-  >(slug: Slug, ...[options]: Args) {
-    const { siteUrl } = requirePages(resolvedPages, { owner, option: "pages" });
+  >(slug: Slug, ...args: Args): Promise<string | null>;
+  async function getAgentMarkdown(
+    slug?: Slug,
+    ...[options]: ViewArguments<ConfiguredViews<Views>>
+  ) {
+    const { title } = requirePages(resolvedPages, { owner, option: "pages" });
+    // Only a missing slug means the index page: `""` is a slug no entry has.
+    if (typeof slug == "undefined") {
+      return buildIndexAgentMarkdown({ title, links: await listLinks() });
+    }
+
     // Only a listed slug reads a file: a route param can't reach past the
     // collection with `..`.
     if (!(await getAllSlugs()).includes(slug as SlugFor<Dir>)) return null;
 
-    const { entry, isExcluded } = await readInView(slug, options);
+    const { entry, entryAsRead, isExcluded } = await readInView(slug, options);
     if (isExcluded) return null;
 
+    return buildEntryAgentMarkdown(entry, entryAsRead);
+  }
+
+  // `llms-full.txt`'s documents: the index page's entries, in its order.
+  async function getEntryPagesAgentMarkdown() {
+    const entries = await getEntries();
+    return Promise.all(
+      entries.map(async (entry) =>
+        buildEntryAgentMarkdown(entry, await readEntry(getEntrySlug(entry))),
+      ),
+    );
+  }
+
+  // An entry page's: the heading from the entry through its view, and the
+  // entry as read for the components.
+  function buildEntryAgentMarkdown(
+    entry: unknown,
+    entryAsRead: ResolvedCollectionView<S, Ext, TaggedRels>,
+  ) {
+    const { siteUrl } = requirePages(resolvedPages, { owner, option: "pages" });
     return buildAgentMarkdown({
       entry: entry as Record<string, unknown>,
-      fallbackTitle: slug,
+      fallbackTitle: getEntrySlug(entryAsRead),
       extension,
       origin: siteUrl,
+      replacement: {
+        components: params.agentMarkdown?.components,
+        entry: entryAsRead,
+      },
     });
   }
 
-  function getMarkdownUrl(slug: SlugFor<Dir>) {
-    const { entry, siteUrl } = requirePages(resolvedPages, {
-      owner,
-      option: "pages",
+  // The index page's links, in default-view order.
+  async function listLinks() {
+    const entries = await getEntries();
+    return entries.map((entry) => {
+      const entrySlug = getEntrySlug(entry);
+      return toListingLink({
+        entry,
+        fallbackTitle: entrySlug,
+        url: getMarkdownUrl(entrySlug as SlugFor<Dir>),
+      });
     });
-    return toMarkdownUrl(fillEntryPagePath(entry, slug), siteUrl);
+  }
+
+  // `llms.txt`'s section: the index page's links under its title, or none.
+  async function getListingSections() {
+    const { title } = requirePages(resolvedPages, { owner, option: "pages" });
+    const links = await listLinks();
+    return links.length > 0 ? [{ title, links }] : [];
+  }
+
+  function getMarkdownUrl(slug?: SlugFor<Dir>) {
+    const pages = requirePages(resolvedPages, { owner, option: "pages" });
+    return toPagesMarkdownUrl(pages, slug);
   }
 }

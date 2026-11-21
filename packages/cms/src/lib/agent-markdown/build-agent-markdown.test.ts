@@ -5,7 +5,7 @@ import { buildAgentMarkdown } from "./build-agent-markdown";
 const origin = "https://example.com";
 
 describe("buildAgentMarkdown", () => {
-  test("opens with the title and description, then the body", () => {
+  test("opens with the title and description, then the body", async () => {
     const entry = {
       title: "Hello",
       description: "A first post.",
@@ -13,7 +13,7 @@ describe("buildAgentMarkdown", () => {
     };
 
     expect(
-      buildAgentMarkdown({
+      await buildAgentMarkdown({
         entry,
         fallbackTitle: "hello",
         extension: ".md",
@@ -24,7 +24,7 @@ describe("buildAgentMarkdown", () => {
     );
   });
 
-  test("keeps a body's own H1 opening, without the title or description", () => {
+  test("keeps a body's own H1 opening, without the title or description", async () => {
     const entry = {
       title: "Hello",
       description: "A first post.",
@@ -32,7 +32,7 @@ describe("buildAgentMarkdown", () => {
     };
 
     expect(
-      buildAgentMarkdown({
+      await buildAgentMarkdown({
         entry,
         fallbackTitle: "hello",
         extension: ".md",
@@ -41,11 +41,11 @@ describe("buildAgentMarkdown", () => {
     ).toBe("# Hello, world\n\nBody.\n");
   });
 
-  test("reads the title from titleField", () => {
+  test("reads the title from titleField", async () => {
     const entry = { title: "Not this", label: "Guide", markdown: "Body.\n" };
 
     expect(
-      buildAgentMarkdown({
+      await buildAgentMarkdown({
         entry,
         titleField: "label",
         fallbackTitle: "guide",
@@ -55,11 +55,35 @@ describe("buildAgentMarkdown", () => {
     ).toBe("# Guide\n\nBody.\n");
   });
 
-  test("reads no body from a JSON entry", () => {
+  test("replaces components only in MDX, before making links absolute", async () => {
+    const entry = { title: "Hello", markdown: "<Next />\n" };
+    const components = { Next: () => "[Next](/next)" };
+
+    expect(
+      await buildAgentMarkdown({
+        entry,
+        fallbackTitle: "hello",
+        extension: ".mdx",
+        origin,
+        replacement: { components, entry },
+      }),
+    ).toBe("# Hello\n\n[Next](https://example.com/next)\n");
+    expect(
+      await buildAgentMarkdown({
+        entry,
+        fallbackTitle: "hello",
+        extension: ".md",
+        origin,
+        replacement: { components, entry },
+      }),
+    ).toBe("# Hello\n\n<Next />\n");
+  });
+
+  test("reads no body from a JSON entry", async () => {
     const entry = { title: "Jane", markdown: "Data, not a body." };
 
     expect(
-      buildAgentMarkdown({
+      await buildAgentMarkdown({
         entry,
         fallbackTitle: "jane",
         extension: ".json",
@@ -70,11 +94,11 @@ describe("buildAgentMarkdown", () => {
 
   test.each([42, "", "  \n "])(
     "falls back to the slug for the title %j",
-    (title) => {
+    async (title) => {
       const entry = { title, markdown: "Body.\n" };
 
       expect(
-        buildAgentMarkdown({
+        await buildAgentMarkdown({
           entry,
           fallbackTitle: "untitled",
           extension: ".md",
@@ -84,11 +108,11 @@ describe("buildAgentMarkdown", () => {
     },
   );
 
-  test("quotes a description without the newline YAML block scalars end it with", () => {
+  test("quotes a description without the newline YAML block scalars end it with", async () => {
     const entry = { title: "Hello", description: "Some text.\n" };
 
     expect(
-      buildAgentMarkdown({
+      await buildAgentMarkdown({
         entry,
         fallbackTitle: "hello",
         extension: ".md",
@@ -99,11 +123,11 @@ describe("buildAgentMarkdown", () => {
 
   test.each(["", "\n\n", "   "])(
     "leaves out the blank description %j",
-    (description) => {
+    async (description) => {
       const entry = { title: "Hello", description };
 
       expect(
-        buildAgentMarkdown({
+        await buildAgentMarkdown({
           entry,
           fallbackTitle: "hello",
           extension: ".md",

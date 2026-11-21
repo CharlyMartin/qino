@@ -31,7 +31,7 @@ export function getMarkdownToc({
 }: GetMarkdownTocParams) {
   const slugger = new GithubSlugger();
   const usedIds = new Set<string>();
-  const tree = parseMarkdownBody(body, { mdx, headingIds: true });
+  const tree = parseMarkdownBody(body, { mdx });
   const footnotes = getRenderedFootnotes(tree);
   const footnoteOrder = footnotes.map(({ id }) => id);
   // Footnotes render after the body, so their headings are slugged last.

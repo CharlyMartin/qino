@@ -14,7 +14,8 @@ export function assertSiteUrl(siteUrl: string | undefined) {
     url.pathname == "/" &&
     !url.search &&
     !url.hash &&
-    !url.username;
+    !url.username &&
+    !url.password;
   if (!isOrigin) {
     throw new Error(
       `siteUrl "${siteUrl}" must be an http(s) origin, such as "https://example.com".`,

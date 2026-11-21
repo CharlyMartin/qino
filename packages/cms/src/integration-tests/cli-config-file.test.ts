@@ -1,18 +1,11 @@
-import { execFile } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { promisify } from "node:util";
 
 import { afterEach, beforeEach, expect, test } from "vitest";
 
 import { createCloudProject, POST_SCHEMA_PATH } from "./create-cloud-project";
-
-const exec = promisify(execFile);
-const packageRoot = fileURLToPath(new URL("../../", import.meta.url));
-const jitiCli = path.join(packageRoot, "node_modules/jiti/lib/jiti-cli.mjs");
-const cli = path.join(packageRoot, "src/cli/index.ts");
+import { runQinoBuild } from "./run-qino-build";
 
 let tmp: string;
 
@@ -26,12 +19,7 @@ afterEach(async () => {
 });
 
 function build(ci?: string) {
-  const { CI: _, ...env } = process.env;
-
-  return exec(process.execPath, [jitiCli, cli, "build"], {
-    cwd: tmp,
-    env: { ...env, ...(ci == null ? {} : { CI: ci }), CONSOLA_LEVEL: "3" },
-  });
+  return runQinoBuild(tmp, ci);
 }
 
 function readConfigFile() {
