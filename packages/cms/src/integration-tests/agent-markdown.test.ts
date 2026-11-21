@@ -230,6 +230,18 @@ describe("agent Markdown for collection entries", () => {
     );
   });
 
+  test("adds no heading when the body's H1 follows a link definition", async () => {
+    await writePost(
+      "defined",
+      "---\ntitle: Hello\n---\n\n[guide]: /guide\n\n# Hello, world\n\nSee the [guide].\n",
+    );
+    const { posts } = setup();
+
+    expect(await posts.getAgentMarkdown("defined")).toBe(
+      "[guide]: https://example.com/guide\n\n# Hello, world\n\nSee the [guide].\n",
+    );
+  });
+
   test("falls back to the slug for the title, and leaves out a missing description", async () => {
     await writePost("untitled", "---\n---\n\nSome text.\n");
     const { posts } = setup();
