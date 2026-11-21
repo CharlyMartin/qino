@@ -50,6 +50,7 @@ A request wants Markdown when its path ends in `.md`, whatever its `Accept` head
 | `*/*`, `text/*`, `text/plain`, or no header | HTML     | Only `text/markdown` and `text/x-markdown` count for Markdown |
 
 - Types and parameter names are case-insensitive.
+- A `,` or `;` inside a quoted parameter value, such as `note="a,b"`, is part of the value.
 - A range whose q-value doesn't follow [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#name-quality-values), such as `q=1.5` or `q=oops`, is ignored.
 - It never answers `406 Not Acceptable`. A request that accepts neither type gets `null`, and so HTML.
 
