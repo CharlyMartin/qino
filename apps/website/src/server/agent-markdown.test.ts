@@ -45,7 +45,7 @@ test("a blog post's InstallBox becomes the npm install command", async () => {
 // below until it's mapped in `qino/` or listed here.
 const keptComponents = ["Callout"];
 
-test("pages keep only the components listed as kept", async () => {
+test("every component a page keeps is listed as kept", async () => {
   const [nodes, postSlugs] = await Promise.all([
     docsTree.getFlatTree(),
     postCollection.getAllSlugs(),
@@ -61,14 +61,23 @@ test("pages keep only the components listed as kept", async () => {
     })),
   ]);
 
-  const kept = new Set<string>();
+  // Each component left in a page, with the pages that keep it.
+  const kept: Record<string, Array<string>> = {};
   for (const { url, markdown } of pages) {
     expect(markdown, url).not.toBeNull();
-    // Code shows components as examples, and TypeScript generics look like tags.
+    // Code shows components as examples, and TypeScript generics look like
+    // tags. A fence closes on one as long or longer.
     const prose = (markdown ?? "")
-      .replace(/^(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\1[ \t]*$/gm, "")
+      .replace(/^(`{3,})[^\n]*\n[\s\S]*?^\1`*[ \t]*$/gm, "")
+      .replace(/^(~{3,})[^\n]*\n[\s\S]*?^\1~*[ \t]*$/gm, "")
       .replace(/(`+)[^\n]*?\1/g, "");
-    for (const [, name] of prose.matchAll(/<([A-Z][\w.]*)/g)) kept.add(name);
+    for (const [, name] of prose.matchAll(/<([A-Z][\w.]*)/g)) {
+      kept[name] = [...new Set([...(kept[name] ?? []), url])];
+    }
   }
-  expect([...kept].sort()).toEqual(keptComponents);
+  const unlisted = Object.fromEntries(
+    Object.entries(kept).filter(([name]) => !keptComponents.includes(name)),
+  );
+  expect(unlisted).toEqual({});
+  expect(Object.keys(kept).sort()).toEqual([...keptComponents].sort());
 });

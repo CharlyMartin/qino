@@ -28,8 +28,14 @@ probe() {
   local ok=1
   [ "$code" = "$status" ] || ok=0
   case $kind in
-    # Vary must list Accept itself, not only Accept-Encoding.
-    markdown) [[ $type == text/markdown* && ",${vary// /}," == *,[Aa]ccept,* ]] || ok=0 ;;
+    # A negotiated answer's Vary lists Accept itself, not only Accept-Encoding.
+    # A Markdown URL never varies, so it needs none.
+    markdown)
+      [[ $type == text/markdown* ]] || ok=0
+      if [[ $path != *.md && $path != *.md/ ]]; then
+        [[ ",${vary// /}," == *,[Aa]ccept,* ]] || ok=0
+      fi
+      ;;
     html) [[ $type == text/html* ]] || ok=0 ;;
     *) echo "unknown kind: $kind" >&2; exit 2 ;;
   esac
