@@ -11,20 +11,21 @@
     },
     "next-js#build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "!src/content/.qino/**"],
       "outputs": [
         ".next/**",
         "!.next/cache/**",
         "public/llms.txt",
         "public/llms-full.txt",
         "public/index.md",
-        "src/content/.qino/**"
+        "src/content/.qino/**",
+        "qino/_generated/**"
       ],
       "env": ["CI"]
     },
     "website#build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "!content/.qino/**"],
       "outputs": [".output/**", ".vercel/output/**", "qino/_generated/**"],
       "env": ["NITRO_PRESET", "VERCEL"],
       "passThroughEnv": ["GITHUB_TOKEN"]
