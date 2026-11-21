@@ -28,6 +28,8 @@ git rebase --onto origin/main <previous ticket's branch> <branch>
 
 When you ship a PR off `main` while a ticket stack is open, test it against the stack before telling the user how the two interact: merge it into the stack's last branch on a throwaway branch and run `pnpm check`, since a merge without conflicts can still break a rebased branch. Tell the user what the rebase will need, then delete the throwaway branch.
 
+When the stack needs that PR before its own PRs merge, merge `main` down the stack instead, with `.claude/skills/ship/merge-down-stack.sh main <first branch> … <last branch>`. Then push each branch (step 4).
+
 ## 2. Commit
 
 Make atomic commits. A typical split:
@@ -53,7 +55,7 @@ Commit messages and PRs carry no `Co-Authored-By` trailers or "Generated with Cl
 
 ## 3. Review
 
-`code-review` reads committed work, so review after committing, against the base (step 5). Give its spec reviewer the scratchpad directory's path, and have it probe edge cases by running the code and name the probes it ran. A probe that has to sit in the repo to run is named `zz-probe-*`, which git ignores, and deleted afterwards. When the change reads or rewrites Markdown or MDX bodies, such as agent Markdown, the table of contents or stats, have the spec reviewer also run the probes in `docs/agents/markdown-probes.md`. When the change alters how the website answers Markdown or HTML requests, have the spec reviewer also run `apps/website/scripts/probe-agent-markdown.sh --dev` against a dev server from `apps/website/scripts/dev-server.sh start`, and add a probe there for each case the change adds. Give the spec reviewer the decisions the user took for this change, and have it name the spec and ticket lines they contradict.
+`code-review` reads committed work, so review after committing, against the base (step 5). Give its spec reviewer the scratchpad directory's path, and have it probe edge cases by running the code and name the probes it ran. A probe that has to sit in the repo to run is named `zz-probe-*`, which git ignores, and deleted afterwards. When the change reads or rewrites Markdown or MDX bodies, such as agent Markdown, the table of contents or stats, or parses an `Accept` header, have the spec reviewer also run the probes in `docs/agents/markdown-probes.md`. When the change alters how the website answers Markdown or HTML requests, have the spec reviewer also run `apps/website/scripts/probe-agent-markdown.sh --dev` against a dev server from `apps/website/scripts/dev-server.sh start`, and add a probe there for each case the change adds. Give the spec reviewer the decisions the user took for this change, and have it name the spec and ticket lines they contradict.
 
 Review whatever `/implement`'s review didn't cover: the whole change for a bug fix, or the commits made after it other than the fixes for its findings, such as retro improvements. Skip this step when nothing is left.
 

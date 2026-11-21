@@ -71,6 +71,7 @@ test.each([
   "text/markdown;charset=utf-8",
   "text/markdown;charset=utf-8;q=0.5",
   "text/markdown;q=0.5;level=1",
+  'text/markdown;note="a,b";q=0.5',
 ])("Accept %j gets Markdown", (accept) => {
   expect(route("/docs/guide/cli", accept).path).toBe("/docs/guide/cli.md");
 });
@@ -93,6 +94,8 @@ test.each([
   "text/markdown;q=0.0001",
   "text/markdown;q=1.5",
   "text/markdown;q=oops",
+  'text/markdown;note="a,b";q=0, text/html',
+  'text/markdown;note="say \\"hi, there\\"";q=0',
   "text/markdownish",
 ])("Accept %j gets HTML", (accept) => {
   expect(route("/docs/guide/cli", accept).path).toBe("/docs/guide/cli");

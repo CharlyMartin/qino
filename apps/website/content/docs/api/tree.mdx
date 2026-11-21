@@ -38,6 +38,8 @@ qino.defineTree(params: {
     media?: MediaRule | Array<MediaRule>;
   };
   views?: (view: ViewHelper) => Record<string, View> & { default: View };
+  pages?: { index: `/${string}`; entry: `/${string}{slug}${string}`; title: string; llmsFull?: boolean };
+  agentMarkdown?: { components?: Record<string, AgentMarkdownComponent<Entry>> };
   cloud?: { displayAs?: string; displayEntryAs?: `${string}{${RequiredField}}${string}`; saveEntryAs?: `${string}{${RequiredField}}${string}`; searchableBy?: Array<Field>; hiddenFields?: Array<OptionalField>; media?: { saveFileAs?: string } };
 }): Tree;
 
@@ -57,11 +59,13 @@ type MediaRule = { accepted: MimeType; maxSize: Size; parse?: (value: string, ct
 | `media`         | `Record<path, MediaRule>`                                                             | no       | `{}`            | Media fields, keyed by path to a string field, with the one MIME type each accepts and its max size. Image fields are read as `QinoImage`, and `parse` reads a value first. See [Media](/docs/concepts/media)                                                                                                                                                                                                                                                                       |
 | `markdown`      | `{ stats?; toc?; media? }`                                                            | no       | `{}`            | Configures the body. Markdown and MDX only. `stats` adds `_stats`, its word and character counts. See [MarkdownStats](/docs/api/types/markdown-stats). `toc` adds `_toc`, its headings with their anchor ids: `true` lists every level, `upTo` stops at one, and `slug` sets how ids are made. See [MarkdownToc](/docs/api/types/markdown-toc). `media` lists the rules body images must match, each read with its own `parse`. See [Body images](/docs/concepts/media#body-images) |
 | `views`         | `(view) => { default: View; [name]: View }`                                           | no       |                 | Helper offers `resolveDepth` and `augment` only. `filter` and `sort` are rejected                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `pages`         | `{ index; entry; title; llmsFull? }`                                                  | no       |                 | Where the index page and entry pages live, for agent Markdown, Markdown URLs and `llms.txt`. A slug keeps its slashes, so `guide/cli` fills `/docs/{slug}` as `/docs/guide/cli`. Requires `siteUrl` on `initQino`. Same fields and rules as [collections](/docs/api/collection#pages)                                                                                                                                                                                               |
+| `agentMarkdown` | `{ components? }`                                                                     | no       |                 | Functions that turn MDX components into Markdown in agent Markdown, by component name. Markdown and MDX only. See [AgentMarkdownComponent](/docs/api/types/agent-markdown-component)                                                                                                                                                                                                                                                                                                |
 | `cloud`         | `{ displayAs?; displayEntryAs?; saveEntryAs?; searchableBy?; hiddenFields?; media? }` | no       |                 | Cloud UI names, entry labels (default: `titleField`) and naming, search, hidden fields, and where uploads are saved. Requires `cloud` on `initQino`. See [Cloud](/docs/guide/cloud#primitives)                                                                                                                                                                                                                                                                                      |
 
 ## Returns
 
-A `Tree` with seven getters.
+A `Tree` with nine getters.
 
 ### Getters
 
@@ -72,6 +76,8 @@ A `Tree` with seven getters.
 - [`getAncestorNodes(slug)`](/docs/api/tree/get-ancestor-nodes)
 - [`getNextNode(slug)`](/docs/api/tree/get-next-node)
 - [`getPreviousNode(slug)`](/docs/api/tree/get-previous-node)
+- [`getAgentMarkdown(slug?)`](/docs/api/tree/get-agent-markdown)
+- [`getMarkdownUrl(slug?)`](/docs/api/tree/get-markdown-url)
 
 ## Throws
 
@@ -79,7 +85,8 @@ At definition time, the shared view errors listed on [defineCollection](/docs/ap
 
 - `tree views do not support filter or sort.`
 - `tree view "<name>" does not support filter or sort.`
-- `"<id>" sets \`cloud\`, but initQino doesn't. Add \`cloud\` to initQino.`
+- ``"<id>" sets `cloud`, but initQino doesn't. Add `cloud` to initQino.``
+- The `pages` errors listed on [defineCollection](/docs/api/collection#throws), naming `Tree "<directory>"`.
 
 Layout errors surface when a getter walks the tree. See [getTree](/docs/api/tree/get-tree).
 
@@ -87,3 +94,4 @@ Layout errors surface when a getter walks the tree. See [getTree](/docs/api/tree
 
 - [Trees](/docs/concepts/trees)
 - [Content folder](/docs/guide/content-folder)
+- [Agent-ready content](/docs/guide/agent-ready-content)

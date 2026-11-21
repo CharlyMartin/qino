@@ -81,6 +81,8 @@ for path in /docs/guide/cli /docs/guide /blog/why-another-cms /docs /blog; do
   probe 200 html GET "$path" "text/html, text/markdown"
   probe 200 html GET "$path" "text/plain"
   probe 200 html GET "$path" "text/markdown;q=0"
+  # A quoted parameter's `,` and `;` are data, so this `q=0` still counts.
+  probe 200 html GET "$path" 'text/markdown;note="a,b";q=0, text/html'
   probe 200 html GET "$path"
 done
 want_link=
