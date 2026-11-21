@@ -89,6 +89,11 @@ export type Collection<
     >
   >;
   /**
+   * The index page's agent Markdown: `# {pages.title}`, then a link to each
+   * entry's Markdown URL with its description, in default-view order.
+   */
+  getAgentMarkdown(): Promise<string>;
+  /**
    * An entry page's agent Markdown, or `null` when the slug is unknown or the
    * view excludes the entry. Takes any string, such as a route param.
    */
@@ -96,6 +101,11 @@ export type Collection<
     slug: Slug,
     ...args: Args
   ): Promise<string | null>;
+  /**
+   * The index page's Markdown URL: its URL on `siteUrl`, without a trailing
+   * `/`, with `.md` appended, or `/index.md` at the site root.
+   */
+  getMarkdownUrl(): string;
   /**
    * An entry page's Markdown URL: its URL on `siteUrl`, without a trailing
    * `/`, with `.md` appended.

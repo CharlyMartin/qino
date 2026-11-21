@@ -1,14 +1,11 @@
 import { MARKDOWN_FIELD_NAME } from "../../data/globals";
 import type { SupportedFileExtension } from "../../types/utils";
 import { absolutizeLinks } from "./absolutize-links";
+import { readEntryDescription } from "./read-entry-description";
+import { type ReadEntryTitleParams, readEntryTitle } from "./read-entry-title";
 import { startsWithH1 } from "./starts-with-h1";
 
-type BuildAgentMarkdownParams = {
-  entry: Record<string, unknown>;
-  /** The field holding the title. Defaults to `"title"`. */
-  titleField?: string;
-  /** The title when the entry has none, such as its slug. */
-  fallbackTitle: string;
+type BuildAgentMarkdownParams = ReadEntryTitleParams & {
   /** The entry file's extension: a `.json` entry has no body. */
   extension: SupportedFileExtension;
   /** The origin site-relative links resolve against, without a trailing `/`. */
@@ -22,12 +19,11 @@ type BuildAgentMarkdownParams = {
  * its opening, without either.
  */
 export function buildAgentMarkdown({
-  entry,
-  titleField = "title",
-  fallbackTitle,
   extension,
   origin,
+  ...title
 }: BuildAgentMarkdownParams) {
+  const { entry } = title;
   const mdx = extension == ".mdx";
   const rawBody = extension == ".json" ? undefined : entry[MARKDOWN_FIELD_NAME];
   const body =
@@ -38,18 +34,10 @@ export function buildAgentMarkdown({
         )
       : "";
 
-  const rawTitle = entry[titleField];
-  const title =
-    typeof rawTitle == "string" ? rawTitle.replace(/\s+/g, " ").trim() : "";
-  // YAML block scalars (`|`, `>`) end a description with a newline.
-  const description =
-    typeof entry.description == "string"
-      ? entry.description.replace(/\r\n?/g, "\n").trim()
-      : "";
-
   const blocks = [];
   if (!startsWithH1(body, { mdx })) {
-    blocks.push(`# ${title || fallbackTitle}`);
+    blocks.push(`# ${readEntryTitle(title)}`);
+    const description = readEntryDescription(entry);
     if (description) {
       const lines = description.split("\n");
       blocks.push(lines.map((line) => (line ? `> ${line}` : ">")).join("\n"));

@@ -5,7 +5,7 @@
 Adds agent Markdown to trees and items, as collections have it. A tree declares `pages` like a collection, and an item declares its one `page`:
 
 ```ts
-const docs = qino.defineTree({ directory: "docs", titleField: "title", pages: { index: "/docs", entry: "/docs/{slug}" }, … });
+const docs = qino.defineTree({ directory: "docs", titleField: "title", pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" }, … });
 const about = qino.defineItem({ file: "about.md", page: "/about", … });
 ```
 

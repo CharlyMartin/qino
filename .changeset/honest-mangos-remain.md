@@ -11,7 +11,7 @@ const posts = qino.defineCollection({
   directory: "posts",
   extension: ".mdx",
   schema,
-  pages: { index: "/blog", entry: "/blog/{slug}" },
+  pages: { index: "/blog", entry: "/blog/{slug}", title: "Blog" },
 });
 ```
 

@@ -6,6 +6,8 @@ import {
   QinoPrimitives,
 } from "../../data/globals";
 import { buildAgentMarkdown } from "../../lib/agent-markdown/build-agent-markdown";
+import { buildIndexAgentMarkdown } from "../../lib/agent-markdown/build-index-agent-markdown";
+import { toListingLink } from "../../lib/agent-markdown/to-listing-link";
 import { unwrapSettled } from "../../lib/async/unwrap-settled";
 import type { DependencyCollector } from "../../lib/cache/create-dependency-collector";
 import { createFileCache } from "../../lib/cache/create-file-cache";
@@ -16,10 +18,10 @@ import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-confi
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
-import { fillEntryPagePath } from "../../lib/pages/fill-entry-page-path";
+import { getEntrySlug } from "../../lib/meta/get-entry-slug";
 import { requirePages } from "../../lib/pages/require-pages";
 import { resolvePages } from "../../lib/pages/resolve-pages";
-import { toMarkdownUrl } from "../../lib/pages/to-markdown-url";
+import { toPagesMarkdownUrl } from "../../lib/pages/to-pages-markdown-url";
 import { assertPageOptions } from "../../lib/pagination/assert-page-options";
 import { copyPage } from "../../lib/pagination/copy-page";
 import { paginate } from "../../lib/pagination/paginate";
@@ -389,10 +391,32 @@ export function defineCollection<
     >;
   }
 
+  async function getAgentMarkdown(): Promise<string>;
   async function getAgentMarkdown<
     Args extends ViewArguments<ConfiguredViews<Views>> = [],
-  >(slug: Slug, ...[options]: Args) {
-    const { siteUrl } = requirePages(resolvedPages, { owner, option: "pages" });
+  >(slug: Slug, ...args: Args): Promise<string | null>;
+  async function getAgentMarkdown(
+    slug?: Slug,
+    ...[options]: ViewArguments<ConfiguredViews<Views>>
+  ) {
+    const { title, siteUrl } = requirePages(resolvedPages, {
+      owner,
+      option: "pages",
+    });
+    // Only a missing slug means the index page: `""` is a slug no entry has.
+    if (typeof slug == "undefined") {
+      const entries = await getEntries();
+      const links = entries.map((entry) => {
+        const entrySlug = getEntrySlug(entry);
+        return toListingLink({
+          entry,
+          fallbackTitle: entrySlug,
+          url: getMarkdownUrl(entrySlug as SlugFor<Dir>),
+        });
+      });
+      return buildIndexAgentMarkdown({ title, links });
+    }
+
     // Only a listed slug reads a file: a route param can't reach past the
     // collection with `..`.
     if (!(await getAllSlugs()).includes(slug as SlugFor<Dir>)) return null;
@@ -408,11 +432,8 @@ export function defineCollection<
     });
   }
 
-  function getMarkdownUrl(slug: SlugFor<Dir>) {
-    const { entry, siteUrl } = requirePages(resolvedPages, {
-      owner,
-      option: "pages",
-    });
-    return toMarkdownUrl(fillEntryPagePath(entry, slug), siteUrl);
+  function getMarkdownUrl(slug?: SlugFor<Dir>) {
+    const pages = requirePages(resolvedPages, { owner, option: "pages" });
+    return toPagesMarkdownUrl(pages, slug);
   }
 }

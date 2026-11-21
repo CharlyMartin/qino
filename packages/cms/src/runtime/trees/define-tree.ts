@@ -7,6 +7,8 @@ import {
   QinoPrimitives,
 } from "../../data/globals";
 import { buildAgentMarkdown } from "../../lib/agent-markdown/build-agent-markdown";
+import { buildIndexAgentMarkdown } from "../../lib/agent-markdown/build-index-agent-markdown";
+import { toListingLink } from "../../lib/agent-markdown/to-listing-link";
 import type { DependencyCollector } from "../../lib/cache/create-dependency-collector";
 import { createDerivedCache } from "../../lib/cache/create-derived-cache";
 import { createFileCache } from "../../lib/cache/create-file-cache";
@@ -16,10 +18,9 @@ import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-confi
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
-import { fillEntryPagePath } from "../../lib/pages/fill-entry-page-path";
 import { requirePages } from "../../lib/pages/require-pages";
 import { resolvePages } from "../../lib/pages/resolve-pages";
-import { toMarkdownUrl } from "../../lib/pages/to-markdown-url";
+import { toPagesMarkdownUrl } from "../../lib/pages/to-pages-markdown-url";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { addEntryStats } from "../../lib/stats/add-entry-stats";
@@ -377,8 +378,38 @@ export function defineTree<
     });
   }
 
-  async function getAgentMarkdown(slug: Slug) {
-    const { siteUrl } = requirePages(resolvedPages, { owner, option: "pages" });
+  async function getAgentMarkdown(): Promise<string>;
+  async function getAgentMarkdown(slug: Slug): Promise<string | null>;
+  async function getAgentMarkdown(slug?: Slug) {
+    const { title, siteUrl } = requirePages(resolvedPages, {
+      owner,
+      option: "pages",
+    });
+    // Only a missing slug means the index page: `""` is a slug no node has.
+    if (typeof slug == "undefined") {
+      const toLink = async (node: TreeNode) =>
+        toListingLink({
+          entry: (await readEntry(node.slug)) as Record<string, unknown>,
+          titleField,
+          fallbackTitle: node.slug,
+          url: getMarkdownUrl(node.slug as SlugFor<Dir>),
+        });
+      const sections = await Promise.all(
+        (await getTree()).map(async (root) => {
+          const [rootLink, descendantLinks] = await Promise.all([
+            toLink(root),
+            Promise.all(flattenTree(root.children).map(toLink)),
+          ]);
+          // The root node titles its section, then lists first.
+          return {
+            title: rootLink.title,
+            links: [rootLink, ...descendantLinks],
+          };
+        }),
+      );
+      return buildIndexAgentMarkdown({ title, sections });
+    }
+
     // Only a listed slug reads a file: a route param can't reach past the
     // tree with `..`.
     const nodes = await getFlatTree();
@@ -394,11 +425,8 @@ export function defineTree<
     });
   }
 
-  function getMarkdownUrl(slug: SlugFor<Dir>) {
-    const { entry, siteUrl } = requirePages(resolvedPages, {
-      owner,
-      option: "pages",
-    });
-    return toMarkdownUrl(fillEntryPagePath(entry, slug), siteUrl);
+  function getMarkdownUrl(slug?: SlugFor<Dir>) {
+    const pages = requirePages(resolvedPages, { owner, option: "pages" });
+    return toPagesMarkdownUrl(pages, slug);
   }
 }
