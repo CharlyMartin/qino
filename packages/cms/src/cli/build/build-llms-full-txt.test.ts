@@ -39,6 +39,11 @@ describe("buildLlmsFullTxt", () => {
       "# Example\n\n<!-- note -->\n\n> A site.\n",
       "# Example\n\n<!-- note -->\n\n> A site.",
     ],
+    [
+      "a link definition before the summary",
+      "# Example\n\n[docs]: /docs\n\n> A site.\n",
+      "# Example\n\n[docs]: /docs\n\n> A site.",
+    ],
     ["no summary", "# Example\n\nA site.\n", "# Example"],
     ["text before it", "A site.\n\n# Example\n", "# Example"],
   ])("keeps the H1 as written, with %s", (_, template, head) => {

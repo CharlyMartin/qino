@@ -8,11 +8,16 @@ type ToListingLinkParams = ReadEntryTitleParams & {
   url: string;
 };
 
-/** An entry's link in a listing, its title and description each on one line. */
+/**
+ * An entry's link in a listing, its title and description each on one line,
+ * and the description's site-relative links made absolute.
+ */
 export function toListingLink({ url, ...title }: ToListingLinkParams) {
+  // The Markdown URL is on `siteUrl`, so its origin is the site's.
+  const description = readEntryDescription(title.entry, new URL(url).origin);
   return {
     title: readEntryTitle(title),
     url,
-    description: toOneLine(readEntryDescription(title.entry)),
+    description: toOneLine(description),
   } satisfies ListingLink;
 }

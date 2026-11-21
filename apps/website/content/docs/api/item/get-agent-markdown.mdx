@@ -1,0 +1,39 @@
+---
+title: getAgentMarkdown
+description: Build the agent Markdown of the item's page.
+since: "0.25.0"
+---
+
+Builds the agent Markdown of the item's page, the document served to agents in place of it. The item must declare [`page`](/docs/api/item#parameters).
+
+```ts title="src/app/md/about/route.ts"
+const about = await aboutItem.getAgentMarkdown();
+```
+
+## Signature
+
+```ts title="@qino/cms"
+item.getAgentMarkdown(): Promise<string>;
+```
+
+## Returns
+
+`Promise<string>`:
+
+- `# {title}`, from the `title` field and falling back to the file name without its extension, then `> {description}` when the `description` field holds one, then the body without frontmatter.
+- No heading when the body opens with its own H1.
+- Site-relative links and images made absolute on `siteUrl`, and MDX components replaced through [`agentMarkdown.components`](/docs/api/types/agent-markdown-component).
+- The heading only for a JSON item.
+
+Item views can't filter, so it never resolves to `null`.
+
+## Throws
+
+- `Item "<file>" has no page: declare it to get agent Markdown and a Markdown URL.`
+- A raw `ENOENT` error from Node when the file does not exist.
+- Validation, relation, augment, and component function errors. See [Errors](/docs/api/errors).
+
+## See also
+
+- [getMarkdownUrl](/docs/api/item/get-markdown-url)
+- [negotiateMarkdown](/docs/api/negotiate-markdown)
