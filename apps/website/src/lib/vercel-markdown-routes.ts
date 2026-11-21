@@ -1,8 +1,12 @@
-// An `Accept` header whose first range is Markdown, with a q-value above 0.
-// Vercel matches it as a regex, which can't weigh q-values, so
-// `text/html;q=0.5, text/markdown` gets HTML where `negotiateMarkdown` would
-// answer Markdown.
-const LISTS_MARKDOWN_FIRST = String.raw`^text/(?:x-)?markdown(?!\s*;\s*q\s*=\s*0(?:\.0{0,3})?\s*(?:,|$))(?:\s*[,;].*)?$`;
+// A range's parameters other than q, and RFC 9110's qvalue above 0.
+const OTHER_PARAMS = String.raw`(?:\s*;(?!\s*[qQ]\s*=)[^;,]*)*`;
+const QVALUE_ABOVE_0 = String.raw`(?:1(?:\.0{0,3})?|0\.(?!0{1,3}\s*(?:[;,]|$))\d{1,3})(?=\s*(?:[;,]|$))`;
+
+// An `Accept` header whose first range is Markdown, in lowercase, with a
+// well-formed q-value above 0 or none. Vercel matches it as a regex, which
+// can't weigh q-values: where they reorder the ranges, as in
+// `text/markdown;q=0.5, */*`, it disagrees with `negotiateMarkdown`.
+const LISTS_MARKDOWN_FIRST = String.raw`^text/(?:x-)?markdown${OTHER_PARAMS}(?:\s*;\s*[qQ]\s*=\s*${QVALUE_ABOVE_0}${OTHER_PARAMS})?\s*(?:,.*)?$`;
 
 // The pages with agent Markdown, and their Markdown URLs.
 const pages = [

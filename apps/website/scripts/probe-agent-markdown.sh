@@ -2,7 +2,7 @@
 # Checks how the site answers Markdown and HTML requests, against a deploy:
 # `apps/website/scripts/probe-agent-markdown.sh https://<preview>.vercel.app`.
 # With `--dev`, against a dev server, it skips what only Vercel's routes add:
-# `Link` and `Vary: Accept` on pages, and the homepage's Markdown. It follows
+# `Link` and `Vary: Accept` on pages, and the homepage's agent Markdown. It follows
 # redirects, and exits 1 when an answer differs from the one expected.
 set -u
 dev=0
@@ -17,7 +17,7 @@ fi
 base=$1
 failed=0
 # The `Link` the next probes expect, when set.
-link=
+want_link=
 
 # probe <status> <markdown|html> <method> <path> [accept]
 probe() {
@@ -50,8 +50,8 @@ probe() {
     html) [[ $type == text/html* ]] || ok=0 ;;
     *) echo "unknown kind: $kind" >&2; exit 2 ;;
   esac
-  if [ -n "$link" ]; then
-    [ "$got_link" = "$link" ] || ok=0
+  if [ -n "$want_link" ]; then
+    [ "$got_link" = "$want_link" ] || ok=0
     [ $varies = 1 ] || ok=0
   fi
 
@@ -59,14 +59,14 @@ probe() {
   if [ $ok = 1 ]; then
     echo "ok   $line"
   else
-    echo "FAIL $line, Vary: $vary, Link: $got_link; expected $status $kind${link:+, Link: $link}"
+    echo "FAIL $line, Vary: $vary, Link: $got_link; expected $status $kind${want_link:+, Link: $want_link}"
     failed=1
   fi
 }
 
 # expect_link <link>: the `Link` the next probes expect, on a deploy.
 expect_link() {
-  if [ $dev = 0 ]; then link=$1; fi
+  if [ $dev = 0 ]; then want_link=$1; fi
 }
 
 # Entry and index pages, by Accept. TanStack Start answers 406 to an Accept
@@ -83,19 +83,19 @@ for path in /docs/guide/cli /docs/guide /blog/why-another-cms /docs /blog; do
   probe 200 html GET "$path" "text/markdown;q=0"
   probe 200 html GET "$path"
 done
-link=
+want_link=
 
-# The homepage's Markdown is the prerendered `/index.md`, which only Vercel's
-# routes serve at `/`.
+# The homepage's agent Markdown is the prerendered `/index.md`, which only
+# Vercel's routes serve at `/`.
 if [ $dev = 0 ]; then
   expect_link '</index.md>; rel="alternate"; type="text/markdown", </llms.txt>; rel="describedby"'
   probe 200 markdown GET / "text/markdown"
   probe 200 html GET / "text/html"
   probe 200 html GET /
-  link=
+  want_link=
 fi
 
-# A page without Markdown falls back to HTML.
+# A page without agent Markdown falls back to HTML.
 probe 200 html GET /contentlayer-exit "text/markdown"
 probe 200 html GET /contentlayer-exit "text/plain"
 

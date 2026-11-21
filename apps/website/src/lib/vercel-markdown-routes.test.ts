@@ -67,11 +67,16 @@ test.each([
   "text/markdown;q=0.9, text/html;q=0.8",
   "text/markdown; q=0.5",
   "text/markdown;q=0.05",
+  "text/markdown;q=1.0, text/html",
+  "text/markdown;charset=utf-8",
+  "text/markdown;charset=utf-8;q=0.5",
+  "text/markdown;q=0.5;level=1",
 ])("Accept %j gets Markdown", (accept) => {
   expect(route("/docs/guide/cli", accept).path).toBe("/docs/guide/cli.md");
 });
 
 // Vercel can't weigh q-values, so only Markdown listed first counts.
+// `negotiateMarkdown` would answer Markdown to `text/html;q=0.5, text/markdown`.
 test.each([
   undefined,
   "text/html",
@@ -81,6 +86,13 @@ test.each([
   "text/plain",
   "text/markdown;q=0",
   "text/markdown; q=0.000, text/html",
+  "text/markdown;charset=utf-8;q=0",
+  "text/markdown;Q=0",
+  "text/markdown;q=0.",
+  // `negotiateMarkdown` ignores a range whose q-value is malformed.
+  "text/markdown;q=0.0001",
+  "text/markdown;q=1.5",
+  "text/markdown;q=oops",
   "text/markdownish",
 ])("Accept %j gets HTML", (accept) => {
   expect(route("/docs/guide/cli", accept).path).toBe("/docs/guide/cli");

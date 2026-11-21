@@ -34,4 +34,4 @@ curl -sN -X POST https://acceptmarkdown.com/api/readiness \
   -d '{"url":"<url>"}'
 ```
 
-It checks four things: `serves-markdown`, `varies-by-accept`, `rejects-unsupported` (406) and `q-values`. `rejects-unsupported` always warns, because qino never answers 406. `q-values` warns on a prerendered site, where a host rewrite does the negotiation and can't read q-values.
+It checks four things: `serves-markdown`, `varies-by-accept`, `rejects-unsupported` (406) and `q-values`. `rejects-unsupported` always warns, because qino never answers 406. `q-values` sends `text/html;q=1.0, text/markdown;q=0.5`, so it passes on a prerendered site too, though a host rewrite there can't weigh q-values.
