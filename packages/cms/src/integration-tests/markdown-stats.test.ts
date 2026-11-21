@@ -97,6 +97,21 @@ describe("markdown.stats", () => {
     expect((await docs.getEntry("intro"))._stats.wordCount).toBe(2);
   });
 
+  test("leaves {#id} heading ids out, and an MDX body's components with them", async () => {
+    await fs.writeFile(
+      nodePath.join(tmp, "docs", "ids.mdx"),
+      "---\ntitle: Ids\n---\n\n## Install {#install}\n\nRun <Callout>Ignored</Callout> it.\n",
+    );
+    const docs = setup().qino.defineCollection({
+      directory: "docs",
+      extension: ".mdx",
+      schema: z.object({ title: z.string() }),
+      markdown: { stats: true },
+    });
+
+    expect((await docs.getEntry("ids"))._stats.wordCount).toBe(3);
+  });
+
   test("leaves entries without _stats when off", async () => {
     const { qino } = setup();
     const authors = qino.defineCollection({

@@ -1,0 +1,14 @@
+---
+"@qino/cms": minor
+---
+
+Adds agent Markdown for index pages. Called without a slug, `getAgentMarkdown()` on a collection or a tree returns one unpaginated listing that links every entry's Markdown URL, with its description:
+
+```md
+# Blog
+
+- [Hello](https://example.com/blog/hello.md): The first post.
+- [World](https://example.com/blog/world.md)
+```
+
+A collection lists the entries its default view keeps, in its order. A tree gives each root node a `##` section that lists the node and then its descendants. The heading is `pages.title`, which `pages` requires. `getMarkdownUrl()` without a slug returns the index page's Markdown URL, such as `https://example.com/blog.md`.

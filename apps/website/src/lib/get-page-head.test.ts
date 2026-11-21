@@ -18,6 +18,16 @@ test("sets an absolute canonical URL", () => {
   ]);
 });
 
+test("advertises the page's Markdown URL as an alternate", () => {
+  const markdownUrl = "https://www.qino.works/docs/guide/installation.md";
+  const { links } = getPageHead({ ...options, markdownUrl });
+  expect(links).toContainEqual({
+    rel: "alternate",
+    type: "text/markdown",
+    href: markdownUrl,
+  });
+});
+
 test("mirrors title and description into Open Graph and Twitter tags", () => {
   const { meta } = getPageHead({ ...options, type: "article" });
   expect(meta).toContainEqual({ property: "og:title", content: options.title });

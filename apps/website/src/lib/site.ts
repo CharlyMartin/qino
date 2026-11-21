@@ -1,3 +1,4 @@
+// `content/llms.md`, the llms.txt template, repeats the URL and description.
 export const site = {
   url: "https://www.qino.works",
   name: "qino",
