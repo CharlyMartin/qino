@@ -62,13 +62,21 @@ SEO and LLM endpoints:
   the last `qino build`.
 - Docs pages, blog posts, `/docs` and `/blog` serve qino's agent Markdown at their
   Markdown URL (`/docs/<slug>.md`, `/blog/<slug>.md`, `/docs.md`, `/blog.md`), or
-  when `Accept` prefers `text/markdown`, through `negotiateMarkdown`. A
-  prerendered page is a static file, so only the Start runtime's pages read
-  `Accept`. Their `pages` and `agentMarkdown.components`, for `InstallBox` and
+  when `Accept` prefers `text/markdown`, through `negotiateMarkdown`. Their
+  `pages` and `agentMarkdown.components`, for `InstallBox` and
   `LinkGrid`, live in `qino/`, and each page advertises its Markdown URL with
   `<link rel="alternate">`. Markdown URLs with a "View Markdown" link are
   prerendered through the crawler; the rest are served by the Start runtime.
   Both stay out of the sitemap.
+- On Vercel, a prerendered page is served before any route runs, so
+  `src/lib/vercel-markdown-routes.ts` negotiates for it: Vercel rewrites an
+  `Accept` that lists Markdown first to the Markdown URL, `/` included, and adds
+  `Vary: Accept` and a `Link` to the Markdown URL; the homepage's also links
+  `llms.txt`. A Markdown URL that wasn't prerendered falls through to the Start
+  runtime. The rewrite can't weigh q-values, unlike `negotiateMarkdown`.
+- `src/start.ts`'s request middlewares make HTML the fallback for an `Accept`
+  that names neither HTML nor `*/*`, which TanStack Start would answer with
+  406, and turn a 404 into qino's Markdown 404 when the request wants Markdown.
 - `public/og.png` (1200×630), `public/favicon.svg` and `public/apple-touch-icon.png`
   are referenced from the root route.
 
@@ -77,6 +85,7 @@ Checks:
 ```sh
 pnpm --filter website check-types
 pnpm --filter website test
-apps/website/scripts/probe-agent-markdown.sh http://localhost:3000   # against a running dev server
+apps/website/scripts/probe-agent-markdown.sh https://<preview>.vercel.app   # against a deploy
+apps/website/scripts/probe-agent-markdown.sh --dev http://localhost:3000    # against a running dev server
 pnpm biome check .
 ```
