@@ -11,6 +11,7 @@ import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
 import type { ResolvedMarkdownConfig } from "./markdown-config";
 import type { AnyMediaConfig } from "./media";
+import type { PagesMeta } from "./pages";
 import type { Relations } from "./relations";
 import type { ResolveDepths, ResolveEntry, UnresolvedMode } from "./resolve";
 import type { ObjectSchema, ValidatedOutput } from "./schema";
@@ -64,6 +65,8 @@ export type TreeMeta<
   readonly media: AnyMediaConfig;
   readonly markdown: ResolvedMarkdownConfig;
   readonly cloud?: PrimitiveCloudConfig;
+  /** The primitive's checked `pages`, when it declares them. */
+  readonly pages?: PagesMeta;
   readonly readEntry: (
     slug: Slug,
     dependencies?: DependencyCollector,
@@ -110,6 +113,27 @@ export type Tree<
   getAncestorNodes(slug: SlugFor<Dir>): Promise<Array<TreeNode>>;
   getNextNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
   getPreviousNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
+  /**
+   * The index page's agent Markdown: `# {pages.title}`, then a section per
+   * root node, linking the node and its descendants, in tree order, to their
+   * Markdown URLs with their descriptions.
+   */
+  getAgentMarkdown(): Promise<string>;
+  /**
+   * An entry page's agent Markdown, or `null` when the slug names no node.
+   * Takes any string, such as a route param.
+   */
+  getAgentMarkdown(slug: Slug): Promise<string | null>;
+  /**
+   * The index page's Markdown URL: its URL on `siteUrl`, without a trailing
+   * `/`, with `.md` appended, or `/index.md` at the site root.
+   */
+  getMarkdownUrl(): string;
+  /**
+   * An entry page's Markdown URL: its URL on `siteUrl`, without a trailing
+   * `/`, with `.md` appended.
+   */
+  getMarkdownUrl(slug: SlugFor<Dir>): string;
 };
 
 // An entry as read, before a view resolves its relations.
@@ -137,6 +161,8 @@ export type AnyTreeMeta = {
   readonly media: AnyMediaConfig;
   readonly markdown: ResolvedMarkdownConfig;
   readonly cloud?: PrimitiveCloudConfig;
+  /** The primitive's checked `pages`, when it declares them. */
+  readonly pages?: PagesMeta;
   readonly readEntry: (
     slug: Slug,
     dependencies?: DependencyCollector,

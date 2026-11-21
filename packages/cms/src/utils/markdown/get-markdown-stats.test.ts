@@ -25,6 +25,12 @@ describe("getMarkdownStats", () => {
     });
   });
 
+  test("excludes {#id} heading ids, which keep the body parsing as MDX", () => {
+    const body = "# Hello {#hello}\n\nRun <Callout>Ignored</Callout> it.\n";
+
+    expect(getMarkdownStats(body).wordCount).toBe(3);
+  });
+
   test("supports GFM tables and excludes MDX expressions and components", () => {
     const body = [
       "| Name |",

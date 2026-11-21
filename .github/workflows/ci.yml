@@ -20,9 +20,5 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - run: pnpm check-types
-      - run: pnpm biome check .
-      - run: pnpm --filter @qino/cms check-dist
-      - run: pnpm --filter @qino/tooling check-dist
-      - run: pnpm test
+      # The root package.json lists the checks, so agents run the same ones.
+      - run: pnpm check

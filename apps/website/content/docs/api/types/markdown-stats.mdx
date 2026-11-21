@@ -40,7 +40,7 @@ type MarkdownStats = {
 
 ## What counts as prose
 
-The body is parsed with remark, GFM, and MDX. Text nodes are kept. Code blocks, inline code, HTML, MDX expressions, MDX components, and import or export statements are excluded. Link and image URLs are excluded. Line breaks become newlines and block nodes are joined with newlines, then whitespace is collapsed. If MDX parsing fails, such as on an HTML comment, the body is re-parsed as plain Markdown.
+The body is parsed with remark, GFM, and MDX. Text nodes are kept. Code blocks, inline code, HTML, MDX expressions, MDX components, import or export statements, and `{#id}` heading ids are excluded. Link and image URLs are excluded. Line breaks become newlines and block nodes are joined with newlines, then whitespace is collapsed. If MDX parsing fails, such as on an HTML comment, the body is re-parsed as plain Markdown.
 
 Words are segmented with `Intl.Segmenter`, and characters are counted as graphemes rather than UTF-16 code units, so multi-byte scripts and emoji count once each.
 

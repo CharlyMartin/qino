@@ -1,7 +1,9 @@
 import { ArrowLeftIcon } from "@phosphor-icons/react/ssr";
+import { negotiateMarkdown } from "@qino/cms";
 import { createFileRoute } from "@tanstack/react-router";
 import { MDXRemote } from "next-mdx-remote";
 
+import { postCollection } from "../../qino/posts";
 import { PostAuthor } from "../components/blog/post-author";
 import { PostMeta } from "../components/blog/post-meta";
 import { PostNotFound } from "../components/blog/post-not-found";
@@ -12,6 +14,7 @@ import { Text } from "../components/marketing/text";
 import { Title } from "../components/marketing/title";
 import { getPageHead } from "../lib/get-page-head";
 import { site } from "../lib/site";
+import { toEntrySlug } from "../lib/to-entry-slug";
 import { getPost } from "../server/get-post";
 
 const notFoundMeta = [
@@ -24,12 +27,14 @@ export const Route = createFileRoute("/blog/$slug")({
   head: ({ loaderData, params }) => {
     if (!loaderData) return { meta: notFoundMeta };
 
-    const { title, description, publishedOn, updatedOn, author } = loaderData;
+    const { title, description, publishedOn, updatedOn, author, markdownUrl } =
+      loaderData;
     const path = `/blog/${params.slug}`;
     const head = getPageHead({
       title: `${title} | qino`,
       description,
       path,
+      markdownUrl,
       type: "article",
       jsonLd: [
         {
@@ -67,6 +72,15 @@ export const Route = createFileRoute("/blog/$slug")({
           : []),
       ],
     };
+  },
+  server: {
+    handlers: {
+      // Agent Markdown at `/blog/<slug>.md`, or when `Accept` prefers it.
+      GET: async ({ request, params, next }) =>
+        (await negotiateMarkdown(request, () =>
+          postCollection.getAgentMarkdown(toEntrySlug(params.slug)),
+        )) ?? next(),
+    },
   },
   component: BlogPostPage,
   notFoundComponent: PostNotFound,

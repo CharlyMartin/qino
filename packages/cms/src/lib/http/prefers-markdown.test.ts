@@ -23,6 +23,19 @@ describe("prefersMarkdown", () => {
     expect(prefersMarkdown("*/*, text/markdown, text/html")).toBe(true);
   });
 
+  test("reads separators inside a quoted parameter value as data", () => {
+    expect(prefersMarkdown('text/markdown;note="a,b";q=0, text/html')).toBe(
+      false,
+    );
+    expect(prefersMarkdown('text/markdown;note="x;q=1";q=0')).toBe(false);
+    expect(
+      prefersMarkdown('text/markdown;note="say \\"hi, there\\"";q=0'),
+    ).toBe(false);
+    expect(prefersMarkdown('text/html;note="a,b";q=0.5, text/markdown')).toBe(
+      true,
+    );
+  });
+
   test("accepts text/x-markdown as an alias", () => {
     expect(prefersMarkdown("text/x-markdown, text/html;q=0.9")).toBe(true);
   });

@@ -39,6 +39,8 @@ export const Route = createFileRoute("/")({
       title: "qino — Markdown in. TypeScript out.",
       description: site.description,
       path: "/",
+      // `qino build` writes it from the `llms.txt` template.
+      markdownUrl: new URL("/index.md", site.url).href,
       jsonLd: [
         {
           "@type": "SoftwareApplication",

@@ -7,7 +7,7 @@ metadata:
 
 # Ship
 
-Ship when the checks from AGENTS.md are green and the Codex review is clean. If the change touches a published package in a way users notice, add a changeset first with the `changeset` skill.
+Ship when the checks from AGENTS.md are green. If the change touches a published package in a way users notice, add a changeset first with the `changeset` skill.
 
 ## 1. Branch
 
@@ -25,6 +25,10 @@ PRs are squash-merged, so a merge leaves the next branch carrying the previous t
 git fetch origin main
 git rebase --onto origin/main <previous ticket's branch> <branch>
 ```
+
+When you ship a PR off `main` while a ticket stack is open, test it against the stack before telling the user how the two interact: merge it into the stack's last branch on a throwaway branch and run `pnpm check`, since a merge without conflicts can still break a rebased branch. Tell the user what the rebase will need, then delete the throwaway branch.
+
+When the stack needs that PR before its own PRs merge, merge `main` down the stack instead, with `.claude/skills/ship/merge-down-stack.sh main <first branch> … <last branch>`. Then push each branch (step 4).
 
 ## 2. Commit
 
@@ -49,7 +53,17 @@ Types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`. Scopes: `cms`, `tooli
 
 Commit messages and PRs carry no `Co-Authored-By` trailers or "Generated with Claude Code" lines.
 
-## 3. Push
+## 3. Review
+
+`code-review` reads committed work, so review after committing, against the base (step 5). Give its spec reviewer the scratchpad directory's path, and have it probe edge cases by running the code and name the probes it ran. A probe that has to sit in the repo to run is named `zz-probe-*`, which git ignores, and deleted afterwards. When the change reads or rewrites Markdown or MDX bodies, such as agent Markdown, the table of contents or stats, or parses an `Accept` header, have the spec reviewer also run the probes in `docs/agents/markdown-probes.md`. When the change alters how the website answers Markdown or HTML requests, have the spec reviewer also run `apps/website/scripts/probe-agent-markdown.sh --dev` against a dev server from `apps/website/scripts/dev-server.sh start`, and add a probe there for each case the change adds. Give the spec reviewer the decisions the user took for this change, and have it name the spec and ticket lines they contradict.
+
+Review whatever `/implement`'s review didn't cover: the whole change for a bug fix, or the commits made after it other than the fixes for its findings, such as retro improvements. Skip this step when nothing is left.
+
+Fix each finding or skip it with a reason, get the checks green again, and commit the fixes. If a finding you can't resolve is still open, stop and report it to the user.
+
+## 4. Push
+
+Before pushing to a branch whose PR is already open, check that it still is: `gh pr view <number> --json state`. Commits pushed after a merge never reach `main`, so put them on a new branch, such as the next ticket's.
 
 ```sh
 git push -u origin <branch>
@@ -57,7 +71,7 @@ git push -u origin <branch>
 
 Push without `--force`. The one exception is a ticket-stack branch you just moved onto `main` (step 1): push it with `--force-with-lease`. If a push is rejected, stop and tell the user.
 
-## 4. Open the PR
+## 5. Open the PR
 
 ```sh
 gh pr create --base <base> --title "<title>" --body-file - <<'EOF'
@@ -74,28 +88,14 @@ The quoted heredoc keeps backticks in the body from running as shell commands.
 **Body:** write it with the `pr` skill, naming the public APIs in backticks. Below the template, add:
 
 - `Closes #<n>` for each spec and ticket issue the PR resolves.
-- A one-line "Review" note when the Codex review changed something worth knowing, or rejected a finding a reviewer might raise again.
-
-## 5. Greptile findings
-
-Greptile reviews a PR once, a few minutes after it opens, and only when it changes a file in `packages/` (`.greptile/config.json` turns automatic reviews off, `packages/.greptile/config.json` turns them back on). It doesn't review a later push: the user asks for another review by commenting `@greptileai`, so never post that comment yourself. When the PR changes `packages/`, check for its comments every minute or so, for up to 10 minutes:
-
-```sh
-gh api repos/{owner}/{repo}/pulls/<number>/comments
-```
-
-If none arrive in that time, or the user says Greptile is down, carry on to the report.
-
-Triage each finding the way the `codex-review` skill does: apply the valid ones, skip the false positives and out-of-scope suggestions with a reason. Get the checks green again, then commit and push the fixes to the same branch.
-
-Reply on each thread once the fixes are pushed: what was applied and in which commit, or why the finding was skipped.
-
-```sh
-gh api repos/{owner}/{repo}/pulls/<number>/comments/<comment-id>/replies -f body="<reply>"
-```
-
-A PR with no Greptile comments needs nothing here.
+- A one-line "Review" note when a review changed something worth knowing, or a finding was skipped that a reviewer might raise again.
 
 ## 6. Report
 
-The PR URL, the list of commits, and the branch name. If Greptile left findings, add what was applied and what was skipped.
+When the PR changes how the website answers Markdown or HTML requests, probe its Vercel preview first, since only the preview runs the deployed function and serves the prerendered files:
+
+1. Run `apps/website/scripts/preview-url.sh`, which waits for the pushed commit's deploy and prints the preview's URL.
+2. Run `apps/website/scripts/probe-agent-markdown.sh <url>`. When the ticket names scanner checks, also run `node apps/website/scripts/scan-agent-readiness.mjs <url> [path...]`.
+3. Fix the failures the change causes. Each one left belongs to an open issue; name it.
+
+Then report the PR URL, the list of commits, the branch name, and the preview's probe and scanner results.

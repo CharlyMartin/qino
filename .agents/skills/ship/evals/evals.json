@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Plan how to ship this finished change from this isolated context. Do not inspect the repository, run commands, or edit files. List the exact git and gh commands you would run, in order, with the commit messages and the full PR body, then the final message you would send the user once the PR is open (use `<url>` for the PR link).\n\nContext:\n- The current branch is `main`.\n- The Codex review loop ended clean after 2 rounds. Tests, types and Biome pass.\n- Changed files: `packages/cms/src/get-ancestor-nodes.ts`, `packages/cms/src/get-ancestor-nodes.test.ts`, `.changeset/brave-owls-sing.md` (`@qino/cms` minor), `apps/website/content/docs/reference/get-ancestor-nodes.mdx`, `examples/next-js/src/app/docs/[...slug]/page.tsx`.\n- The change adds a `getAncestorNodes(slug)` tree getter for breadcrumbs, documents it, and uses it in the Next.js example.",
+      "prompt": "Plan how to ship this finished change from this isolated context. Do not inspect the repository, run commands, or edit files. List the exact git and gh commands you would run, in order, with the commit messages and the full PR body, then the final message you would send the user once the PR is open (use `<url>` for the PR link).\n\nContext:\n- The current branch is `main`.\n- `/implement`'s `/code-review` found two issues, both fixed. Tests, types and Biome pass.\n- Changed files: `packages/cms/src/get-ancestor-nodes.ts`, `packages/cms/src/get-ancestor-nodes.test.ts`, `.changeset/brave-owls-sing.md` (`@qino/cms` minor), `apps/website/content/docs/reference/get-ancestor-nodes.mdx`, `examples/next-js/src/app/docs/[...slug]/page.tsx`.\n- The change adds a `getAncestorNodes(slug)` tree getter for breadcrumbs, documents it, and uses it in the Next.js example.",
       "expected_output": "Claude creates a feature branch, makes a few logical Conventional Commits staged by path, pushes with upstream tracking, and opens a PR with a Conventional Commit title and a reviewer-facing description.",
       "files": [],
       "assertions": [
@@ -17,24 +17,24 @@
         "The PR body names `getAncestorNodes` in backticks and mentions the docs, the example and the changeset.",
         "The PR body has no `Generated with Claude Code` line.",
         "The PR body is passed with `--body-file`, from a file or a quoted heredoc, not inline via `--body`.",
-        "The PR body has no testing, verification or process section, and doesn't mention test runs or Codex review rounds.",
+        "The PR body has no testing, verification or process section, and doesn't mention test runs or review rounds.",
         "The final message to the user gives the PR URL, the list of commits, and the branch name."
       ]
     },
     {
       "id": 2,
-      "prompt": "Decide whether to ship this change from this isolated context. Do not inspect the repository, run commands, or edit files. Answer with the decision and a brief reason.\n\nContext:\n- The Codex review loop stopped at its 5-round limit. One P1 finding about an infinite loop in `resolveSlug` is still open.\n- Tests, types and Biome pass.",
-      "expected_output": "Claude refuses to commit, push or open a PR because the review didn't end clean, and leaves the open finding to the user.",
+      "prompt": "Decide whether to ship this change from this isolated context. Do not inspect the repository, run commands, or edit files. Answer with the decision and a brief reason.\n\nContext:\n- `/implement`'s `/code-review` found an infinite loop in `resolveSlug` that you couldn't fix. The finding is still open.\n- Tests, types and Biome pass.",
+      "expected_output": "Claude refuses to commit, push or open a PR because a review finding is still open, and leaves it to the user.",
       "files": [],
       "assertions": [
         "The response decides not to commit, push, or open a pull request.",
-        "The response gives the review not ending clean, or the open `resolveSlug` finding, as the reason.",
+        "The response gives the open `resolveSlug` finding as the reason.",
         "The response does not list git commit, git push, or gh pr create commands to run now."
       ]
     },
     {
       "id": 3,
-      "prompt": "Decide what to do before shipping from this isolated context. Do not inspect the repository, run commands, or edit files. Describe your next steps up to opening the PR, including the commits you would make.\n\nContext:\n- The Codex review loop ended clean. Tests, types and Biome pass.\n- The change fixes a user-visible bug in `packages/cms/src/parse-frontmatter.ts`: `yes`/`no` values were parsed as booleans.\n- There is no file in `.changeset/` for this change.",
+      "prompt": "Decide what to do before shipping from this isolated context. Do not inspect the repository, run commands, or edit files. Describe your next steps up to opening the PR, including the commits you would make.\n\nContext:\n- `/implement`'s `/code-review` found nothing to fix. Tests, types and Biome pass.\n- The change fixes a user-visible bug in `packages/cms/src/parse-frontmatter.ts`: `yes`/`no` values were parsed as booleans.\n- There is no file in `.changeset/` for this change.",
       "expected_output": "Claude adds a `@qino/cms` patch changeset with the changeset skill before committing, and commits it together with the fix.",
       "files": [],
       "assertions": [
@@ -42,22 +42,6 @@
         "The response says the changeset is for `@qino/cms` with a `patch` bump.",
         "The response does not push or open a PR before the changeset exists.",
         "The changeset is in the same commit as the `parse-frontmatter.ts` fix, not in a separate commit."
-      ]
-    },
-    {
-      "id": 4,
-      "prompt": "Handle the review comments on this open PR from this isolated context. Do not inspect the repository, run commands, or edit files. List the exact commands you would run, in order, with the commit message and the reply you would post on each thread, then the final message you would send the user.\n\nContext:\n- PR #42 on `CharlyMartin/qino` is open from `feat/tree-get-entries`. Tests, types and Biome pass, and the Codex review ended clean.\n- Greptile left two inline comments:\n  - Comment 101 on `packages/cms/src/runtime/trees/define-tree.ts`: `getEntries` reads the `_order.json` file once per node instead of once per folder. This is correct.\n  - Comment 102 on `packages/cms/src/runtime/trees/walk-tree.ts`: asks for an explicit return type on `walkTree`. AGENTS.md says to avoid return types unless necessary.",
-      "expected_output": "Claude fixes the valid finding, pushes it to the same branch, replies on both threads with what was applied in which commit or why it was skipped, and never asks Greptile for another review.",
-      "files": [],
-      "assertions": [
-        "The response reads the PR's review comments with `gh api repos/CharlyMartin/qino/pulls/42/comments` or an equivalent `gh` call.",
-        "The response fixes the `_order.json` finding and skips the return type finding, citing the AGENTS.md rule on return types.",
-        "The fix is committed with a Conventional Commit subject with a scope, and pushed to `feat/tree-get-entries` without `--force`, before any reply is posted.",
-        "Each comment gets a reply through `gh api repos/CharlyMartin/qino/pulls/42/comments/<comment-id>/replies`, on comment 101 and on comment 102.",
-        "The reply on comment 101 names the commit that fixes it, and the reply on comment 102 gives the reason it was skipped.",
-        "The response never posts an `@greptileai` comment or otherwise asks Greptile for another review.",
-        "No commit message or reply contains `Co-Authored-By` or `Generated with Claude Code`.",
-        "The final message to the user says the `_order.json` finding was applied and the return type finding was skipped."
       ]
     }
   ]
