@@ -1,45 +1,29 @@
 import { expect, test } from "vitest";
 
-import { docsTree } from "../../qino/docs";
-import { postCollection } from "../../qino/posts";
+import { readContentPages } from "./read-content-pages";
 
-// A link to a docs page, `[x](/docs/<slug>#<id>)`, and one within the page.
-const DOCS_LINKS = /\]\(\/docs\/([^)#\s]*)(?:#([^)\s]+))?\)/g;
-const PAGE_LINKS = /\]\(#([^)\s]+)\)/g;
+// A link to a docs page, `[x](/docs/<slug>#<id> "title")`, and one within the
+// page, `[x](#<id>)`.
+const DOCS_LINKS = /\]\(\/docs\/([^)#\s]*)(?:#([^)\s]+))?(?:\s+"[^"]*")?\)/g;
+const PAGE_LINKS = /\]\(#([^)\s]+)(?:\s+"[^"]*")?\)/g;
 
 test("every docs link names a page and a heading that exist", async () => {
-  const [nodes, postSlugs] = await Promise.all([
-    docsTree.getFlatTree(),
-    postCollection.getAllSlugs(),
-  ]);
-  const headingIds = new Map(
-    await Promise.all(
-      nodes.map(async ({ slug }) => {
-        const { _toc } = await docsTree.getEntry(slug);
-        return [slug, new Set(_toc.map(({ id }) => id))] as const;
-      }),
+  const pages = await readContentPages();
+  const docsHeadingIds = new Map(
+    pages.flatMap(({ slug, headingIds }) =>
+      headingIds ? [[slug, headingIds] as const] : [],
     ),
   );
-  const pages = await Promise.all([
-    ...nodes.map(async ({ slug }) => ({
-      slug,
-      markdown: (await docsTree.getEntry(slug)).markdown,
-    })),
-    ...postSlugs.map(async (slug) => ({
-      slug: undefined,
-      markdown: (await postCollection.getEntry(slug)).markdown,
-    })),
-  ]);
 
   const broken = [];
-  for (const { slug, markdown } of pages) {
+  for (const { url, markdown, headingIds } of pages) {
     for (const [link, target = "", id] of markdown.matchAll(DOCS_LINKS)) {
-      const ids = headingIds.get(target);
-      if (!ids || (id && !ids.has(id))) broken.push(`${slug}: ${link}`);
+      const ids = docsHeadingIds.get(target);
+      if (!ids || (id && !ids.has(id))) broken.push(`${url}: ${link}`);
     }
     for (const [link, id = ""] of markdown.matchAll(PAGE_LINKS)) {
-      if (slug && !headingIds.get(slug)?.has(id))
-        broken.push(`${slug}: ${link}`);
+      // A post has no `_toc` to check the id against.
+      if (!headingIds?.has(id)) broken.push(`${url}: ${link}`);
     }
   }
   expect(broken).toEqual([]);
