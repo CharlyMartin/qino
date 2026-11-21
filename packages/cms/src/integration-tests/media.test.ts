@@ -112,4 +112,39 @@ describe("media", () => {
       }),
     ).toThrow('media "author" of "posts" is also a relation.');
   });
+
+  test("rebuilds a listing read from the image manifest once the image is back", async () => {
+    const qino = initQino({
+      contentFolder,
+      mediaFolder,
+      incrementalEntries: true,
+    });
+    const shots = qino.defineCollection({
+      directory: "shots",
+      extension: ".json",
+      schema: z.object({ image: z.string() }),
+      media: { image: { accepted: "image/png", maxSize: "1MB" } },
+    });
+    const entryPath = nodePath.join(contentFolder, "shots", "a.json");
+    const manifestPath = nodePath.join(contentFolder, ".qino", "images.json");
+    await fs.mkdir(nodePath.dirname(entryPath));
+    await fs.mkdir(nodePath.dirname(manifestPath));
+    await fs.writeFile(entryPath, JSON.stringify({ image: "/gone.png" }));
+    await fs.writeFile(
+      manifestPath,
+      JSON.stringify({ "/gone.png": { size: 100, width: 40, height: 20 } }),
+    );
+    // Old enough for the listing to trust their stats and reuse the entry.
+    for (const file of [entryPath, manifestPath]) {
+      await fs.utimes(file, 1_000, 1_000);
+    }
+
+    expect((await shots.getEntries())[0]?.image).toMatchObject({ width: 40 });
+
+    await sharp({
+      create: { width: 8, height: 8, channels: 3, background: "#f00" },
+    }).toFile(nodePath.join(mediaFolder, "gone.png"));
+
+    expect((await shots.getEntries())[0]?.image).toMatchObject({ width: 8 });
+  });
 });

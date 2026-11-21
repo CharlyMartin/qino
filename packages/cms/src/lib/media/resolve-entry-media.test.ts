@@ -32,6 +32,7 @@ function resolve(entry: object, media: AnyMediaConfig = { cover: image }) {
     entry,
     media,
     mediaFolder: tmp,
+    contentFolder: nodePath.join(tmp, "content"),
     filePath: "posts/a.md",
   });
 }
@@ -69,6 +70,7 @@ describe("resolveEntryMedia", () => {
       entry: { cover: "/images/a.png", gallery: ["/images/a.png"] },
       media: { cover: image, "gallery[*]": image },
       mediaFolder: tmp,
+      contentFolder: nodePath.join(tmp, "content"),
       filePath: "posts/a.md",
       dependencies,
     });
@@ -234,6 +236,116 @@ describe("resolveEntryMedia", () => {
         ),
       ).rejects.toThrow(
         /media "cover" \(parsed from "\[\[missing\.png\]\]"\): "\/images\/missing\.png" doesn't exist/,
+      );
+    });
+  });
+
+  describe("image manifest", () => {
+    const manifestPath = () =>
+      nodePath.join(tmp, "content", ".qino", "images.json");
+    const recorded = { width: 40, height: 20, size: 2_000 };
+
+    async function writeManifest(manifest: object | string) {
+      await fs.mkdir(nodePath.dirname(manifestPath()), { recursive: true });
+      await fs.writeFile(
+        manifestPath(),
+        typeof manifest == "string" ? manifest : JSON.stringify(manifest),
+      );
+    }
+
+    test("reads an image missing from mediaFolder from it", async () => {
+      await writeManifest({ "/images/gone.png": recorded });
+
+      expect(await resolve({ cover: "/images/gone.png" })).toEqual({
+        cover: { src: "/images/gone.png", width: 40, height: 20 },
+      });
+    });
+
+    test("reads a file in mediaFolder over it", async () => {
+      await writeManifest({ "/images/a.png": recorded });
+
+      expect(await resolve({ cover: "/images/a.png" })).toMatchObject({
+        cover: { src: "/images/a.png", width: 16, height: 8 },
+      });
+    });
+
+    test("checks each field's rule against the recorded size and type", async () => {
+      await writeManifest({ "/images/gone.png": { ...recorded, size: 3_000 } });
+
+      await expect(
+        resolve(
+          { cover: "/images/gone.png" },
+          { cover: { accepted: "image/png", maxSize: "50KB" } },
+        ),
+      ).resolves.toMatchObject({ cover: { width: 40 } });
+      await writeManifest({
+        "/images/gone.png": { ...recorded, size: 60 * 1024 },
+      });
+      await expect(
+        resolve(
+          { cover: "/images/gone.png" },
+          { cover: { accepted: "image/png", maxSize: "50KB" } },
+        ),
+      ).rejects.toThrow(
+        'posts/a.md: media "cover": "/images/gone.png" is 60KB, over the 50KB limit.',
+      );
+      await expect(
+        resolve(
+          { cover: "/images/gone.png" },
+          { cover: { accepted: "image/webp", maxSize: "1MB" } },
+        ),
+      ).rejects.toThrow(
+        '"/images/gone.png" is image/png, but only image/webp is accepted.',
+      );
+    });
+
+    test("doesn't cover a file sharp fails to decode", async () => {
+      await fs.writeFile(nodePath.join(tmp, "images", "broken.png"), "nope");
+      await writeManifest({ "/images/broken.png": recorded });
+
+      await expect(resolve({ cover: "/images/broken.png" })).rejects.toThrow(
+        'posts/a.md: media "cover": ',
+      );
+    });
+
+    test("records the manifest and the image's absence as the entry's dependencies", async () => {
+      await writeManifest({ "/images/gone.png": recorded });
+      const dependencies = createDependencyCollector();
+
+      await resolveEntryMedia({
+        entry: { cover: "/images/gone.png" },
+        media: { cover: image },
+        mediaFolder: tmp,
+        contentFolder: nodePath.join(tmp, "content"),
+        filePath: "posts/a.md",
+        dependencies,
+      });
+
+      expect([...dependencies.observations]).toEqual([
+        [
+          nodePath.join(tmp, "images", "gone.png"),
+          { version: "absent", untrusted: false },
+        ],
+        [manifestPath(), expect.objectContaining({ untrusted: true })],
+      ]);
+      expect(dependencies.isReusable()).toBe(true);
+    });
+
+    test("reads it again once rewritten", async () => {
+      await writeManifest({ "/images/gone.png": recorded });
+      await resolve({ cover: "/images/gone.png" });
+      await writeManifest({ "/images/gone.png": { ...recorded, width: 80 } });
+
+      expect(await resolve({ cover: "/images/gone.png" })).toMatchObject({
+        cover: { width: 80 },
+      });
+    });
+
+    test("fails on a manifest that isn't JSON, naming it and qino build", async () => {
+      await writeManifest("{ nope");
+
+      await expect(resolve({ cover: "/images/gone.png" })).rejects.toThrow(
+        `posts/a.md: media "cover": "${manifestPath()}" isn't a valid image manifest. Run \`qino build\` to write it again.`,
       );
     });
   });

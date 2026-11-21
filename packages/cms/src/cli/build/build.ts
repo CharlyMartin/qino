@@ -5,6 +5,7 @@ import type { AnyCollection } from "../../types/collection";
 import type { AnyItem } from "../../types/item";
 import type { AnyTree } from "../../types/tree";
 import { generateConfigFile } from "./generate-config-file";
+import { generateImageManifest } from "./generate-image-manifest";
 import { generateTypes } from "./generate-types";
 import { writeLlmsTxt } from "./write-llms-txt";
 
@@ -33,6 +34,8 @@ export async function build(
   if (context.cloud && !isConfigFileChecked) {
     await generateConfigFile({ context, collections, items, trees });
   }
+
+  await generateImageManifest({ context, collections, items, trees });
 
   if (context.cli?.build?.llmsTxt) {
     await writeLlmsTxt({ context, collections, items, trees });
