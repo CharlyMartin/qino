@@ -5,8 +5,16 @@
 # merge it runs that branch's own checks, the `run:` steps of its CI
 # workflow's `test` job, since an older branch can predate `pnpm check`. It
 # stops at a conflict or a failing check: fix it, commit, and run the same
-# command again, which skips the merges already done. It never pushes.
+# command again, which skips the merges done and the commits that passed. It
+# never pushes.
 set -u
+# `git switch` can rewrite or delete this file while bash reads it, and older
+# branches don't have it, so run from a copy.
+if [ -z "${MERGE_DOWN_STACK_COPY:-}" ]; then
+  copy=$(mktemp)
+  cp "$0" "$copy"
+  MERGE_DOWN_STACK_COPY=1 exec bash "$copy" "$@"
+fi
 cd "$(git rev-parse --show-toplevel)" || exit 2
 if [ $# -lt 2 ]; then
   echo "usage: merge-down-stack.sh <base> <branch>..." >&2
@@ -17,6 +25,9 @@ if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
   exit 2
 fi
 logs=$(mktemp -d)
+# The commits whose checks passed, so a rerun doesn't check them again.
+passed=$(git rev-parse --git-path merge-down-stack-passed)
+touch "$passed"
 
 # The current branch's CI checks: its `test` job's `run:` steps, after the
 # install.
@@ -40,6 +51,12 @@ for branch in "$@"; do
     exit 1
   fi
 
+  head=$(git rev-parse HEAD)
+  if grep -qx "$head" "$passed"; then
+    echo "  checks passed before"
+    prev=$branch
+    continue
+  fi
   log=$logs/${branch//\//-}.log
   if ! pnpm install --frozen-lockfile >"$log" 2>&1; then
     echo "pnpm install failed on $branch: $log" >&2
@@ -52,6 +69,7 @@ for branch in "$@"; do
       exit 1
     fi
   done < <(ci_steps)
+  echo "$head" >>"$passed"
   echo "  checks pass"
   prev=$branch
 done
