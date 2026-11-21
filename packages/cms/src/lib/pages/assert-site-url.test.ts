@@ -19,6 +19,7 @@ describe("assertSiteUrl", () => {
     "https://example.com/?ref=1",
     "https://example.com/#top",
     "https://user@example.com",
+    "https://:secret@example.com",
   ])("rejects %j", (siteUrl) => {
     expect(() => assertSiteUrl(siteUrl)).toThrow(
       `siteUrl "${siteUrl}" must be an http(s) origin, such as "https://example.com".`,

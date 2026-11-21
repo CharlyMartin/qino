@@ -22,6 +22,7 @@ export const postCollection = qino.defineCollection({
   directory: "posts",
   schema: PostSchema,
   extension: ".md",
+  pages: { index: "/posts", entry: "/posts/{slug}", title: "Posts" },
   relations: {
     author: authorCollection,
     category: categoryCollection,

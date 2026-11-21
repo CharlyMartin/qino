@@ -36,7 +36,7 @@ export async function replaceComponents<Entry>({
   entry,
   origin,
 }: ReplaceComponentsParams<Entry>) {
-  const tree = parseMarkdownBody(body, { mdx: true, headingIds: true });
+  const tree = parseMarkdownBody(body, { mdx: true });
   return renderRange({ start: 0, end: body.length }, findJsxElements(tree));
 
   // The body over `range`, with `elements`, which lie inside it, rendered.

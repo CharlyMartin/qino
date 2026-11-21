@@ -5,6 +5,8 @@ type PageHeadOptions = {
   title: string;
   description: string;
   path: string;
+  /** The page's Markdown URL, from qino, advertised as an alternate. */
+  markdownUrl?: string;
   type?: "website" | "article";
   jsonLd?: Array<JsonLd>;
 };
@@ -14,6 +16,7 @@ export function getPageHead({
   title,
   description,
   path,
+  markdownUrl,
   type = "website",
   jsonLd = [],
 }: PageHeadOptions) {
@@ -30,7 +33,12 @@ export function getPageHead({
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: description },
     ],
-    links: [{ rel: "canonical", href: url }],
+    links: [
+      { rel: "canonical", href: url },
+      ...(markdownUrl
+        ? [{ rel: "alternate", type: "text/markdown", href: markdownUrl }]
+        : []),
+    ],
     scripts: jsonLd.map((data) => toJsonLdScript(data)),
   };
 }

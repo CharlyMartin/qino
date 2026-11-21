@@ -5,7 +5,7 @@ import { getHeadingId } from "./get-heading-id";
 import { parseMarkdownBody } from "./parse-markdown-body";
 
 function getFirstHeading(body: string, mdx = false) {
-  return parseMarkdownBody(body, { mdx, headingIds: true }).children.find(
+  return parseMarkdownBody(body, { mdx }).children.find(
     (node): node is Heading => node.type == "heading",
   );
 }

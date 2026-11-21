@@ -1,3 +1,4 @@
+// `content/llms.md`, the llms.txt template, repeats the GitHub, npm and skill links.
 export const externalLinks = {
   github: "https://github.com/CharlyMartin/qino",
   changelog:

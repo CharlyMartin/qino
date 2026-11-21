@@ -19,7 +19,8 @@ type BuildAgentMarkdownParams<Entry> = ReadEntryTitleParams & {
 /**
  * An entry's agent Markdown, with LF line endings: `# {title}`,
  * `> {description}` when there is one, then the body without frontmatter, its
- * site-relative links made absolute and its MDX components replaced. A body
+ * MDX components replaced. Site-relative links are made absolute in both the
+ * description and the body. A body
  * that opens with its own H1, a replacement's included, keeps its opening,
  * without either.
  */
@@ -44,7 +45,7 @@ export async function buildAgentMarkdown<Entry>({
   const blocks = [];
   if (!startsWithH1(body, { mdx })) {
     blocks.push(`# ${readEntryTitle(title)}`);
-    const description = readEntryDescription(entry);
+    const description = readEntryDescription(entry, origin);
     if (description) {
       const lines = description.split("\n");
       blocks.push(lines.map((line) => (line ? `> ${line}` : ">")).join("\n"));

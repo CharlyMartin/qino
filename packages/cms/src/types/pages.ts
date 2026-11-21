@@ -34,10 +34,14 @@ export type ResolvedItemPage = {
 export type PagesMeta = ResolvedPages & {
   /** Its `llms.txt` sections. */
   readonly getListingSections: () => Promise<Array<ListingSection>>;
+  /** Its entry pages' agent Markdown, in its sections' order, for `llms-full.txt`. */
+  readonly getEntryPagesAgentMarkdown: () => Promise<Array<string>>;
 };
 
 /** What `qino build` reads from an item that declares a page. */
 export type PageMeta = ResolvedItemPage & {
   /** Its link in `llms.txt`'s `## Pages` section. */
   readonly getListingLink: () => Promise<ListingLink>;
+  /** Its page's agent Markdown, for `llms-full.txt`. */
+  readonly getAgentMarkdown: () => Promise<string>;
 };

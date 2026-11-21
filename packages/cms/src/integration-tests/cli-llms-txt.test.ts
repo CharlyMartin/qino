@@ -32,7 +32,7 @@ function readPublic(file: string) {
   return fs.readFile(path.join(tmp, "public", file), "utf8");
 }
 
-test("build writes llms.txt and index.md from the template, with a section per tree root, collection and the items", async () => {
+test("build writes llms.txt and index.md from the template, with a section per tree root, collection and the items, and llms-full.txt with their entry pages", async () => {
   await createLlmsTxtProject(tmp, { config });
 
   await build();
@@ -77,6 +77,38 @@ test("build writes llms.txt and index.md from the template, with a section per t
     ].join("\n"),
   );
   expect(await readPublic("index.md")).toBe(llmsTxt);
+  expect(await readPublic("llms-full.txt")).toBe(
+    [
+      "# Example",
+      "",
+      "> A site.",
+      "",
+      "# API",
+      "",
+      "> Reference.",
+      "",
+      "# Guide",
+      "",
+      "> Start here.",
+      "",
+      "# CLI",
+      "",
+      "> Commands.",
+      "",
+      "# Hello",
+      "",
+      "> The first post.",
+      "",
+      "See [the guide](https://example.com/docs/guide).",
+      "",
+      "# World",
+      "",
+      "# About",
+      "",
+      "> Who we are.",
+      "",
+    ].join("\n"),
+  );
 }, 60_000);
 
 test("build appends the sections to a template without ## Optional, and skips index.md when an item is the homepage", async () => {
@@ -108,6 +140,10 @@ test("build appends the sections to a template without ## Optional, and skips in
   );
   await expect(readPublic("index.md")).rejects.toThrow("ENOENT");
   expect(stdout).toContain("index.md skipped");
+
+  const llmsFullTxt = await readPublic("llms-full.txt");
+  expect(llmsFullTxt).toMatch(/^# Example\n\n> A site\.\n\n# API\n/);
+  expect(llmsFullTxt).toMatch(/\n\n# About\n\n> Who we are\.\n$/);
 }, 60_000);
 
 test("build fails when llmsTxt has no siteUrl", async () => {
