@@ -1,11 +1,10 @@
 import { docsTree } from "../../qino/docs";
 import { site } from "../lib/site";
-import { getDocsMarkdown } from "./get-docs-markdown";
 
 export async function getLlmsFullTxt() {
   const flat = await docsTree.getFlatTree();
   const pages = await Promise.all(
-    flat.map(({ slug }) => getDocsMarkdown(slug)),
+    flat.map(({ slug }) => docsTree.getAgentMarkdown(slug)),
   );
 
   return [
