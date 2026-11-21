@@ -1,5 +1,15 @@
 # @qino/cms
 
+## 0.24.1
+
+### Patch Changes
+
+- [#381](https://github.com/CharlyMartin/qino/pull/381) [`2ff8e64`](https://github.com/CharlyMartin/qino/commit/2ff8e64d4c6c73e97ef7c4d397c8b81e4835284b) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Fixes reading entries with image fields on serverless hosts, which ship neither `mediaFolder` nor sharp's native binary: `qino build` now records each image in `.qino/images.json` inside the content folder, and a read falls back to it when the file is missing or sharp can't load
+
+- [#376](https://github.com/CharlyMartin/qino/pull/376) [`e243675`](https://github.com/CharlyMartin/qino/commit/e24367557d5e356be22064e48928ae2b00fc1a54) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Fixes `qino build`, `qino check` and `qino lint` loading test files in `qino/`, which made them fail on a test that imports its runner, such as `vitest`. Files named `*.test.*`, `*.test-d.*` or `*.spec.*` are now skipped, so tests can sit beside the definitions they test.
+
+- [#373](https://github.com/CharlyMartin/qino/pull/373) [`e020745`](https://github.com/CharlyMartin/qino/commit/e0207450c4bebe917c61332049094b14465bf99b) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Fixes `qino check` and `qino build` failing with "Could not parse expression with acorn" on an `.mdx` file with a `{#id}` heading id, while scanning for missing media.
+
 ## 0.24.0
 
 ### Minor Changes
