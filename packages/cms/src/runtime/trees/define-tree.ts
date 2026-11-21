@@ -30,6 +30,7 @@ import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
 import { buildViews } from "../../lib/views/build-views";
 import { selectView } from "../../lib/views/select-view";
+import type { AgentMarkdownConfig } from "../../types/agent-markdown";
 import type {
   DisplayEntryAsConfig,
   SaveEntryAsConfig,
@@ -118,6 +119,13 @@ export type DefineTreeParams<
     DisplayEntryAsConfig<DisplayEntryAs, Schema>;
   /** Where the index page and entry pages live, for agent Markdown and links. */
   pages?: PagesConfig;
+  /** Configures the entry pages' agent Markdown: how MDX components read. */
+  agentMarkdown?: NoInfer<
+    AgentMarkdownConfig<
+      ResolvedTreeEntry<Schema, Ext, TaggedRelations<Rels, Media, Stats, Toc>>
+    >
+  > &
+    NoInfer<CheckMarkdownConfig<Ext>>;
 } & RootViewSettings;
 
 export function defineTree<
@@ -416,12 +424,14 @@ export function defineTree<
     if (!nodes.some((node) => node.slug == slug)) return null;
 
     // Tree views can't filter, so no view can exclude the entry.
+    const entry = await readEntry(slug);
     return buildAgentMarkdown({
-      entry: (await readEntry(slug)) as Record<string, unknown>,
+      entry: entry as Record<string, unknown>,
       titleField,
       fallbackTitle: slug,
       extension,
       origin: siteUrl,
+      replacement: { components: params.agentMarkdown?.components, entry },
     });
   }
 
