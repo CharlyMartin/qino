@@ -1,24 +1,20 @@
-import fs from "node:fs/promises";
-import nodePath from "node:path";
-
-import { isLocalMediaUrl, normalizeMediaUrl } from "@qino/tooling/media";
+import { isLocalMediaUrl } from "@qino/tooling/media";
 import { parsePath } from "@qino/tooling/relations";
-import { lookup } from "mrmime";
 
 import type { AnyMediaConfig } from "../../types/media";
 import type { DependencyCollector } from "../cache/create-dependency-collector";
-import { observeFile } from "../cache/observe-file";
 import { applyParse } from "../parse/apply-parse";
 import { walkAndSet } from "../relations/walk-and-set";
-import { describeMediaMismatch } from "./describe-media-mismatch";
-import { getImageData } from "./get-image-data";
 import { isImageMediaType } from "./is-image-media-type";
 import { parseSize } from "./parse-size";
+import { readImage } from "./read-image";
 
 type ResolveEntryMediaParams<Entry> = {
   entry: Entry;
   media: AnyMediaConfig;
   mediaFolder: string;
+  /** Where the image manifest is read from, for images missing from `mediaFolder`. */
+  contentFolder: string;
   filePath: string;
   /** Records each image file read, with the stat it was checked against. */
   dependencies?: DependencyCollector;
@@ -26,16 +22,16 @@ type ResolveEntryMediaParams<Entry> = {
 
 /**
  * Replaces the URL of each image field with its `QinoImage`: dimensions and a
- * blur placeholder, read from `mediaFolder`. Fails when the file isn't of the
- * field's `accepted` type or is over its `maxSize`. Other media fields stay
- * strings. A field's `parse` runs first, and its URL replaces the raw value.
- * One stat per image serves the type and size checks and the decode, so they
- * all describe the same file.
+ * blur placeholder, read from `mediaFolder`, or from the image manifest when
+ * the file isn't there. Fails when the file isn't of the field's `accepted`
+ * type or is over its `maxSize`. Other media fields stay strings. A field's
+ * `parse` runs first, and its URL replaces the raw value.
  */
 export async function resolveEntryMedia<Entry>({
   entry,
   media,
   mediaFolder,
+  contentFolder,
   filePath,
   dependencies,
 }: ResolveEntryMediaParams<Entry>) {
@@ -89,34 +85,19 @@ export async function resolveEntryMedia<Entry>({
           );
         }
 
-        const mediaPath = normalizeMediaUrl(url);
-        const absolutePath = nodePath.join(mediaFolder, mediaPath);
-        let mismatch: string | undefined;
-
         try {
-          const observedAt = Date.now();
-          const stats = await fs.stat(absolutePath, { bigint: true });
-          const observation = observeFile(stats, observedAt);
-          dependencies?.record(absolutePath, observation);
-          mismatch = describeMediaMismatch({
-            type: lookup(mediaPath),
-            size: Number(stats.size),
-            rules: [{ accepted, maxSize: maxBytes }],
+          return await readImage({
+            url,
+            rule: { accepted, maxSize: maxBytes },
+            mediaFolder,
+            contentFolder,
+            dependencies,
           });
-          if (!mismatch) {
-            return await getImageData(absolutePath, url, observation);
-          }
         } catch (cause) {
           const message =
-            (cause as NodeJS.ErrnoException)?.code == "ENOENT"
-              ? `"${url}" doesn't exist in "${mediaFolder}".`
-              : cause instanceof Error
-                ? cause.message
-                : String(cause);
+            cause instanceof Error ? cause.message : String(cause);
           throw new Error(`${prefix}: ${message}`, { cause });
         }
-
-        throw new Error(`${prefix}: "${url}" ${mismatch}`);
       },
     });
   }
