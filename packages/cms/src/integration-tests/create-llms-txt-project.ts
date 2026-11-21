@@ -9,8 +9,8 @@ type LlmsTxtProjectOptions = {
 
 /**
  * Writes a project with a docs tree, a posts collection whose default view
- * drops drafts, a notes collection, an about item, a snippets collection
- * without pages and an `llms.txt` template.
+ * drops drafts, a notes collection kept out of `llms-full.txt`, an about
+ * item, a snippets collection without pages and an `llms.txt` template.
  */
 export async function createLlmsTxtProject(
   cwd: string,
@@ -47,7 +47,7 @@ export async function createLlmsTxtProject(
       import qino from "./index";
       export const notes = qino.defineCollection({
         directory: "notes", extension: ".md", schema: z.object({ title: z.string() }),
-        pages: { index: "/notes", entry: "/notes/{slug}", title: "Notes" },
+        pages: { index: "/notes", entry: "/notes/{slug}", title: "Notes", llmsFull: false },
       });
     `,
     "qino/about.ts": `
@@ -72,7 +72,7 @@ export async function createLlmsTxtProject(
       "---\nlabel: CLI\ndescription: Commands.\n---\n",
     "content/docs/api.mdx": "---\nlabel: API\ndescription: Reference.\n---\n",
     "content/posts/hello.md":
-      "---\ntitle: Hello\ndescription: The first post.\n---\n",
+      "---\ntitle: Hello\ndescription: The first post.\n---\n\nSee [the guide](/docs/guide).\n",
     "content/posts/world.md": "---\ntitle: World\n---\n",
     "content/posts/draft.md": "---\ntitle: Draft\ndraft: true\n---\n",
     "content/notes/one.md": "---\ntitle: One\n---\n",

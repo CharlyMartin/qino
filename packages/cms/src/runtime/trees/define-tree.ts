@@ -216,7 +216,11 @@ export function defineTree<
       markdown,
       cloud,
       ...(resolvedPages && {
-        pages: { ...resolvedPages, getListingSections },
+        pages: {
+          ...resolvedPages,
+          getListingSections,
+          getEntryPagesAgentMarkdown,
+        },
       }),
       readEntry,
     },
@@ -392,10 +396,7 @@ export function defineTree<
   async function getAgentMarkdown(): Promise<string>;
   async function getAgentMarkdown(slug: Slug): Promise<string | null>;
   async function getAgentMarkdown(slug?: Slug) {
-    const { title, siteUrl } = requirePages(resolvedPages, {
-      owner,
-      option: "pages",
-    });
+    const { title } = requirePages(resolvedPages, { owner, option: "pages" });
     // Only a missing slug means the index page: `""` is a slug no node has.
     if (typeof slug == "undefined") {
       return buildIndexAgentMarkdown({
@@ -409,7 +410,18 @@ export function defineTree<
     const nodes = await getFlatTree();
     if (!nodes.some((node) => node.slug == slug)) return null;
 
-    // Tree views can't filter, so no view can exclude the entry.
+    return readEntryAgentMarkdown(slug);
+  }
+
+  // `llms-full.txt`'s documents: every node, in its sections' order.
+  async function getEntryPagesAgentMarkdown() {
+    const nodes = await getFlatTree();
+    return Promise.all(nodes.map((node) => readEntryAgentMarkdown(node.slug)));
+  }
+
+  // An entry page's. Tree views can't filter, so no view can exclude it.
+  async function readEntryAgentMarkdown(slug: Slug) {
+    const { siteUrl } = requirePages(resolvedPages, { owner, option: "pages" });
     const entry = await readEntry(slug);
     return buildAgentMarkdown({
       entry: entry as Record<string, unknown>,
