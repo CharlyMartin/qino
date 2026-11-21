@@ -272,6 +272,7 @@ export function defineTree<
       entry: { ...entry },
       media,
       mediaFolder: ctx.mediaFolder,
+      contentFolder: ctx.contentFolder,
       filePath: meta.filePath,
       dependencies,
     })) as ResolvedTreeEntry<S, Ext, TaggedRels>;
