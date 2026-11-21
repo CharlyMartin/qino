@@ -5,10 +5,14 @@ import { QinoConfigMarker } from "../../data/globals";
 import { initQino, type QinoConfig } from "../../runtime/qino/init-qino";
 import { build } from "./build";
 import { generateConfigFile } from "./generate-config-file";
+import { generateImageManifest } from "./generate-image-manifest";
 import { generateTypes } from "./generate-types";
 
 vi.mock("./generate-types", () => ({ generateTypes: vi.fn() }));
 vi.mock("./generate-config-file", () => ({ generateConfigFile: vi.fn() }));
+vi.mock("./generate-image-manifest", () => ({
+  generateImageManifest: vi.fn(),
+}));
 
 const cloud = {
   publish: { mode: "open_pull_request", reviewBeforePublish: true },
@@ -44,6 +48,12 @@ describe("build", () => {
 
     expect(generateTypes).toHaveBeenCalledOnce();
     expect(generateConfigFile).not.toHaveBeenCalled();
+  });
+
+  test("generates the image manifest, with types skipped too", async () => {
+    await build(setup({ cli: { build: { types: false } } }));
+
+    expect(generateImageManifest).toHaveBeenCalledOnce();
   });
 
   test("generates types when cli.build.types is true", async () => {

@@ -29,6 +29,11 @@ export const GENERATED_DIR_NAME = "_generated";
 export const GENERATED_TYPES_FILE_NAME = "types.d.ts";
 export const GENERATED_CONFIG_FILE_NAME = "config.json";
 export const CONFIG_FILE_VERSION = 1;
+/** The version of a file that doesn't exist, which a listing can depend on. */
+export const ABSENT_FILE_VERSION = "absent";
+/** Folder of the content folder holding the image manifest, skipped by content globs. */
+export const IMAGE_MANIFEST_DIR_NAME = ".qino";
+export const IMAGE_MANIFEST_FILE_NAME = "images.json";
 
 export const DEFAULT_ORDER_FILE_NAME = "_order.json";
 export const DEFAULT_BRANCH_PREFIX = "qino/";
@@ -65,6 +70,8 @@ export const SUPPORTED_CODE_EXTENSIONS = [
   ".js",
   ".mjs",
 ] as const;
+/** A test file's name, such as `posts.test.ts`: definitions can sit beside their tests. */
+export const TEST_FILE_NAME = /\.(?:test|test-d|spec)\./;
 
 export const QinoPrimitives = {
   collection: "collection",
