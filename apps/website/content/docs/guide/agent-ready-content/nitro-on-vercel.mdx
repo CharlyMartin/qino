@@ -61,6 +61,7 @@ export const vercelMarkdownRoutes = [
 ```
 
 ```ts title="vite.config.ts"
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 
@@ -68,12 +69,18 @@ import { vercelMarkdownRoutes } from "./src/lib/vercel-markdown-routes.ts";
 
 export default defineConfig({
   plugins: [
+    tanstackStart(),
     nitro({
       vercel: { config: { version: 3, routes: vercelMarkdownRoutes } },
+      // The module that copies the content folder into the server output:
+      // see Runtime in the installation guide.
+      modules: [copyContentFolder],
     }),
   ],
 });
 ```
+
+The server function answers Markdown URLs that weren't prerendered, so it reads content at request time and needs the content folder: see [Runtime](/docs/guide/installation#runtime).
 
 - **Paths:** the regexes match only page paths. Markdown URLs, assets and framework files never match, because a slug is word characters and `-`. Vercel substitutes `$1` and `$2` in header values too.
 - **The homepage:** `/` rewrites to `/index.md`, which `qino build` writes from `llms.txt`, and its `Link` header also points agents at `llms.txt` with `rel="describedby"`.
@@ -92,4 +99,4 @@ curl -i https://example.com/blog/hello-world
 
 ## Limits
 
-The rewrite matches `Accept` with a regex, which can't weigh q-values. It serves Markdown whenever Markdown is listed first, so `text/markdown;q=0.5, text/html` gets Markdown here, where `negotiateMarkdown` would serve HTML. A `Link` header is added for any path the regex matches, including an unknown slug: its Markdown URL answers with the Markdown 404.
+The rewrite matches `Accept` with a regex, which can't weigh q-values. It serves Markdown whenever a Markdown type is listed first, in lowercase, so it disagrees with `negotiateMarkdown` both ways: `text/markdown;q=0.5, text/html` gets Markdown here, and `text/html;q=0.5, text/markdown` or `*/*, text/markdown` gets HTML. Markdown URLs aren't affected. A `Link` header is added for any path the regex matches, including an unknown slug: its Markdown URL answers with the Markdown 404.

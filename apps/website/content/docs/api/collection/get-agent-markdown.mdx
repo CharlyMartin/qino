@@ -6,7 +6,7 @@ since: "0.25.0"
 
 Builds the agent Markdown of an entry page, the document served to agents in place of the page. Without a slug, it builds the index page's. The collection must declare [`pages`](/docs/api/collection#pages).
 
-```ts title="src/routes/blog.$slug.tsx"
+```ts title="src/app/md/blog/[slug]/route.ts"
 const post = await postCollection.getAgentMarkdown("hello-world");
 const blog = await postCollection.getAgentMarkdown();
 ```

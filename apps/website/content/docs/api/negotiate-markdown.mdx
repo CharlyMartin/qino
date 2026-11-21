@@ -53,6 +53,8 @@ A request wants Markdown when its path ends in `.md`, whatever its `Accept` head
 - A range whose q-value doesn't follow [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#name-quality-values), such as `q=1.5` or `q=oops`, is ignored.
 - It never answers `406 Not Acceptable`. A request that accepts neither type gets `null`, and so HTML.
 
+On a prerendered page, a host rewrite picks the answer before `negotiateMarkdown` runs, and its regex can disagree with this table. See [Known limits](/docs/guide/agent-ready-content#known-limits).
+
 ## Returns
 
 `Promise<Response | null>`:

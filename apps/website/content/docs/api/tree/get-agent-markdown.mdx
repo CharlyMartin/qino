@@ -6,7 +6,7 @@ since: "0.25.0"
 
 Builds the agent Markdown of a node's entry page, the document served to agents in place of the page. Without a slug, it builds the index page's. The tree must declare [`pages`](/docs/api/tree#parameters).
 
-```ts title="src/routes/docs.$.tsx"
+```ts title="src/app/md/docs/[...slug]/route.ts"
 const page = await docsTree.getAgentMarkdown("guide/cli");
 const docs = await docsTree.getAgentMarkdown();
 ```

@@ -6,7 +6,7 @@ since: "0.25.0"
 
 Returns the absolute URL of a page's agent Markdown: the page's URL on `siteUrl` with `.md` appended. The tree must declare [`pages`](/docs/api/tree#parameters).
 
-```ts title="qino/docs.ts"
+```ts title="src/app/docs/[...slug]/page.tsx"
 docsTree.getMarkdownUrl("guide/cli"); // "https://example.com/docs/guide/cli.md"
 docsTree.getMarkdownUrl(); // "https://example.com/docs.md"
 ```

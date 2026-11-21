@@ -14,7 +14,7 @@ The canonical qino example is a Next.js App Router site. It lives in the reposit
 - **Tree**: a `.mdx` docs tree with nested sections, `_order.json` ordering, and prev/next navigation.
 - **Item**: `pages/home.md` with resolved featured posts.
 - **CLI**: `qino build` as the `prebuild` script, with `qino/_generated/` gitignored.
-- **Agent-ready content**: `pages` on posts and docs, served as agent Markdown at each page's Markdown URL and to requests whose `Accept` header lists Markdown first. See [Next.js](/docs/guide/agent-ready-content/next-js).
+- **Agent-ready content**: `pages` on posts and docs, served as agent Markdown at each page's Markdown URL and to requests whose `Accept` header lists Markdown first, and `llms.txt` built from `src/content/llms.md`. See [Next.js](/docs/guide/agent-ready-content/next-js).
 
 ## Layout
 
@@ -31,6 +31,7 @@ examples/next-js/
     categories/*.json
     docs/**
     pages/home.md
+    llms.md                  the llms.txt template
   src/app/
     page.tsx                 home item
     posts/page.tsx           collection listing

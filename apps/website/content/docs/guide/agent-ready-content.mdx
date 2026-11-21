@@ -12,13 +12,13 @@ qino links to your pages but never routes to them. Your framework keeps its rout
 
 ## Vocabulary
 
-| Term                | Meaning                                                                                                                        |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Entry page          | The page of your site that displays one entry, such as `/blog/hello-world`. qino doesn't render or route it                    |
-| Index page          | The page that lists a collection's or a tree's entries, such as `/blog`. Items have none                                       |
-| Agent Markdown      | The standalone Markdown document served to agents in place of an entry page or an index page                                   |
-| Markdown URL        | The URL of a page's agent Markdown: the page's URL with `.md` appended, such as `/blog/hello-world.md`, or `/index.md` for `/` |
-| `llms.txt` template | The hand-written Markdown that `llms.txt` is built from. qino inserts its link sections into it                                |
+| Term                | Meaning                                                                                                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Entry page          | The page of your site that displays one entry, such as `/blog/hello-world`. qino doesn't render or route it                                             |
+| Index page          | The page that lists a collection's or a tree's entries, such as `/blog`. Items have none                                                                |
+| Agent Markdown      | The standalone Markdown document served to agents in place of an entry page or an index page                                                            |
+| Markdown URL        | The URL of a page's agent Markdown: the page's URL, without a trailing `/`, with `.md` appended, such as `/blog/hello-world.md`, or `/index.md` for `/` |
+| `llms.txt` template | The hand-written Markdown that `llms.txt` is built from. qino inserts its link sections into it                                                         |
 
 ## Declare your pages
 
@@ -168,7 +168,7 @@ See [qino build](/docs/guide/cli#llmstxt) for the sections' order and the errors
 
 ## Known limits
 
-- **A host rewrite can't weigh q-values.** It matches the `Accept` header with a regex, so it serves Markdown when Markdown is listed first. Where q-values reorder the types, as in `text/markdown;q=0.5, text/html`, the rewrite serves Markdown and `negotiateMarkdown` would serve HTML.
+- **A host rewrite can't weigh q-values.** It matches the `Accept` header with a regex that serves Markdown when a Markdown type is listed first, in lowercase. Where q-values reorder the types, it disagrees with `negotiateMarkdown`, both ways: `text/markdown;q=0.5, text/html` gets Markdown from the rewrite, and `text/html;q=0.5, text/markdown` or `*/*, text/markdown` gets HTML. Markdown URLs aren't affected.
 - **Markdown is never answered with a 406.** A request that accepts neither HTML nor Markdown, such as `Accept: text/plain`, gets HTML, so a browser with an unusual `Accept` header still sees the page. Scanners such as acceptmarkdown.com warn about this on their `rejects-unsupported` check.
 
 ## Host recipes

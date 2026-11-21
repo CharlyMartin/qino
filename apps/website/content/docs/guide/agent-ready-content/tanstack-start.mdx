@@ -165,11 +165,18 @@ Add `<link rel="alternate" type="text/markdown">` to each page's head. `head` al
 export const Route = createFileRoute("/blog/$slug")({
   // getPost is a server function that returns postCollection.getMarkdownUrl(slug).
   loader: ({ params }) => getPost({ data: params.slug }),
-  head: ({ loaderData }) => ({
-    links: [
-      { rel: "alternate", type: "text/markdown", href: loaderData.markdownUrl },
-    ],
-  }),
+  head: ({ loaderData }) =>
+    loaderData
+      ? {
+          links: [
+            {
+              rel: "alternate",
+              type: "text/markdown",
+              href: loaderData.markdownUrl,
+            },
+          ],
+        }
+      : {},
 });
 ```
 
