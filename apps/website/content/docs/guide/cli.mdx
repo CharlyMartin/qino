@@ -130,6 +130,25 @@ export default initQino({
 
 Slug types then fall back to `string`. An existing `types.d.ts` is left in place; delete it to drop its slug unions.
 
+### Image manifest
+
+When a primitive has an [image field](/docs/concepts/media#image-fields), `build` also writes `.qino/images.json` inside the content folder. Keyed by URL, it records each image those fields reference: its size and its `QinoImage` data, read when `check` read the entries.
+
+```json title="content/.qino/images.json"
+{
+  "/images/cover.webp": {
+    "size": 48213,
+    "width": 1600,
+    "height": 900,
+    "blurDataURL": "data:image/webp;base64,...",
+    "blurWidth": 8,
+    "blurHeight": 5
+  }
+}
+```
+
+A server that renders pages on request reads images from it when `mediaFolder` or sharp's native binary didn't ship with it, as on serverless hosts. It ships with the content folder, so [Runtime](/docs/guide/installation#runtime) needs no extra step. A `.gitignore` beside it keeps it out of Git: every build writes it again.
+
 ### Config file
 
 Set [`cloud`](/docs/guide/cloud) on [`initQino`](/docs/api/init-qino), and `build` also writes `qino/_generated/config.json`: a description of your project that the cloud UI reads without running your code. It lists the config, the cloud config, every primitive keyed by its `directory` (collections, trees) or `file` (items), its body format, its schema as [JSON Schema](https://json-schema.org/draft/2020-12), its relations, its [media](/docs/concepts/media), and its cloud config:

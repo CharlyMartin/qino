@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-qino is a flat-file Markdown CMS. See local-only `SPECS.md` and `specs/**.md` (gitignored) for the design intent (config/collection/page APIs, `qino-lock.json`, CLI commands `qino build` / `qino watch`, generated `.d.ts` types).
+qino is a flat-file Markdown CMS. For how a public API behaves, read its docs in `apps/website/content/docs/`.
 
 ## Monorepo layout
 
@@ -18,7 +18,7 @@ Each package needs its own `package.json` with `build`, `lint`, `check-types`, a
 
 ## Commands
 
-Scripts live in the root `package.json`. To run one in a single workspace package: `pnpm --filter <pkg-name> <script>` (e.g. `pnpm --filter @qino/cms build`).
+Scripts live in the root `package.json`. `pnpm --filter <pkg-name> <script>` runs one package's script alone (e.g. `pnpm --filter @qino/cms test`). To build an app or example, run `pnpm turbo run build --filter=<pkg-name>`: its `prebuild` runs `qino build` from `@qino/cms`'s `dist/`, and Turbo builds the workspace packages first.
 
 ## Conventions specific to this repo
 
@@ -27,7 +27,7 @@ Scripts live in the root `package.json`. To run one in a single workspace packag
 
 ## Coding principles
 
-1. Stick to one function per file, and name if after it: `create-collection.ts` should export a single `createCollection` function. Important functions shoudld also have a test file with the same name: `create-collection.test.ts`.
+1. Stick to one function per file, and name the file after it: `create-collection.ts` exports a single `createCollection` function. Give a function its own test file, `create-collection.test.ts`, when it has branches its callers' tests don't reach. A spec's Testing Decisions list those functions.
 2. Avoid return types unless necessary. Let TypeScript infer them where possible, to keep code DRY and maintainable.
 3. Only use `===` when necessary, when types don't match and you want to avoid coercion, for instance. When types match, use `==`.
 4. Don't inline types. Declare them as named types outside the function (e.g. `type CheckOptions = { … }`) and reference them in the signature or body, for readability.

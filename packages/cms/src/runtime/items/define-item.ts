@@ -158,6 +158,7 @@ export function defineItem<
       entry: { ...entry },
       media,
       mediaFolder: ctx.mediaFolder,
+      contentFolder: ctx.contentFolder,
       filePath: absoluteFilePath,
       dependencies,
     })) as ResolvedItemView<S, Ext, TaggedRels>;

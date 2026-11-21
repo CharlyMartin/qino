@@ -1,11 +1,13 @@
 import fs from "node:fs";
 
+import { ABSENT_FILE_VERSION } from "../../data/globals";
 import { observeFile } from "./observe-file";
 
 /**
- * Reads a file's version with a sync stat, or `undefined` when it can't be
- * stat'd. Sync on purpose: under `next dev`, every async stat costs about 10×
- * more, and a listing checks thousands of files.
+ * Reads a file's version with a sync stat: `ABSENT_FILE_VERSION` when it
+ * doesn't exist, or `undefined` when it can't be stat'd. Sync on purpose:
+ * under `next dev`, every async stat costs about 10× more, and a listing
+ * checks thousands of files.
  */
 export function readFileVersionSync(filePath: string) {
   try {
@@ -13,7 +15,7 @@ export function readFileVersionSync(filePath: string) {
       bigint: true,
       throwIfNoEntry: false,
     });
-    return stats && observeFile(stats, Date.now()).version;
+    return stats ? observeFile(stats, Date.now()).version : ABSENT_FILE_VERSION;
   } catch {
     return undefined;
   }
