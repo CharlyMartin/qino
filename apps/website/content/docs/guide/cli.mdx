@@ -20,7 +20,7 @@ Every command runs from the working directory and expects:
 
 1. A `qino/` folder.
 2. `qino/index.ts` that default-exports an `initQino` instance.
-3. Definitions exported from any `.ts`, `.tsx`, `.js`, or `.mjs` file under `qino/`.
+3. Definitions exported from any `.ts`, `.tsx`, `.js`, or `.mjs` file under `qino/`, test files aside.
 
 The CLI loads `qino/index.ts`, definitions, and their imports with [jiti](https://github.com/unjs/jiti). TypeScript requires no separate compilation step. See [Project structure](/docs/guide/project-structure).
 
@@ -129,6 +129,25 @@ export default initQino({
 ```
 
 Slug types then fall back to `string`. An existing `types.d.ts` is left in place; delete it to drop its slug unions.
+
+### Image manifest
+
+When a primitive has an [image field](/docs/concepts/media#image-fields), `build` also writes `.qino/images.json` inside the content folder. Keyed by URL, it records each image those fields reference: its size and its `QinoImage` data, read when `check` read the entries.
+
+```json title="content/.qino/images.json"
+{
+  "/images/cover.webp": {
+    "size": 48213,
+    "width": 1600,
+    "height": 900,
+    "blurDataURL": "data:image/webp;base64,...",
+    "blurWidth": 8,
+    "blurHeight": 5
+  }
+}
+```
+
+A server that renders pages on request reads images from it when `mediaFolder` or sharp's native binary didn't ship with it, as on serverless hosts. It ships with the content folder, so [Runtime](/docs/guide/installation#runtime) needs no extra step. A `.gitignore` beside it keeps it out of Git: every build writes it again.
 
 ### Config file
 
