@@ -8,6 +8,7 @@ import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
 
 import { site } from "./src/lib/site.ts";
+import { vercelMarkdownRoutes } from "./src/lib/vercel-markdown-routes.ts";
 
 export default defineConfig(({ mode }) => ({
   server: { port: 3000 },
@@ -46,6 +47,8 @@ export default defineConfig(({ mode }) => ({
     mode != "test" &&
       nitro({
         compatibilityDate: "2026-09-20",
+        // Nitro places them ahead of Vercel's filesystem handler.
+        vercel: { config: { version: 3, routes: vercelMarkdownRoutes } },
         modules: [
           (nitro) => {
             // qino needs the content files in the deployed server's working directory.
