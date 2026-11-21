@@ -218,6 +218,18 @@ describe("agent Markdown for collection entries", () => {
     );
   });
 
+  test("makes the description's site-relative links absolute", async () => {
+    await writePost(
+      "linked",
+      '---\ntitle: Linked\ndescription: "See [setup](/setup),\\nthen ![a chart](/chart.png)."\n---\n\nSome text.\n',
+    );
+    const { posts } = setup();
+
+    expect(await posts.getAgentMarkdown("linked")).toBe(
+      "# Linked\n\n> See [setup](https://example.com/setup),\n> then ![a chart](https://example.com/chart.png).\n\nSome text.\n",
+    );
+  });
+
   test("falls back to the slug for the title, and leaves out a missing description", async () => {
     await writePost("untitled", "---\n---\n\nSome text.\n");
     const { posts } = setup();
@@ -441,6 +453,18 @@ describe("agent Markdown for a collection's index page", () => {
 
     expect(await posts.getAgentMarkdown()).toBe(
       "# Blog\n\n- [Hello](https://example.com/blog/hello.md): The first post.\n- [World](https://example.com/blog/world.md)\n",
+    );
+  });
+
+  test("makes a description's site-relative links absolute in the listing", async () => {
+    await writePost(
+      "linked",
+      "---\ntitle: Linked\ndescription: See [setup](/setup).\n---\n\nHi.\n",
+    );
+    const { posts } = setup();
+
+    expect(await posts.getAgentMarkdown()).toBe(
+      "# Blog\n\n- [Linked](https://example.com/blog/linked.md): See [setup](https://example.com/setup).\n",
     );
   });
 
