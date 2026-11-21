@@ -176,3 +176,24 @@ describe("pages on trees and items", () => {
     });
   });
 });
+
+describe("cli.build.llmsTxt", () => {
+  test("takes true or a template path", () => {
+    initQino({
+      contentFolder: "c",
+      mediaFolder: "p",
+      cli: { build: { llmsTxt: true } },
+    });
+    initQino({
+      contentFolder: "c",
+      mediaFolder: "p",
+      cli: { build: { llmsTxt: { template: "agents/llms.md" } } },
+    });
+    initQino({
+      contentFolder: "c",
+      mediaFolder: "p",
+      // @ts-expect-error: the template is a path
+      cli: { build: { llmsTxt: { template: 1 } } },
+    });
+  });
+});

@@ -30,6 +30,7 @@ export const getPost = createServerFn({ method: "GET" })
       updatedOn,
       author,
       _stats,
+      markdownUrl: postCollection.getMarkdownUrl(slug),
       mdx: await serializeMdx(markdown),
     };
   });

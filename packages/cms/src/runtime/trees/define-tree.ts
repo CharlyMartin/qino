@@ -215,6 +215,13 @@ export function defineTree<
       media,
       markdown,
       cloud,
+      ...(resolvedPages && {
+        pages: {
+          ...resolvedPages,
+          getListingSections,
+          getEntryPagesAgentMarkdown,
+        },
+      }),
       readEntry,
     },
     getTree,
@@ -389,33 +396,13 @@ export function defineTree<
   async function getAgentMarkdown(): Promise<string>;
   async function getAgentMarkdown(slug: Slug): Promise<string | null>;
   async function getAgentMarkdown(slug?: Slug) {
-    const { title, siteUrl } = requirePages(resolvedPages, {
-      owner,
-      option: "pages",
-    });
+    const { title } = requirePages(resolvedPages, { owner, option: "pages" });
     // Only a missing slug means the index page: `""` is a slug no node has.
     if (typeof slug == "undefined") {
-      const toLink = async (node: TreeNode) =>
-        toListingLink({
-          entry: (await readEntry(node.slug)) as Record<string, unknown>,
-          titleField,
-          fallbackTitle: node.slug,
-          url: getMarkdownUrl(node.slug as SlugFor<Dir>),
-        });
-      const sections = await Promise.all(
-        (await getTree()).map(async (root) => {
-          const [rootLink, descendantLinks] = await Promise.all([
-            toLink(root),
-            Promise.all(flattenTree(root.children).map(toLink)),
-          ]);
-          // The root node titles its section, then lists first.
-          return {
-            title: rootLink.title,
-            links: [rootLink, ...descendantLinks],
-          };
-        }),
-      );
-      return buildIndexAgentMarkdown({ title, sections });
+      return buildIndexAgentMarkdown({
+        title,
+        sections: await getListingSections(),
+      });
     }
 
     // Only a listed slug reads a file: a route param can't reach past the
@@ -423,7 +410,18 @@ export function defineTree<
     const nodes = await getFlatTree();
     if (!nodes.some((node) => node.slug == slug)) return null;
 
-    // Tree views can't filter, so no view can exclude the entry.
+    return readEntryAgentMarkdown(slug);
+  }
+
+  // `llms-full.txt`'s documents: every node, in its sections' order.
+  async function getEntryPagesAgentMarkdown() {
+    const nodes = await getFlatTree();
+    return Promise.all(nodes.map((node) => readEntryAgentMarkdown(node.slug)));
+  }
+
+  // An entry page's. Tree views can't filter, so no view can exclude it.
+  async function readEntryAgentMarkdown(slug: Slug) {
+    const { siteUrl } = requirePages(resolvedPages, { owner, option: "pages" });
     const entry = await readEntry(slug);
     return buildAgentMarkdown({
       entry: entry as Record<string, unknown>,
@@ -433,6 +431,28 @@ export function defineTree<
       origin: siteUrl,
       replacement: { components: params.agentMarkdown?.components, entry },
     });
+  }
+
+  // A section per root node, listing it and then its descendants, in tree
+  // order: the index page's and `llms.txt`'s.
+  async function getListingSections() {
+    const toLink = async (node: TreeNode) =>
+      toListingLink({
+        entry: (await readEntry(node.slug)) as Record<string, unknown>,
+        titleField,
+        fallbackTitle: node.slug,
+        url: getMarkdownUrl(node.slug as SlugFor<Dir>),
+      });
+    return Promise.all(
+      (await getTree()).map(async (root) => {
+        const [rootLink, descendantLinks] = await Promise.all([
+          toLink(root),
+          Promise.all(flattenTree(root.children).map(toLink)),
+        ]);
+        // The root node titles its section, then lists first.
+        return { title: rootLink.title, links: [rootLink, ...descendantLinks] };
+      }),
+    );
   }
 
   function getMarkdownUrl(slug?: SlugFor<Dir>) {

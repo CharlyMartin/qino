@@ -21,5 +21,6 @@ export const docsTree = qino.defineTree({
   schema: DocsSchema,
   extension: ".mdx",
   titleField: "title",
+  pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" },
   cloud: { saveEntryAs: "{title}", searchableBy: ["title"] },
 });

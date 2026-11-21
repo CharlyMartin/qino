@@ -11,6 +11,7 @@ import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
 import type { ResolvedMarkdownConfig } from "./markdown-config";
 import type { AnyMediaConfig } from "./media";
+import type { PagesMeta } from "./pages";
 import type { Relations } from "./relations";
 import type { ResolveDepths, ResolveEntry, UnresolvedMode } from "./resolve";
 import type { ObjectSchema } from "./schema";
@@ -150,6 +151,8 @@ export type CollectionMeta<
   readonly media: AnyMediaConfig;
   readonly markdown: ResolvedMarkdownConfig;
   readonly cloud?: PrimitiveCloudConfig;
+  /** The primitive's checked `pages`, when it declares them. */
+  readonly pages?: PagesMeta;
   readonly readEntries: () => Promise<
     Array<ResolvedCollectionView<Schema, Ext, Rels>>
   >;

@@ -7,6 +7,7 @@ import type { AnyTree } from "../../types/tree";
 import { generateConfigFile } from "./generate-config-file";
 import { generateImageManifest } from "./generate-image-manifest";
 import { generateTypes } from "./generate-types";
+import { writeLlmsTxt } from "./write-llms-txt";
 
 type BuildParams = {
   context: QinoContext;
@@ -35,4 +36,8 @@ export async function build(
   }
 
   await generateImageManifest({ context, collections, items, trees });
+
+  if (context.cli?.build?.llmsTxt) {
+    await writeLlmsTxt({ context, collections, items, trees });
+  }
 }

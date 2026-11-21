@@ -8,27 +8,24 @@ import { remarkHeadingId } from "./remark-heading-id";
 type ParseMarkdownBodyOptions = {
   /** Parses MDX, falling back to Markdown when it fails. Defaults to `true`. */
   mdx?: boolean;
-  /** Parses `{#id}` into `headingId` nodes. */
-  headingIds?: boolean;
 };
 
-const markdownParser = unified().use(remarkParse).use(remarkGfm);
-const mdxParser = markdownParser().use(remarkMdx);
+const gfmParser = unified().use(remarkParse).use(remarkGfm);
+// Both read `{#id}` into `headingId` nodes, as MDX fails on `{#id}` otherwise.
 // After `remark-mdx`, so `{#id}` is tried before an MDX expression.
-const markdownIdParser = markdownParser().use(remarkHeadingId);
-const mdxIdParser = mdxParser().use(remarkHeadingId);
+const markdownParser = gfmParser().use(remarkHeadingId);
+const mdxParser = gfmParser().use(remarkMdx).use(remarkHeadingId);
 
 export function parseMarkdownBody(
   body: string,
-  { mdx = true, headingIds = false }: ParseMarkdownBodyOptions = {},
+  { mdx = true }: ParseMarkdownBodyOptions = {},
 ) {
-  const markdown = headingIds ? markdownIdParser : markdownParser;
-  if (!mdx) return markdown.parse(body);
+  if (!mdx) return markdownParser.parse(body);
 
   try {
-    return (headingIds ? mdxIdParser : mdxParser).parse(body);
+    return mdxParser.parse(body);
   } catch {
     // Valid Markdown (such as HTML comments) is not always valid MDX.
-    return markdown.parse(body);
+    return markdownParser.parse(body);
   }
 }

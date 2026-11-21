@@ -39,6 +39,7 @@ export const getDocsPage = createServerFn({ method: "GET" })
       description: entry.description,
       since: entry.since,
       raw: entry.raw,
+      markdownUrl: docsTree.getMarkdownUrl(node.slug),
       toc: entry._toc,
       mdx,
       links,

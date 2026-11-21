@@ -23,6 +23,9 @@ export function absolutizeLinks(
   body: string,
   { origin, mdx }: AbsolutizeLinksOptions,
 ) {
+  // Every site-relative destination starts with `/`.
+  if (!body.includes("/")) return body;
+
   const starts: Array<number> = [];
   for (const [kind, token] of tokenizeMarkdownBody(body, { mdx })) {
     if (kind != "enter" || !DESTINATIONS.includes(token.type)) continue;
