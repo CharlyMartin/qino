@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
-// A range's parameters other than q, and RFC 9110's qvalue above 0.
-const OTHER_PARAMS = String.raw`(?:\s*;(?!\s*[qQ]\s*=)[^;,]*)*`;
+// A range's parameters other than q, whose quoted values can hold `,` and `;`,
+// and RFC 9110's qvalue above 0.
+const OTHER_PARAMS = String.raw`(?:\s*;(?!\s*[qQ]\s*=)(?:[^;,"]|"(?:[^"\\]|\\.)*")*)*`;
 const QVALUE_ABOVE_0 = String.raw`(?:1(?:\.0{0,3})?|0\.(?!0{1,3}\s*(?:[;,]|$))\d{1,3})(?=\s*(?:[;,]|$))`;
 
 // An `Accept` header whose first range is Markdown, in lowercase, with a
