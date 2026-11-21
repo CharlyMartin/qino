@@ -231,6 +231,7 @@ export function defineCollection<
       entry: { ...entry },
       media,
       mediaFolder: ctx.mediaFolder,
+      contentFolder: ctx.contentFolder,
       filePath: meta.filePath,
       dependencies,
     })) as ResolvedCollectionView<S, Ext, TaggedRels>;
