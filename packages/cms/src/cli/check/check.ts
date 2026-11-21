@@ -1,6 +1,8 @@
 import { consola } from "consola";
 
 import { QinoPrimitiveMarker } from "../../data/globals";
+import { getImageFieldPaths } from "../../lib/media/get-image-field-paths";
+import { loadSharp } from "../../lib/media/load-sharp";
 import type { Loaded } from "../load/load";
 import { assertConfigFileFresh } from "./assert-config-file-fresh";
 import { assertInputValuesMatch } from "./assert-input-values-match";
@@ -19,6 +21,19 @@ export async function check(
   { collections, items, trees, context }: Loaded,
   { checkConfigFileFreshness = true }: CheckOptions = {},
 ) {
+  const primitives = [...collections, ...items, ...trees];
+  // Without sharp, reads fall back to the image manifest, which `qino build`
+  // writes from these reads: they must decode the files.
+  if (primitives.some((primitive) => getImageFieldPaths(primitive).length)) {
+    await loadSharp().catch((cause: unknown) => {
+      const reason = cause instanceof Error ? cause.message : String(cause);
+      throw new Error(
+        `Image fields are read with sharp, which can't load: ${reason}`,
+        { cause },
+      );
+    });
+  }
+
   await Promise.all([
     ...collections.map(validateCollection),
     ...items.map(validateItem),
@@ -27,7 +42,6 @@ export async function check(
 
   consola.success("All content passes schema validation.");
 
-  const primitives = [...collections, ...items, ...trees];
   await assertMediaConstraints(primitives, context.mediaFolder);
   if (
     primitives.some(
