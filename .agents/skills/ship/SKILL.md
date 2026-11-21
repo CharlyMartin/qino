@@ -28,6 +28,8 @@ git rebase --onto origin/main <previous ticket's branch> <branch>
 
 When you ship a PR off `main` while a ticket stack is open, test it against the stack before telling the user how the two interact: merge it into the stack's last branch on a throwaway branch and run `pnpm check`, since a merge without conflicts can still break a rebased branch. Tell the user what the rebase will need, then delete the throwaway branch.
 
+When the stack needs that PR before its own PRs merge, merge `main` down the stack instead: `.claude/skills/ship/merge-down-stack.sh main <first branch> … <last branch>`. It merges each branch into the next, runs each branch's own CI checks, and stops at each conflict or failing check, so you can fix it, commit and run it again. Then push each branch (step 4).
+
 ## 2. Commit
 
 Make atomic commits. A typical split:
