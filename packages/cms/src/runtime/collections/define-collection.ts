@@ -5,6 +5,7 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
+import { buildAgentMarkdown } from "../../lib/agent-markdown/build-agent-markdown";
 import { unwrapSettled } from "../../lib/async/unwrap-settled";
 import type { DependencyCollector } from "../../lib/cache/create-dependency-collector";
 import { createFileCache } from "../../lib/cache/create-file-cache";
@@ -15,6 +16,10 @@ import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-confi
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
+import { fillEntryPagePath } from "../../lib/pages/fill-entry-page-path";
+import { requirePages } from "../../lib/pages/require-pages";
+import { resolvePages } from "../../lib/pages/resolve-pages";
+import { toMarkdownUrl } from "../../lib/pages/to-markdown-url";
 import { assertPageOptions } from "../../lib/pagination/assert-page-options";
 import { copyPage } from "../../lib/pagination/copy-page";
 import { paginate } from "../../lib/pagination/paginate";
@@ -53,6 +58,7 @@ import type {
   MediaConfig,
   TaggedRelations,
 } from "../../types/media";
+import type { PagesConfig } from "../../types/pages";
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
@@ -111,6 +117,8 @@ export type DefineCollectionParams<
   cloud?: NoInfer<CollectionCloudConfig<Schema>> &
     SaveEntryAsConfig<SaveEntryAs, Schema> &
     DisplayEntryAsConfig<DisplayEntryAs, Schema>;
+  /** Where the index page and entry pages live, for agent Markdown and links. */
+  pages?: PagesConfig;
 } & RootViewSettings;
 
 export function defineCollection<
@@ -142,6 +150,12 @@ export function defineCollection<
   type TaggedRels = TaggedRelations<Rels, Media, Stats, Toc>;
   const { directory, schema, extension, relations, media = {}, cloud } = params;
   assertContentPath(directory, "directory");
+  const owner = `Collection "${directory}"`;
+  const resolvedPages = resolvePages({
+    pages: params.pages,
+    siteUrl: ctx.siteUrl,
+    owner,
+  });
   assertCloudEnabled(ctx, cloud, directory);
   const collectionRelations = (relations ?? {}) as TaggedRels;
   assertMediaConfig({
@@ -191,6 +205,8 @@ export function defineCollection<
     getPaginatedEntries,
     getAllSlugs,
     getEntry,
+    getAgentMarkdown,
+    getMarkdownUrl,
   } as const satisfies Collection<
     S,
     Ext,
@@ -337,28 +353,63 @@ export function defineCollection<
     };
   }
 
-  async function getEntry<
-    Args extends ViewArguments<ConfiguredViews<Views>> = [],
-  >(slug: Slug, ...[options]: Args) {
+  // An entry through a view, and whether the view's filter excludes it.
+  async function readInView(
+    slug: Slug,
+    options: ViewArguments<ConfiguredViews<Views>>[0],
+  ) {
     const view = selectView(views, options) as CollectionViewDefinition;
-    const entry = await readEntry(slug);
-    const [result] = await applyView(
-      [entry],
+    const [entry] = await applyView(
+      [await readEntry(slug)],
       view,
       collectionRelations,
       ctx.instanceId,
     );
-    if (view.filter && !view.filter(result as never)) {
+    return {
+      entry,
+      isExcluded: view.filter != null && !view.filter(entry as never),
+    };
+  }
+
+  async function getEntry<
+    Args extends ViewArguments<ConfiguredViews<Views>> = [],
+  >(slug: Slug, ...[options]: Args) {
+    const { entry, isExcluded } = await readInView(slug, options);
+    if (isExcluded) {
       throw new Error(
         `Entry "${slug}" in collection "${directory}" is excluded by view "${options?.view ?? "default"}".`,
       );
     }
-    return result as SelectedView<
+    return entry as SelectedView<
       S,
       CollectionEntryMeta<Ext>,
       TaggedRels,
       ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;
+  }
+
+  async function getAgentMarkdown<
+    Args extends ViewArguments<ConfiguredViews<Views>> = [],
+  >(slug: Slug, ...[options]: Args) {
+    const { siteUrl } = requirePages(resolvedPages, owner);
+    // Only a listed slug reads a file: a route param can't reach past the
+    // collection with `..`.
+    if (!(await getAllSlugs()).includes(slug as SlugFor<Dir>)) return null;
+
+    const { entry, isExcluded } = await readInView(slug, options);
+    if (isExcluded) return null;
+
+    return buildAgentMarkdown({
+      entry: entry as Record<string, unknown>,
+      slug,
+      extension,
+      origin: siteUrl,
+    });
+  }
+
+  function getMarkdownUrl(slug: SlugFor<Dir>) {
+    const { entry, siteUrl } = requirePages(resolvedPages, owner);
+    return toMarkdownUrl(fillEntryPagePath(entry, slug), siteUrl);
   }
 }

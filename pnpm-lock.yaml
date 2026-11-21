@@ -376,12 +376,18 @@ importers:
       mdast-util-mdx:
         specifier: 3.0.0
         version: 3.0.0(supports-color@7.2.0)
+      micromark:
+        specifier: 4.0.2
+        version: 4.0.2(supports-color@7.2.0)
       micromark-extension-gfm:
         specifier: 3.0.0
         version: 3.0.0
       micromark-extension-mdxjs:
         specifier: 3.0.0
         version: 3.0.0
+      micromark-util-types:
+        specifier: 2.0.3
+        version: 2.0.3
       publint:
         specifier: 0.3.25
         version: 0.3.25

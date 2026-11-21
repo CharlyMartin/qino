@@ -23,7 +23,7 @@ Pick the scope. Codex rejects a prompt next to `--uncommitted` or `--base`, so t
 
 Use the base the `ship` skill's step 4 names wherever this skill says `main`.
 
-When Codex can't run (at capacity, not installed, not signed in), run the `code-review` skill against that base for the round instead, and triage its findings with the same rules below.
+When Codex can't run (at capacity, not installed, not signed in), run the `code-review` skill against that base for the round instead, and triage its findings with the same rules below. From round 2 on, point both of its sub-agents at the commits since the previous round (`git show <commits>`), with the round-2 prompt below, and give them the full diff against the base for context, so the spec review can still tell a missing requirement from an untouched one.
 
 Use a Bash timeout of `600000`. Prompt for round 1:
 
