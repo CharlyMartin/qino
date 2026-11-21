@@ -17,6 +17,15 @@ Work on a feature branch. If you're on `main`, create one named after the main c
 git switch -c <type>/<short-slug>   # e.g. feat/tree-get-entries-ancestors
 ```
 
+In a **ticket stack** (one PR per ticket of a spec), each ticket gets its own branch, created from the previous ticket's branch, or from `main` once that branch's PR has merged.
+
+PRs are squash-merged, so a merge leaves the next branch carrying the previous ticket's original commits. Once the previous PR merges, move the next branch onto `main`:
+
+```sh
+git fetch origin main
+git rebase --onto origin/main <previous ticket's branch> <branch>
+```
+
 ## 2. Commit
 
 Make atomic commits. A typical split:
@@ -46,17 +55,19 @@ Commit messages and PRs carry no `Co-Authored-By` trailers or "Generated with Cl
 git push -u origin <branch>
 ```
 
-Push without `--force`. If the push is rejected, stop and tell the user.
+Push without `--force`. The one exception is a ticket-stack branch you just moved onto `main` (step 1): push it with `--force-with-lease`. If a push is rejected, stop and tell the user.
 
 ## 4. Open the PR
 
 ```sh
-gh pr create --base main --title "<title>" --body-file - <<'EOF'
+gh pr create --base <base> --title "<title>" --body-file - <<'EOF'
 <body>
 EOF
 ```
 
 The quoted heredoc keeps backticks in the body from running as shell commands.
+
+**Base:** `main`. In a ticket stack, it's the previous ticket's branch while that branch's PR is unmerged. Once it merges, move the branch onto `main` (step 1) and retarget an open PR with `gh pr edit <number> --base main`.
 
 **Title:** a Conventional Commit subject for the whole PR. PRs are squash-merged, so it becomes the commit on `main`.
 
@@ -67,11 +78,13 @@ The quoted heredoc keeps backticks in the body from running as shell commands.
 
 ## 5. Greptile findings
 
-Greptile reviews a PR once, a few minutes after it opens, and only when it changes a file in `packages/` (`.greptile/config.json` turns automatic reviews off, `packages/.greptile/config.json` turns them back on). It doesn't review a later push: the user asks for another review by commenting `@greptileai`, so never post that comment yourself. Read its comments, if there are any:
+Greptile reviews a PR once, a few minutes after it opens, and only when it changes a file in `packages/` (`.greptile/config.json` turns automatic reviews off, `packages/.greptile/config.json` turns them back on). It doesn't review a later push: the user asks for another review by commenting `@greptileai`, so never post that comment yourself. When the PR changes `packages/`, check for its comments every minute or so, for up to 10 minutes:
 
 ```sh
 gh api repos/{owner}/{repo}/pulls/<number>/comments
 ```
+
+If none arrive in that time, or the user says Greptile is down, carry on to the report.
 
 Triage each finding the way the `codex-review` skill does: apply the valid ones, skip the false positives and out-of-scope suggestions with a reason. Get the checks green again, then commit and push the fixes to the same branch.
 

@@ -1,4 +1,6 @@
+export { negotiateMarkdown } from "./runtime/http/negotiate-markdown";
 export { initQino } from "./runtime/qino/init-qino";
+export type { LoadAgentMarkdown } from "./types/agent-markdown";
 export type {
   Collection,
   CollectionEntryMeta,
