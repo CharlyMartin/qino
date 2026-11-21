@@ -61,6 +61,9 @@ export const vercelMarkdownRoutes = [
 ```
 
 ```ts title="vite.config.ts"
+import { cp } from "node:fs/promises";
+import { join } from "node:path";
+
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import { nitro } from "nitro/vite";
 import { defineConfig } from "vite";
@@ -71,16 +74,26 @@ export default defineConfig({
   plugins: [
     tanstackStart(),
     nitro({
+      // Nitro places them ahead of Vercel's filesystem handler.
       vercel: { config: { version: 3, routes: vercelMarkdownRoutes } },
-      // The module that copies the content folder into the server output:
-      // see Runtime in the installation guide.
-      modules: [copyContentFolder],
+      modules: [
+        (nitro) => {
+          // qino needs the content files in the deployed server's working directory.
+          nitro.hooks.hook("compiled", () =>
+            cp(
+              join(nitro.options.rootDir, "content"),
+              join(nitro.options.output.serverDir, "content"),
+              { recursive: true },
+            ),
+          );
+        },
+      ],
     }),
   ],
 });
 ```
 
-The server function answers Markdown URLs that weren't prerendered, so it reads content at request time and needs the content folder: see [Runtime](/docs/guide/installation#runtime).
+The server function answers Markdown URLs that weren't prerendered, so it reads content at request time. The module copies the content folder into the server output for it: see [Runtime](/docs/guide/installation#runtime).
 
 - **Paths:** the regexes match only page paths. Markdown URLs, assets and framework files never match, because a slug is word characters and `-`. Vercel substitutes `$1` and `$2` in header values too.
 - **The homepage:** `/` rewrites to `/index.md`, which `qino build` writes from `llms.txt`, and its `Link` header also points agents at `llms.txt` with `rel="describedby"`.
