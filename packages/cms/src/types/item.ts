@@ -11,6 +11,7 @@ import type { GeneratedFields } from "./generated-fields";
 import type { PrimitiveInference } from "./infer";
 import type { ResolvedMarkdownConfig } from "./markdown-config";
 import type { AnyMediaConfig } from "./media";
+import type { PageMeta } from "./pages";
 import type { Relations } from "./relations";
 import type { ResolveDepths, ResolveEntry, UnresolvedMode } from "./resolve";
 import type { ObjectSchema } from "./schema";
@@ -45,6 +46,8 @@ export type ItemMeta<
   readonly media: AnyMediaConfig;
   readonly markdown: ResolvedMarkdownConfig;
   readonly cloud?: PrimitiveCloudConfig;
+  /** The item's checked `page`, when it declares one. */
+  readonly page?: PageMeta;
   readonly readEntry: (
     dependencies?: DependencyCollector,
   ) => Promise<ResolvedItemView<Schema, Ext, Rels>>;

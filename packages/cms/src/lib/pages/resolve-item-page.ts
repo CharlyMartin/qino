@@ -1,4 +1,4 @@
-import type { PagePath } from "../../types/pages";
+import type { PagePath, ResolvedItemPage } from "../../types/pages";
 import { describePagePathError } from "./describe-page-path-error";
 
 type ResolveItemPageParams = {
@@ -31,5 +31,5 @@ export function resolveItemPage({
   });
   if (error) throw new Error(`${owner}: ${error}`);
 
-  return { page, siteUrl };
+  return { page, siteUrl } satisfies ResolvedItemPage;
 }

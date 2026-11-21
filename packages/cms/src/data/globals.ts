@@ -36,6 +36,9 @@ export const IMAGE_MANIFEST_DIR_NAME = ".qino";
 export const IMAGE_MANIFEST_FILE_NAME = "images.json";
 
 export const DEFAULT_ORDER_FILE_NAME = "_order.json";
+export const DEFAULT_LLMS_TXT_TEMPLATE_FILE_NAME = "llms.md";
+export const LLMS_TXT_FILE_NAME = "llms.txt";
+export const INDEX_MD_FILE_NAME = "index.md";
 export const DEFAULT_BRANCH_PREFIX = "qino/";
 export const DEFAULT_MEDIA_SAVE_AS = "{id}/{name}-{hash}";
 export const MEDIA_PATH_TOKENS = ["id", "field", "name", "hash"] as const;
