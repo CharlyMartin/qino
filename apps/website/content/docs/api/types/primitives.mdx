@@ -22,7 +22,17 @@ type Collection<
 > = {
   getAllSlugs(): Promise<Array<SlugFor<Dir>>>;
   getEntries(options?: { view?: keyof Views }): Promise<Array<Entry>>;
-  getEntry(slug: SlugFor<Dir>, options?: { view?: keyof Views }): Promise<Entry>;
+  getEntry(
+    slug: SlugFor<Dir>,
+    options?: { view?: keyof Views },
+  ): Promise<Entry>;
+  getAgentMarkdown(): Promise<string>;
+  getAgentMarkdown(
+    slug: string,
+    options?: { view?: keyof Views },
+  ): Promise<string | null>;
+  getMarkdownUrl(): string;
+  getMarkdownUrl(slug: SlugFor<Dir>): string;
 };
 ```
 
@@ -48,6 +58,10 @@ type Tree<
   getAncestorNodes(slug: SlugFor<Dir>): Promise<Array<TreeNode>>;
   getNextNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
   getPreviousNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
+  getAgentMarkdown(): Promise<string>;
+  getAgentMarkdown(slug: string): Promise<string | null>;
+  getMarkdownUrl(): string;
+  getMarkdownUrl(slug: SlugFor<Dir>): string;
 };
 ```
 
@@ -56,6 +70,8 @@ type Tree<
 ```ts title="@qino/cms"
 type Item<Schema, Ext, Rels = object, Views extends object = object> = {
   getEntry(options?: { view?: keyof Views }): Promise<Entry>;
+  getAgentMarkdown(): Promise<string>;
+  getMarkdownUrl(): string;
 };
 ```
 

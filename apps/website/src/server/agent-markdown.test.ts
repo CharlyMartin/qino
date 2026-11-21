@@ -18,6 +18,7 @@ test("a section landing's LinkGrid lists its pages with their Markdown URLs", as
       "- [Content folder](https://www.qino.works/docs/guide/content-folder.md): Allowed file types and how collections, trees, and items are laid out on disk.",
       "- [Frontmatter](https://www.qino.works/docs/guide/frontmatter.md): How YAML frontmatter is parsed and which values become which types.",
       "- [CLI](https://www.qino.works/docs/guide/cli.md): The qino command, what each subcommand checks, and how to wire it into a build.",
+      "- [Agent-ready content](https://www.qino.works/docs/guide/agent-ready-content.md): Serve AI agents Markdown at your pages' URLs, and build llms.txt from your content.",
       "- [Cloud](https://www.qino.works/docs/guide/cloud.md): Configure how the qino cloud UI publishes, searches, sorts, hides fields, and saves uploads.",
       "",
     ].join("\n"),

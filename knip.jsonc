@@ -22,7 +22,8 @@
     // In both, qino's CLI imports every export under qino/ to discover
     // primitives.
     "apps/website": {
-      "entry": ["qino/**/*.ts"]
+      // Also the scripts run by hand, such as scan-agent-readiness.mjs.
+      "entry": ["qino/**/*.ts", "scripts/*.mjs"]
     },
     "examples/*": {
       "entry": ["qino/**/*.ts"]

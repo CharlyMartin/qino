@@ -27,6 +27,7 @@ const qino = initQino({
 function initQino(config: {
   readonly contentFolder: string;
   readonly mediaFolder: string;
+  readonly siteUrl?: string;
   readonly cli?: {
     readonly check?: {
       readonly localAssetReferences?:
@@ -34,6 +35,7 @@ function initQino(config: {
     };
     readonly build?: {
       readonly types?: boolean;
+      readonly llmsTxt?: boolean | { readonly template?: string };
     };
   };
   readonly cloud?: {
@@ -60,19 +62,22 @@ function initQino(config: {
 
 ## Parameters
 
-| Name                                              | Type                                                | Required | Default   | Description                                                                                                                                                                                                                                     |
-| ------------------------------------------------- | --------------------------------------------------- | -------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `contentFolder`                                   | `string`                                            | yes      |           | Directory, relative to the working directory, that every `directory` and `file` path is joined onto                                                                                                                                             |
-| `mediaFolder`                                     | `string`                                            | yes      |           | Directory, relative to the working directory, serving media at the site root, such as `public`                                                                                                                                                  |
-| `cli.check.localAssetReferences`                  | `boolean \| { exclude? }`                           | no       | `true`    | Whether `qino check` verifies that files referenced in content exist. See [Media](/docs/guide/cli#media)                                                                                                                                        |
-| `cli.check.localAssetReferences.exclude`          | `ReadonlyArray<string>`                             | no       | `[]`      | URL globs served by routes instead of `mediaFolder`, such as `/og/**`                                                                                                                                                                           |
-| `cli.build.types`                                 | `boolean`                                           | no       | `true`    | Whether `qino build` writes `qino/_generated/types.d.ts`. See [qino build](/docs/guide/cli#qino-build)                                                                                                                                          |
-| `cloud`                                           | `object`                                            | no       |           | Configures the cloud UI. When set, `qino build` writes `qino/_generated/config.json` and `qino check` verifies it. Requires schemas implementing [Standard JSON Schema](https://standardschema.dev/json-schema). See [Cloud](/docs/guide/cloud) |
-| `cloud.publish.mode`                              | `"open_pull_request" \| "commit_to_default_branch"` | yes      |           | Whether publishing opens a pull request or commits to the default branch                                                                                                                                                                        |
-| `cloud.publish.reviewBeforePublish`               | `boolean \| { bypassIfAdmin? }`                     | yes      |           | Whether an approver signs off in qino before the author can publish. An object turns review on and configures it                                                                                                                                |
-| `cloud.publish.reviewBeforePublish.bypassIfAdmin` | `boolean`                                           | no       | `false`   | Whether admins can publish before every entry is approved                                                                                                                                                                                       |
-| `cloud.publish.branchPrefix`                      | `string`                                            | no       | `"qino/"` | Prefix of the branches the cloud UI opens. `open_pull_request` only                                                                                                                                                                             |
-| `incrementalEntries`                              | `boolean`                                           | no       | `false`   | Whether a collection's `getEntries`, and `getPaginatedEntries` on a filtered or sorted view, keep entries between calls, rebuilding only those whose files changed. Meant for a dev server. See [Incremental entries](#incremental-entries)     |
+| Name                                              | Type                                                | Required | Default     | Description                                                                                                                                                                                                                                                          |
+| ------------------------------------------------- | --------------------------------------------------- | -------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `contentFolder`                                   | `string`                                            | yes      |             | Directory, relative to the working directory, that every `directory` and `file` path is joined onto                                                                                                                                                                  |
+| `mediaFolder`                                     | `string`                                            | yes      |             | Directory, relative to the working directory, serving media at the site root, such as `public`                                                                                                                                                                       |
+| `siteUrl`                                         | `string`                                            | no       |             | The site's origin, such as `"https://example.com"`, that links in agent Markdown and `llms.txt` are made absolute on. Required when a primitive declares `pages` or `page`, or `cli.build.llmsTxt` is on. See [Agent-ready content](/docs/guide/agent-ready-content) |
+| `cli.check.localAssetReferences`                  | `boolean \| { exclude? }`                           | no       | `true`      | Whether `qino check` verifies that files referenced in content exist. See [Media](/docs/guide/cli#media)                                                                                                                                                             |
+| `cli.check.localAssetReferences.exclude`          | `ReadonlyArray<string>`                             | no       | `[]`        | URL globs served by routes instead of `mediaFolder`, such as `/og/**`                                                                                                                                                                                                |
+| `cli.build.types`                                 | `boolean`                                           | no       | `true`      | Whether `qino build` writes `qino/_generated/types.d.ts`. See [qino build](/docs/guide/cli#qino-build)                                                                                                                                                               |
+| `cli.build.llmsTxt`                               | `boolean \| { template? }`                          | no       | `false`     | Whether `qino build` writes `llms.txt`, `llms-full.txt` and `index.md` at the root of `mediaFolder`. See [llms.txt](/docs/guide/cli#llmstxt)                                                                                                                         |
+| `cli.build.llmsTxt.template`                      | `string`                                            | no       | `"llms.md"` | The `llms.txt` template, relative to `contentFolder`                                                                                                                                                                                                                 |
+| `cloud`                                           | `object`                                            | no       |             | Configures the cloud UI. When set, `qino build` writes `qino/_generated/config.json` and `qino check` verifies it. Requires schemas implementing [Standard JSON Schema](https://standardschema.dev/json-schema). See [Cloud](/docs/guide/cloud)                      |
+| `cloud.publish.mode`                              | `"open_pull_request" \| "commit_to_default_branch"` | yes      |             | Whether publishing opens a pull request or commits to the default branch                                                                                                                                                                                             |
+| `cloud.publish.reviewBeforePublish`               | `boolean \| { bypassIfAdmin? }`                     | yes      |             | Whether an approver signs off in qino before the author can publish. An object turns review on and configures it                                                                                                                                                     |
+| `cloud.publish.reviewBeforePublish.bypassIfAdmin` | `boolean`                                           | no       | `false`     | Whether admins can publish before every entry is approved                                                                                                                                                                                                            |
+| `cloud.publish.branchPrefix`                      | `string`                                            | no       | `"qino/"`   | Prefix of the branches the cloud UI opens. `open_pull_request` only                                                                                                                                                                                                  |
+| `incrementalEntries`                              | `boolean`                                           | no       | `false`     | Whether a collection's `getEntries`, and `getPaginatedEntries` on a filtered or sorted view, keep entries between calls, rebuilding only those whose files changed. Meant for a dev server. See [Incremental entries](#incremental-entries)                          |
 
 The config type is not exported; pass an object literal.
 
@@ -125,7 +130,9 @@ It's meant for dev. A production build prerenders its pages, and a content chang
 
 ## Throws
 
-Nothing. Folder existence is checked by the CLI, not at creation.
+- `siteUrl "<siteUrl>" must be an http(s) origin, such as "https://example.com".` A path after the host is rejected, but a trailing `/` is allowed and dropped.
+
+Folder existence is checked by the CLI, not at creation.
 
 ## CLI expectations
 

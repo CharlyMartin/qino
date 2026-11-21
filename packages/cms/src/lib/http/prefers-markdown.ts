@@ -1,3 +1,5 @@
+import { splitUnquoted } from "./split-unquoted";
+
 type RangeMatch = {
   q: number;
   position: number;
@@ -23,16 +25,17 @@ const QVALUE = /^(0(\.\d{0,3})?|1(\.0{0,3})?)$/;
  * before `text/html` or ties only with a wildcard, so `text/markdown,
  * text/html` gets Markdown. Wildcards count toward HTML, the default: so does
  * a missing header, `text/plain`, or `q=0` on Markdown. A range whose q-value
- * doesn't follow RFC 9110's grammar is ignored.
+ * doesn't follow RFC 9110's grammar is ignored, and a `,` or `;` inside a
+ * quoted parameter value separates nothing.
  */
 export function prefersMarkdown(accept: string | null) {
   let markdown: RangeMatch = UNMATCHED;
   let html = UNMATCHED;
 
-  for (const [position, range] of (accept ?? "").split(",").entries()) {
-    const [type = "", ...params] = range
-      .split(";")
-      .map((part) => part.trim().toLowerCase());
+  for (const [position, range] of splitUnquoted(accept ?? "", ",").entries()) {
+    const [type = "", ...params] = splitUnquoted(range, ";").map((part) =>
+      part.trim().toLowerCase(),
+    );
     const qParam = params
       // Splits at the first `=` only, so `q=0.5=1` keeps `0.5=1` and fails.
       .map((param) => param.split(/=(.*)/).map((part) => part.trim()))
