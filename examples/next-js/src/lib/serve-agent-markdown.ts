@@ -1,9 +1,9 @@
 import { type LoadAgentMarkdown, negotiateMarkdown } from "@qino/cms";
 
-// Answers a request that `next.config.ts` rewrote to a Markdown route. The
-// request keeps its own URL, which it reads as the page's Markdown URL, so it
-// always gets Markdown: the rewrite matched an `Accept` with a regex, which
-// can't weigh q-values as `negotiateMarkdown` does.
+// Answers a request that `next.config.ts` rewrote to a route handler under
+// `/md`. The request keeps its own URL, which it reads as the page's Markdown
+// URL, so it always gets Markdown: the rewrite matched an `Accept` with a
+// regex, which can't weigh q-values as `negotiateMarkdown` does.
 export async function serveAgentMarkdown(
   request: Request,
   load: LoadAgentMarkdown,
