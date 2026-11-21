@@ -1,5 +1,7 @@
+import { negotiateMarkdown } from "@qino/cms";
 import { createFileRoute } from "@tanstack/react-router";
 
+import { docsTree } from "../../qino/docs";
 import { DocsSection } from "../components/docs/docs-section";
 import { DocsWhatsNew } from "../components/docs/docs-whats-new";
 import { InstallBox } from "../components/marketing/install-box";
@@ -8,6 +10,7 @@ import { Title } from "../components/marketing/title";
 import { getPageHead } from "../lib/get-page-head";
 import { site } from "../lib/site";
 import { getDocsSections } from "../server/get-docs-sections";
+import { getIndexMarkdownUrls } from "../server/get-index-markdown-urls";
 import { getLatestReleases } from "../server/get-latest-releases";
 
 const description =
@@ -15,17 +18,19 @@ const description =
 
 export const Route = createFileRoute("/docs/")({
   loader: async () => {
-    const [sections, releases] = await Promise.all([
+    const [sections, releases, markdownUrls] = await Promise.all([
       getDocsSections(),
       getLatestReleases(),
+      getIndexMarkdownUrls(),
     ]);
-    return { sections, releases };
+    return { sections, releases, markdownUrl: markdownUrls.docs };
   },
-  head: () =>
+  head: ({ loaderData }) =>
     getPageHead({
       title: "Documentation | qino",
       description,
       path: "/docs",
+      markdownUrl: loaderData?.markdownUrl,
       jsonLd: [
         {
           "@type": "WebPage",
@@ -40,6 +45,14 @@ export const Route = createFileRoute("/docs/")({
         },
       ],
     }),
+  server: {
+    handlers: {
+      // The index page's agent Markdown, when `Accept` prefers it.
+      GET: async ({ request, next }) =>
+        (await negotiateMarkdown(request, () => docsTree.getAgentMarkdown())) ??
+        next(),
+    },
+  },
   component: DocsIndexPage,
 });
 

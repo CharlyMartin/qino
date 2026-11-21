@@ -18,6 +18,8 @@ describe("rendersNothing", () => {
     ["<!--\nmulti-line\n-->\n", false],
     ["{/* a */}\n", true],
     ["{/* a */} {/* b */}\n", true],
+    ["[guide]: /guide\n", false],
+    ["[guide]: /guide\n", true],
   ])("is true for %j (MDX: %s)", (body, mdx) => {
     expect(rendersNothing(firstBlock(body, mdx))).toBe(true);
   });
