@@ -1,0 +1,117 @@
+---
+title: Next.js
+description: Send Markdown requests to a route handler with beforeFiles rewrites, so pages can't answer them first.
+---
+
+A Next.js page can't fall through to another handler, so Markdown requests go to a route handler of their own. `beforeFiles` rewrites send them there before Next looks at pages or prerendered files. The [Next.js example](/docs/examples/next-js) runs this setup for its posts and docs, checked with `next start` on Next.js 16.
+
+## The route handler
+
+The Markdown routes live under `/md`, a path no page uses. A rewritten request keeps its own URL, such as `/posts/hello-world`, so the helper reads it as the page's Markdown URL. That way it always answers Markdown, even when the rewrite let through an `Accept` header that prefers HTML:
+
+```ts title="src/lib/serve-agent-markdown.ts"
+import { type LoadAgentMarkdown, negotiateMarkdown } from "@qino/cms";
+
+export async function serveAgentMarkdown(
+  request: Request,
+  load: LoadAgentMarkdown,
+) {
+  const url = new URL(request.url);
+  if (!url.pathname.endsWith(".md")) url.pathname += ".md";
+
+  // Never `null`: a path ending in `.md` always wants Markdown.
+  return (
+    (await negotiateMarkdown(new Request(url, request), load)) ??
+    new Response(null, { status: 500 })
+  );
+}
+```
+
+```ts title="src/app/md/posts/[slug]/route.ts"
+import { serveAgentMarkdown } from "@/lib/serve-agent-markdown";
+import { postCollection } from "../../../../../qino/collections/posts";
+
+export async function GET(
+  request: Request,
+  ctx: RouteContext<"/md/posts/[slug]">,
+) {
+  const { slug } = await ctx.params;
+  return serveAgentMarkdown(request, () =>
+    postCollection.getAgentMarkdown(slug),
+  );
+}
+```
+
+An unknown slug gets the Markdown 404. The index page's route, `src/app/md/posts/route.ts`, calls `postCollection.getAgentMarkdown()`. A tree's uses a catch-all, `[...slug]`, and joins the segments with `/`.
+
+## The rewrites
+
+```ts title="next.config.ts"
+import type { NextConfig } from "next";
+
+// A range's parameters other than q, and RFC 9110's qvalue above 0.
+const OTHER_PARAMS = String.raw`(?:\s*;(?!\s*[qQ]\s*=)[^;,]*)*`;
+const QVALUE_ABOVE_0 = String.raw`(?:1(?:\.0{0,3})?|0\.(?!0{1,3}\s*(?:[;,]|$))\d{1,3})(?=\s*(?:[;,]|$))`;
+
+// An `Accept` header whose first range is Markdown, in lowercase, with a
+// well-formed q-value above 0 or none.
+const LISTS_MARKDOWN_FIRST = String.raw`^text/(?:x-)?markdown${OTHER_PARAMS}(?:\s*;\s*[qQ]\s*=\s*${QVALUE_ABOVE_0}${OTHER_PARAMS})?\s*(?:,.*)?$`;
+const wantsMarkdown = [
+  { type: "header" as const, key: "accept", value: LISTS_MARKDOWN_FIRST },
+];
+
+// Entry pages. `/posts/tags` is a page of its own, and a slug never holds a
+// `.`, which keeps Markdown URLs out.
+const POST = "/posts/:slug((?!tags$)[^/.]+)";
+
+const nextConfig: NextConfig = {
+  async rewrites() {
+    return {
+      beforeFiles: [
+        { source: "/posts.md", destination: "/md/posts" },
+        { source: "/posts/:slug.md", destination: "/md/posts/:slug" },
+        { source: "/posts", has: wantsMarkdown, destination: "/md/posts" },
+        { source: POST, has: wantsMarkdown, destination: "/md/posts/:slug" },
+      ],
+    };
+  },
+  async headers() {
+    return [
+      { source: "/posts", markdownUrl: "/posts.md" },
+      { source: POST, markdownUrl: "/posts/:slug.md" },
+    ].map(({ source, markdownUrl }) => ({
+      source,
+      headers: [
+        {
+          key: "Link",
+          value: `<${markdownUrl}>; rel="alternate"; type="text/markdown"`,
+        },
+      ],
+    }));
+  },
+};
+
+export default nextConfig;
+```
+
+- **Markdown URLs** rewrite whatever the `Accept` header. Later rewrites match the rewritten path, `/md/posts/...`, so a `.md` request never reaches the `Accept` rewrites.
+- **`has`:** Next anchors the header's value with `^` and `$`. A looser value such as `(.*)text/markdown(.*)` also matches `text/html, text/markdown`, which prefers HTML.
+- **Sources** must match only entry pages. Leave out the static pages beside them, such as `/posts/tags`, or their Markdown requests get the Markdown 404.
+- **A tree's** sources take several segments: `/docs/:slug+.md` for its Markdown URLs, and `/docs/:slug([^.]+)` for its pages.
+
+## Check it
+
+```sh title="Terminal"
+# Markdown
+curl -i -H "Accept: text/markdown" http://localhost:3000/posts/hello-world
+curl -i http://localhost:3000/posts/hello-world.md
+
+# The HTML page, with a Link header
+curl -i http://localhost:3000/posts/hello-world
+```
+
+## Limits
+
+- **`Vary`:** Next sets an App Router page's `Vary` header itself, replacing one added by `headers()` or `proxy.ts`, so the HTML answer lacks `Accept`. The Markdown answer carries `Vary: Accept`. A shared cache can then hand a page's HTML to an agent, but never Markdown to a browser.
+- **q-values:** the rewrite matches `Accept` with a regex, so `text/markdown;q=0.5, text/html` gets Markdown here, where `negotiateMarkdown` alone would serve HTML.
+- **Direct requests:** `/md/posts/hello-world` also answers Markdown.

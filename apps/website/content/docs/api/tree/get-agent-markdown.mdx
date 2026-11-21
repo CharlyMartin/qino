@@ -1,0 +1,58 @@
+---
+title: getAgentMarkdown
+description: Build the agent Markdown of a node's entry page by slug, or of the index page without one.
+since: "0.25.0"
+---
+
+Builds the agent Markdown of a node's entry page, the document served to agents in place of the page. Without a slug, it builds the index page's. The tree must declare [`pages`](/docs/api/tree#parameters).
+
+```ts title="src/routes/docs.$.tsx"
+const page = await docsTree.getAgentMarkdown("guide/cli");
+const docs = await docsTree.getAgentMarkdown();
+```
+
+## Signature
+
+```ts title="@qino/cms"
+tree.getAgentMarkdown(slug: string): Promise<string | null>;
+tree.getAgentMarkdown(): Promise<string>;
+```
+
+## Parameters
+
+| Name   | Type     | Required | Description                                                                                                                |
+| ------ | -------- | -------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `slug` | `string` | no       | Slash-joined path minus extension, such as `guide/cli`. Any string, such as a route param. Leave it out for the index page |
+
+Tree views can't filter, so it takes no view and reads the entry without one.
+
+## Returns
+
+For an entry page, `Promise<string | null>`:
+
+- `# {title}`, from the tree's `titleField` and falling back to the slug, then `> {description}` when the `description` field holds one, then the body without frontmatter.
+- No heading when the body opens with its own H1.
+- Site-relative links and images made absolute on `siteUrl`, and MDX components replaced through [`agentMarkdown.components`](/docs/api/types/agent-markdown-component).
+- `null` when no node has the slug, `""` included.
+
+For the index page, `Promise<string>`: `# {pages.title}`, then a `##` section per root node, titled by that node and listing the node and then its descendants, in tree order:
+
+```md title="https://www.qino.works/docs.md"
+# Docs
+
+## Guide
+
+- [Guide](https://www.qino.works/docs/guide.md): Install qino, lay out a project, and run the CLI.
+- [Philosophy](https://www.qino.works/docs/guide/philosophy.md): Why qino is a flat-file CMS and what it deliberately leaves out.
+```
+
+## Throws
+
+- `Tree "<directory>" has no pages: declare them to get agent Markdown and Markdown URLs.`
+- Layout errors from walking the tree. See [getTree](/docs/api/tree/get-tree).
+- Validation, relation, augment, and component function errors. See [Errors](/docs/api/errors).
+
+## See also
+
+- [getMarkdownUrl](/docs/api/tree/get-markdown-url)
+- [negotiateMarkdown](/docs/api/negotiate-markdown)

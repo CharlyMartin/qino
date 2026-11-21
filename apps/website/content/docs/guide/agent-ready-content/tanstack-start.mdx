@@ -1,0 +1,178 @@
+---
+title: TanStack Start
+description: Serve agent Markdown from TanStack Start route handlers, with a global middleware for the Markdown 404.
+---
+
+A TanStack Start route can answer a request in its server handler before the page renders. Ask [`negotiateMarkdown`](/docs/api/negotiate-markdown) first, and fall through to the page with `next()` when it returns `null`. qino.works runs this setup.
+
+## Entry pages
+
+The route's param holds the slug. For a Markdown URL such as `/blog/hello-world.md` it ends in `.md`, and the prerender crawler can add a trailing `/`, so strip both:
+
+```ts title="src/lib/to-entry-slug.ts"
+export function toEntrySlug(param: string) {
+  return param.replace(/\/$/, "").replace(/\.md$/, "");
+}
+```
+
+```tsx title="src/routes/blog.$slug.tsx"
+import { negotiateMarkdown } from "@qino/cms";
+import { createFileRoute } from "@tanstack/react-router";
+
+import { postCollection } from "../../qino/posts";
+import { toEntrySlug } from "../lib/to-entry-slug";
+
+export const Route = createFileRoute("/blog/$slug")({
+  server: {
+    handlers: {
+      // Agent Markdown at `/blog/<slug>.md`, or when `Accept` prefers it.
+      GET: async ({ request, params, next }) =>
+        (await negotiateMarkdown(request, () =>
+          postCollection.getAgentMarkdown(toEntrySlug(params.slug)),
+        )) ?? next(),
+    },
+  },
+  component: PostPage,
+});
+```
+
+One handler serves the page and its Markdown URL, since a path ending in `.md` always gets Markdown. A tree's splat route works the same way, with `params._splat`.
+
+## Index pages
+
+The index page negotiates the same way, with `getAgentMarkdown()` and no slug:
+
+```tsx title="src/routes/blog.index.tsx"
+export const Route = createFileRoute("/blog/")({
+  server: {
+    handlers: {
+      GET: async ({ request, next }) =>
+        (await negotiateMarkdown(request, () =>
+          postCollection.getAgentMarkdown(),
+        )) ?? next(),
+    },
+  },
+  component: BlogIndexPage,
+});
+```
+
+Its Markdown URL, `/blog.md`, matches no page route, so it needs a route of its own. The route has no component to fall through to. A path ending in `.md` always gets Markdown, so the helper below redirects `/blog.md/` to `/blog.md` first, as the router redirects other pages' trailing slashes:
+
+```ts title="src/server/serve-index-agent-markdown.ts"
+import { type LoadAgentMarkdown, negotiateMarkdown } from "@qino/cms";
+
+export async function serveIndexAgentMarkdown(
+  request: Request,
+  load: LoadAgentMarkdown,
+) {
+  const url = new URL(request.url);
+  if (url.pathname.endsWith("/")) {
+    url.pathname = url.pathname.replace(/\/+$/, "");
+    return Response.redirect(url, 307);
+  }
+
+  // Never `null`: a path ending in `.md` always wants Markdown.
+  return (
+    (await negotiateMarkdown(request, load)) ??
+    new Response(null, { status: 500 })
+  );
+}
+```
+
+```ts title="src/routes/blog[.]md.ts"
+import { createFileRoute } from "@tanstack/react-router";
+
+import { postCollection } from "../../qino/posts";
+import { serveIndexAgentMarkdown } from "../server/serve-index-agent-markdown";
+
+export const Route = createFileRoute("/blog.md")({
+  server: {
+    handlers: {
+      GET: ({ request }) =>
+        serveIndexAgentMarkdown(request, () =>
+          postCollection.getAgentMarkdown(),
+        ),
+    },
+  },
+});
+```
+
+## The Markdown 404
+
+A request for Markdown on a path no route answers, such as `/nope`, should get a Markdown 404 too. Two global request middlewares in `src/start.ts` handle it:
+
+```ts title="src/start.ts"
+import { createCsrfMiddleware, createStart } from "@tanstack/react-start";
+
+import { htmlFallbackMiddleware } from "./server/html-fallback-middleware";
+import { markdownNotFoundMiddleware } from "./server/markdown-not-found-middleware";
+
+export const startInstance = createStart(() => ({
+  requestMiddleware: [
+    // Start's default for server functions, dropped once this list is set.
+    createCsrfMiddleware({
+      filter: ({ handlerType }) => handlerType == "serverFn",
+    }),
+    htmlFallbackMiddleware,
+    markdownNotFoundMiddleware,
+  ],
+}));
+```
+
+Setting `requestMiddleware` replaces Start's default CSRF middleware for server functions, so the list adds it back.
+
+Start answers `406 Not Acceptable` to a page request whose `Accept` header names neither `text/html` nor `*/*`, such as `Accept: text/markdown` alone, before any route or 404 runs. The first middleware adds `*/*;q=0`, so those requests reach their route, or the 404, instead. It never changes what `negotiateMarkdown` picks. Start reads the original request, so the header is changed in place:
+
+```ts title="src/server/html-fallback-middleware.ts"
+import { createMiddleware } from "@tanstack/react-start";
+
+// Start's own test: a page renders only when `Accept` names HTML or `*/*`.
+const ACCEPTS_HTML = /(^|,)\s*(\*\/\*|text\/html)/;
+
+export const htmlFallbackMiddleware = createMiddleware().server(
+  ({ request, handlerType, next }) => {
+    const accept = request.headers.get("Accept");
+    if (handlerType == "router" && accept && !ACCEPTS_HTML.test(accept)) {
+      request.headers.set("Accept", `${accept}, */*;q=0`);
+    }
+    return next();
+  },
+);
+```
+
+The second turns a 404 into the Markdown 404 when the request wants Markdown. Its loader returns `null`, so `negotiateMarkdown` answers with its 404:
+
+```ts title="src/server/markdown-not-found-middleware.ts"
+import { negotiateMarkdown } from "@qino/cms";
+import { createMiddleware } from "@tanstack/react-start";
+
+export const markdownNotFoundMiddleware = createMiddleware().server(
+  async ({ request, handlerType, next }) => {
+    const result = await next();
+    if (handlerType != "router" || result.response.status != 404) {
+      return result;
+    }
+    return (await negotiateMarkdown(request, async () => null)) ?? result;
+  },
+);
+```
+
+## Advertise the Markdown URL
+
+Add `<link rel="alternate" type="text/markdown">` to each page's head. `head` also runs in the browser, and importing a primitive there bundles qino into the client, so get the URL from [`getMarkdownUrl`](/docs/api/collection/get-markdown-url) in a server function and return it from the loader:
+
+```tsx title="src/routes/blog.$slug.tsx"
+export const Route = createFileRoute("/blog/$slug")({
+  // getPost is a server function that returns postCollection.getMarkdownUrl(slug).
+  loader: ({ params }) => getPost({ data: params.slug }),
+  head: ({ loaderData }) => ({
+    links: [
+      { rel: "alternate", type: "text/markdown", href: loaderData.markdownUrl },
+    ],
+  }),
+});
+```
+
+## Prerendered pages
+
+A prerendered page is a static file, so the host serves it before the route handler can negotiate, and the host has to rewrite Markdown requests itself. See [Nitro on Vercel](/docs/guide/agent-ready-content/nitro-on-vercel).

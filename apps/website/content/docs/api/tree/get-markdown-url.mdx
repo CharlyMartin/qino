@@ -1,0 +1,37 @@
+---
+title: getMarkdownUrl
+description: The Markdown URL of a node's entry page by slug, or of the index page without one.
+since: "0.25.0"
+---
+
+Returns the absolute URL of a page's agent Markdown: the page's URL on `siteUrl` with `.md` appended. The tree must declare [`pages`](/docs/api/tree#parameters).
+
+```ts title="qino/docs.ts"
+docsTree.getMarkdownUrl("guide/cli"); // "https://example.com/docs/guide/cli.md"
+docsTree.getMarkdownUrl(); // "https://example.com/docs.md"
+```
+
+## Signature
+
+```ts title="@qino/cms"
+tree.getMarkdownUrl(slug: Slug): string;
+tree.getMarkdownUrl(): string;
+```
+
+## Parameters
+
+| Name   | Type     | Required | Description                                                                                                |
+| ------ | -------- | -------- | ---------------------------------------------------------------------------------------------------------- |
+| `slug` | `string` | no       | Slash-joined path minus extension. Autocompletes after `qino build`. Leave it out for the index page's URL |
+
+## Returns
+
+`string`: `pages.entry` with the slug in place of `{slug}`, slashes kept, or `pages.index`, joined to `siteUrl`. A trailing `/` is dropped before `.md`, `/` gives `/index.md`, and each slug segment is URL-encoded. It reads no file.
+
+## Throws
+
+- `Tree "<directory>" has no pages: declare them to get agent Markdown and Markdown URLs.`
+
+## See also
+
+- [getAgentMarkdown](/docs/api/tree/get-agent-markdown)

@@ -1,0 +1,43 @@
+---
+title: getMarkdownUrl
+description: The Markdown URL of an entry page by slug, or of the index page without one.
+since: "0.25.0"
+---
+
+Returns the absolute URL of a page's agent Markdown: the page's URL on `siteUrl` with `.md` appended. Use it in `<link rel="alternate" type="text/markdown">` and `Link` headers. The collection must declare [`pages`](/docs/api/collection#pages).
+
+```ts title="src/server/get-post.ts"
+postCollection.getMarkdownUrl("hello-world"); // "https://example.com/blog/hello-world.md"
+postCollection.getMarkdownUrl(); // "https://example.com/blog.md"
+```
+
+## Signature
+
+```ts title="@qino/cms"
+collection.getMarkdownUrl(slug: Slug): string;
+collection.getMarkdownUrl(): string;
+```
+
+## Parameters
+
+| Name   | Type     | Required | Description                                                                               |
+| ------ | -------- | -------- | ----------------------------------------------------------------------------------------- |
+| `slug` | `string` | no       | The entry's slug. Autocompletes after `qino build`. Leave it out for the index page's URL |
+
+## Returns
+
+`string`: `pages.entry` with the slug in place of `{slug}`, or `pages.index`, joined to `siteUrl`.
+
+- A trailing `/` is dropped before `.md`, so `/blog/hello/` gives `/blog/hello.md`.
+- A path of `/` gives `/index.md`.
+- Each slug segment is URL-encoded.
+
+It reads no file, so it doesn't check that the entry exists.
+
+## Throws
+
+- `Collection "<directory>" has no pages: declare them to get agent Markdown and Markdown URLs.`
+
+## See also
+
+- [getAgentMarkdown](/docs/api/collection/get-agent-markdown)

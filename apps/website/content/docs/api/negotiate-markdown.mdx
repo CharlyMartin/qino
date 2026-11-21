@@ -1,0 +1,81 @@
+---
+title: negotiateMarkdown
+description: Answer a request with agent Markdown when it asks for Markdown, or with null so the page renders.
+since: "0.25.0"
+---
+
+Answers a request that wants agent Markdown, and returns `null` for one that wants HTML, so your route renders the page. It takes a Web `Request`, so it works in any framework that uses them, such as TanStack Start route handlers and middleware, or Next.js route handlers.
+
+```ts title="src/routes/blog.$slug.tsx"
+import { negotiateMarkdown } from "@qino/cms";
+
+const response = await negotiateMarkdown(request, () =>
+  postCollection.getAgentMarkdown(slug),
+);
+return response ?? next();
+```
+
+## Signature
+
+```ts title="@qino/cms"
+function negotiateMarkdown(
+  request: Request,
+  load: LoadAgentMarkdown,
+): Promise<Response | null>;
+
+type LoadAgentMarkdown = () => string | null | Promise<string | null>;
+```
+
+## Parameters
+
+| Name      | Type                | Required | Description                                                                                                         |
+| --------- | ------------------- | -------- | ------------------------------------------------------------------------------------------------------------------- |
+| `request` | `Request`           | yes      | The incoming request. Only its URL, method and `Accept` header are read                                             |
+| `load`    | `LoadAgentMarkdown` | yes      | Loads the page's agent Markdown, or `null` when the page doesn't exist. Called only when the request wants Markdown |
+
+`load` usually calls a primitive's `getAgentMarkdown`, but any string works, so the homepage or a middleware can use it too. `LoadAgentMarkdown` is exported from `@qino/cms`.
+
+## When it serves Markdown
+
+A request wants Markdown when its path ends in `.md`, whatever its `Accept` header says. Otherwise it reads the `Accept` header:
+
+| `Accept`                                    | Answer   | Why                                                           |
+| ------------------------------------------- | -------- | ------------------------------------------------------------- |
+| `text/markdown` or `text/x-markdown`        | Markdown | Markdown is the only type named                               |
+| `text/markdown, text/html, */*`             | Markdown | Equal q-values: the type listed first wins                    |
+| `*/*, text/markdown`                        | Markdown | A named type beats a wildcard on a tie                        |
+| `text/html, text/markdown`                  | HTML     | Equal q-values: HTML is listed first                          |
+| `text/html;q=1, text/markdown;q=0.5`        | HTML     | HTML has the higher q-value                                   |
+| `text/markdown;q=0`                         | HTML     | `q=0` means not acceptable                                    |
+| `*/*`, `text/*`, `text/plain`, or no header | HTML     | Only `text/markdown` and `text/x-markdown` count for Markdown |
+
+- Types and parameter names are case-insensitive.
+- A range whose q-value doesn't follow [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110#name-quality-values), such as `q=1.5` or `q=oops`, is ignored.
+- It never answers `406 Not Acceptable`. A request that accepts neither type gets `null`, and so HTML.
+
+## Returns
+
+`Promise<Response | null>`:
+
+- `null` when the request wants HTML. `load` isn't called.
+- A `200` with the agent Markdown when `load` resolves to a string.
+- A `404` when `load` resolves to `null`, with a short Markdown body that links to `/llms.txt` on the request's origin:
+
+```md title="404 body"
+# Not found
+
+This page doesn't exist. See [llms.txt](https://example.com/llms.txt) for the pages that do.
+```
+
+Both responses carry `Content-Type: text/markdown; charset=utf-8` and `Vary: Accept`. A `HEAD` request gets the same status and headers, with no body.
+
+It adds no `Link` header: add one to your HTML responses, with the URL from [`getMarkdownUrl`](/docs/api/collection/get-markdown-url).
+
+## Throws
+
+Whatever `load` throws.
+
+## See also
+
+- [Agent-ready content](/docs/guide/agent-ready-content)
+- [getAgentMarkdown](/docs/api/collection/get-agent-markdown)
