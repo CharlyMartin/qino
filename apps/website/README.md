@@ -85,7 +85,16 @@ Checks:
 ```sh
 pnpm --filter website check-types
 pnpm --filter website test
-apps/website/scripts/probe-agent-markdown.sh https://<preview>.vercel.app   # against a deploy
-apps/website/scripts/probe-agent-markdown.sh --dev http://localhost:3000    # against a running dev server
+pnpm --filter website check-client-bundle    # after a build: qino stays out of the browser's assets
 pnpm biome check .
+```
+
+Against a server, from the repository root:
+
+```sh
+apps/website/scripts/dev-server.sh start 3000                               # background dev server; `stop` ends it
+apps/website/scripts/probe-agent-markdown.sh --dev http://localhost:3000    # against that dev server
+apps/website/scripts/preview-url.sh                                         # waits for HEAD's Vercel preview, prints its URL
+apps/website/scripts/probe-agent-markdown.sh <preview-url>                  # against a deploy
+node apps/website/scripts/scan-agent-readiness.mjs <preview-url> /docs/guide/cli   # the three scanners' content checks
 ```

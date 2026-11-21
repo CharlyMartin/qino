@@ -1,6 +1,8 @@
 # Agent-readiness scanners
 
-How to run the three scanners that check whether a site serves agents well, from a shell. Their web pages render with JavaScript, so fetching a page returns no results; call their APIs instead. Replace `<url>` with the deployment to check, such as a Vercel preview URL, and `<domain>` with its host.
+How to run the three scanners that check whether a site serves agents well, from a shell. Their web pages render with JavaScript, so fetching a page returns no results; call their APIs instead. Replace `<url>` with the deployment to check, such as the Vercel preview URL that `apps/website/scripts/preview-url.sh` prints, and `<domain>` with its host.
+
+`node apps/website/scripts/scan-agent-readiness.mjs <url> [path...]` runs all three and prints one line per content check. Reach for the commands below when you need a check it doesn't print, or a check's evidence.
 
 ## isitagentready.com
 

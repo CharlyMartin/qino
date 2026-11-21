@@ -5,3 +5,4 @@ qino/_generated/
 public/llms.txt
 public/llms-full.txt
 public/index.md
+.dev-server/
