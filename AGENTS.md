@@ -41,6 +41,7 @@ A code change is done once it's in an open pull request. How it gets built depen
   - Before `/implement`, read the parent ticket's "Decisions while implementing" comment. Add each decision you take that the spec doesn't cover, under the ticket's heading, and post the comment if there isn't one. A ticket without a parent records its decisions in its PR description. When the user changes a spec decision, edit the spec and the ticket to match. A note you leave for a later ticket names the function or file to start from, and leaves the design to that ticket.
   - Ask the user before building a decision that changes the public surface, such as an option's default or an output format, or that changes what an earlier ticket shipped.
   - Run `/implement`'s `code-review` the way `ship`'s Review step describes.
+  - When a ticket's acceptance criteria run on a preview deploy, push its branch during `/implement` and run `ship` step 6's preview checks.
 - **Bug fix:** fix it test-first with `tdd`; use `diagnosing-bugs` when the cause isn't obvious.
 - **Docs-only or trivial changes, and changes the user wants to try out without committing:** stop once the checks are green.
 
