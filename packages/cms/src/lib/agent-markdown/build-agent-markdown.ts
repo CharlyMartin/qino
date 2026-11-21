@@ -45,11 +45,7 @@ export async function buildAgentMarkdown<Entry>({
   const blocks = [];
   if (!startsWithH1(body, { mdx })) {
     blocks.push(`# ${readEntryTitle(title)}`);
-    // Frontmatter is plain Markdown, never MDX.
-    const description = absolutizeLinks(readEntryDescription(entry), {
-      origin,
-      mdx: false,
-    });
+    const description = readEntryDescription(entry, origin);
     if (description) {
       const lines = description.split("\n");
       blocks.push(lines.map((line) => (line ? `> ${line}` : ">")).join("\n"));

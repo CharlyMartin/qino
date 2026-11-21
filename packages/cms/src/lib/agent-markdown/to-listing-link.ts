@@ -1,5 +1,4 @@
 import type { ListingLink } from "../../types/agent-markdown";
-import { absolutizeLinks } from "./absolutize-links";
 import { readEntryDescription } from "./read-entry-description";
 import { type ReadEntryTitleParams, readEntryTitle } from "./read-entry-title";
 import { toOneLine } from "./to-one-line";
@@ -15,10 +14,7 @@ type ToListingLinkParams = ReadEntryTitleParams & {
  */
 export function toListingLink({ url, ...title }: ToListingLinkParams) {
   // The Markdown URL is on `siteUrl`, so its origin is the site's.
-  const description = absolutizeLinks(readEntryDescription(title.entry), {
-    origin: new URL(url).origin,
-    mdx: false,
-  });
+  const description = readEntryDescription(title.entry, new URL(url).origin);
   return {
     title: readEntryTitle(title),
     url,
