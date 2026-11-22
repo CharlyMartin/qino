@@ -238,6 +238,27 @@ test("build with sections writes a section llms.txt per tree and collection, and
   );
 }, 60_000);
 
+test("build with sections fails for an index page at /, naming its primitive", async () => {
+  await createLlmsTxtProject(tmp, {
+    config: config.replace("llmsTxt: true", "llmsTxt: { sections: true }"),
+    files: {
+      "qino/notes.ts": `
+        import { z } from "zod";
+        import qino from "./index";
+        export const notes = qino.defineCollection({
+          directory: "notes", extension: ".md",
+          schema: z.object({ title: z.string() }),
+          pages: { index: "/", entry: "/{slug}", title: "Notes" },
+        });
+      `,
+    },
+  });
+
+  await expect(build()).rejects.toThrow(
+    'Collection "notes": pages.index is "/", so its section llms.txt would replace llms.txt.',
+  );
+}, 60_000);
+
 test("build fails when llmsTxt has no siteUrl", async () => {
   await createLlmsTxtProject(tmp, {
     config: config.replace('siteUrl: "https://example.com",', ""),

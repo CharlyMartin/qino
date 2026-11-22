@@ -42,11 +42,8 @@ export type PagesMeta = ResolvedPages & {
   readonly owner: string;
   /** Its `llms.txt` sections. */
   readonly getListingSections: () => Promise<Array<ListingSection>>;
-  /**
-   * Its section llms.txt: the index page's agent Markdown without the
-   * frontmatter block, or `null` when it has nothing to list.
-   */
-  readonly getSectionLlmsTxt: () => Promise<string | null>;
+  /** Its section llms.txt: the index page's agent Markdown without the frontmatter block. */
+  readonly getSectionLlmsTxt: () => Promise<string>;
   /**
    * Its entry pages' agent Markdown, in its sections' order and without
    * frontmatter blocks, for `llms-full.txt`.

@@ -21,4 +21,4 @@ On a large site, set `{ sections: true }` to keep `llms.txt` small. `qino build`
 - [Blog](https://example.com/blog/llms.txt)
 ```
 
-A collection or tree whose index page is `/` fails the build with `sections` on, since its section llms.txt would replace `llms.txt`.
+A collection or tree with nothing to list still gets one, holding its heading alone. With `sections` on, the build fails for an index page at `/`, since its section llms.txt would replace `llms.txt`, and for two collections or trees with the same index page.

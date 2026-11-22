@@ -99,8 +99,10 @@ describe("writeLlmsTxt", () => {
 
     expect(await readPublic("index.md")).toBe("Old.\n");
   });
+
   test("with sections, writes a section llms.txt at an index page with a trailing slash, and links it", async () => {
     await writePost("hello");
+
     await writeLlmsTxt(setup({ sections: true, pages: { index: "/blog/" } }));
 
     expect(await readPublic("llms.txt")).toBe(
@@ -111,11 +113,37 @@ describe("writeLlmsTxt", () => {
     );
   });
 
-  test("with sections, writes no section llms.txt and no ## Sections for a collection with nothing to list", async () => {
+  test("with sections, writes a collection with nothing to list a section llms.txt with its heading alone, and links it", async () => {
     await writeLlmsTxt(setup({ sections: true }));
 
-    expect(await readPublic("llms.txt")).toBe("# Site\n");
-    await expect(readPublic("blog/llms.txt")).rejects.toThrow("ENOENT");
+    expect(await readPublic("llms.txt")).toBe(
+      "# Site\n\n## Sections\n\n- [Blog](https://example.com/blog/llms.txt)\n",
+    );
+    expect(await readPublic("blog/llms.txt")).toBe("# Blog\n");
+  });
+
+  test("with sections, fails for two collections sharing an index page, naming both", async () => {
+    const context = setup({ sections: true });
+    const notes = initQino({
+      contentFolder: tmp,
+      mediaFolder: nodePath.join(tmp, "public"),
+      siteUrl: "https://example.com",
+    }).defineCollection({
+      directory: "notes",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      pages: { index: "/blog/", entry: "/blog/notes/{slug}", title: "Notes" },
+    });
+    await fs.mkdir(nodePath.join(tmp, "notes"));
+
+    await expect(
+      writeLlmsTxt({
+        ...context,
+        collections: [...context.collections, notes],
+      }),
+    ).rejects.toThrow(
+      'Collection "notes" and Collection "posts" would both write the section llms.txt "/blog/llms.txt". Give one another index page, or turn off `cli.build.llmsTxt.sections`.',
+    );
   });
 
   test("with sections, fails for an index page at /, naming the collection", async () => {

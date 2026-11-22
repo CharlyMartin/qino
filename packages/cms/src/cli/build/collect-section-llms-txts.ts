@@ -11,21 +11,18 @@ type CollectSectionLlmsTxtsParams = {
 
 /**
  * The section llms.txt of each tree and collection that declares pages, in
- * `llms.txt`'s order: its `content`, the `path` it's served at, at its index
- * page's path, and its `link` in `llms.txt`. One with nothing to list has
- * none, as it has no `llms.txt` section. Throws for an index page at `/`,
- * whose section llms.txt would replace `llms.txt`.
+ * `llms.txt`'s order: its `content`, the `path` it's served at, under its
+ * index page, and its `link` in `llms.txt`. Throws for an index page at `/`,
+ * whose section llms.txt would replace `llms.txt`, and for two primitives
+ * whose section llms.txt would be the same file.
  */
 export async function collectSectionLlmsTxts({
   collections,
   trees,
 }: CollectSectionLlmsTxtsParams) {
-  const { treesAndCollections } = sortLlmsTxtPrimitives({
-    collections,
-    items: [],
-    trees,
-  });
+  const { treesAndCollections } = sortLlmsTxtPrimitives({ collections, trees });
 
+  const owners = new Map<string, string>();
   const sectionLlmsTxts = [];
   for (const primitive of treesAndCollections) {
     const pages = primitive[QinoPrimitiveMarker].pages;
@@ -36,11 +33,17 @@ export async function collectSectionLlmsTxts({
       );
     }
 
-    const content = await pages.getSectionLlmsTxt();
-    if (content == null) continue;
     const path = `${pages.index.replace(/\/$/, "")}/${LLMS_TXT_FILE_NAME}`;
+    const owner = owners.get(path);
+    if (owner) {
+      throw new Error(
+        `${owner} and ${pages.owner} would both write the section llms.txt "${path}". Give one another index page, or turn off \`cli.build.llmsTxt.sections\`.`,
+      );
+    }
+    owners.set(path, pages.owner);
+
     sectionLlmsTxts.push({
-      content,
+      content: await pages.getSectionLlmsTxt(),
       path,
       link: {
         title: pages.title,
