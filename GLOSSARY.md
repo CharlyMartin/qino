@@ -24,6 +24,10 @@ _Avoid_: Twin, .md route, raw URL
 The hand-written Markdown that `llms.txt` is built from. qino inserts its link sections into it.
 _Avoid_: Preamble, header, intro
 
+**Section llms.txt**:
+An `llms.txt` at an index page's path that lists only that collection's or tree's pages.
+_Avoid_: Nested llms.txt, sub-llms.txt
+
 ## Media
 
 **Image manifest**:
