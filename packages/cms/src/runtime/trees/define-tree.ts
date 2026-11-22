@@ -219,7 +219,9 @@ export function defineTree<
       ...(resolvedPages && {
         pages: {
           ...resolvedPages,
+          owner,
           getListingSections,
+          getSectionLlmsTxt: () => buildIndexPageAgentMarkdown(),
           getLlmsFullDocuments,
         },
       }),
@@ -400,11 +402,7 @@ export function defineTree<
     const pages = requirePages(resolvedPages, { owner, option: "pages" });
     // Only a missing slug means the index page: `""` is a slug no node has.
     if (typeof slug == "undefined") {
-      return buildIndexAgentMarkdown({
-        title: pages.title,
-        sections: await getListingSections(),
-        canonical: toPagesUrl(pages),
-      });
+      return buildIndexPageAgentMarkdown(toPagesUrl(pages));
     }
 
     // Only a listed slug reads a file: a route param can't reach past the
@@ -434,6 +432,17 @@ export function defineTree<
       extension,
       origin: siteUrl,
       replacement: { components: params.agentMarkdown?.components, entry },
+      canonical,
+    });
+  }
+
+  // The index page's. A `canonical` adds the frontmatter block, which its
+  // section llms.txt leaves out.
+  async function buildIndexPageAgentMarkdown(canonical?: string) {
+    const { title } = requirePages(resolvedPages, { owner, option: "pages" });
+    return buildIndexAgentMarkdown({
+      title,
+      sections: await getListingSections(),
       canonical,
     });
   }

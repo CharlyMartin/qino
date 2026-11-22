@@ -72,6 +72,30 @@ expect_link() {
 # The site's URL, `siteUrl`, which canonical URLs use on every deploy.
 site=https://www.qino.works
 
+# expect_body <path> <starts|contains> <text>: a 200 whose body opens with,
+# or holds, the text.
+expect_body() {
+  local path=$1 how=$2 text=$3
+  local got code body
+  got=$(curl -sL -w '\n%{http_code}' "$base$path")
+  code=${got##*$'\n'}
+  body=${got%$'\n'*}
+  local ok=0
+  case $how in
+    starts) [[ $body == "$text"* ]] && ok=1 ;;
+    contains) [[ $body == *"$text"* ]] && ok=1 ;;
+    *) echo "unknown match: $how" >&2; exit 2 ;;
+  esac
+  [ "$code" = 200 ] || ok=0
+  local line="GET $path $how ${text%%$'\n'*}"
+  if [ $ok = 1 ]; then
+    echo "ok   $line"
+  else
+    echo "FAIL $line; got $code: ${body:0:160}"
+    failed=1
+  fi
+}
+
 # expect_frontmatter <path> <page path> [accept]: the answer opens with a
 # frontmatter block whose canonical URL is the page's.
 expect_frontmatter() {
@@ -135,6 +159,15 @@ for page in /docs/guide/cli /docs/guide /blog/why-another-cms /docs /blog; do
   expect_frontmatter "$page.md" "$page"
   expect_frontmatter "$page" "$page" "text/markdown"
 done
+# Including the homepage's, at `/` on a deploy.
+expect_frontmatter /index.md /
+if [ $dev = 0 ]; then expect_frontmatter / / "text/markdown"; fi
+
+# Each section llms.txt, which llms.txt links in place of its sections.
+expect_body /docs/llms.txt starts $'# Docs\n'
+expect_body /blog/llms.txt starts $'# Blog\n'
+expect_body /llms.txt contains "- [Docs]($site/docs/llms.txt)"
+expect_body /llms.txt contains "- [Blog]($site/blog/llms.txt)"
 
 # Unknown paths get the Markdown 404 when they want Markdown, and the HTML
 # one otherwise.

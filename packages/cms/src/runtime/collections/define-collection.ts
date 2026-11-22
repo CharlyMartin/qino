@@ -216,7 +216,9 @@ export function defineCollection<
       ...(resolvedPages && {
         pages: {
           ...resolvedPages,
+          owner,
           getListingSections,
+          getSectionLlmsTxt: () => buildIndexPageAgentMarkdown(),
           getLlmsFullDocuments,
         },
       }),
@@ -425,11 +427,7 @@ export function defineCollection<
     const pages = requirePages(resolvedPages, { owner, option: "pages" });
     // Only a missing slug means the index page: `""` is a slug no entry has.
     if (typeof slug == "undefined") {
-      return buildIndexAgentMarkdown({
-        title: pages.title,
-        links: await listLinks(),
-        canonical: toPagesUrl(pages),
-      });
+      return buildIndexPageAgentMarkdown(toPagesUrl(pages));
     }
 
     // Only a listed slug reads a file: a route param can't reach past the
@@ -485,6 +483,17 @@ export function defineCollection<
         fallbackTitle: entrySlug,
         url: getMarkdownUrl(entrySlug as SlugFor<Dir>),
       });
+    });
+  }
+
+  // The index page's. A `canonical` adds the frontmatter block, which its
+  // section llms.txt leaves out.
+  async function buildIndexPageAgentMarkdown(canonical?: string) {
+    const { title } = requirePages(resolvedPages, { owner, option: "pages" });
+    return buildIndexAgentMarkdown({
+      title,
+      links: await listLinks(),
+      canonical,
     });
   }
 
