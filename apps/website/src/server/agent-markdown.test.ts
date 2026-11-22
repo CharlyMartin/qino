@@ -3,7 +3,7 @@ import { expect, test } from "vitest";
 import { docsTree } from "../../qino/docs";
 import { postCollection } from "../../qino/posts";
 
-test("a section landing's LinkGrid lists its pages with their Markdown URLs", async () => {
+test("a section landing keeps its intro, and its LinkGrid lists its pages with their Markdown URLs", async () => {
   const markdown = await docsTree.getAgentMarkdown("guide");
 
   expect(markdown).toBe(
@@ -17,6 +17,8 @@ test("a section landing's LinkGrid lists its pages with their Markdown URLs", as
       "# Guide",
       "",
       "> Install qino, lay out a project, and run the CLI.",
+      "",
+      "The guide takes a project from installing qino to building with it. Start with [Installation](https://www.qino.works/docs/guide/installation), which adds `@qino/cms` and a first collection, then [Project structure](https://www.qino.works/docs/guide/project-structure) and [Content folder](https://www.qino.works/docs/guide/content-folder), which show where definitions and content files live. The pages after them cover frontmatter, the `qino` CLI, content for AI agents and the cloud UI. [Philosophy](https://www.qino.works/docs/guide/philosophy) explains what qino leaves out, and why.",
       "",
       "- [Philosophy](https://www.qino.works/docs/guide/philosophy.md): Why qino is a flat-file CMS and what it deliberately leaves out.",
       "- [Installation](https://www.qino.works/docs/guide/installation.md): Add @qino/cms to a project and create a first collection.",
