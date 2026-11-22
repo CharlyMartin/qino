@@ -153,11 +153,11 @@ A server that renders pages on request reads images from it when `mediaFolder` o
 
 Set `cli.build.llmsTxt` on [`initQino`](/docs/api/init-qino), and `build` also writes three files at the root of `mediaFolder`, from the [`llms.txt` template](/docs/guide/agent-ready-content#llmstxt):
 
-| File            | Content                                                                                                                                                                                                                     |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `llms.txt`      | The template, with a section of links for each primitive that declares pages                                                                                                                                                |
-| `llms-full.txt` | The template's H1 and summary, then the agent Markdown of every entry page, one after another                                                                                                                               |
-| `index.md`      | `llms.txt` after a frontmatter block, as the homepage's agent Markdown: the template's H1 as `title`, its summary as `description`, and `siteUrl` as `canonical`. Skipped when a page's Markdown URL is already `/index.md` |
+| File            | Content                                                                                                                           |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `llms.txt`      | The template, with a section of links for each primitive that declares pages                                                      |
+| `llms-full.txt` | The template's H1 and summary, then the agent Markdown of every entry page, one after another                                     |
+| `index.md`      | `llms.txt` after a frontmatter block, as the homepage's agent Markdown. Skipped when a page's Markdown URL is already `/index.md` |
 
 ```ts title="qino/index.ts"
 export default initQino({
@@ -198,6 +198,20 @@ Trees come first, then collections, then items, each sorted by directory or file
 ```
 
 `llms-full.txt` holds the same entry pages in the same order, each as its Markdown URL serves it but without its frontmatter block, and items' pages last. A collection or tree with `pages.llmsFull: false` stays out of it.
+
+`index.md` opens with a frontmatter block: the template's H1 as `title`, its summary on one line as `description`, with site-relative links made absolute, and `siteUrl` as `canonical`. A template without an H1 gives no block:
+
+```md title="public/index.md"
+---
+title: "Acme"
+description: "Acme is a feature-flag service for JavaScript apps."
+canonical: "https://example.com/"
+---
+
+# Acme
+
+> Acme is a feature-flag service for JavaScript apps.
+```
 
 The files are written only when their content changes, in CI too. Every build writes them again, so keep them out of Git. `build` fails when `siteUrl` is missing or the template doesn't exist. See [Errors](/docs/api/errors#cli).
 
