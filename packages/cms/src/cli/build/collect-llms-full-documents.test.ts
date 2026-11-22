@@ -27,7 +27,7 @@ function item(file: string, document?: string) {
   return {
     [QinoPrimitiveMarker]: {
       file,
-      page: document && { getAgentMarkdown: async () => document },
+      page: document && { getPageAgentMarkdown: async () => document },
     },
   } as never;
 }

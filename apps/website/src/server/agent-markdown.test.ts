@@ -8,6 +8,12 @@ test("a section landing's LinkGrid lists its pages with their Markdown URLs", as
 
   expect(markdown).toBe(
     [
+      "---",
+      'title: "Guide"',
+      'description: "Install qino, lay out a project, and run the CLI."',
+      'canonical: "https://www.qino.works/docs/guide"',
+      "---",
+      "",
       "# Guide",
       "",
       "> Install qino, lay out a project, and run the CLI.",

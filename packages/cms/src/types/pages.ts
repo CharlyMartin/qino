@@ -34,7 +34,10 @@ export type ResolvedItemPage = {
 export type PagesMeta = ResolvedPages & {
   /** Its `llms.txt` sections. */
   readonly getListingSections: () => Promise<Array<ListingSection>>;
-  /** Its entry pages' agent Markdown, in its sections' order, for `llms-full.txt`. */
+  /**
+   * Its entry pages' agent Markdown, in its sections' order and without
+   * frontmatter blocks, for `llms-full.txt`.
+   */
   readonly getEntryPagesAgentMarkdown: () => Promise<Array<string>>;
 };
 
@@ -42,6 +45,6 @@ export type PagesMeta = ResolvedPages & {
 export type PageMeta = ResolvedItemPage & {
   /** Its link in `llms.txt`'s `## Pages` section. */
   readonly getListingLink: () => Promise<ListingLink>;
-  /** Its page's agent Markdown, for `llms-full.txt`. */
-  readonly getAgentMarkdown: () => Promise<string>;
+  /** Its page's agent Markdown without the frontmatter block, for `llms-full.txt`. */
+  readonly getPageAgentMarkdown: () => Promise<string>;
 };

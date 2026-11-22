@@ -16,6 +16,7 @@ import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { requirePages } from "../../lib/pages/require-pages";
 import { resolveItemPage } from "../../lib/pages/resolve-item-page";
 import { toMarkdownUrl } from "../../lib/pages/to-markdown-url";
+import { toPageUrl } from "../../lib/pages/to-page-url";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { extractExtension } from "../../lib/paths/extract-extension";
@@ -169,7 +170,7 @@ export function defineItem<
       markdown,
       cloud,
       ...(resolvedPage && {
-        page: { ...resolvedPage, getListingLink, getAgentMarkdown },
+        page: { ...resolvedPage, getListingLink, getPageAgentMarkdown },
       }),
       readEntry,
     },
@@ -237,6 +238,16 @@ export function defineItem<
   }
 
   async function getAgentMarkdown() {
+    const { page, siteUrl } = requirePages(resolvedPage, {
+      owner,
+      option: "page",
+    });
+    return getPageAgentMarkdown(toPageUrl(page, siteUrl));
+  }
+
+  // `llms-full.txt`'s document, without the frontmatter block that a
+  // `canonical` adds.
+  async function getPageAgentMarkdown(canonical?: string) {
     const { siteUrl } = requirePages(resolvedPage, { owner, option: "page" });
     // Item views can't filter, so no view can exclude the entry.
     const entry = await readEntry();
@@ -246,6 +257,7 @@ export function defineItem<
       extension,
       origin: siteUrl,
       replacement: { components: params.agentMarkdown?.components, entry },
+      canonical,
     });
   }
 

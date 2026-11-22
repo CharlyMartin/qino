@@ -29,7 +29,7 @@ export async function collectLlmsFullDocuments(
   }
   for (const item of items) {
     const page = item[QinoPrimitiveMarker].page;
-    if (page) documents.push(await page.getAgentMarkdown());
+    if (page) documents.push(await page.getPageAgentMarkdown());
   }
 
   return documents;

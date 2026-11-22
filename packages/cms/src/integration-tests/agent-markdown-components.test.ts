@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import { initQino } from "../runtime/qino/init-qino";
 import type { AgentMarkdownComponents } from "../types/agent-markdown";
+import { afterFrontmatter } from "./after-frontmatter";
 
 let tmp: string;
 
@@ -51,7 +52,7 @@ describe("MDX components in agent Markdown", () => {
         `\`\`\`sh\nnpm ${props.command} @qino/cms\n\`\`\``,
     });
 
-    expect(await docs.getAgentMarkdown("install")).toBe(
+    expect(afterFrontmatter(await docs.getAgentMarkdown("install"))).toBe(
       "# Doc\n\nRun this:\n\n```sh\nnpm add @qino/cms\n```\n\nDone.\n",
     );
   });
@@ -63,7 +64,7 @@ describe("MDX components in agent Markdown", () => {
     );
     const docs = defineDocs({ Box: ({ props }) => JSON.stringify(props) });
 
-    expect(await docs.getAgentMarkdown("props")).toBe(
+    expect(afterFrontmatter(await docs.getAgentMarkdown("props"))).toBe(
       '# Doc\n\n{"s":"a","n":-2,"b":false,"bare":true,"o":{"k":[1,"x",null]},"t":"y"}\n',
     );
     expect("qinoRan" in globalThis).toBe(false);
@@ -83,7 +84,7 @@ describe("MDX components in agent Markdown", () => {
           .join("\n"),
     });
 
-    expect(await docs.getAgentMarkdown("nested")).toBe(
+    expect(afterFrontmatter(await docs.getAgentMarkdown("nested"))).toBe(
       "# Doc\n\n> Press `Ctrl` and **save**.\n>\n> Then wait.\n",
     );
   });
@@ -98,7 +99,7 @@ describe("MDX components in agent Markdown", () => {
       Hidden: () => null,
     });
 
-    expect(await docs.getAgentMarkdown("kept")).toBe(
+    expect(afterFrontmatter(await docs.getAgentMarkdown("kept"))).toBe(
       '# Doc\n\n<Tabs label="x">\n  ```sh\n  npm i @qino/cms\n  ```\n\n  <Hidden a={b} />\n</Tabs>\n',
     );
   });
@@ -127,7 +128,7 @@ describe("MDX components in agent Markdown", () => {
       },
     });
 
-    expect(await docs.getAgentMarkdown("hello")).toBe(
+    expect(afterFrontmatter(await docs.getAgentMarkdown("hello"))).toBe(
       "# Doc\n\n> From augment.\n\nhello: false\n",
     );
   });
@@ -136,7 +137,7 @@ describe("MDX components in agent Markdown", () => {
     await writeDoc("links", "<Next />\n");
     const docs = defineDocs({ Next: () => "Next: [CLI](/docs/cli)." });
 
-    expect(await docs.getAgentMarkdown("links")).toBe(
+    expect(afterFrontmatter(await docs.getAgentMarkdown("links"))).toBe(
       "# Doc\n\nNext: [CLI](https://example.com/docs/cli).\n",
     );
   });
@@ -148,7 +149,7 @@ describe("MDX components in agent Markdown", () => {
     );
     const docs = defineDocs({ Odd: () => "a { b" });
 
-    expect(await docs.getAgentMarkdown("invalid")).toBe(
+    expect(afterFrontmatter(await docs.getAgentMarkdown("invalid"))).toBe(
       "# Doc\n\n<Tabs>\n  [Inside](https://example.com/inside)\n</Tabs>\n\na { b\n",
     );
   });
@@ -163,7 +164,7 @@ describe("MDX components in agent Markdown", () => {
       Note: ({ children }) => `**Note:** ${children}`,
     });
 
-    expect(await docs.getAgentMarkdown("blocks")).toBe(
+    expect(afterFrontmatter(await docs.getAgentMarkdown("blocks"))).toBe(
       "# Doc\n\n- ```sh\n  npm i @qino/cms\n  ```\n\n> **Note:** First.\n>\n> Second.\n",
     );
   });
@@ -174,14 +175,18 @@ describe("MDX components in agent Markdown", () => {
       Echo: ({ children }) => JSON.stringify(children),
     });
 
-    expect(await docs.getAgentMarkdown("crlf")).toBe('# Doc\n\n"a\\n\\nb"\n');
+    expect(afterFrontmatter(await docs.getAgentMarkdown("crlf"))).toBe(
+      '# Doc\n\n"a\\n\\nb"\n',
+    );
   });
 
   test("replace the heading when what they return opens with an H1", async () => {
     await writeDoc("h1", "<Title />\n\nBody.\n");
     const docs = defineDocs({ Title: () => "# Custom" });
 
-    expect(await docs.getAgentMarkdown("h1")).toBe("# Custom\n\nBody.\n");
+    expect(afterFrontmatter(await docs.getAgentMarkdown("h1"))).toBe(
+      "# Custom\n\nBody.\n",
+    );
   });
 });
 
@@ -217,7 +222,7 @@ describe("MDX components on trees and items", () => {
       },
     });
 
-    expect(await guide.getAgentMarkdown("start")).toBe(
+    expect(afterFrontmatter(await guide.getAgentMarkdown("start"))).toBe(
       "# Start\n\n- [CLI](https://example.com/guide/start/cli.md)\n- [Install](https://example.com/guide/start/install.md)\n",
     );
   });
@@ -238,6 +243,8 @@ describe("MDX components on trees and items", () => {
       agentMarkdown: { components: { Name: ({ entry }) => entry.name } },
     });
 
-    expect(await about.getAgentMarkdown()).toBe("# about\n\nThis is qino.\n");
+    expect(afterFrontmatter(await about.getAgentMarkdown())).toBe(
+      "# about\n\nThis is qino.\n",
+    );
   });
 });
