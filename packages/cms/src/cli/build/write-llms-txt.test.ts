@@ -65,7 +65,9 @@ describe("writeLlmsTxt", () => {
     await writeLlmsTxt(setup({ template: "" }));
 
     expect(await readPublic("llms.txt")).toBe("# Site\n");
-    expect(await readPublic("index.md")).toBe("# Site\n");
+    expect(await readPublic("index.md")).toBe(
+      '---\ntitle: "Site"\ncanonical: "https://example.com/"\n---\n\n# Site\n',
+    );
   });
 
   test.each<Partial<PagesConfig>>([

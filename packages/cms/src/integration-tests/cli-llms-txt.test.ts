@@ -32,7 +32,7 @@ function readPublic(file: string) {
   return fs.readFile(path.join(tmp, "public", file), "utf8");
 }
 
-test("build writes llms.txt and index.md from the template, with a section per tree root, collection and the items, and llms-full.txt with their entry pages", async () => {
+test("build writes llms.txt from the template, with a section per tree root, collection and the items, index.md with a frontmatter block before it, and llms-full.txt with their entry pages", async () => {
   await createLlmsTxtProject(tmp, { config });
 
   await build();
@@ -76,7 +76,9 @@ test("build writes llms.txt and index.md from the template, with a section per t
       "",
     ].join("\n"),
   );
-  expect(await readPublic("index.md")).toBe(llmsTxt);
+  expect(await readPublic("index.md")).toBe(
+    `---\ntitle: "Example"\ndescription: "A site."\ncanonical: "https://example.com/"\n---\n\n${llmsTxt}`,
+  );
   expect(await readPublic("llms-full.txt")).toBe(
     [
       "# Example",
@@ -145,6 +147,36 @@ test("build appends the sections to a template without ## Optional, and skips in
   expect(llmsFullTxt).toMatch(/^# Example\n\n> A site\.\n\n# API\n/);
   expect(llmsFullTxt).toMatch(/\n\n# About\n\n> Who we are\.\n$/);
 }, 60_000);
+
+test.each([
+  ["no H1", "Notes for agents.\n\n## Optional\n", undefined],
+  [
+    "an H1 without a summary, its text plain",
+    "# The *Example* site {#top}\n\nAn intro.\n",
+    '---\ntitle: "The Example site"\ncanonical: "https://example.com/"\n---',
+  ],
+  [
+    "a summary on several lines, joined onto one",
+    "# Example\n\n<!-- For agents. -->\n\n> A site,\n> with [docs](https://example.com/docs).\n",
+    '---\ntitle: "Example"\ndescription: "A site, with [docs](https://example.com/docs)."\ncanonical: "https://example.com/"\n---',
+  ],
+])(
+  "build gives index.md, from a template with %s, its block",
+  async (_, template, block) => {
+    await createLlmsTxtProject(tmp, {
+      config,
+      files: { "content/llms.md": template },
+    });
+
+    await build();
+
+    const llmsTxt = await readPublic("llms.txt");
+    expect(await readPublic("index.md")).toBe(
+      block ? `${block}\n\n${llmsTxt}` : llmsTxt,
+    );
+  },
+  60_000,
+);
 
 test("build fails when llmsTxt has no siteUrl", async () => {
   await createLlmsTxtProject(tmp, {

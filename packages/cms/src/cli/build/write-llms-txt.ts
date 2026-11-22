@@ -18,6 +18,7 @@ import type { QinoContext } from "../../runtime/qino/init-qino";
 import type { AnyCollection } from "../../types/collection";
 import type { AnyItem } from "../../types/item";
 import type { AnyTree } from "../../types/tree";
+import { buildIndexMd } from "./build-index-md";
 import { buildLlmsFullTxt } from "./build-llms-full-txt";
 import { collectLlmsFullDocuments } from "./collect-llms-full-documents";
 import { collectLlmsTxtSections } from "./collect-llms-txt-sections";
@@ -32,10 +33,10 @@ type WriteLlmsTxtParams = {
 };
 
 /**
- * Writes `llms.txt`, `llms-full.txt` and `index.md`, the same file as
- * `llms.txt`, at the root of `mediaFolder`, each only when it changed.
- * `index.md` is left out when a page's Markdown URL is `/index.md`, which
- * that page owns.
+ * Writes `llms.txt`, `llms-full.txt` and `index.md`, which is `llms.txt` after
+ * a frontmatter block, at the root of `mediaFolder`, each only when it
+ * changed. `index.md` is left out when a page's Markdown URL is `/index.md`,
+ * which that page owns.
  */
 export async function writeLlmsTxt({
   context,
@@ -87,7 +88,9 @@ export async function writeLlmsTxt({
   const files = {
     [LLMS_TXT_FILE_NAME]: llmsTxt,
     [LLMS_FULL_TXT_FILE_NAME]: llmsFullTxt,
-    ...(!indexMdIsTaken && { [INDEX_MD_FILE_NAME]: llmsTxt }),
+    ...(!indexMdIsTaken && {
+      [INDEX_MD_FILE_NAME]: buildIndexMd({ template, llmsTxt, siteUrl }),
+    }),
   };
   const written = [];
   for (const [file, content] of Object.entries(files)) {
