@@ -197,7 +197,7 @@ Trees come first, then collections, then items, each sorted by directory or file
 - [Changelog](https://example.com/changelog)
 ```
 
-`llms-full.txt` holds the same entry pages in the same order, each as its Markdown URL serves it, and items' pages last. A collection or tree with `pages.llmsFull: false` stays out of it.
+`llms-full.txt` holds the same entry pages in the same order, each as its Markdown URL serves it but without its frontmatter block, and items' pages last. A collection or tree with `pages.llmsFull: false` stays out of it.
 
 The files are written only when their content changes, in CI too. Every build writes them again, so keep them out of Git. `build` fails when `siteUrl` is missing or the template doesn't exist. See [Errors](/docs/api/errors#cli).
 

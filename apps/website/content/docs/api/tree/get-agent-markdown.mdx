@@ -30,14 +30,20 @@ Tree views can't filter, so it takes no view and reads the entry without one.
 
 For an entry page, `Promise<string | null>`:
 
-- `# {title}`, from the tree's `titleField` and falling back to the slug, then `> {description}` when the `description` field holds one, then the body without frontmatter.
-- No heading when the body opens with its own H1.
+- A frontmatter block: `title`, `description` when there is one, and `canonical`, the entry page's URL on `siteUrl`, each a quoted string.
+- `# {title}`, from the tree's `titleField` and falling back to the slug, then `> {description}` when the `description` field holds one, then the body without its own frontmatter.
+- No heading when the body opens with its own H1. The frontmatter block still holds the title and description.
 - Site-relative links and images made absolute on `siteUrl`, and MDX components replaced through [`agentMarkdown.components`](/docs/api/types/agent-markdown-component).
 - `null` when no node has the slug, `""` included.
 
-For the index page, `Promise<string>`: `# {pages.title}`, then a `##` section per root node, titled by that node and listing the node and then its descendants, in tree order:
+For the index page, `Promise<string>`: a frontmatter block with `title`, which is `pages.title`, and `canonical`, the index page's URL. Then `# {pages.title}`, and a `##` section per root node, titled by that node and listing the node and then its descendants, in tree order:
 
 ```md title="https://www.qino.works/docs.md"
+---
+title: "Docs"
+canonical: "https://www.qino.works/docs"
+---
+
 # Docs
 
 ## Guide
