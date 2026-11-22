@@ -147,7 +147,7 @@ A wikilink only needs `target`. `sourceFilePath` is there for values relative to
 
 Paths are relative to the working directory, as passed to `initQino`. When the author's own relations resolve, `sourceFilePath` is the author's file, `vault/authors/Jane Doe.md`, since that's where their links are written.
 
-`parse` runs when the relation resolves. A relation that stays a string keeps the raw value, such as `"[[Jane Doe]]"`. Errors about the returned path name the raw value too. The `RelationParse` type types a callback declared on its own.
+`parse` runs when the relation resolves. A relation that stays a string keeps the raw value, such as `"[[Jane Doe]]"`. Errors about the returned path name the raw value too. The `RelationParse` type types a callback declared on its own, and `RelationParseContext` its `ctx`.
 
 The cloud UI can't run `parse`, so a relation with a `parse` callback is read-only there. See [In config.json](/docs/guide/cloud#in-configjson).
 
