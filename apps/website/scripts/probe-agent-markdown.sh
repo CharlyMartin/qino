@@ -135,6 +135,10 @@ for page in /docs/guide/cli /docs/guide /blog/why-another-cms /docs /blog; do
   expect_frontmatter "$page.md" "$page"
   expect_frontmatter "$page" "$page" "text/markdown"
 done
+# The homepage's is `qino build`'s `index.md`, which only Vercel's routes
+# serve at `/`.
+expect_frontmatter /index.md /
+if [ $dev = 0 ]; then expect_frontmatter / / "text/markdown"; fi
 
 # Unknown paths get the Markdown 404 when they want Markdown, and the HTML
 # one otherwise.
