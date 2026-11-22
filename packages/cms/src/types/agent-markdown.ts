@@ -8,7 +8,7 @@ export type LoadAgentMarkdown = () => string | null | Promise<string | null>;
 /** A link in a listing, such as an index page's: one line each. */
 export type ListingLink = {
   title: string;
-  /** The absolute Markdown URL it points at. */
+  /** The absolute URL it points at, such as a page's Markdown URL. */
   url: string;
   /** Left out of the line when empty. */
   description: string;

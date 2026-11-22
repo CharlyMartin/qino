@@ -26,7 +26,12 @@ npx is-agentic <domain> --json
 
 `GET https://is-agentic.com/api/v1/report?url=<url-encoded url>` reads the same latest report. `issues` lists the failing and partial checks that the score counts, each with an `id`, a `tier` and a `result`, and `eligible_checks` counts the scored checks that applied. Some checks aren't scored and are left out of `issues` even when they fail, such as `markdown-frontmatter` and `modular-llms-txt`. Read each check's status from the scan page instead.
 
-`https://is-agentic.com/scan/<domain>` shows the same report, and its HTML embeds every check, over a hundred, as escaped JSON: `{"id":"…","name":"…","tier":"…","bonus":…,"score":…,"status":"…","details":"…","recommendation":"…"}`. `status` is `pass`, `fail`, `warning` (partial credit) or `na` (didn't run). Its `tier` and `bonus` don't say whether the score counts a check, and its tiers aren't the API's. The scan script reads its checks from there. On a preview deploy, whose sitemap lists the production URLs, the scan samples no inner page, so checks such as `content-no-js` pass on the homepage alone. Their `details` say so.
+`https://is-agentic.com/scan/<domain>` shows the same report, and its HTML embeds every check, over a hundred, as escaped JSON: `{"id":"…","name":"…","tier":"…","bonus":…,"score":…,"status":"…","details":"…","recommendation":"…"}`. `status` is `pass`, `fail`, `warning` (partial credit) or `na` (didn't run). Its `tier` and `bonus` don't say whether the score counts a check, and its tiers aren't the API's. The scan script reads its checks from there.
+
+On a preview deploy, the report reflects production in two ways:
+
+- **Sampling:** the preview's sitemap lists the production URLs, so the scan samples no inner page, and checks such as `content-no-js` pass on the homepage alone. Their `details` say so.
+- **Links:** links built on `siteUrl` point at production. Checks that follow them fail or warn for files the preview serves and production doesn't yet. `llms-txt-links-resolve` reports such links as not resolving, and `markdown-link-alternate` as answering HTML. Both pass once production serves the files, and their `details` name the production URLs.
 
 ## acceptmarkdown.com
 

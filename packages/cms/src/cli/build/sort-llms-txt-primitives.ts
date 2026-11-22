@@ -5,9 +5,9 @@ import type { AnyTree } from "../../types/tree";
 import { compareCodeUnits } from "./compare-code-units";
 
 type SortLlmsTxtPrimitivesParams = {
-  collections: Array<AnyCollection>;
-  items: Array<AnyItem>;
-  trees: Array<AnyTree>;
+  collections?: Array<AnyCollection>;
+  items?: Array<AnyItem>;
+  trees?: Array<AnyTree>;
 };
 
 type TreeOrCollection = AnyCollection | AnyTree;
@@ -19,9 +19,9 @@ type TreeOrCollection = AnyCollection | AnyTree;
  * files.
  */
 export function sortLlmsTxtPrimitives({
-  collections,
-  items,
-  trees,
+  collections = [],
+  items = [],
+  trees = [],
 }: SortLlmsTxtPrimitivesParams) {
   const byDirectory = (primitives: Array<TreeOrCollection>) =>
     primitives.toSorted((a, b) =>

@@ -179,6 +179,86 @@ test.each([
   60_000,
 );
 
+test("build with sections writes a section llms.txt per tree and collection, and llms.txt links them in place of their sections", async () => {
+  await createLlmsTxtProject(tmp, {
+    config: config.replace("llmsTxt: true", "llmsTxt: { sections: true }"),
+  });
+
+  await build();
+
+  expect(await readPublic("llms.txt")).toBe(
+    [
+      "# Example",
+      "",
+      "> A site.",
+      "",
+      "## When to use",
+      "",
+      "Always.",
+      "",
+      "## Sections",
+      "",
+      "- [Docs](https://example.com/docs/llms.txt)",
+      "- [Notes](https://example.com/notes/llms.txt)",
+      "- [Blog](https://example.com/blog/llms.txt)",
+      "",
+      "## Pages",
+      "",
+      "- [About](https://example.com/about.md): Who we are.",
+      "",
+      "## Optional",
+      "",
+      "- [GitHub](https://github.com/example): Source",
+      "",
+    ].join("\n"),
+  );
+  expect(await readPublic("docs/llms.txt")).toBe(
+    [
+      "# Docs",
+      "",
+      "## API",
+      "",
+      "- [API](https://example.com/docs/api.md): Reference.",
+      "",
+      "## Guide",
+      "",
+      "- [Guide](https://example.com/docs/guide.md): Start here.",
+      "- [CLI](https://example.com/docs/guide/cli.md): Commands.",
+      "",
+    ].join("\n"),
+  );
+  expect(await readPublic("blog/llms.txt")).toBe(
+    "# Blog\n\n- [Hello](https://example.com/blog/hello.md): The first post.\n- [World](https://example.com/blog/world.md)\n",
+  );
+  expect(await readPublic("notes/llms.txt")).toBe(
+    "# Notes\n\n- [One](https://example.com/notes/one.md)\n",
+  );
+  expect(await readPublic("llms-full.txt")).toMatch(
+    /^# Example\n\n> A site\.\n\n# API\n/,
+  );
+}, 60_000);
+
+test("build with sections fails for an index page at /, naming its primitive", async () => {
+  await createLlmsTxtProject(tmp, {
+    config: config.replace("llmsTxt: true", "llmsTxt: { sections: true }"),
+    files: {
+      "qino/notes.ts": `
+        import { z } from "zod";
+        import qino from "./index";
+        export const notes = qino.defineCollection({
+          directory: "notes", extension: ".md",
+          schema: z.object({ title: z.string() }),
+          pages: { index: "/", entry: "/{slug}", title: "Notes" },
+        });
+      `,
+    },
+  });
+
+  await expect(build()).rejects.toThrow(
+    'Collection "notes": pages.index is "/", so its section llms.txt would replace llms.txt.',
+  );
+}, 60_000);
+
 test("build fails when llmsTxt has no siteUrl", async () => {
   await createLlmsTxtProject(tmp, {
     config: config.replace('siteUrl: "https://example.com",', ""),
