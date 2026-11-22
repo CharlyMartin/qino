@@ -167,6 +167,7 @@ Pick something else when:
 - **`llms.txt`** is the template with a section of links per primitive inserted before `## Optional`, or appended when there's none.
 - **`llms-full.txt`** is the template's title and summary, then the agent Markdown of every entry page. Set `pages.llmsFull: false` to leave a large collection out.
 - **`index.md`** is the homepage's agent Markdown: `llms.txt` after a frontmatter block, whose `title` is the template's H1, `description` its summary on one line, and `canonical` your site's URL. A template without an H1 gives no block. It's skipped when a page of yours already has `/index.md` as its Markdown URL.
+- **Section llms.txt files**, with `llmsTxt: { sections: true }`, list each collection's or tree's pages at its index page's path, such as `/docs/llms.txt`. `llms.txt` then links to them under `## Sections`, so it stays small on a large site. See [Section llms.txt](/docs/guide/cli#section-llmstxt).
 
 Every build writes them again, so keep them out of Git:
 
@@ -174,6 +175,8 @@ Every build writes them again, so keep them out of Git:
 public/llms.txt
 public/llms-full.txt
 public/index.md
+# With sections, each section llms.txt too
+public/docs/llms.txt
 ```
 
 See [qino build](/docs/guide/cli#llmstxt) for the sections' order and the errors.

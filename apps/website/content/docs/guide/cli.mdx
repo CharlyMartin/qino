@@ -215,6 +215,38 @@ canonical: "https://example.com/"
 
 The files are written only when their content changes, in CI too. Every build writes them again, so keep them out of Git. `build` fails when `siteUrl` is missing or the template doesn't exist. See [Errors](/docs/api/errors#cli).
 
+### Section llms.txt
+
+On a large site, `llms.txt` can grow past what agents read well. Set `sections: true`, and `build` also writes a section llms.txt for each collection and tree that declares pages, at its index page's path under `mediaFolder`, such as `public/docs/llms.txt`. An agent working in one area then loads only that area's pages:
+
+```ts title="qino/index.ts"
+cli: {
+  build: { llmsTxt: { sections: true } },
+},
+```
+
+A section llms.txt is the index page's agent Markdown without its frontmatter block, so it lists the same pages as the index page's Markdown URL. `llms.txt` links to each one under a single `## Sections` heading, in place of their sections, and keeps items' `## Pages`:
+
+```md title="public/llms.txt"
+# Acme
+
+> Acme is a feature-flag service for JavaScript apps.
+
+## Sections
+
+- [Docs](https://example.com/docs/llms.txt)
+- [Blog](https://example.com/blog/llms.txt)
+
+## Optional
+
+- [Changelog](https://example.com/changelog)
+```
+
+- A collection or tree with nothing to list gets no section llms.txt and no link, as it gets no section in `llms.txt`.
+- `llms-full.txt` doesn't change.
+- An index page at `/` fails the build, since its section llms.txt would replace `llms.txt`.
+- A section llms.txt that `build` no longer writes, after `sections` is turned off or `pages.index` moves, stays until you delete it.
+
 ### Config file
 
 Set [`cloud`](/docs/guide/cloud) on [`initQino`](/docs/api/init-qino), and `build` also writes `qino/_generated/config.json`: a description of your project that the cloud UI reads without running your code. It lists the config, the cloud config, every primitive keyed by its `directory` (collections, trees) or `file` (items), its body format, its schema as [JSON Schema](https://json-schema.org/draft/2020-12), its relations, its [media](/docs/concepts/media), and its cloud config:
