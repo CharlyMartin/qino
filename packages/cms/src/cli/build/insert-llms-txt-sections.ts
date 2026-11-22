@@ -23,8 +23,7 @@ export function insertLlmsTxtSections({
     (node) =>
       node.type == "heading" &&
       node.depth == 2 &&
-      getHeadingText(node, { footnoteOrder: [], includeJsx: false }).trim() ==
-        "Optional",
+      getHeadingText(node, { includeJsx: false }).trim() == "Optional",
   );
   const offset = optional?.position?.start.offset ?? text.length;
   const parts = [

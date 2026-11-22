@@ -26,6 +26,14 @@ describe("insertLlmsTxtSections", () => {
     },
   );
 
+  test("reads ## Optional with a footnote reference as ## Optional", () => {
+    const template = "# Site\n\n## Optional[^1]\n\n[^1]: Skippable.\n";
+
+    expect(insertLlmsTxtSections({ template, sections })).toBe(
+      `# Site\n\n${sections}\n\n## Optional[^1]\n\n[^1]: Skippable.\n`,
+    );
+  });
+
   test("appends them when there's no ## Optional heading, past code and deeper headings", () => {
     expect(
       insertLlmsTxtSections({

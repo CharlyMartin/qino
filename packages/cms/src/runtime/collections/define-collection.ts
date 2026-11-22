@@ -22,6 +22,7 @@ import { getEntrySlug } from "../../lib/meta/get-entry-slug";
 import { requirePages } from "../../lib/pages/require-pages";
 import { resolvePages } from "../../lib/pages/resolve-pages";
 import { toPagesMarkdownUrl } from "../../lib/pages/to-pages-markdown-url";
+import { toPagesUrl } from "../../lib/pages/to-pages-url";
 import { assertPageOptions } from "../../lib/pagination/assert-page-options";
 import { copyPage } from "../../lib/pagination/copy-page";
 import { paginate } from "../../lib/pagination/paginate";
@@ -215,8 +216,10 @@ export function defineCollection<
       ...(resolvedPages && {
         pages: {
           ...resolvedPages,
+          owner,
           getListingSections,
-          getEntryPagesAgentMarkdown,
+          getSectionLlmsTxt: () => buildIndexPageAgentMarkdown(),
+          getLlmsFullDocuments,
         },
       }),
       readEntries,
@@ -421,10 +424,10 @@ export function defineCollection<
     slug?: Slug,
     ...[options]: ViewArguments<ConfiguredViews<Views>>
   ) {
-    const { title } = requirePages(resolvedPages, { owner, option: "pages" });
+    const pages = requirePages(resolvedPages, { owner, option: "pages" });
     // Only a missing slug means the index page: `""` is a slug no entry has.
     if (typeof slug == "undefined") {
-      return buildIndexAgentMarkdown({ title, links: await listLinks() });
+      return buildIndexPageAgentMarkdown(toPagesUrl(pages));
     }
 
     // Only a listed slug reads a file: a route param can't reach past the
@@ -434,11 +437,12 @@ export function defineCollection<
     const { entry, entryAsRead, isExcluded } = await readInView(slug, options);
     if (isExcluded) return null;
 
-    return buildEntryAgentMarkdown(entry, entryAsRead);
+    return buildEntryAgentMarkdown(entry, entryAsRead, toPagesUrl(pages, slug));
   }
 
-  // `llms-full.txt`'s documents: the index page's entries, in its order.
-  async function getEntryPagesAgentMarkdown() {
+  // `llms-full.txt`'s documents: the index page's entries, in its order,
+  // without frontmatter blocks.
+  async function getLlmsFullDocuments() {
     const entries = await getEntries();
     return Promise.all(
       entries.map(async (entry) =>
@@ -448,10 +452,12 @@ export function defineCollection<
   }
 
   // An entry page's: the heading from the entry through its view, and the
-  // entry as read for the components.
+  // entry as read for the components. A `canonical` adds the frontmatter
+  // block.
   function buildEntryAgentMarkdown(
     entry: unknown,
     entryAsRead: ResolvedCollectionView<S, Ext, TaggedRels>,
+    canonical?: string,
   ) {
     const { siteUrl } = requirePages(resolvedPages, { owner, option: "pages" });
     return buildAgentMarkdown({
@@ -463,6 +469,7 @@ export function defineCollection<
         components: params.agentMarkdown?.components,
         entry: entryAsRead,
       },
+      canonical,
     });
   }
 
@@ -476,6 +483,17 @@ export function defineCollection<
         fallbackTitle: entrySlug,
         url: getMarkdownUrl(entrySlug as SlugFor<Dir>),
       });
+    });
+  }
+
+  // The index page's. A `canonical` adds the frontmatter block, which its
+  // section llms.txt leaves out.
+  async function buildIndexPageAgentMarkdown(canonical?: string) {
+    const { title } = requirePages(resolvedPages, { owner, option: "pages" });
+    return buildIndexAgentMarkdown({
+      title,
+      links: await listLinks(),
+      canonical,
     });
   }
 

@@ -17,7 +17,7 @@ function primitive(
       directory,
       pages: documents && {
         llmsFull,
-        getEntryPagesAgentMarkdown: async () => documents,
+        getLlmsFullDocuments: async () => documents,
       },
     },
   } as never;
@@ -27,7 +27,7 @@ function item(file: string, document?: string) {
   return {
     [QinoPrimitiveMarker]: {
       file,
-      page: document && { getAgentMarkdown: async () => document },
+      page: document && { getLlmsFullDocument: async () => document },
     },
   } as never;
 }
@@ -68,7 +68,7 @@ describe("collectLlmsFullDocuments", () => {
         directory: "logs",
         pages: {
           llmsFull: false,
-          getEntryPagesAgentMarkdown: () => {
+          getLlmsFullDocuments: () => {
             throw new Error("read");
           },
         },

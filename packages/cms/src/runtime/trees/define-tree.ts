@@ -21,6 +21,7 @@ import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
 import { requirePages } from "../../lib/pages/require-pages";
 import { resolvePages } from "../../lib/pages/resolve-pages";
 import { toPagesMarkdownUrl } from "../../lib/pages/to-pages-markdown-url";
+import { toPagesUrl } from "../../lib/pages/to-pages-url";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { addEntryStats } from "../../lib/stats/add-entry-stats";
@@ -218,8 +219,10 @@ export function defineTree<
       ...(resolvedPages && {
         pages: {
           ...resolvedPages,
+          owner,
           getListingSections,
-          getEntryPagesAgentMarkdown,
+          getSectionLlmsTxt: () => buildIndexPageAgentMarkdown(),
+          getLlmsFullDocuments,
         },
       }),
       readEntry,
@@ -396,13 +399,10 @@ export function defineTree<
   async function getAgentMarkdown(): Promise<string>;
   async function getAgentMarkdown(slug: Slug): Promise<string | null>;
   async function getAgentMarkdown(slug?: Slug) {
-    const { title } = requirePages(resolvedPages, { owner, option: "pages" });
+    const pages = requirePages(resolvedPages, { owner, option: "pages" });
     // Only a missing slug means the index page: `""` is a slug no node has.
     if (typeof slug == "undefined") {
-      return buildIndexAgentMarkdown({
-        title,
-        sections: await getListingSections(),
-      });
+      return buildIndexPageAgentMarkdown(toPagesUrl(pages));
     }
 
     // Only a listed slug reads a file: a route param can't reach past the
@@ -410,17 +410,19 @@ export function defineTree<
     const nodes = await getFlatTree();
     if (!nodes.some((node) => node.slug == slug)) return null;
 
-    return readEntryAgentMarkdown(slug);
+    return readEntryAgentMarkdown(slug, toPagesUrl(pages, slug));
   }
 
-  // `llms-full.txt`'s documents: every node, in its sections' order.
-  async function getEntryPagesAgentMarkdown() {
+  // `llms-full.txt`'s documents: every node, in its sections' order, without
+  // frontmatter blocks.
+  async function getLlmsFullDocuments() {
     const nodes = await getFlatTree();
     return Promise.all(nodes.map((node) => readEntryAgentMarkdown(node.slug)));
   }
 
-  // An entry page's. Tree views can't filter, so no view can exclude it.
-  async function readEntryAgentMarkdown(slug: Slug) {
+  // An entry page's. Tree views can't filter, so no view can exclude it. A
+  // `canonical` adds the frontmatter block.
+  async function readEntryAgentMarkdown(slug: Slug, canonical?: string) {
     const { siteUrl } = requirePages(resolvedPages, { owner, option: "pages" });
     const entry = await readEntry(slug);
     return buildAgentMarkdown({
@@ -430,6 +432,18 @@ export function defineTree<
       extension,
       origin: siteUrl,
       replacement: { components: params.agentMarkdown?.components, entry },
+      canonical,
+    });
+  }
+
+  // The index page's. A `canonical` adds the frontmatter block, which its
+  // section llms.txt leaves out.
+  async function buildIndexPageAgentMarkdown(canonical?: string) {
+    const { title } = requirePages(resolvedPages, { owner, option: "pages" });
+    return buildIndexAgentMarkdown({
+      title,
+      sections: await getListingSections(),
+      canonical,
     });
   }
 

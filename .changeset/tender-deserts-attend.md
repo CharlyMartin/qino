@@ -2,9 +2,14 @@
 "@qino/cms": minor
 ---
 
-Adds agent Markdown for index pages. Called without a slug, `getAgentMarkdown()` on a collection or a tree returns one unpaginated listing that links every entry's Markdown URL, with its description:
+Adds agent Markdown for index pages. Called without a slug, `getAgentMarkdown()` on a collection or a tree returns one unpaginated listing that links every entry's Markdown URL, with its description, after a frontmatter block with the index page's title and URL:
 
 ```md
+---
+title: "Blog"
+canonical: "https://example.com/blog"
+---
+
 # Blog
 
 - [Hello](https://example.com/blog/hello.md): The first post.

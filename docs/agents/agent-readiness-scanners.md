@@ -1,6 +1,6 @@
 # Agent-readiness scanners
 
-How to run the three scanners that check whether a site serves agents well, from a shell. Their web pages render with JavaScript, so fetching a page returns no results; call their APIs instead. Replace `<url>` with the deployment to check, such as the Vercel preview URL that `apps/website/scripts/preview-url.sh` prints, and `<domain>` with its host.
+How to run the three scanners that check whether a site serves agents well, from a shell. isitagentready's and acceptmarkdown's web pages render with JavaScript, so fetching one returns no results; call their APIs instead. Replace `<url>` with the deployment to check, such as the Vercel preview URL that `apps/website/scripts/preview-url.sh` prints, and `<domain>` with its host.
 
 `node apps/website/scripts/scan-agent-readiness.mjs <url> [path...]` runs all three and prints one line per content check. Reach for the commands below when you need a check it doesn't print, or a check's evidence.
 
@@ -24,7 +24,14 @@ The CLI scans a domain only when it has no completed report yet, and otherwise r
 npx is-agentic <domain> --json
 ```
 
-`GET https://is-agentic.com/api/v1/report?url=<url-encoded url>` reads the same latest report. `issues` lists only the checks that failed or passed partially, each with an `id`, a `tier` and a `result`: a check whose `id` is absent passed or didn't apply, and `eligible_checks` counts the ones that applied. The content checks are `markdown-negotiation-vary`, `agent-friendly-404` and `agent-instruction`.
+`GET https://is-agentic.com/api/v1/report?url=<url-encoded url>` reads the same latest report. `issues` lists the failing and partial checks that the score counts, each with an `id`, a `tier` and a `result`, and `eligible_checks` counts the scored checks that applied. Some checks aren't scored and are left out of `issues` even when they fail, such as `markdown-frontmatter` and `modular-llms-txt`. Read each check's status from the scan page instead.
+
+`https://is-agentic.com/scan/<domain>` shows the same report, and its HTML embeds every check, over a hundred, as escaped JSON: `{"id":"…","name":"…","tier":"…","bonus":…,"score":…,"status":"…","details":"…","recommendation":"…"}`. `status` is `pass`, `fail`, `warning` (partial credit) or `na` (didn't run). Its `tier` and `bonus` don't say whether the score counts a check, and its tiers aren't the API's. The scan script reads its checks from there.
+
+On a preview deploy, the report reflects production in two ways:
+
+- **Sampling:** the preview's sitemap lists the production URLs, so the scan samples no inner page, and checks such as `content-no-js` pass on the homepage alone. Their `details` say so.
+- **Links:** links built on `siteUrl` point at production. Checks that follow them fail or warn for files the preview serves and production doesn't yet. `llms-txt-links-resolve` reports such links as not resolving, and `markdown-link-alternate` as answering HTML. Both pass once production serves the files, and their `details` name the production URLs.
 
 ## acceptmarkdown.com
 

@@ -18,6 +18,12 @@ export type PagesConfig = {
   readonly llmsFull?: boolean;
 };
 
+/** The paths of a collection's or a tree's index page and entry pages. */
+export type PagePatterns = Pick<PagesConfig, "index" | "entry">;
+
+/** Those paths, with the site's URL they're joined to. */
+export type SitePages = PagePatterns & { readonly siteUrl: string };
+
 /** `pages` once checked: the index page's title on one line, and the site's URL. */
 export type ResolvedPages = PagesConfig & {
   readonly title: string;
@@ -32,16 +38,23 @@ export type ResolvedItemPage = {
 
 /** What `qino build` reads from a collection or a tree that declares pages. */
 export type PagesMeta = ResolvedPages & {
+  /** Names it in errors, such as `Collection "posts"`. */
+  readonly owner: string;
   /** Its `llms.txt` sections. */
   readonly getListingSections: () => Promise<Array<ListingSection>>;
-  /** Its entry pages' agent Markdown, in its sections' order, for `llms-full.txt`. */
-  readonly getEntryPagesAgentMarkdown: () => Promise<Array<string>>;
+  /** Its section llms.txt: the index page's agent Markdown without the frontmatter block. */
+  readonly getSectionLlmsTxt: () => Promise<string>;
+  /**
+   * Its entry pages' agent Markdown, in its sections' order and without
+   * frontmatter blocks, for `llms-full.txt`.
+   */
+  readonly getLlmsFullDocuments: () => Promise<Array<string>>;
 };
 
 /** What `qino build` reads from an item that declares a page. */
 export type PageMeta = ResolvedItemPage & {
   /** Its link in `llms.txt`'s `## Pages` section. */
   readonly getListingLink: () => Promise<ListingLink>;
-  /** Its page's agent Markdown, for `llms-full.txt`. */
-  readonly getAgentMarkdown: () => Promise<string>;
+  /** Its page's agent Markdown without the frontmatter block, for `llms-full.txt`. */
+  readonly getLlmsFullDocument: () => Promise<string>;
 };

@@ -54,9 +54,15 @@ A malformed path throws when the primitive is defined, as does declaring pages w
 
 ## What agents get
 
-An entry page's agent Markdown is the entry's title and description, then its body:
+An entry page's agent Markdown opens with a frontmatter block, then the entry's title and description, then its body:
 
 ```md title="https://www.qino.works/docs/guide/frontmatter.md"
+---
+title: "Frontmatter"
+description: "How YAML frontmatter is parsed and which values become which types."
+canonical: "https://www.qino.works/docs/guide/frontmatter"
+---
+
 # Frontmatter
 
 > How YAML frontmatter is parsed and which values become which types.
@@ -64,14 +70,20 @@ An entry page's agent Markdown is the entry's title and description, then its bo
 Markdown, MDX, and `.markdown` files may start with a YAML block delimited by `---` lines.
 ```
 
+- The frontmatter block gives agents the page's metadata without reading the body: `title`, `description` on one line when there is one, and `canonical`, the page's URL. Each value is a quoted string, so a title holding `: ` or `#` stays valid YAML. It's generated: the entry's own frontmatter never reaches agents.
 - The title comes from the `title` field, or a tree's `titleField`, falling back to the slug. The description comes from the `description` field and is left out when there's none.
-- The body comes without its frontmatter. A body that opens with its own H1 gets no heading.
+- The body comes without its frontmatter. A body that opens with its own H1 gets no heading, though the block still holds the title and description.
 - Site-relative links and images become absolute on `siteUrl`. Code is left as written.
-- A JSON entry has no body, so it gets the heading only.
+- A JSON entry has no body, so it gets the block, the heading and the description only.
 
-An index page's agent Markdown lists its entries, each linking to its Markdown URL. A collection lists them in its default view's order, so a view's `filter` keeps drafts out. A tree gets one section per root node, listing the node and its descendants.
+An index page's agent Markdown lists its entries, each linking to its Markdown URL, after a frontmatter block with its title and URL. A collection lists them in its default view's order, so a view's `filter` keeps drafts out. A tree gets one section per root node, listing the node and its descendants.
 
 ```md title="https://www.qino.works/blog.md"
+---
+title: "Blog"
+canonical: "https://www.qino.works/blog"
+---
+
 # Blog
 
 - [Why another Content Management System?](https://www.qino.works/blog/why-another-cms.md): Coding agents work best with content they can read.
@@ -154,7 +166,8 @@ Pick something else when:
 
 - **`llms.txt`** is the template with a section of links per primitive inserted before `## Optional`, or appended when there's none.
 - **`llms-full.txt`** is the template's title and summary, then the agent Markdown of every entry page. Set `pages.llmsFull: false` to leave a large collection out.
-- **`index.md`** is the homepage's agent Markdown, the same as `llms.txt`. It's skipped when a page of yours already has `/index.md` as its Markdown URL.
+- **`index.md`** is the homepage's agent Markdown: `llms.txt` after a frontmatter block, whose `title` is the template's H1, `description` its summary on one line, and `canonical` your site's URL. A template without an H1 gives no block. It's skipped when a page of yours already has `/index.md` as its Markdown URL.
+- **Section llms.txt files**, with `llmsTxt: { sections: true }`, list each collection's or tree's pages at its index page's path, such as `/docs/llms.txt`. `llms.txt` then links to them under `## Sections`, so it stays small on a large site. See [Section llms.txt](/docs/guide/cli#section-llmstxt).
 
 Every build writes them again, so keep them out of Git:
 
@@ -162,6 +175,8 @@ Every build writes them again, so keep them out of Git:
 public/llms.txt
 public/llms-full.txt
 public/index.md
+# With sections, each section llms.txt too
+public/docs/llms.txt
 ```
 
 See [qino build](/docs/guide/cli#llmstxt) for the sections' order and the errors.

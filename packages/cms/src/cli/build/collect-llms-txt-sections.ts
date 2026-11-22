@@ -3,6 +3,7 @@ import type { ListingSection } from "../../types/agent-markdown";
 import type { AnyCollection } from "../../types/collection";
 import type { AnyItem } from "../../types/item";
 import type { AnyTree } from "../../types/tree";
+import { collectPagesSection } from "./collect-pages-section";
 import { sortLlmsTxtPrimitives } from "./sort-llms-txt-primitives";
 
 type CollectLlmsTxtSectionsParams = {
@@ -19,7 +20,7 @@ type CollectLlmsTxtSectionsParams = {
 export async function collectLlmsTxtSections(
   primitives: CollectLlmsTxtSectionsParams,
 ) {
-  const { treesAndCollections, items } = sortLlmsTxtPrimitives(primitives);
+  const { treesAndCollections } = sortLlmsTxtPrimitives(primitives);
 
   const sections: Array<ListingSection> = [];
   for (const primitive of treesAndCollections) {
@@ -27,12 +28,8 @@ export async function collectLlmsTxtSections(
     if (pages) sections.push(...(await pages.getListingSections()));
   }
 
-  const links = [];
-  for (const item of items) {
-    const page = item[QinoPrimitiveMarker].page;
-    if (page) links.push(await page.getListingLink());
-  }
-  if (links.length > 0) sections.push({ title: "Pages", links });
+  const pagesSection = await collectPagesSection(primitives);
+  if (pagesSection) sections.push(pagesSection);
 
   return sections;
 }

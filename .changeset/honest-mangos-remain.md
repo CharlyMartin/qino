@@ -15,7 +15,25 @@ const posts = qino.defineCollection({
 });
 ```
 
-`posts.getAgentMarkdown(slug)` returns the entry's title as a heading, its description as a quote, then its body without frontmatter, with site-relative links made absolute. It takes any string, such as a route param, and returns `null` when the slug is unknown or the view excludes the entry, so it pairs with `negotiateMarkdown`:
+`posts.getAgentMarkdown(slug)` returns a frontmatter block with the entry's `title`, `description` and `canonical` URL, so agents get its metadata without reading the body. Then come the title as a heading, the description as a quote, and the body without its own frontmatter, with site-relative links made absolute:
+
+```md
+---
+title: "Hello"
+description: "The first post."
+canonical: "https://example.com/blog/hello"
+---
+
+# Hello
+
+> The first post.
+
+The body.
+```
+
+Each value in the block is a quoted string, with the description on one line. A body that opens with its own H1 gets no heading, and its block still holds the title and description.
+
+`getAgentMarkdown` takes any string, such as a route param, and returns `null` when the slug is unknown or the view excludes the entry, so it pairs with `negotiateMarkdown`:
 
 ```ts
 return (await negotiateMarkdown(request, () => posts.getAgentMarkdown(slug))) ?? next();
