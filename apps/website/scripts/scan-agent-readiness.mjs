@@ -2,7 +2,8 @@
 // line per content check: `node apps/website/scripts/scan-agent-readiness.mjs
 // <url> [path...]`. acceptmarkdown checks `/` and each path. The APIs and
 // check ids are documented in docs/agents/agent-readiness-scanners.md. Exits
-// 1 when a check fails or a scanner can't be reached; a warning doesn't count.
+// 1 when a check fails or a scanner can't be reached. acceptmarkdown's
+// warnings don't count.
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
@@ -56,26 +57,53 @@ async function scanAcceptMarkdown(path) {
   return checks;
 }
 
-// is-agentic lists only the checks that failed or passed partially: one it
-// doesn't list passed or didn't apply.
+// The is-agentic checks agent-ready content covers. The score counts only the
+// first three so far.
+const IS_AGENTIC_CHECKS = [
+  "markdown-negotiation-vary",
+  "agent-friendly-404",
+  "agent-instruction",
+  "markdown-frontmatter",
+  "llms-txt-exists",
+  "llms-txt-formatting",
+  "llms-txt-links-resolve",
+  "modular-llms-txt",
+  "content-no-js",
+];
+
+// The CLI scans the host when it has no report yet. Its `issues` leave out
+// checks the score doesn't count, failed or not, so each check's status is
+// read from the scan page, which embeds every check of that report.
 async function scanIsAgentic() {
   const { stdout } = await promisify(execFile)(
     "npx",
     ["-y", "is-agentic", host, "--json"],
     { maxBuffer: 16 * 1024 * 1024 },
   );
-  const report = JSON.parse(stdout);
-  const issues = new Map(report.issues.map((issue) => [issue.id, issue]));
-  return [
-    "markdown-negotiation-vary",
-    "agent-friendly-404",
-    "agent-instruction",
-  ].map((check) => ({
-    check,
-    status: issues.get(check)?.result ?? "pass",
-    detail:
-      issues.get(check)?.details ?? `not listed, scanned ${report.scanned_at}`,
-  }));
+  const { scanned_at } = JSON.parse(stdout);
+  const response = await fetch(`https://is-agentic.com/scan/${host}`);
+  if (!response.ok) {
+    throw new Error(`is-agentic's scan page answered ${response.status}`);
+  }
+  // The checks sit in the page's escaped JSON, as
+  // `{"id":"…","name":"…",…,"status":"…","details":"…"`.
+  const page = (await response.text()).replaceAll('\\"', '"');
+  return IS_AGENTIC_CHECKS.map((check) => {
+    const start = page.indexOf(`{"id":"${check}","name":`);
+    if (start == -1) {
+      throw new Error(`is-agentic's scan page has no check "${check}"`);
+    }
+    const next = page.indexOf('{"id":"', start + 1);
+    const fields = page.slice(start, next == -1 ? undefined : next);
+    const status = fields.match(/"status":"(\w+)"/)?.[1] ?? "unknown";
+    const details = fields.match(/"details":"((?:[^"\\]|\\.)*)"/)?.[1] ?? "";
+    return {
+      check,
+      // `warning` is partial credit; `na` means the check didn't run.
+      status: { warning: "partial", na: "not-run" }[status] ?? status,
+      detail: `${details.slice(0, 120)} (scanned ${scanned_at})`,
+    };
+  });
 }
 
 // Each scanner's checks, or one `error` line when it can't be reached.
@@ -103,9 +131,9 @@ for (const { scanner, check, status, detail } of results) {
       .join(" "),
   );
 }
-// isitagentready and acceptmarkdown say `fail`; is-agentic says `failed` or
-// `partial`.
+// isitagentready, acceptmarkdown and is-agentic say `fail`. An is-agentic
+// check that gets partial credit, didn't run, or can't be read fails too.
 const failed = results.some(({ status }) =>
-  ["fail", "failed", "partial", "error"].includes(status),
+  ["fail", "partial", "not-run", "unknown", "error"].includes(status),
 );
 process.exit(failed ? 1 : 0);
