@@ -1,6 +1,6 @@
 ---
 title: Next.js
-description: The reference Next.js app that exercises collections, trees, items, relations, and views.
+description: The reference Next.js app that exercises collections, trees, items, and relations.
 ---
 
 The canonical qino example is a Next.js App Router site. It lives in the repository at [`examples/next-js`](https://github.com/CharlyMartin/qino/tree/main/examples/next-js).
@@ -9,7 +9,6 @@ The canonical qino example is a Next.js App Router site. It lives in the reposit
 
 - **Collections**: `posts` (`.md`), `authors` (`.json`), and `categories` (`.json`).
 - **Relations**: `author` and `category` on posts; `featured-posts[*]` on the home item.
-- **Views**: a `default` view that resolves relations one level deep.
 - **Markdown stats**: `markdown.stats` on posts, with a reading time derived from `_stats.wordCount` by a local `getReadingTimes` helper.
 - **Tree**: a `.mdx` docs tree with nested sections, `_order.json` ordering, and prev/next navigation.
 - **Item**: `pages/home.md` with resolved featured posts.
