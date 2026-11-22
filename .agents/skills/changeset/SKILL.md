@@ -15,6 +15,8 @@ Users never notice `apps/website`, `examples/*`, docs content, CI, or repo tooli
 
 Published packages are `@qino/cms` and `@qino/tooling`. Check `packages/*/package.json` for others before assuming.
 
+A changeset waiting in `.changeset/` may already describe what you're changing, such as an API an unreleased change added. Users only see what's released, so edit that changeset to describe the result, rather than adding one that changes it. Search `.changeset/` for each API name and output the change touches.
+
 ## 2. Create the file
 
 Run `pnpm changeset --empty` from the repo root. It creates a randomly named `.md` file in `.changeset/` with empty front matter. Fill it in, with one line per package whose users would notice the change:
@@ -100,4 +102,4 @@ Use `####` headings or deeper, never `##` or `###`, so the entry nests correctly
 
 ## Done when
 
-Every published package whose users would notice the change has a line with its bump, and each message starts with a "This release…" verb and names the public API users will notice.
+Every published package whose users would notice the change has a line with its bump, and each message starts with a "This release…" verb and names the public API users will notice. No changeset in `.changeset/` still describes the behavior as it was before the change.
