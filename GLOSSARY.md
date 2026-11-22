@@ -16,6 +16,10 @@ _Avoid_: Listing page, archive
 The standalone Markdown document served to agents in place of an entry page or an index page.
 _Avoid_: LLM Markdown, Markdown view, raw, markdown (the entry's body field)
 
+**Frontmatter block**:
+The YAML block that agent Markdown opens with: the page's title, description and canonical URL. qino writes it; the entry's own frontmatter never reaches agents.
+_Avoid_: Agent frontmatter, metadata block, frontmatter (the entry's own)
+
 **Markdown URL**:
 The URL of a page's agent Markdown: the page's URL, without a trailing `/`, with `.md` appended, or `/index.md` for the homepage.
 _Avoid_: Twin, .md route, raw URL

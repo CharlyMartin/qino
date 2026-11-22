@@ -70,11 +70,11 @@ canonical: "https://www.qino.works/docs/guide/frontmatter"
 Markdown, MDX, and `.markdown` files may start with a YAML block delimited by `---` lines.
 ```
 
-- The frontmatter block gives agents the page's metadata without reading the body: `title`, `description` when there is one, and `canonical`, the page's URL. Each value is a quoted string, so a title holding `: ` or `#` stays valid YAML. It's generated: the entry's own frontmatter never reaches agents.
+- The frontmatter block gives agents the page's metadata without reading the body: `title`, `description` on one line when there is one, and `canonical`, the page's URL. Each value is a quoted string, so a title holding `: ` or `#` stays valid YAML. It's generated: the entry's own frontmatter never reaches agents.
 - The title comes from the `title` field, or a tree's `titleField`, falling back to the slug. The description comes from the `description` field and is left out when there's none.
 - The body comes without its frontmatter. A body that opens with its own H1 gets no heading, though the block still holds the title and description.
 - Site-relative links and images become absolute on `siteUrl`. Code is left as written.
-- A JSON entry has no body, so it gets the block and the heading only.
+- A JSON entry has no body, so it gets the block, the heading and the description only.
 
 An index page's agent Markdown lists its entries, each linking to its Markdown URL, after a frontmatter block with its title and URL. A collection lists them in its default view's order, so a view's `filter` keeps drafts out. A tree gets one section per root node, listing the node and its descendants.
 
