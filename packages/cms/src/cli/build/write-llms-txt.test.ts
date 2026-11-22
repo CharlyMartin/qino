@@ -146,6 +146,30 @@ describe("writeLlmsTxt", () => {
     );
   });
 
+  test("with sections, fails for index pages whose paths differ only by repeated slashes", async () => {
+    const context = setup({ sections: true });
+    const notes = initQino({
+      contentFolder: tmp,
+      mediaFolder: nodePath.join(tmp, "public"),
+      siteUrl: "https://example.com",
+    }).defineCollection({
+      directory: "notes",
+      extension: ".md",
+      schema: z.object({ title: z.string() }),
+      pages: { index: "/blog//", entry: "/blog/notes/{slug}", title: "Notes" },
+    });
+    await fs.mkdir(nodePath.join(tmp, "notes"));
+
+    await expect(
+      writeLlmsTxt({
+        ...context,
+        collections: [...context.collections, notes],
+      }),
+    ).rejects.toThrow(
+      'Collection "notes" and Collection "posts" would both write the section llms.txt "/blog/llms.txt".',
+    );
+  });
+
   test("with sections, fails for an index page at /, naming the collection", async () => {
     await writePost("hello");
 

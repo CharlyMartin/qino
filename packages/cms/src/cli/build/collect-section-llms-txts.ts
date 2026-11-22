@@ -1,3 +1,5 @@
+import nodePath from "node:path";
+
 import { LLMS_TXT_FILE_NAME, QinoPrimitiveMarker } from "../../data/globals";
 import { toAbsoluteUrl } from "../../lib/pages/to-absolute-url";
 import type { AnyCollection } from "../../types/collection";
@@ -34,13 +36,16 @@ export async function collectSectionLlmsTxts({
     }
 
     const path = `${pages.index.replace(/\/$/, "")}/${LLMS_TXT_FILE_NAME}`;
-    const owner = owners.get(path);
+    // The file it's written to: joining collapses repeated slashes, so
+    // `/blog` and `/blog//` write the same one.
+    const file = nodePath.posix.normalize(path);
+    const owner = owners.get(file);
     if (owner) {
       throw new Error(
-        `${owner} and ${pages.owner} would both write the section llms.txt "${path}". Give one another index page, or turn off \`cli.build.llmsTxt.sections\`.`,
+        `${owner} and ${pages.owner} would both write the section llms.txt "${file}". Give one another index page, or turn off \`cli.build.llmsTxt.sections\`.`,
       );
     }
-    owners.set(path, pages.owner);
+    owners.set(file, pages.owner);
 
     sectionLlmsTxts.push({
       content: await pages.getSectionLlmsTxt(),
