@@ -8,9 +8,10 @@ Each of these edge cases broke something in an earlier change. Probe each one th
 - **A body that isn't valid MDX,** such as one with `<!-- comment -->` or `a { b`: it falls back to plain Markdown, and its components stay as written. Links still become absolute, except inside an HTML block. A line that opens with a tag such as `<Tabs>` starts one, which runs to the next blank line.
 - **Output from a component function that isn't valid MDX:** it affects only its own replacement, and links elsewhere still become absolute.
 - **A body that opens with its own H1:** this includes after `import` or `export` lines, as a setext heading (`Title` over `===`), or from a component's output, or after HTML or MDX comments, indented or several on a line, or after a link definition such as `[guide]: /guide`. In the `llms.txt` template, a definition between the H1 and the summary keeps the summary in `llms-full.txt`. qino adds no `# title` or description. Text between two comments still renders, so qino adds the heading.
+- **Heading text qino reads,** such as a title from the `llms.txt` template's H1 or the `## Optional` match: emphasis, `{#id}` and footnote references (`# Title[^1]`) leave no trace in it.
 - **Code fences and inline code:** links and components inside them stay as written.
 - **Link forms:**
-  - `/x` destinations become absolute, in links, images and reference definitions, and in the `description` too: in its blockquote and in index listings.
+  - `/x` destinations become absolute, in links, images and reference definitions, and in the `description` too: in its blockquote, in index listings and in a frontmatter block, `index.md`'s summary included.
   - `//x`, `https://x`, `#x` and JSX attribute values stay as written.
   - `<dest>` and link titles keep their syntax.
 - **Containers:** a component on its own line in a list item or blockquote has every line of its replacement kept inside it. Blockquote markers stay, and list markers become spaces. A component after text on its line is spliced in with no prefix.
