@@ -67,7 +67,7 @@ media: {
 },
 ```
 
-The URL it returns replaces the value: it's the `src` of an image field, and the string of any other media field. Rules and `qino check` apply to it. Return `undefined` to keep the value as is. The `MediaParse` type types a callback declared on its own, and `MediaRule` a whole rule. Body rules take a `parse` too. See [Body images](#body-images).
+The URL it returns replaces the value: it's the `src` of an image field, and the string of any other media field. Rules and `qino check` apply to it. Return `undefined` to keep the value as is. The `MediaParse` type types a callback declared on its own, `MediaParseContext` its `ctx`, and `MediaRule` a whole rule. Body rules take a `parse` too. See [Body images](#body-images).
 
 `ctx`, the second argument, holds `sourceFilePath`, the file the value is written in, `fieldPath`, the field's path as declared, and `mediaFolder`, where the files live. For this post, with `initQino({ contentFolder: "vault", mediaFolder: "vault/attachments" })` and a `parse` on `cover` and `"gallery[*]"`:
 
