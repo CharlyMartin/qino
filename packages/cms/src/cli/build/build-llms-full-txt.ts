@@ -1,4 +1,4 @@
-import { rendersNothing } from "../../lib/agent-markdown/renders-nothing";
+import { findLlmsTxtTemplateHead } from "./find-llms-txt-template-head";
 import { parseLlmsTxtTemplate } from "./parse-llms-txt-template";
 
 type BuildLlmsFullTxtParams = {
@@ -18,15 +18,8 @@ export function buildLlmsFullTxt({
   documents,
 }: BuildLlmsFullTxtParams) {
   const { text, blocks } = parseLlmsTxtTemplate(template);
-  // Without the blocks that render nothing, such as comments.
-  const shown = blocks.filter((node) => !rendersNothing(node));
-  const h1Index = shown.findIndex(
-    (node) => node.type == "heading" && node.depth == 1,
-  );
-  const h1 = shown[h1Index];
-  const summary = shown[h1Index + 1];
-  const end = (summary?.type == "blockquote" ? summary : h1)?.position?.end
-    .offset;
+  const { h1, summary } = findLlmsTxtTemplateHead(blocks);
+  const end = (summary ?? h1)?.position?.end.offset;
   const head = h1 ? text.slice(h1.position?.start.offset, end) : "";
   return `${[head, ...documents.map((document) => document.trimEnd())].filter(Boolean).join("\n\n")}\n`;
 }
