@@ -1,3 +1,4 @@
+import { absolutizeLinks } from "../../lib/agent-markdown/absolutize-links";
 import { formatFrontmatterBlock } from "../../lib/agent-markdown/format-frontmatter-block";
 import { toOneLine } from "../../lib/agent-markdown/to-one-line";
 import { toAbsoluteUrl } from "../../lib/pages/to-absolute-url";
@@ -27,16 +28,18 @@ export function buildIndexMd({
 }: BuildIndexMdParams) {
   const { text, blocks } = parseLlmsTxtTemplate(template);
   const { h1, summary } = findLlmsTxtTemplateHead(blocks);
-  const title =
-    h1 &&
-    toOneLine(getHeadingText(h1, { footnoteOrder: [], includeJsx: false }));
+  const title = h1 && toOneLine(getHeadingText(h1, { includeJsx: false }));
   if (!title) return llmsTxt;
 
-  // The summary as written, without its `>` markers.
+  // The summary as written, without its `>` markers, its links absolute as
+  // an entry's description's are.
   const description = summary
-    ? text
-        .slice(summary.position?.start.offset, summary.position?.end.offset)
-        .replace(/^[ \t]*>[ \t]?/gm, "")
+    ? absolutizeLinks(
+        text
+          .slice(summary.position?.start.offset, summary.position?.end.offset)
+          .replace(/^[ \t]*>[ \t]?/gm, ""),
+        { origin: siteUrl, mdx: false },
+      )
     : "";
   const block = formatFrontmatterBlock({
     title,

@@ -31,6 +31,14 @@ describe("getHeadingText", () => {
     ).toBe("Hi2");
   });
 
+  test("drops footnote references without a footnoteOrder", () => {
+    const heading = getFirstHeading("## Hi[^x]\n\n[^x]: Note.");
+
+    expect(heading && getHeadingText(heading, { includeJsx: false })).toBe(
+      "Hi",
+    );
+  });
+
   test("drops MDX expressions", () => {
     const heading = getFirstHeading("## Version {1 + 1}");
 

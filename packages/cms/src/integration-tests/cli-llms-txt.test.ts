@@ -149,19 +149,20 @@ test("build appends the sections to a template without ## Optional, and skips in
 }, 60_000);
 
 test.each([
-  ["no H1", "Notes for agents.\n\n## Optional\n", undefined],
+  ["no H1, so no block", "Notes for agents.\n\n## Optional\n", undefined],
+  ["a blank H1, so no block", "# {#top}\n\n> A site.\n", undefined],
   [
-    "an H1 without a summary, its text plain",
-    "# The *Example* site {#top}\n\nAn intro.\n",
+    "an H1 and no summary, so a title as plain text and no description",
+    "# The *Example* site[^1] {#top}\n\nAn intro.\n\n[^1]: A note.\n",
     '---\ntitle: "The Example site"\ncanonical: "https://example.com/"\n---',
   ],
   [
-    "a summary on several lines, joined onto one",
-    "# Example\n\n<!-- For agents. -->\n\n> A site,\n> with [docs](https://example.com/docs).\n",
+    "a summary on several lines, so a description on one, its links absolute",
+    "# Example\n\n<!-- For agents. -->\n\n> A site,\n> with [docs](/docs).\n",
     '---\ntitle: "Example"\ndescription: "A site, with [docs](https://example.com/docs)."\ncanonical: "https://example.com/"\n---',
   ],
 ])(
-  "build gives index.md, from a template with %s, its block",
+  "build writes index.md from a template with %s",
   async (_, template, block) => {
     await createLlmsTxtProject(tmp, {
       config,

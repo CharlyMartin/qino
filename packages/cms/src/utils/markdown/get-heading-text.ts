@@ -1,7 +1,8 @@
 import type { Nodes } from "mdast";
 
 type GetHeadingTextOptions = {
-  footnoteOrder: string[];
+  /** The footnotes' identifiers, in numbering order. Without it, footnote references add nothing. */
+  footnoteOrder?: string[];
   /** Keeps the text inside MDX components, as `rehype-slug` does. */
   includeJsx: boolean;
 };
@@ -22,6 +23,7 @@ export function getHeadingText(
     case "break":
       return "\n";
     case "footnoteReference":
+      if (!options.footnoteOrder) return "";
       return String(
         options.footnoteOrder.indexOf(node.identifier.toUpperCase()) + 1,
       );

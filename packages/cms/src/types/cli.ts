@@ -26,11 +26,11 @@ export type BuildConfig = {
    */
   readonly types?: boolean;
   /**
-   * Makes `qino build` write `llms.txt`, `llms-full.txt` and `index.md` at
-   * the root of `mediaFolder`: the `llms.txt` template, with a link section
-   * for each primitive that declares pages, then every entry page's agent
-   * Markdown, without its frontmatter block, in `llms-full.txt`, and
-   * `llms.txt` after a frontmatter block in `index.md`. Needs `siteUrl`.
+   * Makes `qino build` write three files at the root of `mediaFolder`:
+   * `llms.txt`, the `llms.txt` template with a link section for each
+   * primitive that declares pages; `llms-full.txt`, every entry page's agent
+   * Markdown without its frontmatter block; and `index.md`, `llms.txt` after
+   * a frontmatter block. Needs `siteUrl`.
    */
   readonly llmsTxt?: boolean | LlmsTxtConfig;
 };
