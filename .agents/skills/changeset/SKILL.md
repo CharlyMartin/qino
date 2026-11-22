@@ -1,6 +1,6 @@
 ---
 name: changeset
-description: Changeset or changelog entry for a change to a published package (`packages/*`). Use when a change users would notice touches `packages/*`, or when asked for a changeset or changelog entry.
+description: Changeset or changelog entry for a change to a published package (`packages/*`). Use when a change users would notice touches `packages/*`, when a change alters what a pending changeset in `.changeset/` describes, or when asked for a changeset or changelog entry.
 metadata:
   internal: true
 ---
@@ -19,7 +19,7 @@ A changeset waiting in `.changeset/` may already describe what you're changing, 
 
 ## 2. Create the file
 
-Run `pnpm changeset --empty` from the repo root. It creates a randomly named `.md` file in `.changeset/` with empty front matter. Fill it in, with one line per package whose users would notice the change:
+To edit a pending changeset found in step 1, open it and go to step 3. Otherwise, run `pnpm changeset --empty` from the repo root. It creates a randomly named `.md` file in `.changeset/` with empty front matter. Fill it in, with one line per package whose users would notice the change:
 
 ```md
 ---

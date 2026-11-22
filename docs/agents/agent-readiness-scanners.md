@@ -24,9 +24,9 @@ The CLI scans a domain only when it has no completed report yet, and otherwise r
 npx is-agentic <domain> --json
 ```
 
-`GET https://is-agentic.com/api/v1/report?url=<url-encoded url>` reads the same latest report. `issues` lists the scored checks that failed or passed partially, each with an `id`, a `tier` and a `result`, and `eligible_checks` counts the scored checks that applied. The score counts only some checks. Its content checks are `markdown-negotiation-vary`, `agent-friendly-404` and `agent-instruction`. Emerging and bonus checks, such as `markdown-frontmatter` and `modular-llms-txt`, never appear in `issues`, even when they fail, so a check missing from `issues` hasn't necessarily passed.
+`GET https://is-agentic.com/api/v1/report?url=<url-encoded url>` reads the same latest report. `issues` lists the failing and partial checks that the score counts, each with an `id`, a `tier` and a `result`, and `eligible_checks` counts the scored checks that applied. Some checks aren't scored and are left out of `issues` even when they fail, such as `markdown-frontmatter` and `modular-llms-txt`. Read each check's status from the scan page instead.
 
-`https://is-agentic.com/scan/<domain>` shows the same report, and its HTML embeds every check, over a hundred, as escaped JSON: `{"id":"…","name":"…","tier":"…","bonus":…,"score":…,"status":"…","details":"…","recommendation":"…"}`. `status` is `pass`, `fail`, `warning` (partial credit) or `na` (didn't run). The scan script reads its checks from there. On a preview deploy, whose sitemap lists the production URLs, the scan samples no inner page, so checks such as `content-no-js` pass on the homepage alone. Their `details` say so.
+`https://is-agentic.com/scan/<domain>` shows the same report, and its HTML embeds every check, over a hundred, as escaped JSON: `{"id":"…","name":"…","tier":"…","bonus":…,"score":…,"status":"…","details":"…","recommendation":"…"}`. `status` is `pass`, `fail`, `warning` (partial credit) or `na` (didn't run). Its `tier` and `bonus` don't say whether the score counts a check, and its tiers aren't the API's. The scan script reads its checks from there. On a preview deploy, whose sitemap lists the production URLs, the scan samples no inner page, so checks such as `content-no-js` pass on the homepage alone. Their `details` say so.
 
 ## acceptmarkdown.com
 
