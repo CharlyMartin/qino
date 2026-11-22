@@ -219,7 +219,9 @@ export function defineTree<
       ...(resolvedPages && {
         pages: {
           ...resolvedPages,
+          owner,
           getListingSections,
+          getSectionLlmsTxt,
           getLlmsFullDocuments,
         },
       }),
@@ -436,6 +438,16 @@ export function defineTree<
       replacement: { components: params.agentMarkdown?.components, entry },
       canonical,
     });
+  }
+
+  // Its section llms.txt: the index page's agent Markdown without the
+  // frontmatter block, or none with nothing to list.
+  async function getSectionLlmsTxt() {
+    const { title } = requirePages(resolvedPages, { owner, option: "pages" });
+    const sections = await getListingSections();
+    return sections.length > 0
+      ? buildIndexAgentMarkdown({ title, sections })
+      : null;
   }
 
   // A section per root node, listing it and then its descendants, in tree

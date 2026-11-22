@@ -38,8 +38,15 @@ export type ResolvedItemPage = {
 
 /** What `qino build` reads from a collection or a tree that declares pages. */
 export type PagesMeta = ResolvedPages & {
+  /** Names it in errors, such as `Collection "posts"`. */
+  readonly owner: string;
   /** Its `llms.txt` sections. */
   readonly getListingSections: () => Promise<Array<ListingSection>>;
+  /**
+   * Its section llms.txt: the index page's agent Markdown without the
+   * frontmatter block, or `null` when it has nothing to list.
+   */
+  readonly getSectionLlmsTxt: () => Promise<string | null>;
   /**
    * Its entry pages' agent Markdown, in its sections' order and without
    * frontmatter blocks, for `llms-full.txt`.

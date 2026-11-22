@@ -17,6 +17,13 @@ export type LlmsTxtConfig = {
    * `"llms.md"`.
    */
   readonly template?: string;
+  /**
+   * Makes `qino build` also write a section llms.txt for each collection and
+   * tree that declares pages, at its index page's path, such as
+   * `/docs/llms.txt`, and makes `llms.txt` link to them under `## Sections`
+   * in place of their link sections. Defaults to `false`.
+   */
+  readonly sections?: boolean;
 };
 
 export type BuildConfig = {

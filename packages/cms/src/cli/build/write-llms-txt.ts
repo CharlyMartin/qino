@@ -22,6 +22,7 @@ import { buildIndexMd } from "./build-index-md";
 import { buildLlmsFullTxt } from "./build-llms-full-txt";
 import { collectLlmsFullDocuments } from "./collect-llms-full-documents";
 import { collectLlmsTxtSections } from "./collect-llms-txt-sections";
+import { collectSectionLlmsTxts } from "./collect-section-llms-txts";
 import { insertLlmsTxtSections } from "./insert-llms-txt-sections";
 import { writeGeneratedFile } from "./write-generated-file";
 
@@ -36,7 +37,8 @@ type WriteLlmsTxtParams = {
  * Writes `llms.txt`, `llms-full.txt` and `index.md`, which is `llms.txt` after
  * a frontmatter block, at the root of `mediaFolder`, each only when it
  * changed. `index.md` is left out when a page's Markdown URL is `/index.md`,
- * which that page owns.
+ * which that page owns. With `sections`, it also writes each section
+ * llms.txt, at its index page's path.
  */
 export async function writeLlmsTxt({
   context,
@@ -64,17 +66,40 @@ export async function writeLlmsTxt({
   }
 
   const template = await readTextFile(templatePath);
-  const [sections, documents] = await Promise.all([
+  const [sections, documents, sectionLlmsTxts] = await Promise.all([
     collectLlmsTxtSections({ collections, items, trees }),
     collectLlmsFullDocuments({ collections, items, trees }),
+    typeof option == "object" && option.sections
+      ? collectSectionLlmsTxts({ collections, trees })
+      : undefined,
   ]);
+  // With section llms.txt files, `llms.txt` links to them in place of the
+  // trees' and collections' sections, and keeps the items' `## Pages`.
+  const llmsTxtSections = sectionLlmsTxts
+    ? [
+        ...(sectionLlmsTxts.length > 0
+          ? [
+              {
+                title: "Sections",
+                links: sectionLlmsTxts.map(({ link }) => link),
+              },
+            ]
+          : []),
+        ...(await collectLlmsTxtSections({
+          collections: [],
+          items,
+          trees: [],
+        })),
+      ]
+    : sections;
   const llmsTxt = insertLlmsTxtSections({
     template,
-    sections: sections.map(formatListingSection).join("\n\n"),
+    sections: llmsTxtSections.map(formatListingSection).join("\n\n"),
   });
   const llmsFullTxt = buildLlmsFullTxt({ template, documents });
 
-  // Entry pages and items are in the sections; index pages aren't.
+  // Entry pages and items are in the sections, even when `llms.txt` links to
+  // section llms.txt files instead; index pages aren't.
   const markdownUrls = [
     ...sections.flatMap((section) => section.links.map((link) => link.url)),
     ...[...collections, ...trees].flatMap((primitive) => {
@@ -91,6 +116,9 @@ export async function writeLlmsTxt({
     ...(!indexMdIsTaken && {
       [INDEX_MD_FILE_NAME]: buildIndexMd({ template, llmsTxt, siteUrl }),
     }),
+    ...Object.fromEntries(
+      (sectionLlmsTxts ?? []).map(({ path, content }) => [path, content]),
+    ),
   };
   const written = [];
   for (const [file, content] of Object.entries(files)) {

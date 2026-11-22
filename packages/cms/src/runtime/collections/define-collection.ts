@@ -216,7 +216,9 @@ export function defineCollection<
       ...(resolvedPages && {
         pages: {
           ...resolvedPages,
+          owner,
           getListingSections,
+          getSectionLlmsTxt,
           getLlmsFullDocuments,
         },
       }),
@@ -486,6 +488,14 @@ export function defineCollection<
         url: getMarkdownUrl(entrySlug as SlugFor<Dir>),
       });
     });
+  }
+
+  // Its section llms.txt: the index page's agent Markdown without the
+  // frontmatter block, or none with nothing to list.
+  async function getSectionLlmsTxt() {
+    const { title } = requirePages(resolvedPages, { owner, option: "pages" });
+    const links = await listLinks();
+    return links.length > 0 ? buildIndexAgentMarkdown({ title, links }) : null;
   }
 
   // `llms.txt`'s section: the index page's links under its title, or none.
