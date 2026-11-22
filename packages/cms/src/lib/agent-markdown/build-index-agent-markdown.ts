@@ -1,5 +1,5 @@
 import type { ListingLink, ListingSection } from "../../types/agent-markdown";
-import { formatAgentFrontmatter } from "./format-agent-frontmatter";
+import { formatFrontmatterBlock } from "./format-frontmatter-block";
 import { formatListingLink } from "./format-listing-link";
 import { formatListingSection } from "./format-listing-section";
 
@@ -24,8 +24,9 @@ export function buildIndexAgentMarkdown({
   sections = [],
   canonical,
 }: BuildIndexAgentMarkdownParams) {
-  const blocks = [`# ${title}`];
-  if (canonical) blocks.unshift(formatAgentFrontmatter({ title, canonical }));
+  const blocks = [];
+  if (canonical) blocks.push(formatFrontmatterBlock({ title, canonical }));
+  blocks.push(`# ${title}`);
   if (links.length > 0) blocks.push(links.map(formatListingLink).join("\n"));
   blocks.push(...sections.map(formatListingSection));
   return `${blocks.join("\n\n")}\n`;

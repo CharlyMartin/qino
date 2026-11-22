@@ -5,7 +5,7 @@ import { expect } from "vitest";
  * tests cover, for tests about the rest of the document. Fails when there's
  * no block.
  */
-export function afterFrontmatter(markdown: string | null) {
+export function afterFrontmatterBlock(markdown: string | null) {
   const block = markdown?.match(/^---\n(?:[^\n]*\n)*?---\n\n/)?.[0];
   expect(block, "a frontmatter block").toBeDefined();
   return markdown?.slice(block?.length) ?? null;

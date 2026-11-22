@@ -8,7 +8,7 @@ import { z } from "zod";
 
 import { initQino } from "../runtime/qino/init-qino";
 import type { PagePath } from "../types/pages";
-import { afterFrontmatter } from "./after-frontmatter";
+import { afterFrontmatterBlock } from "./after-frontmatter-block";
 
 let tmp: string;
 
@@ -215,7 +215,7 @@ describe("agent Markdown for collection entries", () => {
     );
     const { posts } = setup();
 
-    expect(afterFrontmatter(await posts.getAgentMarkdown("linked"))).toBe(
+    expect(afterFrontmatterBlock(await posts.getAgentMarkdown("linked"))).toBe(
       "# Linked\n\n> See [setup](https://example.com/setup),\n> then ![a chart](https://example.com/chart.png).\n\nSome text.\n",
     );
   });
@@ -227,7 +227,7 @@ describe("agent Markdown for collection entries", () => {
     );
     const { posts } = setup();
 
-    expect(afterFrontmatter(await posts.getAgentMarkdown("defined"))).toBe(
+    expect(afterFrontmatterBlock(await posts.getAgentMarkdown("defined"))).toBe(
       "[guide]: https://example.com/guide\n\n# Hello, world\n\nSee the [guide].\n",
     );
   });
@@ -256,7 +256,7 @@ describe("agent Markdown for collection entries", () => {
     );
     const { posts } = setup();
 
-    expect(afterFrontmatter(await posts.getAgentMarkdown("links"))).toBe(
+    expect(afterFrontmatterBlock(await posts.getAgentMarkdown("links"))).toBe(
       [
         "# Links",
         "",
@@ -283,9 +283,9 @@ describe("agent Markdown for collection entries", () => {
     );
     const { posts } = setup();
 
-    expect(afterFrontmatter(await posts.getAgentMarkdown("commented"))).toBe(
-      "<!-- note -->\n\n# Own title\n\nBody.\n",
-    );
+    expect(
+      afterFrontmatterBlock(await posts.getAgentMarkdown("commented")),
+    ).toBe("<!-- note -->\n\n# Own title\n\nBody.\n");
   });
 
   test("reads an MDX body's H1 past its imports", async () => {
@@ -305,7 +305,7 @@ describe("agent Markdown for collection entries", () => {
       pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" },
     });
 
-    expect(afterFrontmatter(await docs.getAgentMarkdown("intro"))).toBe(
+    expect(afterFrontmatterBlock(await docs.getAgentMarkdown("intro"))).toBe(
       'import { Note } from "./note";\n\n# Introduction\n\n<Note>See [the guide](https://example.com/docs/guide).</Note>\n',
     );
   });
@@ -317,7 +317,7 @@ describe("agent Markdown for collection entries", () => {
     );
     const { posts } = setup();
 
-    expect(afterFrontmatter(await posts.getAgentMarkdown("multi"))).toBe(
+    expect(afterFrontmatterBlock(await posts.getAgentMarkdown("multi"))).toBe(
       "# Two lines\n\n> First.\n>\n> # Not a heading\n\nBody.\n",
     );
   });
@@ -329,7 +329,7 @@ describe("agent Markdown for collection entries", () => {
     );
     const { posts } = setup();
 
-    expect(afterFrontmatter(await posts.getAgentMarkdown("crlf"))).toBe(
+    expect(afterFrontmatterBlock(await posts.getAgentMarkdown("crlf"))).toBe(
       "# CRLF\n\nFirst line.\nSecond line.\n",
     );
   });
@@ -351,12 +351,12 @@ describe("agent Markdown for collection entries", () => {
       pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" },
     });
 
-    expect(afterFrontmatter(await docs.getAgentMarkdown("ids"))).toBe(
+    expect(afterFrontmatterBlock(await docs.getAgentMarkdown("ids"))).toBe(
       "# Ids\n\n## Install {#install}\n\n<Card>\n[the guide](https://example.com/docs/guide)\n</Card>\n",
     );
   });
 
-  test("is the heading and description alone for a JSON entry", async () => {
+  test("is the frontmatter block, heading and description alone for a JSON entry", async () => {
     await fs.mkdir(nodePath.join(tmp, "authors"));
     await fs.writeFile(
       nodePath.join(tmp, "authors", "jane.json"),
@@ -382,8 +382,8 @@ describe("agent Markdown for collection entries", () => {
       pages: { index: "/authors", entry: "/authors/{slug}", title: "Authors" },
     });
 
-    expect(afterFrontmatter(await authors.getAgentMarkdown("jane"))).toBe(
-      "# Jane\n\n> Writes the posts.\n",
+    expect(await authors.getAgentMarkdown("jane")).toBe(
+      '---\ntitle: "Jane"\ndescription: "Writes the posts."\ncanonical: "https://example.com/authors/jane"\n---\n\n# Jane\n\n> Writes the posts.\n',
     );
   });
 
@@ -418,7 +418,9 @@ describe("agent Markdown for collection entries", () => {
 
     expect(await posts.getAgentMarkdown("draft")).toBeNull();
     expect(
-      afterFrontmatter(await posts.getAgentMarkdown("draft", { view: "all" })),
+      afterFrontmatterBlock(
+        await posts.getAgentMarkdown("draft", { view: "all" }),
+      ),
     ).toBe("# Draft\n\nSoon.\n");
   });
 });
@@ -432,7 +434,7 @@ describe("agent Markdown for a collection's index page", () => {
     await writePost("world", "---\ntitle: World\n---\n\nHi.\n");
     const { posts } = setup();
 
-    expect(afterFrontmatter(await posts.getAgentMarkdown())).toBe(
+    expect(afterFrontmatterBlock(await posts.getAgentMarkdown())).toBe(
       "# Blog\n\n- [Hello](https://example.com/blog/hello.md): The first post.\n- [World](https://example.com/blog/world.md)\n",
     );
   });
@@ -444,7 +446,7 @@ describe("agent Markdown for a collection's index page", () => {
     );
     const { posts } = setup();
 
-    expect(afterFrontmatter(await posts.getAgentMarkdown())).toBe(
+    expect(afterFrontmatterBlock(await posts.getAgentMarkdown())).toBe(
       "# Blog\n\n- [Linked](https://example.com/blog/linked.md): See [setup](https://example.com/setup).\n",
     );
   });
@@ -477,7 +479,7 @@ describe("agent Markdown for a collection's index page", () => {
       }),
     });
 
-    expect(afterFrontmatter(await posts.getAgentMarkdown())).toBe(
+    expect(afterFrontmatterBlock(await posts.getAgentMarkdown())).toBe(
       "# Blog\n\n- [New](https://example.com/blog/b.md)\n- [Old](https://example.com/blog/a.md)\n",
     );
   });
@@ -490,7 +492,7 @@ describe("agent Markdown for a collection's index page", () => {
     await writePost("untitled", "Hi.\n");
     const { posts } = setup();
 
-    expect(afterFrontmatter(await posts.getAgentMarkdown())).toBe(
+    expect(afterFrontmatterBlock(await posts.getAgentMarkdown())).toBe(
       "# Blog\n\n- [Arrays \\[part 1](https://example.com/blog/hello.md): Two lines.\n- [untitled](https://example.com/blog/untitled.md)\n",
     );
   });
@@ -498,7 +500,9 @@ describe("agent Markdown for a collection's index page", () => {
   test("is the heading alone when there are no entries", async () => {
     const { posts } = setup();
 
-    expect(afterFrontmatter(await posts.getAgentMarkdown())).toBe("# Blog\n");
+    expect(afterFrontmatterBlock(await posts.getAgentMarkdown())).toBe(
+      "# Blog\n",
+    );
   });
 
   test('leaves the slug "" to the entry pages, where no entry has it', async () => {
@@ -621,12 +625,12 @@ describe("agent Markdown for tree entries", () => {
     );
     const docs = defineDocs();
 
-    expect(afterFrontmatter(await docs.getAgentMarkdown("guide"))).toBe(
+    expect(afterFrontmatterBlock(await docs.getAgentMarkdown("guide"))).toBe(
       "# Guide\n\n> Start here.\n\nRead [the CLI](https://example.com/docs/guide/cli).\n",
     );
-    expect(afterFrontmatter(await docs.getAgentMarkdown("guide/cli"))).toBe(
-      "# CLI\n\n> Commands.\n",
-    );
+    expect(
+      afterFrontmatterBlock(await docs.getAgentMarkdown("guide/cli")),
+    ).toBe("# CLI\n\n> Commands.\n");
   });
 
   test.each(["missing", "../secret", "guide/../guide"])(
@@ -668,7 +672,7 @@ describe("agent Markdown for a tree's index page", () => {
     );
     const docs = defineDocs();
 
-    expect(afterFrontmatter(await docs.getAgentMarkdown())).toBe(
+    expect(afterFrontmatterBlock(await docs.getAgentMarkdown())).toBe(
       [
         "# Docs",
         "",
@@ -741,12 +745,12 @@ describe("agent Markdown for items", () => {
     );
 
     expect(
-      afterFrontmatter(
+      afterFrontmatterBlock(
         await defineItem("about.md", "/about").getAgentMarkdown(),
       ),
     ).toBe("# About us\n\nSee [the team](https://example.com/team).\n");
     expect(
-      afterFrontmatter(
+      afterFrontmatterBlock(
         await defineItem("untitled.md", "/untitled").getAgentMarkdown(),
       ),
     ).toBe("# untitled\n\nBody.\n");
@@ -775,6 +779,15 @@ describe("frontmatter blocks", () => {
 
     expect(await posts.getAgentMarkdown("titled")).toBe(
       '---\ntitle: "Hello"\ndescription: "A first post."\ncanonical: "https://example.com/blog/titled"\n---\n\n# Hello, world\n\nSome text.\n',
+    );
+  });
+
+  test("fall back to the slug for the title when the body opens with its own H1", async () => {
+    await writePost("headed", "# Hello, world\n\nSome text.\n");
+    const { posts } = setup();
+
+    expect(await posts.getAgentMarkdown("headed")).toBe(
+      '---\ntitle: "headed"\ncanonical: "https://example.com/blog/headed"\n---\n\n# Hello, world\n\nSome text.\n',
     );
   });
 

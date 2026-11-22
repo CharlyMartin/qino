@@ -217,7 +217,7 @@ export function defineCollection<
         pages: {
           ...resolvedPages,
           getListingSections,
-          getEntryPagesAgentMarkdown,
+          getLlmsFullDocuments,
         },
       }),
       readEntries,
@@ -444,7 +444,7 @@ export function defineCollection<
 
   // `llms-full.txt`'s documents: the index page's entries, in its order,
   // without frontmatter blocks.
-  async function getEntryPagesAgentMarkdown() {
+  async function getLlmsFullDocuments() {
     const entries = await getEntries();
     return Promise.all(
       entries.map(async (entry) =>

@@ -1,4 +1,4 @@
-import { toPageUrl } from "./to-page-url";
+import { toAbsoluteUrl } from "./to-absolute-url";
 
 /**
  * A page's Markdown URL on `origin`: its path with `.md` appended, after any
@@ -7,5 +7,5 @@ import { toPageUrl } from "./to-page-url";
 export function toMarkdownUrl(path: string, origin: string) {
   const markdownPath =
     path == "/" ? "/index.md" : `${path.replace(/\/$/, "")}.md`;
-  return toPageUrl(markdownPath, origin);
+  return toAbsoluteUrl(markdownPath, origin);
 }

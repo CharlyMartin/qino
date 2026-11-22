@@ -2,7 +2,7 @@ import { MARKDOWN_FIELD_NAME } from "../../data/globals";
 import type { ComponentReplacement } from "../../types/agent-markdown";
 import type { SupportedFileExtension } from "../../types/utils";
 import { absolutizeLinks } from "./absolutize-links";
-import { formatAgentFrontmatter } from "./format-agent-frontmatter";
+import { formatFrontmatterBlock } from "./format-frontmatter-block";
 import { readEntryDescription } from "./read-entry-description";
 import { type ReadEntryTitleParams, readEntryTitle } from "./read-entry-title";
 import { replaceComponents } from "./replace-components";
@@ -53,7 +53,7 @@ export async function buildAgentMarkdown<Entry>({
   const description = readEntryDescription(entry, origin);
   const blocks = [];
   if (canonical) {
-    blocks.push(formatAgentFrontmatter({ title, description, canonical }));
+    blocks.push(formatFrontmatterBlock({ title, description, canonical }));
   }
   if (!startsWithH1(body, { mdx })) {
     blocks.push(`# ${title}`);

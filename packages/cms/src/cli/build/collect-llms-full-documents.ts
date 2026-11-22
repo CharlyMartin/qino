@@ -24,12 +24,12 @@ export async function collectLlmsFullDocuments(
   for (const primitive of treesAndCollections) {
     const pages = primitive[QinoPrimitiveMarker].pages;
     if (pages && pages.llmsFull != false) {
-      documents.push(...(await pages.getEntryPagesAgentMarkdown()));
+      documents.push(...(await pages.getLlmsFullDocuments()));
     }
   }
   for (const item of items) {
     const page = item[QinoPrimitiveMarker].page;
-    if (page) documents.push(await page.getPageAgentMarkdown());
+    if (page) documents.push(await page.getLlmsFullDocument());
   }
 
   return documents;

@@ -220,7 +220,7 @@ export function defineTree<
         pages: {
           ...resolvedPages,
           getListingSections,
-          getEntryPagesAgentMarkdown,
+          getLlmsFullDocuments,
         },
       }),
       readEntry,
@@ -417,7 +417,7 @@ export function defineTree<
 
   // `llms-full.txt`'s documents: every node, in its sections' order, without
   // frontmatter blocks.
-  async function getEntryPagesAgentMarkdown() {
+  async function getLlmsFullDocuments() {
     const nodes = await getFlatTree();
     return Promise.all(nodes.map((node) => readEntryAgentMarkdown(node.slug)));
   }
