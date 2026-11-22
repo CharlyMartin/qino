@@ -9,9 +9,9 @@ type FormatFrontmatterBlockParams = {
   canonical: string;
 };
 
-// Characters JSON leaves raw that YAML parsers such as PyYAML reject, DEL
-// and the C1 controls, or read as a line break, U+0085.
-const UNSAFE_IN_YAML = /[\u007f-\u009f]/g;
+// Characters JSON leaves raw that YAML parsers such as PyYAML reject, DEL,
+// the C1 controls, U+FFFE and U+FFFF, or read as a line break, U+0085.
+const UNSAFE_IN_YAML = /[\u007f-\u009f\ufffe\uffff]/g;
 
 /**
  * Agent Markdown's frontmatter block: `title`, `description` on one line when
