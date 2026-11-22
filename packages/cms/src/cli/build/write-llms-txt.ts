@@ -22,6 +22,7 @@ import { buildIndexMd } from "./build-index-md";
 import { buildLlmsFullTxt } from "./build-llms-full-txt";
 import { collectLlmsFullDocuments } from "./collect-llms-full-documents";
 import { collectLlmsTxtSections } from "./collect-llms-txt-sections";
+import { collectPagesSection } from "./collect-pages-section";
 import { collectSectionLlmsTxts } from "./collect-section-llms-txts";
 import { insertLlmsTxtSections } from "./insert-llms-txt-sections";
 import { writeGeneratedFile } from "./write-generated-file";
@@ -54,10 +55,10 @@ export async function writeLlmsTxt({
   }
 
   const option = context.cli?.build?.llmsTxt;
+  const options = typeof option == "object" ? option : {};
   const templatePath = nodePath.join(
     context.contentFolder,
-    (typeof option == "object" && option.template) ||
-      DEFAULT_LLMS_TXT_TEMPLATE_FILE_NAME,
+    options.template || DEFAULT_LLMS_TXT_TEMPLATE_FILE_NAME,
   );
   if (!(await isFile(templatePath))) {
     throw new Error(
@@ -66,42 +67,34 @@ export async function writeLlmsTxt({
   }
 
   const template = await readTextFile(templatePath);
-  const [sections, documents, sectionLlmsTxts] = await Promise.all([
+  const [linkSections, documents, sectionLlmsTxts] = await Promise.all([
     collectLlmsTxtSections({ collections, items, trees }),
     collectLlmsFullDocuments({ collections, items, trees }),
-    typeof option == "object" && option.sections
+    options.sections
       ? collectSectionLlmsTxts({ collections, trees })
       : undefined,
   ]);
   // With section llms.txt files, `llms.txt` links to them in place of the
   // trees' and collections' sections, and keeps the items' `## Pages`.
-  const llmsTxtSections = sectionLlmsTxts
-    ? [
-        ...(sectionLlmsTxts.length > 0
-          ? [
-              {
-                title: "Sections",
-                links: sectionLlmsTxts.map(({ link }) => link),
-              },
-            ]
-          : []),
-        ...(await collectLlmsTxtSections({
-          collections: [],
-          items,
-          trees: [],
-        })),
-      ]
-    : sections;
+  let rootSections = linkSections;
+  if (sectionLlmsTxts) {
+    const pagesSection = await collectPagesSection({ items });
+    const links = sectionLlmsTxts.map(({ link }) => link);
+    rootSections = [
+      ...(links.length > 0 ? [{ title: "Sections", links }] : []),
+      ...(pagesSection ? [pagesSection] : []),
+    ];
+  }
   const llmsTxt = insertLlmsTxtSections({
     template,
-    sections: llmsTxtSections.map(formatListingSection).join("\n\n"),
+    sections: rootSections.map(formatListingSection).join("\n\n"),
   });
   const llmsFullTxt = buildLlmsFullTxt({ template, documents });
 
   // Entry pages and items are in the sections, even when `llms.txt` links to
   // section llms.txt files instead; index pages aren't.
   const markdownUrls = [
-    ...sections.flatMap((section) => section.links.map((link) => link.url)),
+    ...linkSections.flatMap((section) => section.links.map((link) => link.url)),
     ...[...collections, ...trees].flatMap((primitive) => {
       const pages = primitive[QinoPrimitiveMarker].pages;
       return pages ? [toPagesMarkdownUrl(pages)] : [];
