@@ -10,5 +10,5 @@ const postsCollection = qino.defineCollection({
   relations: {
     author: authorsCollection,
   },
-})
+});
 ```
