@@ -91,13 +91,16 @@ canonical: "https://www.qino.works/blog"
 
 ### MDX components
 
-An MDX component stays as written unless you give the primitive a function that turns it into Markdown:
+An MDX component stays as written unless you give the primitive's pages a function that turns it into Markdown:
 
 ```ts title="qino/posts.ts"
 export const postCollection = qino.defineCollection({
   // ...
-  agentMarkdown: {
-    components: {
+  pages: {
+    index: "/blog",
+    entry: "/blog/{slug}",
+    title: "Blog",
+    markdownComponents: {
       // <InstallBox package="@qino/cms" /> becomes a shell command.
       InstallBox: ({ props }) =>
         `\`\`\`sh\nnpm install ${props.package}\n\`\`\``,
@@ -107,6 +110,8 @@ export const postCollection = qino.defineCollection({
   },
 });
 ```
+
+An item sets them in the object form of its page, `page: { path: "/about", markdownComponents }`.
 
 A function receives the component's literal `props`, its `children` already turned into Markdown, and the `entry` being converted. It can be async, and it returns `null` to keep the component as written. qino never runs an MDX expression, so attributes set by one are left out of `props`. See [PageMarkdownComponent](/docs/api/types/page-markdown-component).
 

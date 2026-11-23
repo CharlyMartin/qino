@@ -63,8 +63,8 @@ SEO and LLM endpoints:
 - Docs pages, blog posts, `/docs` and `/blog` serve qino's page Markdown at their
   Markdown URL (`/docs/<slug>.md`, `/blog/<slug>.md`, `/docs.md`, `/blog.md`), or
   when `Accept` prefers `text/markdown`, through `negotiateMarkdown`. Their
-  `pages` and `agentMarkdown.components`, for `InstallBox` and
-  `LinkGrid`, live in `qino/`, and each page advertises its Markdown URL with
+  `pages`, with `markdownComponents` for `InstallBox` and `LinkGrid`, live
+  in `qino/`, and each page advertises its Markdown URL with
   `<link rel="alternate">`. Markdown URLs with a "View Markdown" link are
   prerendered through the crawler; the rest are served by the Start runtime.
   Both stay out of the sitemap.

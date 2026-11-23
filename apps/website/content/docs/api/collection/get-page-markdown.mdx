@@ -32,7 +32,7 @@ For an entry page, `Promise<string | null>`:
 - A frontmatter block: `title`, `description` on one line when there is one, and `canonical`, the entry page's URL on `siteUrl`, each a quoted string.
 - `# {title}`, from the `title` field and falling back to the slug, then `> {description}` when the `description` field holds one, then the body without its own frontmatter.
 - No heading when the body opens with its own H1. The frontmatter block still holds the title and description.
-- Site-relative links and images made absolute on `siteUrl`, and MDX components replaced through [`agentMarkdown.components`](/docs/api/types/page-markdown-component).
+- Site-relative links and images made absolute on `siteUrl`, and MDX components replaced through [`pages.markdownComponents`](/docs/api/types/page-markdown-component).
 - The frontmatter block, the heading and the description only for a JSON entry.
 - `null` when no entry has the slug, `""` included, or the view's `filter` excludes it. Unlike [getEntry](/docs/api/collection/get-entry), it doesn't throw for these.
 
