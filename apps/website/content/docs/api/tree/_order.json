@@ -5,5 +5,7 @@
   "get-entry.mdx",
   "get-ancestor-nodes.mdx",
   "get-next-node.mdx",
-  "get-previous-node.mdx"
+  "get-previous-node.mdx",
+  "get-page-markdown.mdx",
+  "get-markdown-url.mdx"
 ]

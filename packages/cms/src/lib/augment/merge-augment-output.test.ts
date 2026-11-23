@@ -32,19 +32,16 @@ describe("mergeAugmentOutput", () => {
     );
   });
 
-  test.each(["markdown", "raw"])(
-    "rejects %s on Markdown entries but allows it on JSON entries",
-    (key) => {
-      const markdown = { ...entry, markdown: "# Hello", raw: "# Hello" };
-      expect(() => mergeAugmentOutput(markdown, { [key]: "derived" })).toThrow(
-        `/content/posts/hello.md: augment cannot add reserved or overwrite existing fields: ${key}.`,
-      );
+  test("rejects markdown on Markdown entries but allows it on JSON entries", () => {
+    const markdown = { ...entry, markdown: "# Hello" };
+    expect(() => mergeAugmentOutput(markdown, { markdown: "derived" })).toThrow(
+      "/content/posts/hello.md: augment cannot add reserved or overwrite existing fields: markdown.",
+    );
 
-      const json = { _meta: { filePath: "/content/posts/hello.json" } };
-      expect(mergeAugmentOutput(json, { [key]: "derived" })).toEqual({
-        ...json,
-        [key]: "derived",
-      });
-    },
-  );
+    const json = { _meta: { filePath: "/content/posts/hello.json" } };
+    expect(mergeAugmentOutput(json, { markdown: "derived" })).toEqual({
+      ...json,
+      markdown: "derived",
+    });
+  });
 });

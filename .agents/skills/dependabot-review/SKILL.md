@@ -81,11 +81,11 @@ Rate the **change**, not the package. `unified` parses every entry, but a bump i
 | `medium` | A used API changed behavior: parsed entries from `@qino/cms`, the website's rendered pages, or `dist/` |
 | `high`   | A breaking change hits an API qino uses, or a security fix in a code path qino uses                    |
 
-CI runs on every PR: `pnpm install --frozen-lockfile`, `pnpm build` (which runs `qino build` and builds the website and the example), `pnpm check-types`, `pnpm biome check .`, `check-dist` for both packages (`publint`, `attw`, importing `dist/`), and `pnpm test`. Vercel deploys a preview of the website. Raise the risk only for CI's **blind spots**:
+CI runs `pnpm install --frozen-lockfile`, then the root `pnpm check`, on every PR. Its `pnpm build` runs `qino build` and builds the website and the example, and its `check-dist` runs `publint` and `attw` and imports `dist/`. Vercel deploys a preview of the website. Raise the risk only for CI's **blind spots**:
 
 - Different output for the same content: parsed Markdown/MDX, frontmatter values, glob matches, image metadata
 - What visitors see on the website: highlighting, headings, links, styles
-- Markdown formatting from a `prettier` bump: CI doesn't run `pnpm format:check`
+- Markdown formatting from a `prettier` bump outside `apps/website/content`: CI runs Prettier only there, through `pnpm format:content:check`
 - A `peerDependencies` range that changed what users must install
 
 Check the CI status in `statusCheckRollup`. If a check failed, read its log with `gh run view <run-id> --log-failed`. One failure is expected: `pnpm install` rejects versions younger than `minimumReleaseAge` (3 days, in `pnpm-workspace.yaml`). Dependabot's cooldown keeps version updates past it, but a fresh security update fails there; suggest adding the package to `minimumReleaseAgeExclude`.

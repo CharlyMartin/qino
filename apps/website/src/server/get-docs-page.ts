@@ -16,15 +16,16 @@ export const getDocsPage = createServerFn({ method: "GET" })
     const node = flat.find((candidate) => candidate.slug == slug);
     if (!node) throw notFound();
 
-    const [entry, ancestors, previousNode, nextNode, links] = await Promise.all(
-      [
+    const [entry, pageMarkdown, ancestors, previousNode, nextNode, links] =
+      await Promise.all([
         docsTree.getEntry(node.slug),
+        docsTree.getPageMarkdown(node.slug),
         docsTree.getAncestorNodes(node.slug),
         docsTree.getPreviousNode(node.slug),
         docsTree.getNextNode(node.slug),
         getDocsLinks(node),
-      ],
-    );
+      ]);
+    if (pageMarkdown == null) throw notFound();
 
     const breadcrumbs = [...ancestors, node].map(({ slug, title }) => ({
       slug,
@@ -38,7 +39,8 @@ export const getDocsPage = createServerFn({ method: "GET" })
       title: entry.title,
       description: entry.description,
       since: entry.since,
-      raw: entry.raw,
+      pageMarkdown,
+      markdownUrl: docsTree.getMarkdownUrl(node.slug),
       toc: entry._toc,
       mdx,
       links,

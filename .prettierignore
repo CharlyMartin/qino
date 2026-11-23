@@ -1,0 +1,4 @@
+# Their code blocks show `qino/_generated/types.d.ts`, whose registry keys
+# `qino build` quotes and Prettier would unquote.
+apps/website/content/docs/api/types/slug-registry.mdx
+apps/website/content/docs/concepts/types.mdx

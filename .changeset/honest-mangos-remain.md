@@ -1,0 +1,42 @@
+---
+"@qino/cms": minor
+---
+
+Adds page Markdown to collections: a standalone Markdown version of each entry page, to serve to AI agents. Set `siteUrl` in `initQino`, and declare where the collection's pages live with `pages`:
+
+```ts
+const qino = initQino({ contentFolder: "content", mediaFolder: "public", siteUrl: "https://example.com" });
+
+const posts = qino.defineCollection({
+  directory: "posts",
+  extension: ".mdx",
+  schema,
+  pages: { index: "/blog", entry: "/blog/{slug}", title: "Blog" },
+});
+```
+
+`posts.getPageMarkdown(slug)` returns a frontmatter block with the entry's `title`, `description` and `canonical` URL, so agents get its metadata without reading the body. Then come the title as a heading, the description as a quote, and the body without its own frontmatter, with site-relative links made absolute:
+
+```md
+---
+title: "Hello"
+description: "The first post."
+canonical: "https://example.com/blog/hello"
+---
+
+# Hello
+
+> The first post.
+
+The body.
+```
+
+Each value in the block is a quoted string, with the description on one line. A body that opens with its own H1 gets no heading, and its block still holds the title and description.
+
+`getPageMarkdown` takes any string, such as a route param, and returns `null` when the slug is unknown or the view excludes the entry, so it pairs with `negotiateMarkdown`:
+
+```ts
+return (await negotiateMarkdown(request, () => posts.getPageMarkdown(slug))) ?? next();
+```
+
+`posts.getMarkdownUrl(slug)` returns the entry's Markdown URL, such as `https://example.com/blog/hello.md`, for `<link rel="alternate">` and `Link` headers.

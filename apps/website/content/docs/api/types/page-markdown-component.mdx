@@ -1,0 +1,91 @@
+---
+title: PageMarkdownComponent
+description: A function whose output replaces an MDX component in page Markdown, set in `markdownComponents`.
+since: "0.25.0"
+---
+
+MDX components mean nothing outside your site, so a primitive can map each component's name to a function that returns its Markdown. Set them in `markdownComponents`: in `pages` on a Markdown or MDX collection or tree, or in an item's `page: { path, markdownComponents }`. JSON primitives can't set it.
+
+```ts title="qino/docs.ts"
+export const docsTree = qino.defineTree({
+  directory: "docs",
+  extension: ".mdx",
+  titleField: "title",
+  schema: DocSchema,
+  pages: {
+    index: "/docs",
+    entry: "/docs/{slug}",
+    title: "Docs",
+    markdownComponents: {
+      // <Badge label="New" /> becomes its label in bold.
+      Badge: ({ props }) => `**${props.label}**`,
+      // It only styles its text, so agents get the text.
+      Underline: ({ children }) => children,
+      // A component that reads its own tree is annotated: see below.
+      LinkGrid: async ({ entry }): Promise<string> => {
+        const node = await docsTree.getTree(entry._meta.slug);
+        return node.children
+          .map(
+            (child) =>
+              `- [${child.title}](${docsTree.getMarkdownUrl(child.slug)})`,
+          )
+          .join("\n");
+      },
+    },
+  },
+});
+```
+
+## Type
+
+```ts title="@qino/cms"
+import type {
+  PageMarkdownComponent,
+  PageMarkdownComponentContext,
+  PageMarkdownPropValue,
+} from "@qino/cms";
+
+type PageMarkdownComponent<Entry = unknown> = (
+  context: PageMarkdownComponentContext<Entry>,
+) => string | null | Promise<string | null>;
+
+type PageMarkdownComponentContext<Entry = unknown> = {
+  props: Record<string, PageMarkdownPropValue>;
+  children: string;
+  entry: Entry;
+};
+
+type PageMarkdownPropValue =
+  | string
+  | number
+  | boolean
+  | null
+  | Array<PageMarkdownPropValue>
+  | { [key: string]: PageMarkdownPropValue };
+```
+
+Inside `markdownComponents`, `entry` is typed as the primitive's entry, so the functions need no annotation.
+
+## Context
+
+| Field      | Description                                                                                                                                                                                                                         |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `props`    | The component's literal attributes: strings, numbers, booleans, `null`, and arrays and objects made of them. A bare attribute, `<X open />`, gives `true`. Attributes set by any other expression are left out: qino never runs one |
+| `children` | The content between the tags, as Markdown, with the components inside it already replaced and its links absolute. A self-closing or empty component gets `""`                                                                       |
+| `entry`    | The entry being converted, as read: the schema output and generated fields such as `_meta`, with relations still as slugs and no view applied                                                                                       |
+
+## Returns
+
+- A string replaces the component, tags included. Site-relative links in it are made absolute, and an output that opens with an H1 drops qino's heading, as a body opening with its own H1 does.
+- `null` keeps the component as written, with its own tags and attributes. Mapped components inside it are still replaced.
+
+A component with no function in the map is kept the same way. Functions run one at a time, in document order, from the inside out.
+
+## A component that reads its own primitive
+
+A function that calls the primitive it belongs to, as `LinkGrid` reads `docsTree` above, makes the primitive's type refer to itself. TypeScript then reports `TS7022`, so annotate the function's return type, such as `Promise<string>`.
+
+## See also
+
+- [Agent-ready content](/docs/guide/agent-ready-content#mdx-components)
+- [getPageMarkdown](/docs/api/collection/get-page-markdown)

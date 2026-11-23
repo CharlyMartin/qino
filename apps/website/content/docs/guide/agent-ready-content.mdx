@@ -1,0 +1,196 @@
+---
+title: Agent-ready content
+description: Serve AI agents Markdown at your pages' URLs, and build llms.txt from your content.
+---
+
+AI agents read Markdown more reliably than HTML. qino holds your content's source, so it can give agents each page as Markdown, without converting rendered HTML back:
+
+- **Page Markdown** for every entry page and index page. It's served at the page's Markdown URL, and at the page's own URL when the request's `Accept` header prefers Markdown.
+- **`llms.txt`, `llms-full.txt` and `index.md`**, written by `qino build` from a template you write.
+
+qino links to your pages but never routes to them. Your framework keeps its routes, and each route asks qino for the Markdown it serves.
+
+## Vocabulary
+
+| Term                | Meaning                                                                                                                                           |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Entry page          | The page of your site that displays one entry, such as `/blog/hello-world`. qino doesn't render or route it                                       |
+| Index page          | The page that lists a collection's or a tree's entries, such as `/blog`. Items have none                                                          |
+| Page Markdown       | The standalone Markdown document of an entry page or an index page, served to agents in place of the page                                         |
+| Markdown URL        | The URL of a page's Markdown: the page's URL, without a trailing `/`, with `.md` appended, such as `/blog/hello-world.md`, or `/index.md` for `/` |
+| `llms.txt` template | The hand-written Markdown that `llms.txt` is built from. qino inserts its link sections into it                                                   |
+
+## Declare your pages
+
+Set your site's URL on [`initQino`](/docs/api/init-qino), so every link in page Markdown is absolute:
+
+```ts title="qino/index.ts"
+import { initQino } from "@qino/cms";
+
+export default initQino({
+  contentFolder: "content",
+  mediaFolder: "public",
+  siteUrl: "https://example.com",
+});
+```
+
+Then tell each primitive where its pages live. Collections and trees take `pages`, with the index page's path, the entry page's path, and the index page's title:
+
+```ts title="qino/posts.ts"
+export const postCollection = qino.defineCollection({
+  directory: "posts",
+  extension: ".mdx",
+  schema: z.object({ title: z.string(), description: z.string() }),
+  pages: { index: "/blog", entry: "/blog/{slug}", title: "Blog" },
+});
+```
+
+- `entry` holds `{slug}` once. A tree's slug keeps its slashes, so with `entry: "/docs/{slug}"`, `guide/cli` lives at `/docs/guide/cli`.
+- `title` heads the index page's Markdown and the collection's `llms.txt` section. It's required, since a directory name such as `posts` rarely reads the way your site does.
+- Items take `page`, a single path such as `page: "/about"`.
+- Primitives with no page of their own, such as snippets or testimonials, declare nothing and stay out of page Markdown and `llms.txt`.
+
+A malformed path throws when the primitive is defined, as does declaring pages without a `siteUrl`. See [defineCollection](/docs/api/collection#pages).
+
+## What agents get
+
+An entry page's Markdown opens with a frontmatter block, then the entry's title and description, then its body:
+
+```md title="https://www.qino.works/docs/guide/frontmatter.md"
+---
+title: "Frontmatter"
+description: "How YAML frontmatter is parsed and which values become which types."
+canonical: "https://www.qino.works/docs/guide/frontmatter"
+---
+
+# Frontmatter
+
+> How YAML frontmatter is parsed and which values become which types.
+
+Markdown, MDX, and `.markdown` files may start with a YAML block delimited by `---` lines.
+```
+
+- The frontmatter block gives agents the page's metadata without reading the body: `title`, `description` on one line when there is one, and `canonical`, the page's URL. Each value is a quoted string, so a title holding `: ` or `#` stays valid YAML. It's generated: the entry's own frontmatter never reaches agents.
+- The title comes from the `title` field, or a tree's `titleField`, falling back to the slug. The description comes from the `description` field and is left out when there's none.
+- The body comes without its frontmatter. A body that opens with its own H1 gets no heading, though the block still holds the title and description.
+- Site-relative links and images become absolute on `siteUrl`. Code is left as written.
+- A JSON entry has no body, so it gets the block, the heading and the description only.
+
+An index page's Markdown lists its entries, each linking to its Markdown URL, after a frontmatter block with its title and URL. A collection lists them in its default view's order, so a view's `filter` keeps drafts out. A tree gets one section per root node, listing the node and its descendants.
+
+```md title="https://www.qino.works/blog.md"
+---
+title: "Blog"
+canonical: "https://www.qino.works/blog"
+---
+
+# Blog
+
+- [Why another Content Management System?](https://www.qino.works/blog/why-another-cms.md): Coding agents work best with content they can read.
+```
+
+### MDX components
+
+An MDX component stays as written unless you give the primitive's pages a function that turns it into Markdown:
+
+```ts title="qino/posts.ts"
+export const postCollection = qino.defineCollection({
+  // ...
+  pages: {
+    index: "/blog",
+    entry: "/blog/{slug}",
+    title: "Blog",
+    markdownComponents: {
+      // <InstallBox package="@qino/cms" /> becomes a shell command.
+      InstallBox: ({ props }) =>
+        `\`\`\`sh\nnpm install ${props.package}\n\`\`\``,
+      // It only styles its text, so agents get the text.
+      Underline: ({ children }) => children,
+    },
+  },
+});
+```
+
+An item sets them in the object form of its page, `page: { path: "/about", markdownComponents }`.
+
+A function receives the component's literal `props`, its `children` already turned into Markdown, and the `entry` being converted. It can be async, and it returns `null` to keep the component as written. qino never runs an MDX expression, so attributes set by one are left out of `props`. See [PageMarkdownComponent](/docs/api/types/page-markdown-component).
+
+## Serve it
+
+[`negotiateMarkdown`](/docs/api/negotiate-markdown) takes the request and a function that loads the page's Markdown. It answers with Markdown when the request's path ends in `.md` or its `Accept` header prefers Markdown, and with `null` otherwise, so your route renders HTML as usual:
+
+```ts title="Entry page route"
+const response = await negotiateMarkdown(request, () =>
+  postCollection.getPageMarkdown(slug),
+);
+return response ?? renderPage();
+```
+
+- `getPageMarkdown(slug)` resolves to `null` for an unknown slug or an entry the view excludes, and `negotiateMarkdown` turns that into a Markdown 404 that links to `llms.txt`.
+- `getPageMarkdown()`, with no slug, gives the index page's Markdown.
+- `load` only runs when the request wants Markdown, so HTML requests never build it.
+
+Advertise each page's Markdown URL, from [`getMarkdownUrl`](/docs/api/collection/get-markdown-url), in the page's HTML head with `<link rel="alternate" type="text/markdown">`, and in a `Link` header where your host can add one. The homepage can point agents at `llms.txt` with `Link: </llms.txt>; rel="describedby"`.
+
+On a prerendered site, the host serves the HTML file before your route runs, so it has to rewrite Markdown requests itself. The [host recipes](#host-recipes) show how.
+
+## llms.txt
+
+Set `cli.build.llmsTxt` on `initQino`, and `qino build` writes `llms.txt`, `llms-full.txt` and `index.md` at the root of `mediaFolder`, where they're served as `/llms.txt`, `/llms-full.txt` and `/index.md`:
+
+```ts title="qino/index.ts"
+export default initQino({
+  contentFolder: "content",
+  mediaFolder: "public",
+  siteUrl: "https://example.com",
+  cli: { build: { llmsTxt: true } },
+});
+```
+
+They start from the `llms.txt` template, `llms.md` in the content folder. It holds what only you can write: the site's title, a summary, and a "When to use" section that tells agents when your product fits:
+
+```md title="content/llms.md"
+# Acme
+
+> Acme is a feature-flag service for JavaScript apps.
+
+## When to use
+
+Acme fits when:
+
+- The app ships features behind flags it flips without a deploy.
+
+Pick something else when:
+
+- The flags need to change within a single request.
+
+## Optional
+
+- [Changelog](https://example.com/changelog)
+```
+
+- **`llms.txt`** is the template with a section of links per primitive inserted before `## Optional`, or appended when there's none.
+- **`llms-full.txt`** is the template's title and summary, then the page Markdown of every entry page. Set `pages.llmsFull: false` to leave a large collection out.
+- **`index.md`** is the homepage's Markdown: `llms.txt` after a frontmatter block, whose `title` is the template's H1, `description` its summary on one line, and `canonical` your site's URL. A template without an H1 gives no block. It's skipped when a page of yours already has `/index.md` as its Markdown URL.
+- **Section llms.txt files**, with `llmsTxt: { sections: true }`, list each collection's or tree's pages at its index page's path, such as `/docs/llms.txt`. `llms.txt` then links to them under `## Sections`, so it stays small on a large site. See [Section llms.txt](/docs/guide/cli#section-llmstxt).
+
+Every build writes them again, so keep them out of Git:
+
+```txt title=".gitignore"
+public/llms.txt
+public/llms-full.txt
+public/index.md
+# With sections, each section llms.txt too
+public/docs/llms.txt
+```
+
+See [qino build](/docs/guide/cli#llmstxt) for the sections' order and the errors.
+
+## Known limits
+
+- **A host rewrite can't weigh q-values.** It matches the `Accept` header with a regex that serves Markdown when a Markdown type is listed first, in lowercase. Where q-values reorder the types, it disagrees with `negotiateMarkdown`, both ways: `text/markdown;q=0.5, text/html` gets Markdown from the rewrite, and `text/html;q=0.5, text/markdown` or `*/*, text/markdown` gets HTML. Markdown URLs aren't affected.
+- **Markdown is never answered with a 406.** A request that accepts neither HTML nor Markdown, such as `Accept: text/plain`, gets HTML, so a browser with an unusual `Accept` header still sees the page. Scanners such as acceptmarkdown.com warn about this on their `rejects-unsupported` check.
+
+## Host recipes
+
+<LinkGrid />

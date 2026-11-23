@@ -15,6 +15,13 @@ import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-confi
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
+import { buildIndexPageMarkdown } from "../../lib/page-markdown/build-index-page-markdown";
+import { buildPageMarkdown } from "../../lib/page-markdown/build-page-markdown";
+import { toListingLink } from "../../lib/page-markdown/to-listing-link";
+import { requirePages } from "../../lib/pages/require-pages";
+import { resolvePages } from "../../lib/pages/resolve-pages";
+import { toPagesMarkdownUrl } from "../../lib/pages/to-pages-markdown-url";
+import { toPagesUrl } from "../../lib/pages/to-pages-url";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { addEntryStats } from "../../lib/stats/add-entry-stats";
@@ -39,9 +46,12 @@ import type {
   MediaConfig,
   TaggedRelations,
 } from "../../types/media";
+import type { PageMarkdownConfig } from "../../types/page-markdown";
+import type { PagesConfig } from "../../types/pages";
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
+import type { SlugFor } from "../../types/slug-registry";
 import type {
   ResolvedTreeEntry,
   StringKeys,
@@ -108,6 +118,21 @@ export type DefineTreeParams<
   cloud?: NoInfer<TreeCloudConfig<Schema>> &
     SaveEntryAsConfig<SaveEntryAs, Schema> &
     DisplayEntryAsConfig<DisplayEntryAs, Schema>;
+  /**
+   * Where the index page and entry pages live, for page Markdown and links,
+   * and how MDX components read in the pages' Markdown.
+   */
+  pages?: PagesConfig &
+    NoInfer<
+      PageMarkdownConfig<
+        ResolvedTreeEntry<
+          Schema,
+          Ext,
+          TaggedRelations<Rels, Media, Stats, Toc>
+        >,
+        Ext
+      >
+    >;
 } & RootViewSettings;
 
 export function defineTree<
@@ -150,6 +175,12 @@ export function defineTree<
     cloud,
   } = params;
   assertContentPath(directory, "directory");
+  const owner = `Tree "${directory}"`;
+  const resolvedPages = resolvePages({
+    pages: params.pages,
+    siteUrl: ctx.siteUrl,
+    owner,
+  });
   assertCloudEnabled(ctx, cloud, directory);
 
   const treeRelations = (relations ?? {}) as TaggedRels;
@@ -191,6 +222,15 @@ export function defineTree<
       media,
       markdown,
       cloud,
+      ...(resolvedPages && {
+        pages: {
+          ...resolvedPages,
+          owner,
+          getListingSections,
+          getSectionLlmsTxt: () => readIndexPageMarkdown(),
+          getLlmsFullDocuments,
+        },
+      }),
       readEntry,
     },
     getTree,
@@ -200,6 +240,8 @@ export function defineTree<
     getAncestorNodes,
     getNextNode,
     getPreviousNode,
+    getPageMarkdown,
+    getMarkdownUrl,
   } as const satisfies Tree<
     S,
     Ext,
@@ -358,5 +400,83 @@ export function defineTree<
       directory,
       offset: -1,
     });
+  }
+
+  async function getPageMarkdown(): Promise<string>;
+  async function getPageMarkdown(slug: Slug): Promise<string | null>;
+  async function getPageMarkdown(slug?: Slug) {
+    const pages = requirePages(resolvedPages, { owner, option: "pages" });
+    // Only a missing slug means the index page: `""` is a slug no node has.
+    if (typeof slug == "undefined") {
+      return readIndexPageMarkdown(toPagesUrl(pages));
+    }
+
+    // Only a listed slug reads a file: a route param can't reach past the
+    // tree with `..`.
+    const nodes = await getFlatTree();
+    if (!nodes.some((node) => node.slug == slug)) return null;
+
+    return readEntryPageMarkdown(slug, toPagesUrl(pages, slug));
+  }
+
+  // `llms-full.txt`'s documents: every node, in its sections' order, without
+  // frontmatter blocks.
+  async function getLlmsFullDocuments() {
+    const nodes = await getFlatTree();
+    return Promise.all(nodes.map((node) => readEntryPageMarkdown(node.slug)));
+  }
+
+  // An entry page's. Tree views can't filter, so no view can exclude it. A
+  // `canonical` adds the frontmatter block.
+  async function readEntryPageMarkdown(slug: Slug, canonical?: string) {
+    const { siteUrl } = requirePages(resolvedPages, { owner, option: "pages" });
+    const entry = await readEntry(slug);
+    return buildPageMarkdown({
+      entry: entry as Record<string, unknown>,
+      titleField,
+      fallbackTitle: slug,
+      extension,
+      origin: siteUrl,
+      replacement: { components: params.pages?.markdownComponents, entry },
+      canonical,
+    });
+  }
+
+  // The index page's. A `canonical` adds the frontmatter block, which its
+  // section llms.txt leaves out.
+  async function readIndexPageMarkdown(canonical?: string) {
+    const { title } = requirePages(resolvedPages, { owner, option: "pages" });
+    return buildIndexPageMarkdown({
+      title,
+      sections: await getListingSections(),
+      canonical,
+    });
+  }
+
+  // A section per root node, listing it and then its descendants, in tree
+  // order: the index page's and `llms.txt`'s.
+  async function getListingSections() {
+    const toLink = async (node: TreeNode) =>
+      toListingLink({
+        entry: (await readEntry(node.slug)) as Record<string, unknown>,
+        titleField,
+        fallbackTitle: node.slug,
+        url: getMarkdownUrl(node.slug as SlugFor<Dir>),
+      });
+    return Promise.all(
+      (await getTree()).map(async (root) => {
+        const [rootLink, descendantLinks] = await Promise.all([
+          toLink(root),
+          Promise.all(flattenTree(root.children).map(toLink)),
+        ]);
+        // The root node titles its section, then lists first.
+        return { title: rootLink.title, links: [rootLink, ...descendantLinks] };
+      }),
+    );
+  }
+
+  function getMarkdownUrl(slug?: SlugFor<Dir>) {
+    const pages = requirePages(resolvedPages, { owner, option: "pages" });
+    return toPagesMarkdownUrl(pages, slug);
   }
 }

@@ -1,0 +1,92 @@
+---
+title: Nitro on Vercel
+description: Negotiate Markdown for prerendered pages with header-conditioned Vercel routes in Nitro's config.
+---
+
+Vercel serves a prerendered page's HTML file before any function runs, so the route handler never sees the request. Vercel's own routes can step in first: a route that checks the `Accept` header rewrites Markdown requests to the page's Markdown URL. qino.works, a TanStack Start site built with Nitro, runs this setup.
+
+Nitro passes `vercel.config.routes` to Vercel ahead of the filesystem handler, so these routes run before the prerendered files are served. A `vercel.json` rewrite can't do this, since Vercel applies it after the filesystem. Nitro's `routeRules` can't match a header.
+
+## The routes
+
+Each page gets two routes:
+
+- A header route with `continue: true` adds `Vary: Accept` and a `Link` header naming the Markdown URL, then lets routing go on.
+- A rewrite conditioned on the `Accept` header sends Markdown requests to the Markdown URL. With `check: true`, a Markdown URL that wasn't prerendered falls through to the server function, which answers it with `negotiateMarkdown`.
+
+```ts title="src/lib/vercel-markdown-routes.ts" source="apps/website/src/lib/vercel-markdown-routes.ts"
+// A range's parameters other than q, whose quoted values can hold `,` and `;`,
+// and RFC 9110's qvalue above 0.
+const OTHER_PARAMS = String.raw`(?:\s*;(?!\s*[qQ]\s*=)(?:[^;,"]|"(?:[^"\\]|\\.)*")*)*`;
+const QVALUE_ABOVE_0 = String.raw`(?:1(?:\.0{0,3})?|0\.(?!0{1,3}\s*(?:[;,]|$))\d{1,3})(?=\s*(?:[;,]|$))`;
+
+// An `Accept` header whose first range is Markdown, in lowercase, with a
+// well-formed q-value above 0 or none.
+const LISTS_MARKDOWN_FIRST = String.raw`^text/(?:x-)?markdown${OTHER_PARAMS}(?:\s*;\s*[qQ]\s*=\s*${QVALUE_ABOVE_0}${OTHER_PARAMS})?\s*(?:,.*)?$`;
+
+// The pages with page Markdown, and their Markdown URLs.
+const pages = [
+  {
+    src: "^/$",
+    markdownUrl: "/index.md",
+    links: ['</llms.txt>; rel="describedby"'],
+  },
+  { src: "^/(docs|blog)/?$", markdownUrl: "/$1.md" },
+  {
+    src: String.raw`^/(docs|blog)/([\w-]+(?:/[\w-]+)*)/?$`,
+    markdownUrl: "/$1/$2.md",
+  },
+];
+
+// Nitro's route type lacks `has` and `check`, so this is a constant rather
+// than a literal in the config.
+export const vercelMarkdownRoutes = [
+  ...pages.map(({ src, markdownUrl, links = [] }) => ({
+    src,
+    headers: {
+      Vary: "Accept",
+      Link: [
+        `<${markdownUrl}>; rel="alternate"; type="text/markdown"`,
+        ...links,
+      ].join(", "),
+    },
+    continue: true,
+  })),
+  ...pages.map(({ src, markdownUrl }) => ({
+    src,
+    has: [{ type: "header", key: "accept", value: LISTS_MARKDOWN_FIRST }],
+    dest: markdownUrl,
+    check: true,
+  })),
+];
+```
+
+```ts title="vite.config.ts"
+import { vercelMarkdownRoutes } from "./src/lib/vercel-markdown-routes.ts";
+
+nitro({
+  // Nitro places them ahead of Vercel's filesystem handler.
+  vercel: { config: { version: 3, routes: vercelMarkdownRoutes } },
+});
+```
+
+The server function answers Markdown URLs that weren't prerendered, so it reads content at request time, and the content folder has to be copied into the server output: see [Runtime](/docs/guide/installation#runtime).
+
+- **Paths:** the regexes match only page paths. Markdown URLs, assets and framework files never match, because a slug is word characters and `-`. Vercel substitutes `$1` and `$2` in header values too.
+- **The homepage:** `/` rewrites to `/index.md`, which `qino build` writes from `llms.txt`, and its `Link` header also points agents at `llms.txt` with `rel="describedby"`.
+- **`Link` targets** are relative, so they work on preview deploys as well as on your domain.
+- **Caching:** Vercel rewrites before its cache, so the HTML file and the Markdown file are cached apart.
+
+## Check it
+
+```sh title="Terminal"
+# Markdown, with Vary: Accept and a Link header
+curl -i -H "Accept: text/markdown" https://example.com/blog/hello-world
+
+# The HTML page
+curl -i https://example.com/blog/hello-world
+```
+
+## Limits
+
+The rewrite matches `Accept` with a regex, which can't weigh q-values. It serves Markdown whenever a Markdown type is listed first, in lowercase, so it disagrees with `negotiateMarkdown` both ways: `text/markdown;q=0.5, text/html` gets Markdown here, and `text/html;q=0.5, text/markdown` or `*/*, text/markdown` gets HTML. Markdown URLs aren't affected. A `Link` header is added for any path the regex matches, including an unknown slug: its Markdown URL answers with the Markdown 404.

@@ -11,9 +11,16 @@ import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
 import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-config";
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
+import { buildPageMarkdown } from "../../lib/page-markdown/build-page-markdown";
+import { toListingLink } from "../../lib/page-markdown/to-listing-link";
+import { requirePages } from "../../lib/pages/require-pages";
+import { resolveItemPage } from "../../lib/pages/resolve-item-page";
+import { toAbsoluteUrl } from "../../lib/pages/to-absolute-url";
+import { toMarkdownUrl } from "../../lib/pages/to-markdown-url";
 import { parseFile } from "../../lib/parse/parse-file";
 import { assertContentPath } from "../../lib/paths/assert-content-path";
 import { extractExtension } from "../../lib/paths/extract-extension";
+import { removeExtension } from "../../lib/paths/remove-extension";
 import { addEntryStats } from "../../lib/stats/add-entry-stats";
 import { addEntryToc } from "../../lib/toc/add-entry-toc";
 import { validate } from "../../lib/validate/validate";
@@ -39,6 +46,8 @@ import type {
   MediaConfig,
   TaggedRelations,
 } from "../../types/media";
+import type { PageMarkdownConfig } from "../../types/page-markdown";
+import type { ItemPageConfig, PagePath } from "../../types/pages";
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
@@ -84,6 +93,24 @@ export type DefineItemParams<
     >
   >;
   cloud?: NoInfer<ItemCloudConfig<Schema>>;
+  /**
+   * Where the item's page lives, such as `"/about"`, for page Markdown and
+   * links. `{ path, markdownComponents }` also sets how MDX components read
+   * in its Markdown.
+   */
+  page?:
+    | PagePath
+    | (ItemPageConfig &
+        NoInfer<
+          PageMarkdownConfig<
+            ResolvedItemView<
+              Schema,
+              ExtractItemExtension<F>,
+              TaggedRelations<Rels, Media, Stats, Toc>
+            >,
+            ExtractItemExtension<F>
+          >
+        >);
 } & RootViewSettings;
 
 export function defineItem<
@@ -101,6 +128,14 @@ export function defineItem<
   type TaggedRels = TaggedRelations<Rels, Media, Stats, Toc>;
   const { file, schema, relations, media = {}, cloud } = params;
   assertContentPath(file, "file");
+  const owner = `Item "${file}"`;
+  // The title of an entry without one, in its page Markdown and llms.txt.
+  const fallbackTitle = removeExtension(nodePath.basename(file));
+  const resolvedPage = resolveItemPage({
+    page: params.page,
+    siteUrl: ctx.siteUrl,
+    owner,
+  });
   assertCloudEnabled(ctx, cloud, file);
 
   type Ext = ExtractItemExtension<F>;
@@ -139,9 +174,14 @@ export function defineItem<
       media,
       markdown,
       cloud,
+      ...(resolvedPage && {
+        page: { ...resolvedPage, getListingLink, getLlmsFullDocument },
+      }),
       readEntry,
     },
     getEntry,
+    getPageMarkdown,
+    getMarkdownUrl,
   } as const satisfies Item<S, Ext, TaggedRels, ConfiguredViews<Views>>;
 
   return item;
@@ -200,5 +240,51 @@ export function defineItem<
       ConfiguredViews<Views>,
       ViewSelection<Args[0]>
     >;
+  }
+
+  async function getPageMarkdown() {
+    const { page, siteUrl } = requirePages(resolvedPage, {
+      owner,
+      option: "page",
+    });
+    return getLlmsFullDocument(toAbsoluteUrl(page, siteUrl));
+  }
+
+  // `llms-full.txt`'s document, without the frontmatter block that a
+  // `canonical` adds.
+  async function getLlmsFullDocument(canonical?: string) {
+    const { siteUrl } = requirePages(resolvedPage, { owner, option: "page" });
+    // With a page, `params.page` is its path or an object holding it.
+    const components =
+      typeof params.page == "object"
+        ? params.page.markdownComponents
+        : undefined;
+    // Item views can't filter, so no view can exclude the entry.
+    const entry = await readEntry();
+    return buildPageMarkdown({
+      entry: entry as Record<string, unknown>,
+      fallbackTitle,
+      extension,
+      origin: siteUrl,
+      replacement: { components, entry },
+      canonical,
+    });
+  }
+
+  // The item's link in `llms.txt`'s `## Pages` section.
+  async function getListingLink() {
+    return toListingLink({
+      entry: (await readEntry()) as Record<string, unknown>,
+      fallbackTitle,
+      url: getMarkdownUrl(),
+    });
+  }
+
+  function getMarkdownUrl() {
+    const { page, siteUrl } = requirePages(resolvedPage, {
+      owner,
+      option: "page",
+    });
+    return toMarkdownUrl(page, siteUrl);
   }
 }

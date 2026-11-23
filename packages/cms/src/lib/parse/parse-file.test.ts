@@ -19,10 +19,10 @@ describe("parseFile", () => {
 
   test("routes .md files through markdown parsing", () => {
     const schema = z.object({ title: z.string() });
-    const raw = ["---", "title: Hello", "---", "", "# Body"].join("\n");
+    const data = ["---", "title: Hello", "---", "", "# Body"].join("\n");
     const result = parseFile({
       schema,
-      data: raw,
+      data,
       filePath: "/fixtures/post.md",
       validatorFn: validate,
     });
@@ -32,25 +32,14 @@ describe("parseFile", () => {
     });
   });
 
-  test("exposes the untouched .md document as raw", () => {
-    const raw = ["---", "title: Hello", "---", "", "# Body"].join("\n");
-    const result = parseFile({
-      schema: z.object({ title: z.string() }),
-      data: raw,
-      filePath: "/fixtures/post.md",
-      validatorFn: validate,
-    });
-    expect(result).toEqual({ title: "Hello", markdown: "\n# Body", raw });
-  });
-
   test("routes .mdx and .markdown files through markdown parsing", () => {
     const schema = z.object({});
-    const raw = "markdown only";
+    const data = "markdown only";
 
     expect(
       parseFile({
         schema,
-        data: raw,
+        data,
         filePath: "/fixtures/post.mdx",
         validatorFn: validate,
       }).markdown,
@@ -59,7 +48,7 @@ describe("parseFile", () => {
     expect(
       parseFile({
         schema,
-        data: raw,
+        data,
         filePath: "/fixtures/post.markdown",
         validatorFn: validate,
       }).markdown,

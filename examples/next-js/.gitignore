@@ -43,3 +43,8 @@ next-env.d.ts
 # qino
 qino/_generated/*
 !qino/_generated/config.json
+
+# llms.txt files, written by `qino build`
+/public/llms.txt
+/public/llms-full.txt
+/public/index.md

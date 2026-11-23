@@ -1,0 +1,62 @@
+---
+title: getPageMarkdown
+description: Build the page Markdown of an entry page by slug, or of the index page without one.
+since: "0.25.0"
+---
+
+Builds the page Markdown of an entry page, the document served to agents in place of the page. Without a slug, it builds the index page's. The collection must declare [`pages`](/docs/api/collection#pages).
+
+```ts title="src/app/md/blog/[slug]/route.ts"
+const post = await postCollection.getPageMarkdown("hello-world");
+const blog = await postCollection.getPageMarkdown();
+```
+
+## Signature
+
+```ts title="@qino/cms"
+collection.getPageMarkdown(slug: string, options?: { view?: ViewName }): Promise<string | null>;
+collection.getPageMarkdown(): Promise<string>;
+```
+
+## Parameters
+
+| Name           | Type      | Required | Default     | Description                                                                                                                   |
+| -------------- | --------- | -------- | ----------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `slug`         | `string`  | no       |             | The entry's slug. Any string, such as a route param. Leave it out for the index page                                          |
+| `options.view` | view name | no       | `"default"` | The view whose `filter` decides if the entry is shown, and whose `augment` can add its title or description. Entry pages only |
+
+## Returns
+
+For an entry page, `Promise<string | null>`:
+
+- A frontmatter block: `title`, `description` on one line when there is one, and `canonical`, the entry page's URL on `siteUrl`, each a quoted string.
+- `# {title}`, from the `title` field and falling back to the slug, then `> {description}` when the `description` field holds one, then the body without its own frontmatter.
+- No heading when the body opens with its own H1. The frontmatter block still holds the title and description.
+- Site-relative links and images made absolute on `siteUrl`, and MDX components replaced through [`pages.markdownComponents`](/docs/api/types/page-markdown-component).
+- The frontmatter block, the heading and the description only for a JSON entry.
+- `null` when no entry has the slug, `""` included, or the view's `filter` excludes it. Unlike [getEntry](/docs/api/collection/get-entry), it doesn't throw for these.
+
+For the index page, `Promise<string>`: a frontmatter block with `title`, which is `pages.title`, and `canonical`, the index page's URL. Then `# {pages.title}`, and a link per entry in the default view's order, as `- [title](Markdown URL): description`. With no entries, it's the block and the heading alone. It takes no view.
+
+```md title="https://www.qino.works/blog.md"
+---
+title: "Blog"
+canonical: "https://www.qino.works/blog"
+---
+
+# Blog
+
+- [Why another Content Management System?](https://www.qino.works/blog/why-another-cms.md): Coding agents work best with content they can read.
+```
+
+## Throws
+
+- `Collection "<directory>" has no pages: declare them to get page Markdown and Markdown URLs.`
+- `Unknown view "<name>". Available views: <names>.`
+- Validation, relation, augment, and component function errors. See [Errors](/docs/api/errors).
+
+## See also
+
+- [getMarkdownUrl](/docs/api/collection/get-markdown-url)
+- [negotiateMarkdown](/docs/api/negotiate-markdown)
+- [Agent-ready content](/docs/guide/agent-ready-content)

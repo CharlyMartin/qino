@@ -1,6 +1,8 @@
+import { negotiateMarkdown } from "@qino/cms";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { MDXRemote } from "next-mdx-remote";
 
+import { docsTree } from "../../qino/docs";
 import { CopyMarkdownButton } from "../components/docs/copy-markdown-button";
 import { DocsNotFound } from "../components/docs/docs-not-found";
 import { DocsPagination } from "../components/docs/docs-pagination";
@@ -15,7 +17,7 @@ import { useActiveHeading } from "../hooks/use-active-heading";
 import { getPageHead } from "../lib/get-page-head";
 import { hasDocsSlug } from "../lib/has-docs-slug";
 import { site } from "../lib/site";
-import { getDocsMarkdown } from "../server/get-docs-markdown";
+import { toEntrySlug } from "../lib/to-entry-slug";
 import { getDocsPage } from "../server/get-docs-page";
 
 const notFoundMeta = [
@@ -34,12 +36,13 @@ export const Route = createFileRoute("/docs/$")({
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: notFoundMeta };
 
-    const { slug, title, description, breadcrumbs } = loaderData;
+    const { slug, title, description, breadcrumbs, markdownUrl } = loaderData;
     const path = `/docs/${slug}`;
-    const head = getPageHead({
+    return getPageHead({
       title: `${title} | qino`,
       description,
       path,
+      markdownUrl,
       type: "article",
       jsonLd: [
         {
@@ -66,33 +69,14 @@ export const Route = createFileRoute("/docs/$")({
         },
       ],
     });
-
-    return {
-      ...head,
-      links: [
-        ...head.links,
-        { rel: "alternate", type: "text/markdown", href: `${path}.md` },
-      ],
-    };
   },
   server: {
     handlers: {
-      // `/docs/<slug>.md` serves the page as plain Markdown for LLMs and agents.
-      GET: async ({ params, next }) => {
-        // The prerender crawler requests paths with a trailing slash.
-        const slug = (params._splat ?? "").replace(/\/$/, "");
-        if (!slug.endsWith(".md")) return next();
-
-        const markdown = await getDocsMarkdown(slug.slice(0, -".md".length));
-        if (markdown == null) return new Response("Not found", { status: 404 });
-
-        return new Response(markdown, {
-          headers: {
-            "Content-Type": "text/markdown; charset=utf-8",
-            "Cache-Control": "public, s-maxage=86400",
-          },
-        });
-      },
+      // Page Markdown at `/docs/<slug>.md`, or when `Accept` prefers it.
+      GET: async ({ request, params, next }) =>
+        (await negotiateMarkdown(request, () =>
+          docsTree.getPageMarkdown(toEntrySlug(params._splat ?? "")),
+        )) ?? next(),
     },
   },
   component: DocsPage,
@@ -105,7 +89,7 @@ function DocsPage() {
     title,
     description,
     since,
-    raw,
+    pageMarkdown,
     toc,
     mdx,
     previousNode,
@@ -127,7 +111,7 @@ function DocsPage() {
             <Text size="lead">{description}</Text>
             {isSectionLanding ? null : (
               <div className="flex flex-wrap gap-2">
-                <CopyMarkdownButton markdown={raw} />
+                <CopyMarkdownButton markdown={pageMarkdown} />
                 <ViewMarkdownLink slug={slug} />
               </div>
             )}

@@ -56,10 +56,27 @@ SEO and LLM endpoints:
 - Each page sets a canonical URL, Open Graph/Twitter tags and JSON-LD through
   `src/lib/get-page-head.ts`. The site URL lives in `src/lib/site.ts`.
 - The build writes `sitemap.xml`; `public/robots.txt` points to it.
-- `/llms.txt` and `/llms-full.txt` are generated from the docs tree and prerendered.
-- `/docs/<slug>.md` returns a page as plain Markdown (`src/server/get-docs-markdown.ts`).
-  Pages with a "View Markdown" link are prerendered through the crawler; section
-  landings are served by the Start runtime. Both stay out of the sitemap.
+- `qino build` (the `prebuild` script) writes `public/llms.txt`,
+  `public/llms-full.txt` and `public/index.md`, served at the homepage's Markdown
+  URL, from the `content/llms.md` template. They're gitignored, and as fresh as
+  the last `qino build`.
+- Docs pages, blog posts, `/docs` and `/blog` serve qino's page Markdown at their
+  Markdown URL (`/docs/<slug>.md`, `/blog/<slug>.md`, `/docs.md`, `/blog.md`), or
+  when `Accept` prefers `text/markdown`, through `negotiateMarkdown`. Their
+  `pages`, with `markdownComponents` for `InstallBox` and `LinkGrid`, live
+  in `qino/`, and each page advertises its Markdown URL with
+  `<link rel="alternate">`. Markdown URLs with a "View Markdown" link are
+  prerendered through the crawler; the rest are served by the Start runtime.
+  Both stay out of the sitemap.
+- On Vercel, a prerendered page is served before any route runs, so
+  `src/lib/vercel-markdown-routes.ts` negotiates for it: Vercel rewrites an
+  `Accept` that lists Markdown first to the Markdown URL, `/` included, and adds
+  `Vary: Accept` and a `Link` to the Markdown URL; the homepage's also links
+  `llms.txt`. A Markdown URL that wasn't prerendered falls through to the Start
+  runtime. The rewrite can't weigh q-values, unlike `negotiateMarkdown`.
+- `src/start.ts`'s request middlewares make HTML the fallback for an `Accept`
+  that names neither HTML nor `*/*`, which TanStack Start would answer with
+  406, and turn a 404 into qino's Markdown 404 when the request wants Markdown.
 - `public/og.png` (1200×630), `public/favicon.svg` and `public/apple-touch-icon.png`
   are referenced from the root route.
 
@@ -68,5 +85,16 @@ Checks:
 ```sh
 pnpm --filter website check-types
 pnpm --filter website test
+pnpm --filter website check-client-bundle    # after a build: qino stays out of the browser's assets
 pnpm biome check .
+```
+
+Against a server, from the repository root:
+
+```sh
+apps/website/scripts/dev-server.sh start 3000                               # background dev server; `stop` ends it
+apps/website/scripts/probe-page-markdown.sh --dev http://localhost:3000    # against that dev server
+apps/website/scripts/preview-url.sh                                         # waits for HEAD's Vercel preview, prints its URL
+apps/website/scripts/probe-page-markdown.sh <preview-url>                  # against a deploy
+node apps/website/scripts/scan-agent-readiness.mjs <preview-url> /docs/guide/cli   # the three scanners' content checks
 ```

@@ -1,6 +1,7 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
+  "agentGuidance": false,
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -8,10 +9,33 @@
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
       "env": ["CI"]
     },
+    "next-js#build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "!src/content/.qino/**"],
+      "outputs": [
+        ".next/**",
+        "!.next/cache/**",
+        "public/llms.txt",
+        "public/llms-full.txt",
+        "public/index.md",
+        "src/content/.qino/**",
+        "qino/_generated/**"
+      ],
+      "env": ["CI"]
+    },
     "website#build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".output/**", ".vercel/output/**", "qino/_generated/**"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*", "!content/.qino/**"],
+      "outputs": [
+        ".output/**",
+        ".vercel/output/**",
+        "qino/_generated/**",
+        "public/llms.txt",
+        "public/llms-full.txt",
+        "public/index.md",
+        "public/docs/llms.txt",
+        "public/blog/llms.txt"
+      ],
       "env": ["NITRO_PRESET", "VERCEL"],
       "passThroughEnv": ["GITHUB_TOKEN"]
     },
