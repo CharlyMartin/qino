@@ -1,7 +1,6 @@
 import {
   MARKDOWN_FIELD_NAME,
   META_FIELD_NAME,
-  RAW_FIELD_NAME,
   STATS_FIELD_NAME,
   TOC_FIELD_NAME,
 } from "../../data/globals";
@@ -15,7 +14,6 @@ export function assertNoReservedMarkdownFields(
   const reservedFields = [
     META_FIELD_NAME,
     MARKDOWN_FIELD_NAME,
-    RAW_FIELD_NAME,
     STATS_FIELD_NAME,
     TOC_FIELD_NAME,
   ];

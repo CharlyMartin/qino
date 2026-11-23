@@ -32,17 +32,6 @@ describe("parseFile", () => {
     });
   });
 
-  test("exposes the untouched .md document as raw", () => {
-    const raw = ["---", "title: Hello", "---", "", "# Body"].join("\n");
-    const result = parseFile({
-      schema: z.object({ title: z.string() }),
-      data: raw,
-      filePath: "/fixtures/post.md",
-      validatorFn: validate,
-    });
-    expect(result).toEqual({ title: "Hello", markdown: "\n# Body", raw });
-  });
-
   test("routes .mdx and .markdown files through markdown parsing", () => {
     const schema = z.object({});
     const raw = "markdown only";

@@ -2,7 +2,6 @@ import { parseFrontmatter } from "@qino/tooling/frontmatter";
 
 import {
   MARKDOWN_FIELD_NAME,
-  RAW_FIELD_NAME,
   STATS_FIELD_NAME,
   TOC_FIELD_NAME,
 } from "../../data/globals";
@@ -28,18 +27,9 @@ export function parseMarkdownFile<S extends ObjectSchema>({
     schema,
     data: parsed.data,
     filePath,
-    generatedFields: [
-      MARKDOWN_FIELD_NAME,
-      RAW_FIELD_NAME,
-      STATS_FIELD_NAME,
-      TOC_FIELD_NAME,
-    ],
+    generatedFields: [MARKDOWN_FIELD_NAME, STATS_FIELD_NAME, TOC_FIELD_NAME],
   });
   assertNoReservedMarkdownFields(validated, filePath);
 
-  return {
-    ...validated,
-    [MARKDOWN_FIELD_NAME]: parsed.body,
-    [RAW_FIELD_NAME]: data,
-  };
+  return { ...validated, [MARKDOWN_FIELD_NAME]: parsed.body };
 }

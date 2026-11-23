@@ -29,7 +29,7 @@ describe.each([".md", ".mdx", ".markdown", ".json"] as const)(
         const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
         for (const field of extension == ".json"
           ? ["_meta"]
-          : ["_meta", "markdown", "raw", "_stats", "_toc"]) {
+          : ["_meta", "markdown", "_stats", "_toc"]) {
           const data = {
             title: "Hello",
             ...(source == "content" ? { [field]: "conflict" } : {}),
@@ -76,9 +76,11 @@ describe.each([".md", ".mdx", ".markdown", ".json"] as const)(
   },
 );
 
-test("resolved Markdown targets retain their markdown and raw", async () => {
-  const raw = "---\ntitle: Hello\n---\n# Hello";
-  await fs.writeFile(path.join(tmp, "entries/hello.md"), raw);
+test("resolved Markdown targets retain their markdown", async () => {
+  await fs.writeFile(
+    path.join(tmp, "entries/hello.md"),
+    "---\ntitle: Hello\n---\n# Hello",
+  );
   await fs.writeFile(
     path.join(tmp, "links.json"),
     JSON.stringify({
@@ -110,22 +112,26 @@ test("resolved Markdown targets retain their markdown and raw", async () => {
   const entry = await links.getEntry();
   for (const target of [entry.post, entry.home, entry.doc]) {
     expect(target.markdown).toBe("# Hello");
-    expect(target.raw).toBe(raw);
+    expect(target).not.toHaveProperty("raw");
     expect(target).not.toHaveProperty("body");
     expect(target._meta.filePath).toBe(path.join(tmp, "entries/hello.md"));
   }
 });
 
 test.each([".md", ".mdx", ".markdown", ".json"] as const)(
-  "body remains user-defined in %s entries",
+  "body and raw remain user-defined in %s entries",
   async (extension) => {
-    const raw =
+    const source =
       extension == ".json"
-        ? JSON.stringify({ title: "Hello", body: 42 })
-        : "---\ntitle: Hello\nbody: 42\n---\n# Hello";
+        ? JSON.stringify({ title: "Hello", body: 42, raw: true })
+        : "---\ntitle: Hello\nbody: 42\nraw: true\n---\n# Hello";
     const file = `entries/hello${extension}` as const;
-    await fs.writeFile(path.join(tmp, file), raw);
-    const schema = z.object({ title: z.string(), body: z.number() });
+    await fs.writeFile(path.join(tmp, file), source);
+    const schema = z.object({
+      title: z.string(),
+      body: z.number(),
+      raw: z.boolean(),
+    });
     const qino = initQino({ contentFolder: tmp, mediaFolder: tmp });
     const posts = qino.defineCollection({
       directory: "entries",
@@ -146,13 +152,14 @@ test.each([".md", ".mdx", ".markdown", ".json"] as const)(
     ]);
     for (const entry of entries) {
       expect(entry.body).toBe(42);
+      expect(entry.raw).toBe(true);
       if (extension == ".json") expect(entry).not.toHaveProperty("markdown");
       else expect(entry).toHaveProperty("markdown", "# Hello");
     }
   },
 );
 
-test.each(["_meta", "markdown", "raw"])(
+test.each(["_meta", "markdown"])(
   "augmentation cannot overwrite generated %s",
   async (field) => {
     await fs.writeFile(
@@ -176,11 +183,10 @@ test.each(["_meta", "markdown", "raw"])(
   },
 );
 
-test("JSON markdown, raw and nested reserved names remain user fields", async () => {
+test("JSON markdown and nested reserved names remain user fields", async () => {
   const data = {
     markdown: 42,
-    raw: true,
-    nested: { _meta: "custom", markdown: "custom", raw: "custom" },
+    nested: { _meta: "custom", markdown: "custom" },
   };
   await fs.writeFile(path.join(tmp, "home.json"), JSON.stringify(data));
   const item = initQino({
@@ -190,12 +196,7 @@ test("JSON markdown, raw and nested reserved names remain user fields", async ()
     file: "home.json",
     schema: z.object({
       markdown: z.number(),
-      raw: z.boolean(),
-      nested: z.object({
-        _meta: z.string(),
-        markdown: z.string(),
-        raw: z.string(),
-      }),
+      nested: z.object({ _meta: z.string(), markdown: z.string() }),
     }),
   });
   await expect(item.getEntry()).resolves.toMatchObject(data);
@@ -222,7 +223,6 @@ test.each([".md", ".mdx", ".markdown"] as const)(
     ])) {
       expect(entry).toEqual({
         markdown: "# Hello",
-        raw: "# Hello",
         _meta: expect.objectContaining({
           filePath: path.join(tmp, `entries/hello${extension}`),
         }),

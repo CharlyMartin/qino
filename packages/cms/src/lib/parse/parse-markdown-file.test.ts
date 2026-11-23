@@ -2,7 +2,11 @@ import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { describe, expect, test } from "vitest";
 import { z } from "zod";
 
-import { MARKDOWN_FIELD_NAME, RAW_FIELD_NAME } from "../../data/globals";
+import {
+  MARKDOWN_FIELD_NAME,
+  STATS_FIELD_NAME,
+  TOC_FIELD_NAME,
+} from "../../data/globals";
 import { validate } from "../validate/validate";
 import { parseMarkdownFile } from "./parse-markdown-file";
 
@@ -17,11 +21,7 @@ describe("parseMarkdownFile", () => {
         filePath: `/fixtures/post.${extension}`,
         validatorFn: validate,
       });
-      expect(result).toEqual({
-        date: "2023-11-14",
-        markdown: "# Body",
-        raw: data,
-      });
+      expect(result).toEqual({ date: "2023-11-14", markdown: "# Body" });
     },
   );
 
@@ -50,18 +50,17 @@ describe("parseMarkdownFile", () => {
 
   test("validates frontmatter only, so strict schemas accept the entry", () => {
     const markdown = "\n# Hello\n\n  Some text  \n";
-    const raw = `---\ntitle: Hello\n---\n${markdown}`;
     expect(
       parseMarkdownFile({
         schema: z.strictObject({ title: z.string() }),
-        data: raw,
+        data: `---\ntitle: Hello\n---\n${markdown}`,
         filePath: "/fixtures/post.md",
         validatorFn: validate,
       }),
-    ).toEqual({ title: "Hello", markdown, raw });
+    ).toEqual({ title: "Hello", markdown });
   });
 
-  test("never passes markdown or raw to the schema", () => {
+  test("never passes markdown to the schema", () => {
     let input: unknown;
     parseMarkdownFile({
       schema: z.unknown().transform((value) => {
@@ -86,7 +85,7 @@ describe("parseMarkdownFile", () => {
     ).toThrow("YAML frontmatter must be a mapping");
   });
 
-  test.each([MARKDOWN_FIELD_NAME, RAW_FIELD_NAME])(
+  test.each([MARKDOWN_FIELD_NAME, STATS_FIELD_NAME, TOC_FIELD_NAME])(
     "rejects a frontmatter %s field instead of overwriting it",
     (field) => {
       expect(() =>
@@ -102,7 +101,7 @@ describe("parseMarkdownFile", () => {
     },
   );
 
-  test.each([MARKDOWN_FIELD_NAME, RAW_FIELD_NAME])(
+  test.each([MARKDOWN_FIELD_NAME, STATS_FIELD_NAME, TOC_FIELD_NAME])(
     "rejects %s added by a schema transform",
     (field) => {
       expect(() =>
@@ -118,20 +117,15 @@ describe("parseMarkdownFile", () => {
     },
   );
 
-  test.each([
-    "---\ntitle: Hello\n---\n# Body",
-    "---\r\ntitle: Hello\r\n---\r\n# Body\r\n",
-    "\uFEFF---\ntitle: Hello\n---\n",
-    "# Body only",
-    "",
-  ])("exposes the untouched document as raw: %j", (data) => {
-    const result = parseMarkdownFile({
-      schema: z.object({}),
-      data,
-      filePath: "/fixtures/post.md",
-      validatorFn: validate,
-    });
-    expect(result.raw).toBe(data);
+  test("reads a frontmatter raw field as an ordinary field", () => {
+    expect(
+      parseMarkdownFile({
+        schema: z.object({ raw: z.string() }),
+        data: "---\nraw: from-frontmatter\n---\n# Body",
+        filePath: "/fixtures/post.md",
+        validatorFn: validate,
+      }),
+    ).toEqual({ raw: "from-frontmatter", markdown: "# Body" });
   });
 
   test("adds empty markdown when the document only has frontmatter", () => {
@@ -143,7 +137,7 @@ describe("parseMarkdownFile", () => {
         filePath: "/fixtures/empty.md",
         validatorFn: validate,
       }),
-    ).toEqual({ title: "Hello", markdown: "", raw: data });
+    ).toEqual({ title: "Hello", markdown: "" });
   });
 
   test.each([".md", ".mdx", ".markdown"])(
@@ -156,7 +150,7 @@ describe("parseMarkdownFile", () => {
           filePath: `/fixtures/plain${extension}`,
           validatorFn: validate,
         }),
-      ).toEqual({ markdown: "just the markdown", raw: "just the markdown" });
+      ).toEqual({ markdown: "just the markdown" });
     },
   );
 

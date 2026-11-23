@@ -3,7 +3,6 @@ import type { StandardSchemaV1 } from "@standard-schema/spec";
 import type {
   MARKDOWN_FIELD_NAME,
   META_FIELD_NAME,
-  RAW_FIELD_NAME,
   STATS_FIELD_NAME,
   TOC_FIELD_NAME,
 } from "../data/globals";
@@ -25,14 +24,13 @@ type DeclaredKeys<Value> = Value extends unknown
     }
   : never;
 
-// Markdown entries also reserve the body, source, stats, and table of
-// contents qino adds after validation.
+// Markdown entries also reserve the body, stats, and table of contents qino
+// adds after validation.
 type ReservedKeys<Ext extends SupportedFileExtension> =
   | typeof META_FIELD_NAME
   | (Ext extends MarkdownExtension
       ?
           | typeof MARKDOWN_FIELD_NAME
-          | typeof RAW_FIELD_NAME
           | typeof STATS_FIELD_NAME
           | typeof TOC_FIELD_NAME
       : never);
