@@ -89,4 +89,6 @@ test("every component a page keeps is listed as kept", async () => {
   );
   expect(unlisted).toEqual({});
   expect(Object.keys(kept).sort()).toEqual([...keptComponents].sort());
-});
+  // It converts every page, which takes seconds on a loaded CI runner and
+  // grows with the docs.
+}, 30_000);
