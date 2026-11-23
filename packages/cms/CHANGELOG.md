@@ -1,5 +1,188 @@
 # @qino/cms
 
+## 0.25.0
+
+### Minor Changes
+
+- [#367](https://github.com/CharlyMartin/qino/pull/367) [`358e297`](https://github.com/CharlyMartin/qino/commit/358e29712aab8743e1fda557c17795d678091ed7) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Removes the `raw` field from Markdown entries. For a page's Markdown to copy or serve, such as a "Copy page as Markdown" button, use `getPageMarkdown`, which needs `pages` (or `page` on an item) and `initQino({ siteUrl })`. For the untouched source file, read it from `_meta.filePath`. This is a breaking change:
+
+  ```diff
+  - const markdown = post.raw;
+  + // The page's Markdown, or null for a slug with no entry:
+  + const markdown = await posts.getPageMarkdown(post._meta.slug);
+  + // Items take no slug:
+  + const aboutMarkdown = await about.getPageMarkdown();
+  + // The source file, frontmatter included:
+  + const source = await fs.readFile(post._meta.filePath, "utf8");
+  ```
+
+  `raw` is no longer reserved, so Markdown frontmatter, schemas and `augment` can add a `raw` field of their own.
+
+- [#367](https://github.com/CharlyMartin/qino/pull/367) [`358e297`](https://github.com/CharlyMartin/qino/commit/358e29712aab8743e1fda557c17795d678091ed7) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Adds page Markdown to trees and items, as collections have it. A tree declares `pages` like a collection, and an item declares its one `page`:
+
+  ```ts
+  const docs = qino.defineTree({ directory: "docs", titleField: "title", pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" }, … });
+  const about = qino.defineItem({ file: "about.md", page: "/about", … });
+  ```
+
+  `docs.getPageMarkdown(slug)` titles the entry from the tree's `titleField`, keeps nested slugs such as `guide/cli`, and returns `null` for a slug the tree doesn't list. `about.getPageMarkdown()` returns the item's page Markdown. `docs.getMarkdownUrl(slug)` and `about.getMarkdownUrl()` return their Markdown URLs, and an item at `/` has the Markdown URL `/index.md`.
+
+- [#367](https://github.com/CharlyMartin/qino/pull/367) [`358e297`](https://github.com/CharlyMartin/qino/commit/358e29712aab8743e1fda557c17795d678091ed7) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Adds page Markdown to collections: a standalone Markdown version of each entry page, to serve to AI agents. Set `siteUrl` in `initQino`, and declare where the collection's pages live with `pages`:
+
+  ```ts
+  const qino = initQino({
+    contentFolder: "content",
+    mediaFolder: "public",
+    siteUrl: "https://example.com",
+  });
+
+  const posts = qino.defineCollection({
+    directory: "posts",
+    extension: ".mdx",
+    schema,
+    pages: { index: "/blog", entry: "/blog/{slug}", title: "Blog" },
+  });
+  ```
+
+  `posts.getPageMarkdown(slug)` returns a frontmatter block with the entry's `title`, `description` and `canonical` URL, so agents get its metadata without reading the body. Then come the title as a heading, the description as a quote, and the body without its own frontmatter, with site-relative links made absolute:
+
+  ```md
+  ---
+  title: "Hello"
+  description: "The first post."
+  canonical: "https://example.com/blog/hello"
+  ---
+
+  # Hello
+
+  > The first post.
+
+  The body.
+  ```
+
+  Each value in the block is a quoted string, with the description on one line. A body that opens with its own H1 gets no heading, and its block still holds the title and description.
+
+  `getPageMarkdown` takes any string, such as a route param, and returns `null` when the slug is unknown or the view excludes the entry, so it pairs with `negotiateMarkdown`:
+
+  ```ts
+  return (
+    (await negotiateMarkdown(request, () => posts.getPageMarkdown(slug))) ??
+    next()
+  );
+  ```
+
+  `posts.getMarkdownUrl(slug)` returns the entry's Markdown URL, such as `https://example.com/blog/hello.md`, for `<link rel="alternate">` and `Link` headers.
+
+- [#367](https://github.com/CharlyMartin/qino/pull/367) [`358e297`](https://github.com/CharlyMartin/qino/commit/358e29712aab8743e1fda557c17795d678091ed7) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Adds `cli.build.llmsTxt`, which makes `qino build` write `llms.txt` at the root of `mediaFolder`, from a template you write:
+
+  ```ts
+  initQino({
+    contentFolder: "content",
+    mediaFolder: "public",
+    siteUrl: "https://example.com",
+    cli: { build: { llmsTxt: true } },
+  });
+  ```
+
+  The template, `content/llms.md` by default or the file `{ template }` names, holds your title, summary and "When to use" section. Its frontmatter is left out. qino adds a link section for each primitive that declares pages: one per tree root node, one per collection under its `pages.title` with the entries its default view keeps, and one `## Pages` section for the items. Sections go before the template's `## Optional` heading, or at the end, ordered trees, then collections, then items, each by path. Each link reads `- [title](Markdown URL): description`.
+
+  `qino build` also writes `index.md`, so the homepage has a Markdown URL: `llms.txt` after a frontmatter block, with the template's H1 as `title`, its summary blockquote on one line as `description`, and `siteUrl` as `canonical`. A template without an H1 gives `index.md` no block. The build skips `index.md` when a page already has `/index.md` as its Markdown URL, such as an item whose `page` is `/`. Both files are rewritten only when they change. The build fails when `siteUrl` is missing or the template doesn't exist.
+
+  On a large site, set `{ sections: true }` to keep `llms.txt` small. `qino build` then also writes a section llms.txt for each collection and tree that declares pages, at its index page's path, such as `public/docs/llms.txt`, listing only that primitive's pages. `llms.txt` links to them under one `## Sections` heading in place of their link sections, and keeps the items' `## Pages`:
+
+  ```md
+  ## Sections
+
+  - [Docs](https://example.com/docs/llms.txt)
+  - [Blog](https://example.com/blog/llms.txt)
+  ```
+
+  A collection or tree with nothing to list still gets one, holding its heading alone. With `sections` on, the build fails for an index page at `/`, since its section llms.txt would replace `llms.txt`, and for two collections or trees with the same index page.
+
+- [#367](https://github.com/CharlyMartin/qino/pull/367) [`358e297`](https://github.com/CharlyMartin/qino/commit/358e29712aab8743e1fda557c17795d678091ed7) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Adds `llms-full.txt` to what `qino build` writes with `cli.build.llmsTxt` on, at the root of `mediaFolder`, so an agent can read every entry page in one request. It opens with the template's H1 and the summary blockquote after it. Then comes the page Markdown of every entry page that `llms.txt`'s link sections list, in their order and as its Markdown URL serves it without the frontmatter block, one blank line apart. Entries the default view excludes are left out. Set `pages.llmsFull: false` to keep a collection or a tree out, such as a very large one:
+
+  ```ts
+  qino.defineCollection({
+    directory: "changelog",
+    extension: ".md",
+    schema,
+    pages: {
+      index: "/changelog",
+      entry: "/changelog/{slug}",
+      title: "Changelog",
+      llmsFull: false,
+    },
+  });
+  ```
+
+- [#367](https://github.com/CharlyMartin/qino/pull/367) [`358e297`](https://github.com/CharlyMartin/qino/commit/358e29712aab8743e1fda557c17795d678091ed7) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Adds page Markdown for index pages. Called without a slug, `getPageMarkdown()` on a collection or a tree returns one unpaginated listing that links every entry's Markdown URL, with its description, after a frontmatter block with the index page's title and URL:
+
+  ```md
+  ---
+  title: "Blog"
+  canonical: "https://example.com/blog"
+  ---
+
+  # Blog
+
+  - [Hello](https://example.com/blog/hello.md): The first post.
+  - [World](https://example.com/blog/world.md)
+  ```
+
+  A collection lists the entries its default view keeps, in its order. A tree gives each root node a `##` section that lists the node and then its descendants. The heading is `pages.title`, which `pages` requires. `getMarkdownUrl()` without a slug returns the index page's Markdown URL, such as `https://example.com/blog.md`.
+
+- [#367](https://github.com/CharlyMartin/qino/pull/367) [`358e297`](https://github.com/CharlyMartin/qino/commit/358e29712aab8743e1fda557c17795d678091ed7) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Adds `markdownComponents` to the `pages` of collections and trees: functions, by component name, whose output replaces an MDX component in page Markdown. Each function receives the component's literal `props`, its `children` already converted to Markdown, and the `entry` as read. It returns Markdown, or `null` to keep the component as written:
+
+  ```ts
+  const docs = qino.defineTree({
+    directory: "docs",
+    extension: ".mdx",
+    titleField: "title",
+    schema,
+    pages: {
+      index: "/docs",
+      entry: "/docs/{slug}",
+      title: "Docs",
+      markdownComponents: {
+        InstallBox: ({ props }) =>
+          `\`\`\`sh\nnpm ${props.command ?? "install"} @qino/cms\n\`\`\``,
+        // Annotated, because it reads `docs`, whose type it's part of.
+        LinkGrid: async ({ entry }): Promise<string> => {
+          const node = await docs.getTree(entry._meta.slug);
+          return node.children
+            .map((child) => `- [${child.title}](/docs/${child.slug}.md)`)
+            .join("\n");
+        },
+      },
+    },
+  });
+  ```
+
+  An item takes the map in the object form of its `page`, `page: { path: "/about", markdownComponents }`, and `page: "/about"` still works. JSON primitives have no body, so they can't set it.
+
+  `props` holds strings, numbers, booleans, `null`, and arrays and objects of them. Attributes set by any other expression are left out, and qino never runs one. A component missing from the map stays as written, and components inside it are still replaced. Replacements are spliced in by position and stay inside their component's list item or blockquote. Their site-relative links are made absolute, as `children`'s already are.
+
+- [#367](https://github.com/CharlyMartin/qino/pull/367) [`358e297`](https://github.com/CharlyMartin/qino/commit/358e29712aab8743e1fda557c17795d678091ed7) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Adds `negotiateMarkdown`, which answers agents that ask for Markdown from any route or middleware that works with Web `Request` and `Response` objects, such as TanStack Start handlers and Next.js route handlers. It serves the Markdown your loader returns when the request's path ends in `.md` or its `Accept` header prefers `text/markdown` to HTML, and resolves to `null` otherwise, so your route renders the HTML page:
+
+  ```ts
+  import { negotiateMarkdown } from "@qino/cms";
+
+  const response = await negotiateMarkdown(request, () => loadMarkdown(slug));
+  return response ?? renderPage();
+  ```
+
+  Responses carry `Content-Type: text/markdown; charset=utf-8` and `Vary: Accept`. A loader that returns `null` gets a Markdown 404 linking to `/llms.txt`. It never answers 406.
+
+### Patch Changes
+
+- [#381](https://github.com/CharlyMartin/qino/pull/381) [`2ff8e64`](https://github.com/CharlyMartin/qino/commit/2ff8e64d4c6c73e97ef7c4d397c8b81e4835284b) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Fixes reading entries with image fields on serverless hosts, which ship neither `mediaFolder` nor sharp's native binary: `qino build` now records each image in `.qino/images.json` inside the content folder, and a read falls back to it when the file is missing or sharp can't load
+
+- [#376](https://github.com/CharlyMartin/qino/pull/376) [`e243675`](https://github.com/CharlyMartin/qino/commit/e24367557d5e356be22064e48928ae2b00fc1a54) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Fixes `qino build`, `qino check` and `qino lint` loading test files in `qino/`, which made them fail on a test that imports its runner, such as `vitest`. Files named `*.test.*`, `*.test-d.*` or `*.spec.*` are now skipped, so tests can sit beside the definitions they test.
+
+- [#367](https://github.com/CharlyMartin/qino/pull/367) [`358e297`](https://github.com/CharlyMartin/qino/commit/358e29712aab8743e1fda557c17795d678091ed7) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Fixes `_stats` counting `{#id}` heading ids as words. A `{#id}` also stopped the body parsing as MDX, in `.md` files too, so it was counted as plain Markdown, text inside components and inline HTML included. Now `{#id}` is left out, as it already was in `_toc`, and the rest of the body counts as it does without one.
+
+- [#373](https://github.com/CharlyMartin/qino/pull/373) [`e020745`](https://github.com/CharlyMartin/qino/commit/e0207450c4bebe917c61332049094b14465bf99b) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Fixes `qino check` and `qino build` failing with "Could not parse expression with acorn" on an `.mdx` file with a `{#id}` heading id, while scanning for missing media.
+
 ## 0.24.0
 
 ### Minor Changes

@@ -1,5 +1,11 @@
 # @qino/tooling
 
+## 0.9.0
+
+### Minor Changes
+
+- [#373](https://github.com/CharlyMartin/qino/pull/373) [`e020745`](https://github.com/CharlyMartin/qino/commit/e0207450c4bebe917c61332049094b14465bf99b) Thanks [@Markdown2049](https://github.com/Markdown2049)! - Fixes `extractMediaLinks` and `extractMediaCandidates` throwing on an MDX body with a `{#id}` heading id, which MDX took for an invalid expression. They now read it as qino does. Also adds `micromarkHeadingId()`, from `@qino/tooling/markdown`, the micromark extension that tokenizes `{#id}`: add it after `mdxjs()`.
+
 ## 0.8.0
 
 ### Minor Changes
