@@ -3,7 +3,7 @@ title: Next.js
 description: Send Markdown requests to a route handler with beforeFiles rewrites, so pages can't answer them first.
 ---
 
-A Next.js page can't fall through to another handler, so Markdown requests go to a route handler of their own. `beforeFiles` rewrites send them there before Next looks at pages or prerendered files. The [Next.js example](/docs/examples/next-js) runs this setup for its posts and docs, checked with `next start` on Next.js 16.
+A Next.js page can't fall through to another handler, so Markdown requests go to a route handler of their own. `beforeFiles` rewrites send them there before Next looks at pages or prerendered files, and `fallback` rewrites send the ones for unknown paths to the Markdown 404. The [Next.js example](/docs/examples/next-js) runs this setup for its homepage, posts and docs, checked with `next start` on Next.js 16.
 
 ## The route handler
 
@@ -42,6 +42,40 @@ export async function GET(
 
 An unknown slug gets the Markdown 404. The index page's route, `src/app/md/posts/route.ts`, calls `postCollection.getPageMarkdown()`. A tree's uses a catch-all, `[...slug]`, and joins the segments with `/`.
 
+- **Views:** `getPageMarkdown(slug)` reads the entry through the collection's default view. When the entry pages come from another view or from `getAllSlugs()`, and the default view filters some of them out, pass the page's view, as in `getPageMarkdown(slug, { view: "all" })`. Otherwise those pages advertise a Markdown URL that answers with the Markdown 404. `llms.txt` and `llms-full.txt` still list only the default view's entries.
+- **Types:** `RouteContext` is a global type that `next dev`, `next build` and `next typegen` generate, so `tsc` fails on it until one of them has run. The plain type works without them: `{ params: Promise<{ slug: string }> }`.
+
+## The homepage
+
+`qino build` writes the homepage's Markdown to `public/index.md`, which Next serves at `/index.md` as it is. A Markdown request for `/` goes to a route handler that reads that file:
+
+```ts title="src/app/md/route.ts" source="examples/next-js/src/app/md/route.ts"
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+
+import { servePageMarkdown } from "@/lib/serve-page-markdown";
+
+export function GET(request: Request) {
+  return servePageMarkdown(request, () =>
+    readFile(join(process.cwd(), "public/index.md"), "utf8"),
+  );
+}
+```
+
+When an item's `page` is `/`, `qino build` skips `index.md`, since the item has that Markdown URL. Its handler calls the item's `getPageMarkdown()` instead, and a `beforeFiles` rewrite sends `/index.md` to `/md`, since no file answers it.
+
+## The Markdown 404
+
+A Markdown request for a path no page answers, such as `/nope.md` or `/nope` with `Accept: text/markdown`, gets the Markdown 404 from a route handler whose loader finds nothing:
+
+```ts title="src/app/md/missing/route.ts" source="examples/next-js/src/app/md/missing/route.ts"
+import { servePageMarkdown } from "@/lib/serve-page-markdown";
+
+export function GET(request: Request) {
+  return servePageMarkdown(request, () => null);
+}
+```
+
 ## The rewrites
 
 ```ts title="next.config.ts" source="examples/next-js/next.config.ts"
@@ -65,11 +99,17 @@ const POST_PAGE = "/posts/:slug((?!tags$|authors$)[^/.]+)";
 
 const nextConfig: NextConfig = {
   // The route handlers under `/md` render on request, and read content then.
-  outputFileTracingIncludes: { "/md/**": ["./src/content/**/*"] },
-  // `beforeFiles` runs before prerendered pages, which would answer first.
+  // `/md` also reads `public/index.md`, the homepage's Markdown that
+  // `qino build` writes, so the deployed server needs it too.
+  outputFileTracingIncludes: {
+    "/md": ["./public/index.md"],
+    "/md/**": ["./src/content/**/*"],
+  },
   async rewrites() {
     return {
+      // `beforeFiles` runs before prerendered pages, which would answer first.
       beforeFiles: [
+        { source: "/", has: markdownFirstAccept, destination: "/md" },
         { source: "/posts.md", destination: "/md/posts" },
         { source: "/posts/:slug.md", destination: "/md/posts/:slug" },
         {
@@ -83,19 +123,38 @@ const nextConfig: NextConfig = {
           destination: "/md/posts/:slug",
         },
       ],
+      // `fallback` runs after pages, public files and dynamic routes, so it
+      // only matches paths nothing answers: Markdown requests for them get the
+      // Markdown 404.
+      fallback: [
+        { source: "/:path(.+\\.md)", destination: "/md/missing" },
+        {
+          source: "/:path*",
+          has: markdownFirstAccept,
+          destination: "/md/missing",
+        },
+      ],
     };
   },
   // Next sets an App Router page's `Vary` itself, so only `Link` is added.
   async headers() {
     return [
+      {
+        source: "/",
+        markdownUrl: "/index.md",
+        links: ['</llms.txt>; rel="describedby"'],
+      },
       { source: "/posts", markdownUrl: "/posts.md" },
       { source: POST_PAGE, markdownUrl: "/posts/:slug.md" },
-    ].map(({ source, markdownUrl }) => ({
+    ].map(({ source, markdownUrl, links = [] }) => ({
       source,
       headers: [
         {
           key: "Link",
-          value: `<${markdownUrl}>; rel="alternate"; type="text/markdown"`,
+          value: [
+            `<${markdownUrl}>; rel="alternate"; type="text/markdown"`,
+            ...links,
+          ].join(", "),
         },
       ],
     }));
@@ -108,17 +167,26 @@ export default nextConfig;
 - **Markdown URLs** rewrite whatever the `Accept` header. Later rewrites match the rewritten path, `/md/posts/...`, so a `.md` request never reaches the `Accept` rewrites.
 - **`has`:** Next anchors the header's value with `^` and `$`. A looser value such as `(.*)text/markdown(.*)` also matches `text/html, text/markdown`, which prefers HTML.
 - **Sources** must match only entry pages. Leave out the static pages beside them, such as `/posts/tags`, or their Markdown requests get the Markdown 404.
-- **Content:** the route handlers read the request, so Next renders them on request rather than prerendering them, and the deployed server reads content then. That's why `outputFileTracingIncludes` lists the content folder, `src/content` in the example: see [Runtime](/docs/guide/installation#runtime).
+- **`fallback`** never sees an unknown slug: the entry rewrite sends it to the route handler, where `getPageMarkdown` returns `null`.
+- **The homepage's** `Link` header also points agents at `llms.txt` with `rel="describedby"`.
+- **Content:** the route handlers read the request, so Next renders them on request rather than prerendering them, and the deployed server reads content then. That's why `outputFileTracingIncludes` lists the content folder, `src/content` in the example, and `public/index.md` for `/md`: see [Runtime](/docs/guide/installation#runtime).
 - **A tree's** sources take several segments: `/docs/:slug+.md` for its Markdown URLs, and `/docs/:slug([^.]+)` for its pages.
+- **`next.config.js`:** in a CommonJS config, drop the types (the `import type` line, `: NextConfig` and `as const`) and export with `module.exports = nextConfig`.
 
 ## Check it
 
 ```sh title="Terminal"
 # Markdown
+curl -i -H "Accept: text/markdown" http://localhost:3000/
 curl -i -H "Accept: text/markdown" http://localhost:3000/posts/hello-world
 curl -i http://localhost:3000/posts/hello-world.md
 
-# The HTML page, with a Link header
+# The Markdown 404: 404, text/markdown
+curl -i -H "Accept: text/markdown" http://localhost:3000/no-such-page
+curl -i http://localhost:3000/no-such-page.md
+
+# The HTML pages, with a Link header
+curl -i http://localhost:3000/
 curl -i http://localhost:3000/posts/hello-world
 ```
 
@@ -127,3 +195,5 @@ curl -i http://localhost:3000/posts/hello-world
 - **`Vary`:** Next sets an App Router page's `Vary` header itself, replacing one added by `headers()` or `proxy.ts`, so the HTML answer lacks `Accept`. The Markdown answer carries `Vary: Accept`. A shared cache can then hand a page's HTML to an agent, but never Markdown to a browser.
 - **q-values:** the rewrite matches `Accept` with a regex that checks which type comes first, so it disagrees with `negotiateMarkdown` where q-values reorder the types. `text/markdown;q=0.5, text/html` gets Markdown here, and `text/html;q=0.5, text/markdown` or `*/*, text/markdown` gets HTML. Next matches the header's case, so `TEXT/MARKDOWN` gets HTML too.
 - **Direct requests:** `/md/posts/hello-world` also answers Markdown.
+- **Unknown slugs** match the `headers()` sources too, so their HTML 404 carries a `Link` header naming a Markdown URL that answers with the Markdown 404. It's harmless.
+- **Other dynamic routes:** a dynamic route without an entry rewrite, such as `/posts/tags/[tag]`, answers its unknown params itself, so a Markdown request for one gets the route's HTML answer. With `dynamicParams = false`, as the example sets there, they reach `fallback` and get the Markdown 404.
