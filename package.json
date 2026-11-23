@@ -21,7 +21,7 @@
     "check": "pnpm build && pnpm --filter website check-client-bundle && pnpm check-types && pnpm biome check . && pnpm format:content:check && pnpm knip && pnpm --filter @qino/cms check-dist && pnpm --filter @qino/tooling check-dist && pnpm test"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.6.6",
+    "@biomejs/biome": "2.6.8",
     "@changesets/changelog-github": "1.0.1",
     "@changesets/cli": "3.0.3",
     "knip": "6.44.1",
