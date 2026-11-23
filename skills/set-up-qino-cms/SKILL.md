@@ -5,7 +5,7 @@ description: Use when adding qino (@qino/cms) to a JavaScript or TypeScript proj
 
 # Set up qino CMS
 
-If the installed version is newer and an API here doesn't match, the live docs win.
+If the installed version is newer and an API here doesn't match, the live docs win. Doc paths here, such as `/guide/cli`, are relative to `https://www.qino.works/docs`. Read a page as Markdown by appending `.md`, as in `https://www.qino.works/docs/guide/cli.md`, where a `#fragment` names the heading to read. `https://www.qino.works/docs/llms.txt` lists every page with a one-line description.
 
 ## Overview
 
@@ -43,7 +43,7 @@ The CLI supports `compilerOptions.paths` aliases from the nearest `tsconfig.json
 - **A project, no content:** offer a starter blog (below). If declined, create one `posts` collection with `src/content/posts/hello-world.md`.
 - **No `package.json`:** ask whether to scaffold an app first (e.g. `create-next-app`) and with which framework. Don't pick one yourself. Then continue as "a project, no content".
 
-**Starter blog**, based on https://www.qino.works/docs/examples/next-js:
+**Starter blog**, based on `/examples/next-js`:
 
 - `posts/*.md`: `title`, `description`, `date`, `author`, `categories`, body
 - `authors/*.json` and `categories/*.json`, linked from posts as relations (see "Shared entities and relations")
@@ -173,7 +173,7 @@ If the app already reads content with its own code and you replace it with qino 
 - **Generated types.** `qino/_generated/` is gitignored, so on a fresh clone `tsc` and the editor fail until `qino build` runs. Also run it before dev (`predev` or equivalent). In monorepos with task caching, add `qino/_generated/**` and `<contentFolder>/.qino/**` (the image manifest `qino build` writes for image fields) to the build task's cache outputs, and with `cloud`, `CI` to its cache key (Turborepo's `env`), so a build cached locally can't skip the CI check.
 - **`.gitignore`.** Add `qino/_generated/`. If `initQino` sets `cloud`, use `qino/_generated/*` plus `!qino/_generated/config.json` instead: that file is meant to be committed, and `qino build` fails in CI (`CI` set) when it's stale. Also exclude `qino/_generated/` from Prettier/Biome, or `qino check` reports `config.json` as out of date.
 - **`tsconfig.json`.** `include` must cover `qino/`. If it's narrowed (e.g. `["src"]`), add `"qino"`.
-- **Frameworks.** See the framework examples at https://www.qino.works/docs/examples. If yours isn't listed, don't invent config.
+- **Frameworks.** See the framework examples at `/examples`. If yours isn't listed, don't invent config.
 - **Runtime.** qino reads the file system. Call getters only in server code, never in client components or edge runtimes. If pages render on request, the deployed server needs the content folder; check the deploy's file tracing includes it. See `/guide/installation#runtime`.
 - **Dynamic routes.** Check route params against `getAllSlugs()` before calling `getEntry(slug)`, and return a 404 if the slug isn't there. Unknown slugs throw a raw file-system error, and unchecked params shouldn't reach the file system.
 
@@ -211,7 +211,7 @@ If the app serves public pages, offer to serve them to AI agents as Markdown and
 
 Run the CLI's `build` command. Fix each reported error and rerun until it exits 0. Then run `tsc --noEmit` if the project uses TypeScript.
 
-Look up each error message at https://www.qino.works/docs/api/errors. The ones setup usually hits:
+Look up each error message in `/api/errors`, a long page, by searching it for the message. The ones setup usually hits:
 
 - `Tree: folder "<path>" is missing its sibling file…`: add the anchor file, or convert the `index.md` layout.
 - `Validation failed for <filePath>:`: make the field optional or fix its type. Don't edit content to fit the schema. YAML syntax errors are different; see "Inferring schemas".
@@ -259,7 +259,7 @@ Report back:
 
 ## Docs
 
-If something isn't covered here, check https://www.qino.works/docs:
+If something isn't covered here, read one of these pages, or find another in the docs `llms.txt` named at the top:
 
 - guide: `/guide/installation`, `/guide/project-structure`, `/guide/content-folder`, `/guide/frontmatter`, `/guide/cli`
 - concepts: `/concepts/schemas`, `/concepts/relations`, `/concepts/trees`
