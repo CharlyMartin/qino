@@ -23,7 +23,7 @@ function headersOf(response: Response | null) {
 }
 
 describe("negotiateMarkdown", () => {
-  test("serves the agent Markdown when the request prefers it", async () => {
+  test("serves the page Markdown when the request prefers it", async () => {
     const response = await negotiateMarkdown(
       requestPage("text/markdown"),
       loadHello,
@@ -40,7 +40,7 @@ describe("negotiateMarkdown", () => {
     "text/markdown, text/html, */*",
     "text/html;q=0.9, text/markdown",
     'text/html;note="a,b";q=0.5, text/markdown',
-  ])("serves agent Markdown for Accept: %s", async (accept) => {
+  ])("serves page Markdown for Accept: %s", async (accept) => {
     const response = await negotiateMarkdown(requestPage(accept), loadHello);
 
     expect(response?.status).toBe(200);
@@ -64,7 +64,7 @@ describe("negotiateMarkdown", () => {
     expect(response).toBeNull();
   });
 
-  test("doesn't load the agent Markdown when the request wants HTML", async () => {
+  test("doesn't load the page Markdown when the request wants HTML", async () => {
     let loaded = false;
 
     await negotiateMarkdown(requestPage("text/html"), () => {
@@ -84,7 +84,7 @@ describe("negotiateMarkdown", () => {
     expect(await response?.text()).toBe("# Hello\n");
   });
 
-  test("serves agent Markdown at a Markdown URL, whatever Accept says", async () => {
+  test("serves page Markdown at a Markdown URL, whatever Accept says", async () => {
     const response = await negotiateMarkdown(
       requestPage("text/html", "/blog/hello.md?ref=llms"),
       loadHello,

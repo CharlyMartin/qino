@@ -24,7 +24,7 @@ const QVALUE_ABOVE_0 = String.raw`(?:1(?:\.0{0,3})?|0\.(?!0{1,3}\s*(?:[;,]|$))\d
 // well-formed q-value above 0 or none.
 const LISTS_MARKDOWN_FIRST = String.raw`^text/(?:x-)?markdown${OTHER_PARAMS}(?:\s*;\s*[qQ]\s*=\s*${QVALUE_ABOVE_0}${OTHER_PARAMS})?\s*(?:,.*)?$`;
 
-// The pages with agent Markdown, and their Markdown URLs.
+// The pages with page Markdown, and their Markdown URLs.
 const pages = [
   {
     src: "^/$",

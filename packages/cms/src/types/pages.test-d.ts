@@ -66,23 +66,23 @@ describe("pages on collections", () => {
   });
 });
 
-describe("getAgentMarkdown", () => {
+describe("getPageMarkdown", () => {
   test("takes any string, and resolves to Markdown or null", () => {
     const slug: string = "from-a-route-param";
 
-    expectTypeOf(postCollection.getAgentMarkdown(slug)).toEqualTypeOf<
+    expectTypeOf(postCollection.getPageMarkdown(slug)).toEqualTypeOf<
       Promise<string | null>
     >();
   });
 
   test("takes a view the collection defines", () => {
-    postCollection.getAgentMarkdown("hello", { view: "all" });
+    postCollection.getPageMarkdown("hello", { view: "all" });
     // @ts-expect-error: no such view
-    postCollection.getAgentMarkdown("hello", { view: "missing" });
+    postCollection.getPageMarkdown("hello", { view: "missing" });
   });
 
   test("resolves to the index page's Markdown without a slug", () => {
-    expectTypeOf(postCollection.getAgentMarkdown()).toEqualTypeOf<
+    expectTypeOf(postCollection.getPageMarkdown()).toEqualTypeOf<
       Promise<string>
     >();
   });
@@ -91,7 +91,7 @@ describe("getAgentMarkdown", () => {
     const slug = undefined as string | undefined;
 
     // @ts-expect-error: pass a string, or no argument for the index page
-    postCollection.getAgentMarkdown(slug);
+    postCollection.getPageMarkdown(slug);
   });
 });
 
@@ -120,19 +120,19 @@ const aboutItem = defineItem({
 
 describe("pages on trees and items", () => {
   test("are accepted on trees", () => {
-    expectTypeOf(docsTree.getAgentMarkdown("guide/cli")).toEqualTypeOf<
+    expectTypeOf(docsTree.getPageMarkdown("guide/cli")).toEqualTypeOf<
       Promise<string | null>
     >();
     expectTypeOf(docsTree.getMarkdownUrl("guide/cli")).toEqualTypeOf<string>();
   });
 
   test("give trees an index page without a slug", () => {
-    expectTypeOf(docsTree.getAgentMarkdown()).toEqualTypeOf<Promise<string>>();
+    expectTypeOf(docsTree.getPageMarkdown()).toEqualTypeOf<Promise<string>>();
     expectTypeOf(docsTree.getMarkdownUrl()).toEqualTypeOf<string>();
 
     const slug = undefined as string | undefined;
     // @ts-expect-error: pass a string, or no argument for the index page
-    docsTree.getAgentMarkdown(slug);
+    docsTree.getPageMarkdown(slug);
   });
 
   test("are rejected on items, which take a page", () => {
@@ -144,8 +144,8 @@ describe("pages on trees and items", () => {
     });
   });
 
-  test("give items agent Markdown and a Markdown URL without a slug", () => {
-    expectTypeOf(aboutItem.getAgentMarkdown()).toEqualTypeOf<Promise<string>>();
+  test("give items page Markdown and a Markdown URL without a slug", () => {
+    expectTypeOf(aboutItem.getPageMarkdown()).toEqualTypeOf<Promise<string>>();
     expectTypeOf(aboutItem.getMarkdownUrl()).toEqualTypeOf<string>();
   });
 

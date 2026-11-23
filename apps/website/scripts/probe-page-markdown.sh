@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Checks how the site answers Markdown and HTML requests, against a deploy:
-# `apps/website/scripts/probe-agent-markdown.sh https://<preview>.vercel.app`.
+# `apps/website/scripts/probe-page-markdown.sh https://<preview>.vercel.app`.
 # With `--dev`, against a dev server, it skips what only Vercel's routes add:
-# `Link` and `Vary: Accept` on pages, and the homepage's agent Markdown. It follows
+# `Link` and `Vary: Accept` on pages, and the homepage's Markdown. It follows
 # redirects, and exits 1 when an answer differs from the one expected.
 set -u
 dev=0
@@ -11,7 +11,7 @@ if [ "${1:-}" = --dev ]; then
   shift
 fi
 if [ $# -ne 1 ]; then
-  echo "usage: probe-agent-markdown.sh [--dev] <base-url>" >&2
+  echo "usage: probe-page-markdown.sh [--dev] <base-url>" >&2
   exit 2
 fi
 base=$1
@@ -131,7 +131,7 @@ for path in /docs/guide/cli /docs/guide /blog/why-another-cms /docs /blog; do
 done
 want_link=
 
-# The homepage's agent Markdown is the prerendered `/index.md`, which only
+# The homepage's Markdown is the prerendered `/index.md`, which only
 # Vercel's routes serve at `/`.
 if [ $dev = 0 ]; then
   expect_link '</index.md>; rel="alternate"; type="text/markdown", </llms.txt>; rel="describedby"'
@@ -141,7 +141,7 @@ if [ $dev = 0 ]; then
   want_link=
 fi
 
-# A page without agent Markdown falls back to HTML.
+# A page without page Markdown falls back to HTML.
 probe 200 html GET /contentlayer-exit "text/markdown"
 probe 200 html GET /contentlayer-exit "text/plain"
 
@@ -153,7 +153,7 @@ for path in /docs/guide/cli.md /docs/guide.md /blog/why-another-cms.md /docs.md 
 done
 probe 200 markdown HEAD /docs/guide/cli.md
 
-# Agent Markdown opens with a frontmatter block, at Markdown URLs and through
+# Page Markdown opens with a frontmatter block, at Markdown URLs and through
 # negotiation.
 for page in /docs/guide/cli /docs/guide /blog/why-another-cms /docs /blog; do
   expect_frontmatter "$page.md" "$page"

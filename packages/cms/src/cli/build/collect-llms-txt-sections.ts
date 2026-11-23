@@ -1,7 +1,7 @@
 import { QinoPrimitiveMarker } from "../../data/globals";
-import type { ListingSection } from "../../types/agent-markdown";
 import type { AnyCollection } from "../../types/collection";
 import type { AnyItem } from "../../types/item";
+import type { ListingSection } from "../../types/page-markdown";
 import type { AnyTree } from "../../types/tree";
 import { collectPagesSection } from "./collect-pages-section";
 import { sortLlmsTxtPrimitives } from "./sort-llms-txt-primitives";

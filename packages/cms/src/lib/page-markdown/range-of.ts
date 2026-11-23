@@ -1,6 +1,6 @@
 import type { Nodes } from "mdast";
 
-import type { SourceRange } from "../../types/agent-markdown";
+import type { SourceRange } from "../../types/page-markdown";
 
 /** Where a parsed node lies in its source. */
 export function rangeOf(node: Nodes) {

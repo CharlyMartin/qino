@@ -1,6 +1,6 @@
 import type { Nodes } from "mdast";
 
-import type { MdxJsxElement } from "../../types/agent-markdown";
+import type { MdxJsxElement } from "../../types/page-markdown";
 
 /** The MDX components under `node`, outermost first: not those inside them. */
 export function findJsxElements(node: Nodes): Array<MdxJsxElement> {

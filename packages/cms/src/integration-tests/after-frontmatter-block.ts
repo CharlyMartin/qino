@@ -1,7 +1,7 @@
 import { expect } from "vitest";
 
 /**
- * Agent Markdown after its frontmatter block, which the "frontmatter blocks"
+ * Page Markdown after its frontmatter block, which the "frontmatter blocks"
  * tests cover, for tests about the rest of the document. Fails when there's
  * no block.
  */

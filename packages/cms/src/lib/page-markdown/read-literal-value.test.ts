@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import type { MdxJsxElement } from "../../types/agent-markdown";
+import type { MdxJsxElement } from "../../types/page-markdown";
 import { parseMarkdownBody } from "../../utils/markdown/parse-markdown-body";
 import { readLiteralValue } from "./read-literal-value";
 

@@ -1,4 +1,4 @@
-import type { ListingLink, ListingSection } from "./agent-markdown";
+import type { ListingLink, ListingSection } from "./page-markdown";
 
 /** A page's path on the site, such as `"/about"`. */
 export type PagePath = `/${string}`;
@@ -42,10 +42,10 @@ export type PagesMeta = ResolvedPages & {
   readonly owner: string;
   /** Its `llms.txt` sections. */
   readonly getListingSections: () => Promise<Array<ListingSection>>;
-  /** Its section llms.txt: the index page's agent Markdown without the frontmatter block. */
+  /** Its section llms.txt: the index page's Markdown without the frontmatter block. */
   readonly getSectionLlmsTxt: () => Promise<string>;
   /**
-   * Its entry pages' agent Markdown, in its sections' order and without
+   * Its entry pages' Markdown, in its sections' order and without
    * frontmatter blocks, for `llms-full.txt`.
    */
   readonly getLlmsFullDocuments: () => Promise<Array<string>>;
@@ -55,6 +55,6 @@ export type PagesMeta = ResolvedPages & {
 export type PageMeta = ResolvedItemPage & {
   /** Its link in `llms.txt`'s `## Pages` section. */
   readonly getListingLink: () => Promise<ListingLink>;
-  /** Its page's agent Markdown without the frontmatter block, for `llms-full.txt`. */
+  /** Its page's Markdown without the frontmatter block, for `llms-full.txt`. */
   readonly getLlmsFullDocument: () => Promise<string>;
 };

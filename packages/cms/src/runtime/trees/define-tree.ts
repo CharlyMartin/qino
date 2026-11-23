@@ -6,9 +6,6 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
-import { buildAgentMarkdown } from "../../lib/agent-markdown/build-agent-markdown";
-import { buildIndexAgentMarkdown } from "../../lib/agent-markdown/build-index-agent-markdown";
-import { toListingLink } from "../../lib/agent-markdown/to-listing-link";
 import type { DependencyCollector } from "../../lib/cache/create-dependency-collector";
 import { createDerivedCache } from "../../lib/cache/create-derived-cache";
 import { createFileCache } from "../../lib/cache/create-file-cache";
@@ -18,6 +15,9 @@ import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-confi
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
+import { buildIndexPageMarkdown } from "../../lib/page-markdown/build-index-page-markdown";
+import { buildPageMarkdown } from "../../lib/page-markdown/build-page-markdown";
+import { toListingLink } from "../../lib/page-markdown/to-listing-link";
 import { requirePages } from "../../lib/pages/require-pages";
 import { resolvePages } from "../../lib/pages/resolve-pages";
 import { toPagesMarkdownUrl } from "../../lib/pages/to-pages-markdown-url";
@@ -31,7 +31,6 @@ import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
 import { buildViews } from "../../lib/views/build-views";
 import { selectView } from "../../lib/views/select-view";
-import type { AgentMarkdownConfig } from "../../types/agent-markdown";
 import type {
   DisplayEntryAsConfig,
   SaveEntryAsConfig,
@@ -47,6 +46,7 @@ import type {
   MediaConfig,
   TaggedRelations,
 } from "../../types/media";
+import type { PageMarkdownConfig } from "../../types/page-markdown";
 import type { PagesConfig } from "../../types/pages";
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
@@ -118,11 +118,11 @@ export type DefineTreeParams<
   cloud?: NoInfer<TreeCloudConfig<Schema>> &
     SaveEntryAsConfig<SaveEntryAs, Schema> &
     DisplayEntryAsConfig<DisplayEntryAs, Schema>;
-  /** Where the index page and entry pages live, for agent Markdown and links. */
+  /** Where the index page and entry pages live, for page Markdown and links. */
   pages?: PagesConfig;
-  /** Configures the entry pages' agent Markdown: how MDX components read. */
+  /** Configures the entry pages' Markdown: how MDX components read. */
   agentMarkdown?: NoInfer<
-    AgentMarkdownConfig<
+    PageMarkdownConfig<
       ResolvedTreeEntry<Schema, Ext, TaggedRelations<Rels, Media, Stats, Toc>>
     >
   > &
@@ -221,7 +221,7 @@ export function defineTree<
           ...resolvedPages,
           owner,
           getListingSections,
-          getSectionLlmsTxt: () => buildIndexPageAgentMarkdown(),
+          getSectionLlmsTxt: () => readIndexPageMarkdown(),
           getLlmsFullDocuments,
         },
       }),
@@ -234,7 +234,7 @@ export function defineTree<
     getAncestorNodes,
     getNextNode,
     getPreviousNode,
-    getAgentMarkdown,
+    getPageMarkdown,
     getMarkdownUrl,
   } as const satisfies Tree<
     S,
@@ -396,13 +396,13 @@ export function defineTree<
     });
   }
 
-  async function getAgentMarkdown(): Promise<string>;
-  async function getAgentMarkdown(slug: Slug): Promise<string | null>;
-  async function getAgentMarkdown(slug?: Slug) {
+  async function getPageMarkdown(): Promise<string>;
+  async function getPageMarkdown(slug: Slug): Promise<string | null>;
+  async function getPageMarkdown(slug?: Slug) {
     const pages = requirePages(resolvedPages, { owner, option: "pages" });
     // Only a missing slug means the index page: `""` is a slug no node has.
     if (typeof slug == "undefined") {
-      return buildIndexPageAgentMarkdown(toPagesUrl(pages));
+      return readIndexPageMarkdown(toPagesUrl(pages));
     }
 
     // Only a listed slug reads a file: a route param can't reach past the
@@ -410,22 +410,22 @@ export function defineTree<
     const nodes = await getFlatTree();
     if (!nodes.some((node) => node.slug == slug)) return null;
 
-    return readEntryAgentMarkdown(slug, toPagesUrl(pages, slug));
+    return readEntryPageMarkdown(slug, toPagesUrl(pages, slug));
   }
 
   // `llms-full.txt`'s documents: every node, in its sections' order, without
   // frontmatter blocks.
   async function getLlmsFullDocuments() {
     const nodes = await getFlatTree();
-    return Promise.all(nodes.map((node) => readEntryAgentMarkdown(node.slug)));
+    return Promise.all(nodes.map((node) => readEntryPageMarkdown(node.slug)));
   }
 
   // An entry page's. Tree views can't filter, so no view can exclude it. A
   // `canonical` adds the frontmatter block.
-  async function readEntryAgentMarkdown(slug: Slug, canonical?: string) {
+  async function readEntryPageMarkdown(slug: Slug, canonical?: string) {
     const { siteUrl } = requirePages(resolvedPages, { owner, option: "pages" });
     const entry = await readEntry(slug);
-    return buildAgentMarkdown({
+    return buildPageMarkdown({
       entry: entry as Record<string, unknown>,
       titleField,
       fallbackTitle: slug,
@@ -438,9 +438,9 @@ export function defineTree<
 
   // The index page's. A `canonical` adds the frontmatter block, which its
   // section llms.txt leaves out.
-  async function buildIndexPageAgentMarkdown(canonical?: string) {
+  async function readIndexPageMarkdown(canonical?: string) {
     const { title } = requirePages(resolvedPages, { owner, option: "pages" });
-    return buildIndexAgentMarkdown({
+    return buildIndexPageMarkdown({
       title,
       sections: await getListingSections(),
       canonical,

@@ -2,7 +2,7 @@
 "@qino/cms": minor
 ---
 
-Adds `agentMarkdown.components` to collections, trees and items, to turn MDX components into Markdown in agent Markdown. Each function receives the component's literal `props`, its `children` already converted to Markdown, and the `entry` as read. It returns Markdown, or `null` to keep the component as written:
+Adds `agentMarkdown.components` to collections, trees and items, to turn MDX components into Markdown in page Markdown. Each function receives the component's literal `props`, its `children` already converted to Markdown, and the `entry` as read. It returns Markdown, or `null` to keep the component as written:
 
 ```ts
 const docs = qino.defineTree({

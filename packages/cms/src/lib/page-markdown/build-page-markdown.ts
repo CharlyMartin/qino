@@ -1,5 +1,5 @@
 import { MARKDOWN_FIELD_NAME } from "../../data/globals";
-import type { ComponentReplacement } from "../../types/agent-markdown";
+import type { ComponentReplacement } from "../../types/page-markdown";
 import type { SupportedFileExtension } from "../../types/utils";
 import { absolutizeLinks } from "./absolutize-links";
 import { formatFrontmatterBlock } from "./format-frontmatter-block";
@@ -8,7 +8,7 @@ import { type ReadEntryTitleParams, readEntryTitle } from "./read-entry-title";
 import { replaceComponents } from "./replace-components";
 import { startsWithH1 } from "./starts-with-h1";
 
-type BuildAgentMarkdownParams<Entry> = ReadEntryTitleParams & {
+type BuildPageMarkdownParams<Entry> = ReadEntryTitleParams & {
   /** The entry file's extension: a `.json` entry has no body. */
   extension: SupportedFileExtension;
   /** The origin site-relative links resolve against, without a trailing `/`. */
@@ -23,20 +23,20 @@ type BuildAgentMarkdownParams<Entry> = ReadEntryTitleParams & {
 };
 
 /**
- * An entry's agent Markdown, with LF line endings: a frontmatter block when
+ * An entry's page Markdown, with LF line endings: a frontmatter block when
  * there's a `canonical`, then `# {title}`, `> {description}` when there is
  * one, then the body without frontmatter, its MDX components replaced.
  * Site-relative links are made absolute in both the description and the
  * body. A body that opens with its own H1, a replacement's included, keeps
  * its opening, without the heading or the description.
  */
-export async function buildAgentMarkdown<Entry>({
+export async function buildPageMarkdown<Entry>({
   extension,
   origin,
   replacement,
   canonical,
   ...titleParams
-}: BuildAgentMarkdownParams<Entry>) {
+}: BuildPageMarkdownParams<Entry>) {
   const { entry } = titleParams;
   const mdx = extension == ".mdx";
   const rawBody = extension == ".json" ? undefined : entry[MARKDOWN_FIELD_NAME];

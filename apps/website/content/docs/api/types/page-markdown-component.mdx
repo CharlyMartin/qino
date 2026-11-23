@@ -1,5 +1,5 @@
 ---
-title: AgentMarkdownComponent
+title: PageMarkdownComponent
 description: A function that turns an MDX component into Markdown for agents, set in `agentMarkdown.components`.
 since: "0.25.0"
 ---
@@ -38,28 +38,28 @@ export const docsTree = qino.defineTree({
 
 ```ts title="@qino/cms"
 import type {
-  AgentMarkdownComponent,
-  AgentMarkdownComponentContext,
-  AgentMarkdownPropValue,
+  PageMarkdownComponent,
+  PageMarkdownComponentContext,
+  PageMarkdownPropValue,
 } from "@qino/cms";
 
-type AgentMarkdownComponent<Entry = unknown> = (
-  context: AgentMarkdownComponentContext<Entry>,
+type PageMarkdownComponent<Entry = unknown> = (
+  context: PageMarkdownComponentContext<Entry>,
 ) => string | null | Promise<string | null>;
 
-type AgentMarkdownComponentContext<Entry = unknown> = {
-  props: Record<string, AgentMarkdownPropValue>;
+type PageMarkdownComponentContext<Entry = unknown> = {
+  props: Record<string, PageMarkdownPropValue>;
   children: string;
   entry: Entry;
 };
 
-type AgentMarkdownPropValue =
+type PageMarkdownPropValue =
   | string
   | number
   | boolean
   | null
-  | Array<AgentMarkdownPropValue>
-  | { [key: string]: AgentMarkdownPropValue };
+  | Array<PageMarkdownPropValue>
+  | { [key: string]: PageMarkdownPropValue };
 ```
 
 Inside `agentMarkdown.components`, `entry` is typed as the primitive's entry, so the functions need no annotation.
@@ -86,4 +86,4 @@ A function that calls the primitive it belongs to, as `LinkGrid` reads `docsTree
 ## See also
 
 - [Agent-ready content](/docs/guide/agent-ready-content#mdx-components)
-- [getAgentMarkdown](/docs/api/collection/get-agent-markdown)
+- [getPageMarkdown](/docs/api/collection/get-page-markdown)

@@ -1,4 +1,4 @@
-import type { ListingLink } from "../../types/agent-markdown";
+import type { ListingLink } from "../../types/page-markdown";
 import { readEntryDescription } from "./read-entry-description";
 import { type ReadEntryTitleParams, readEntryTitle } from "./read-entry-title";
 import { toOneLine } from "./to-one-line";

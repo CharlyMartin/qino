@@ -1,6 +1,6 @@
 # qino links to pages but never routes to them
 
-To serve agent Markdown, a consumer's entry page route asks qino for it, passing the slug it already has. qino doesn't map a request path back to an entry. The URL patterns that primitives declare are used only to build links: in `llms.txt`, in index listings, and for the Markdown URLs pages advertise. We chose this so that a pattern drifting from the real routes breaks links, not negotiation. An entry that has no page, because its slug is unknown or the view excludes it (a draft, for example), has no agent Markdown either: qino answers with a Markdown 404, whichever handler runs first.
+To serve page Markdown, a consumer's entry page route asks qino for it, passing the slug it already has. qino doesn't map a request path back to an entry. The URL patterns that primitives declare are used only to build links: in `llms.txt`, in index listings, and for the Markdown URLs pages advertise. We chose this so that a pattern drifting from the real routes breaks links, not negotiation. An entry that has no page, because its slug is unknown or the view excludes it (a draft, for example), has no page Markdown either: qino answers with a Markdown 404, whichever handler runs first.
 
 ## Consequences
 

@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 
-import { buildIndexAgentMarkdown } from "./build-index-agent-markdown";
+import { buildIndexPageMarkdown } from "./build-index-page-markdown";
 
 const link = {
   title: "Hello",
@@ -8,16 +8,16 @@ const link = {
   description: "",
 };
 
-describe("buildIndexAgentMarkdown", () => {
+describe("buildIndexPageMarkdown", () => {
   test("lists links under the title", () => {
-    expect(buildIndexAgentMarkdown({ title: "Blog", links: [link] })).toBe(
+    expect(buildIndexPageMarkdown({ title: "Blog", links: [link] })).toBe(
       "# Blog\n\n- [Hello](https://example.com/blog/hello.md)\n",
     );
   });
 
   test("lists sections under the title", () => {
     expect(
-      buildIndexAgentMarkdown({
+      buildIndexPageMarkdown({
         title: "Docs",
         sections: [{ title: "Guide", links: [link] }],
       }),
@@ -27,6 +27,6 @@ describe("buildIndexAgentMarkdown", () => {
   });
 
   test("is the title alone with nothing to list", () => {
-    expect(buildIndexAgentMarkdown({ title: "Blog" })).toBe("# Blog\n");
+    expect(buildIndexPageMarkdown({ title: "Blog" })).toBe("# Blog\n");
   });
 });

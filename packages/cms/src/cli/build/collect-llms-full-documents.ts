@@ -11,7 +11,7 @@ type CollectLlmsFullDocumentsParams = {
 };
 
 /**
- * `llms-full.txt`'s documents: the agent Markdown of every entry page that
+ * `llms-full.txt`'s documents: the page Markdown of every entry page that
  * `llms.txt`'s link sections list, in their order, even when `llms.txt` links
  * to section llms.txt files instead. A primitive with `pages.llmsFull: false`
  * is left out unread.

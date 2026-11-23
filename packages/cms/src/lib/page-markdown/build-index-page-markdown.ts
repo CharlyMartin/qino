@@ -1,9 +1,9 @@
-import type { ListingLink, ListingSection } from "../../types/agent-markdown";
+import type { ListingLink, ListingSection } from "../../types/page-markdown";
 import { formatFrontmatterBlock } from "./format-frontmatter-block";
 import { formatListingLink } from "./format-listing-link";
 import { formatListingSection } from "./format-listing-section";
 
-type BuildIndexAgentMarkdownParams = {
+type BuildIndexPageMarkdownParams = {
   /** The index page's title. */
   title: string;
   /** Links listed under the title, as a collection's entries are. */
@@ -15,15 +15,15 @@ type BuildIndexAgentMarkdownParams = {
 };
 
 /**
- * An index page's agent Markdown: a frontmatter block when there's a
+ * An index page's Markdown: a frontmatter block when there's a
  * `canonical`, then `# {title}`, a line per link, and each section.
  */
-export function buildIndexAgentMarkdown({
+export function buildIndexPageMarkdown({
   title,
   links = [],
   sections = [],
   canonical,
-}: BuildIndexAgentMarkdownParams) {
+}: BuildIndexPageMarkdownParams) {
   const blocks = [];
   if (canonical) blocks.push(formatFrontmatterBlock({ title, canonical }));
   blocks.push(`# ${title}`);

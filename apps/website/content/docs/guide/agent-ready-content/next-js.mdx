@@ -9,12 +9,12 @@ A Next.js page can't fall through to another handler, so Markdown requests go to
 
 The route handlers live under `/md`, a path no page uses. A rewritten request keeps its own URL, such as `/posts/hello-world`, so the helper reads it as the page's Markdown URL. That way it always answers Markdown, even when the rewrite let through an `Accept` header that prefers HTML:
 
-```ts title="src/lib/serve-agent-markdown.ts" source="examples/next-js/src/lib/serve-agent-markdown.ts"
-import { type LoadAgentMarkdown, negotiateMarkdown } from "@qino/cms";
+```ts title="src/lib/serve-page-markdown.ts" source="examples/next-js/src/lib/serve-page-markdown.ts"
+import { type LoadPageMarkdown, negotiateMarkdown } from "@qino/cms";
 
-export async function serveAgentMarkdown(
+export async function servePageMarkdown(
   request: Request,
-  load: LoadAgentMarkdown,
+  load: LoadPageMarkdown,
 ) {
   const url = new URL(request.url);
   if (!url.pathname.endsWith(".md")) url.pathname += ".md";
@@ -28,7 +28,7 @@ export async function serveAgentMarkdown(
 ```
 
 ```ts title="src/app/md/posts/[slug]/route.ts" source="examples/next-js/src/app/md/posts/[slug]/route.ts"
-import { serveAgentMarkdown } from "@/lib/serve-agent-markdown";
+import { servePageMarkdown } from "@/lib/serve-page-markdown";
 import { postCollection } from "../../../../../qino/collections/posts";
 
 export async function GET(
@@ -36,13 +36,11 @@ export async function GET(
   ctx: RouteContext<"/md/posts/[slug]">,
 ) {
   const { slug } = await ctx.params;
-  return serveAgentMarkdown(request, () =>
-    postCollection.getAgentMarkdown(slug),
-  );
+  return servePageMarkdown(request, () => postCollection.getPageMarkdown(slug));
 }
 ```
 
-An unknown slug gets the Markdown 404. The index page's route, `src/app/md/posts/route.ts`, calls `postCollection.getAgentMarkdown()`. A tree's uses a catch-all, `[...slug]`, and joins the segments with `/`.
+An unknown slug gets the Markdown 404. The index page's route, `src/app/md/posts/route.ts`, calls `postCollection.getPageMarkdown()`. A tree's uses a catch-all, `[...slug]`, and joins the segments with `/`.
 
 ## The rewrites
 

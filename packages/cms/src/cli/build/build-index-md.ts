@@ -1,6 +1,6 @@
-import { absolutizeLinks } from "../../lib/agent-markdown/absolutize-links";
-import { formatFrontmatterBlock } from "../../lib/agent-markdown/format-frontmatter-block";
-import { toOneLine } from "../../lib/agent-markdown/to-one-line";
+import { absolutizeLinks } from "../../lib/page-markdown/absolutize-links";
+import { formatFrontmatterBlock } from "../../lib/page-markdown/format-frontmatter-block";
+import { toOneLine } from "../../lib/page-markdown/to-one-line";
 import { toAbsoluteUrl } from "../../lib/pages/to-absolute-url";
 import { getHeadingText } from "../../utils/markdown/get-heading-text";
 import { findLlmsTxtTemplateHead } from "./find-llms-txt-template-head";

@@ -1,5 +1,5 @@
 import type { PagesConfig, ResolvedPages } from "../../types/pages";
-import { toOneLine } from "../agent-markdown/to-one-line";
+import { toOneLine } from "../page-markdown/to-one-line";
 import { describePagePathError } from "./describe-page-path-error";
 
 type ResolvePagesParams = {

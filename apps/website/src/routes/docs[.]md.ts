@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { docsTree } from "../../qino/docs";
-import { serveIndexAgentMarkdown } from "../server/serve-index-agent-markdown";
+import { serveIndexPageMarkdown } from "../server/serve-index-page-markdown";
 
-// The docs index page's agent Markdown.
+// The docs index page's Markdown.
 export const Route = createFileRoute("/docs.md")({
   server: {
     handlers: {
       GET: ({ request }) =>
-        serveIndexAgentMarkdown(request, () => docsTree.getAgentMarkdown()),
+        serveIndexPageMarkdown(request, () => docsTree.getPageMarkdown()),
     },
   },
 });

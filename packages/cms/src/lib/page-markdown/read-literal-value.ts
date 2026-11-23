@@ -1,6 +1,6 @@
 import type { Node } from "estree";
 
-import type { AgentMarkdownPropValue } from "../../types/agent-markdown";
+import type { PageMarkdownPropValue } from "../../types/page-markdown";
 
 /**
  * The value of an MDX attribute expression that is a literal, or a JSON-like
@@ -9,7 +9,7 @@ import type { AgentMarkdownPropValue } from "../../types/agent-markdown";
  */
 export function readLiteralValue(
   node: Node,
-): AgentMarkdownPropValue | undefined {
+): PageMarkdownPropValue | undefined {
   switch (node.type) {
     case "Literal": {
       const { value } = node;

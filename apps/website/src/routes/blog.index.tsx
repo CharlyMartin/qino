@@ -43,10 +43,10 @@ export const Route = createFileRoute("/blog/")({
     }),
   server: {
     handlers: {
-      // The index page's agent Markdown, when `Accept` prefers it.
+      // The index page's Markdown, when `Accept` prefers it.
       GET: async ({ request, next }) =>
         (await negotiateMarkdown(request, () =>
-          postCollection.getAgentMarkdown(),
+          postCollection.getPageMarkdown(),
         )) ?? next(),
     },
   },

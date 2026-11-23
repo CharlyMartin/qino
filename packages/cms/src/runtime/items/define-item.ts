@@ -5,14 +5,14 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
-import { buildAgentMarkdown } from "../../lib/agent-markdown/build-agent-markdown";
-import { toListingLink } from "../../lib/agent-markdown/to-listing-link";
 import type { DependencyCollector } from "../../lib/cache/create-dependency-collector";
 import { createFileCache } from "../../lib/cache/create-file-cache";
 import { assertCloudEnabled } from "../../lib/cloud/assert-cloud-enabled";
 import { resolveMarkdownConfig } from "../../lib/markdown/resolve-markdown-config";
 import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
+import { buildPageMarkdown } from "../../lib/page-markdown/build-page-markdown";
+import { toListingLink } from "../../lib/page-markdown/to-listing-link";
 import { requirePages } from "../../lib/pages/require-pages";
 import { resolveItemPage } from "../../lib/pages/resolve-item-page";
 import { toAbsoluteUrl } from "../../lib/pages/to-absolute-url";
@@ -28,7 +28,6 @@ import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
 import { buildViews } from "../../lib/views/build-views";
 import { selectView } from "../../lib/views/select-view";
-import type { AgentMarkdownConfig } from "../../types/agent-markdown";
 import type { ItemCloudConfig } from "../../types/cloud";
 import type {
   ExtractItemExtension,
@@ -47,6 +46,7 @@ import type {
   MediaConfig,
   TaggedRelations,
 } from "../../types/media";
+import type { PageMarkdownConfig } from "../../types/page-markdown";
 import type { PagePath } from "../../types/pages";
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
@@ -93,11 +93,11 @@ export type DefineItemParams<
     >
   >;
   cloud?: NoInfer<ItemCloudConfig<Schema>>;
-  /** Where the item's entry page lives, such as `"/about"`, for agent Markdown and links. */
+  /** Where the item's entry page lives, such as `"/about"`, for page Markdown and links. */
   page?: PagePath;
-  /** Configures the entry page's agent Markdown: how MDX components read. */
+  /** Configures the entry page's Markdown: how MDX components read. */
   agentMarkdown?: NoInfer<
-    AgentMarkdownConfig<
+    PageMarkdownConfig<
       ResolvedItemView<
         Schema,
         ExtractItemExtension<F>,
@@ -124,7 +124,7 @@ export function defineItem<
   const { file, schema, relations, media = {}, cloud } = params;
   assertContentPath(file, "file");
   const owner = `Item "${file}"`;
-  // The title of an entry without one, in its agent Markdown and llms.txt.
+  // The title of an entry without one, in its page Markdown and llms.txt.
   const fallbackTitle = removeExtension(nodePath.basename(file));
   const resolvedPage = resolveItemPage({
     page: params.page,
@@ -175,7 +175,7 @@ export function defineItem<
       readEntry,
     },
     getEntry,
-    getAgentMarkdown,
+    getPageMarkdown,
     getMarkdownUrl,
   } as const satisfies Item<S, Ext, TaggedRels, ConfiguredViews<Views>>;
 
@@ -237,7 +237,7 @@ export function defineItem<
     >;
   }
 
-  async function getAgentMarkdown() {
+  async function getPageMarkdown() {
     const { page, siteUrl } = requirePages(resolvedPage, {
       owner,
       option: "page",
@@ -251,7 +251,7 @@ export function defineItem<
     const { siteUrl } = requirePages(resolvedPage, { owner, option: "page" });
     // Item views can't filter, so no view can exclude the entry.
     const entry = await readEntry();
-    return buildAgentMarkdown({
+    return buildPageMarkdown({
       entry: entry as Record<string, unknown>,
       fallbackTitle,
       extension,

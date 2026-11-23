@@ -2,7 +2,7 @@ import { describe, expectTypeOf, test } from "vitest";
 import { z } from "zod";
 
 import { initQino } from "../runtime/qino/init-qino";
-import type { AgentMarkdownPropValue } from "./agent-markdown";
+import type { PageMarkdownPropValue } from "./page-markdown";
 
 const { defineCollection, defineItem, defineTree } = initQino({
   contentFolder: "src/content",
@@ -20,7 +20,7 @@ describe("agentMarkdown.components", () => {
         components: {
           Box: ({ props, children, entry }) => {
             expectTypeOf(props).toEqualTypeOf<
-              Record<string, AgentMarkdownPropValue>
+              Record<string, PageMarkdownPropValue>
             >();
             expectTypeOf(children).toEqualTypeOf<string>();
             expectTypeOf(entry.title).toEqualTypeOf<string>();
@@ -102,6 +102,6 @@ describe("agentMarkdown.components", () => {
       },
     });
 
-    expectTypeOf(docsTree.getAgentMarkdown()).toEqualTypeOf<Promise<string>>();
+    expectTypeOf(docsTree.getPageMarkdown()).toEqualTypeOf<Promise<string>>();
   });
 });

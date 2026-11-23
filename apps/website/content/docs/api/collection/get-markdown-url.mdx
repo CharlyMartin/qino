@@ -4,7 +4,7 @@ description: The Markdown URL of an entry page by slug, or of the index page wit
 since: "0.25.0"
 ---
 
-Returns the absolute URL of a page's agent Markdown: the page's URL on `siteUrl` with `.md` appended. Use it in `<link rel="alternate" type="text/markdown">` and `Link` headers. The collection must declare [`pages`](/docs/api/collection#pages).
+Returns the absolute URL of a page's Markdown: the page's URL on `siteUrl` with `.md` appended. Use it in `<link rel="alternate" type="text/markdown">` and `Link` headers. The collection must declare [`pages`](/docs/api/collection#pages).
 
 ```ts title="src/app/blog/[slug]/page.tsx"
 postCollection.getMarkdownUrl("hello-world"); // "https://example.com/blog/hello-world.md"
@@ -36,8 +36,8 @@ It reads no file, so it doesn't check that the entry exists.
 
 ## Throws
 
-- `Collection "<directory>" has no pages: declare them to get agent Markdown and Markdown URLs.`
+- `Collection "<directory>" has no pages: declare them to get page Markdown and Markdown URLs.`
 
 ## See also
 
-- [getAgentMarkdown](/docs/api/collection/get-agent-markdown)
+- [getPageMarkdown](/docs/api/collection/get-page-markdown)

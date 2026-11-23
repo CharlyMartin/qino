@@ -37,7 +37,7 @@ qino.defineItem(params: {
   };
   views?: (view: ViewHelper) => Record<string, View> & { default: View };
   page?: `/${string}`;
-  agentMarkdown?: { components?: Record<string, AgentMarkdownComponent<Entry>> };
+  agentMarkdown?: { components?: Record<string, PageMarkdownComponent<Entry>> };
   cloud?: { displayAs?: string; hiddenFields?: Array<OptionalField>; media?: { saveFileAs?: string } };
 }): Item;
 
@@ -54,8 +54,8 @@ type MediaRule = { accepted: MimeType; maxSize: Size; parse?: (value: string, ct
 | `media`         | `Record<path, MediaRule>`                    | no       | `{}`    | Media fields, keyed by path to a string field, with the one MIME type each accepts and its max size. Image fields are read as `QinoImage`, and `parse` reads a value first. See [Media](/docs/concepts/media)                                                                                                                                                                                                                                                                       |
 | `markdown`      | `{ stats?; toc?; media? }`                   | no       | `{}`    | Configures the body. Markdown and MDX only. `stats` adds `_stats`, its word and character counts. See [MarkdownStats](/docs/api/types/markdown-stats). `toc` adds `_toc`, its headings with their anchor ids: `true` lists every level, `upTo` stops at one, and `slug` sets how ids are made. See [MarkdownToc](/docs/api/types/markdown-toc). `media` lists the rules body images must match, each read with its own `parse`. See [Body images](/docs/concepts/media#body-images) |
 | `views`         | `(view) => { default: View; [name]: View }`  | no       |         | Helper offers `resolveDepth` and `augment` only                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `page`          | `` `/${string}` ``                           | no       |         | The item's page, such as `"/about"`, for agent Markdown, its Markdown URL and `llms.txt`'s `## Pages` section. Takes no token, and follows the path rules of [collections' `pages`](/docs/api/collection#pages). Requires `siteUrl` on `initQino`                                                                                                                                                                                                                                   |
-| `agentMarkdown` | `{ components? }`                            | no       |         | Functions that turn MDX components into Markdown in agent Markdown, by component name. Markdown and MDX only. See [AgentMarkdownComponent](/docs/api/types/agent-markdown-component)                                                                                                                                                                                                                                                                                                |
+| `page`          | `` `/${string}` ``                           | no       |         | The item's page, such as `"/about"`, for page Markdown, its Markdown URL and `llms.txt`'s `## Pages` section. Takes no token, and follows the path rules of [collections' `pages`](/docs/api/collection#pages). Requires `siteUrl` on `initQino`                                                                                                                                                                                                                                    |
+| `agentMarkdown` | `{ components? }`                            | no       |         | Functions that turn MDX components into Markdown in page Markdown, by component name. Markdown and MDX only. See [PageMarkdownComponent](/docs/api/types/page-markdown-component)                                                                                                                                                                                                                                                                                                   |
 | `cloud`         | `{ displayAs?; hiddenFields?; media? }`      | no       |         | Cloud UI name, hidden fields, and where uploads are saved. Requires `cloud` on `initQino`. See [Cloud](/docs/guide/cloud#primitives)                                                                                                                                                                                                                                                                                                                                                |
 
 There is no `extension` option and no slug.
@@ -67,7 +67,7 @@ An `Item` with three getters.
 ### Getters
 
 - [`getEntry(options?)`](/docs/api/item/get-entry)
-- [`getAgentMarkdown()`](/docs/api/item/get-agent-markdown)
+- [`getPageMarkdown()`](/docs/api/item/get-page-markdown)
 - [`getMarkdownUrl()`](/docs/api/item/get-markdown-url)
 
 ## Throws

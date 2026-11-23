@@ -2,8 +2,8 @@ import type { Nodes } from "mdast";
 
 import type { Awaitable } from "./augment";
 
-/** Returns a page's agent Markdown, or `null` when the page doesn't exist. */
-export type LoadAgentMarkdown = () => string | null | Promise<string | null>;
+/** Returns a page's Markdown, or `null` when the page doesn't exist. */
+export type LoadPageMarkdown = () => string | null | Promise<string | null>;
 
 /** A link in a listing, such as an index page's: one line each. */
 export type ListingLink = {
@@ -21,21 +21,21 @@ export type ListingSection = {
 };
 
 /** An MDX component's literal attribute value: anything JSON can hold. */
-export type AgentMarkdownPropValue =
+export type PageMarkdownPropValue =
   | string
   | number
   | boolean
   | null
-  | Array<AgentMarkdownPropValue>
-  | { [key: string]: AgentMarkdownPropValue };
+  | Array<PageMarkdownPropValue>
+  | { [key: string]: PageMarkdownPropValue };
 
 /** What a component function receives. */
-export type AgentMarkdownComponentContext<Entry = unknown> = {
+export type PageMarkdownComponentContext<Entry = unknown> = {
   /**
    * The component's literal attributes, so `<X open />` gives `open: true`.
    * Attributes set by any other expression are left out: qino never runs one.
    */
-  props: Record<string, AgentMarkdownPropValue>;
+  props: Record<string, PageMarkdownPropValue>;
   /** The component's content as Markdown, its own components already replaced. */
   children: string;
   /** The entry being converted, as read: its relations are still slugs. */
@@ -43,24 +43,24 @@ export type AgentMarkdownComponentContext<Entry = unknown> = {
 };
 
 /** Turns an MDX component into Markdown, or returns `null` to keep it as written. */
-export type AgentMarkdownComponent<Entry = unknown> = (
-  context: AgentMarkdownComponentContext<Entry>,
+export type PageMarkdownComponent<Entry = unknown> = (
+  context: PageMarkdownComponentContext<Entry>,
 ) => Awaitable<string | null>;
 
 /** Functions that replace MDX components, by component name. */
-export type AgentMarkdownComponents<Entry = unknown> = Readonly<
-  Record<string, AgentMarkdownComponent<Entry>>
+export type PageMarkdownComponents<Entry = unknown> = Readonly<
+  Record<string, PageMarkdownComponent<Entry>>
 >;
 
-/** Configures the agent Markdown of a primitive's entry pages. */
-export type AgentMarkdownConfig<Entry> = {
+/** Configures the page Markdown of a primitive's entry pages. */
+export type PageMarkdownConfig<Entry> = {
   /** Replaces MDX components, by name. A component missing here stays as written. */
-  readonly components?: AgentMarkdownComponents<Entry>;
+  readonly components?: PageMarkdownComponents<Entry>;
 };
 
 /** The functions that replace an entry's MDX components, and the entry they receive. */
 export type ComponentReplacement<Entry> = {
-  components?: AgentMarkdownComponents<Entry>;
+  components?: PageMarkdownComponents<Entry>;
   /** The entry as read, before any view. */
   entry: Entry;
 };

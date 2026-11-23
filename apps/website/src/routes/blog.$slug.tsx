@@ -75,10 +75,10 @@ export const Route = createFileRoute("/blog/$slug")({
   },
   server: {
     handlers: {
-      // Agent Markdown at `/blog/<slug>.md`, or when `Accept` prefers it.
+      // Page Markdown at `/blog/<slug>.md`, or when `Accept` prefers it.
       GET: async ({ request, params, next }) =>
         (await negotiateMarkdown(request, () =>
-          postCollection.getAgentMarkdown(toEntrySlug(params.slug)),
+          postCollection.getPageMarkdown(toEntrySlug(params.slug)),
         )) ?? next(),
     },
   },

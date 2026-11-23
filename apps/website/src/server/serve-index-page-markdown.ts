@@ -1,10 +1,10 @@
-import { type LoadAgentMarkdown, negotiateMarkdown } from "@qino/cms";
+import { type LoadPageMarkdown, negotiateMarkdown } from "@qino/cms";
 
 // An index page's Markdown URL, such as `/docs.md`. Its trailing-slash form
 // redirects to it, as the router redirects other pages'.
-export async function serveIndexAgentMarkdown(
+export async function serveIndexPageMarkdown(
   request: Request,
-  load: LoadAgentMarkdown,
+  load: LoadPageMarkdown,
 ) {
   const url = new URL(request.url);
   if (url.pathname.endsWith("/")) {
