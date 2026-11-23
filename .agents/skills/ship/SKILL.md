@@ -90,6 +90,8 @@ The quoted heredoc keeps backticks in the body from running as shell commands.
 - `Closes #<n>` for each spec and ticket issue the PR resolves.
 - A one-line "Review" note when a review changed something worth knowing, or a finding was skipped that a reviewer might raise again.
 
+**Landing a stack:** when the user asks to land a ticket stack as one PR, squash-merge its PRs from the last to the first, each into its base, so the first PR holds the whole stack. Closing keywords fire only on merges into `main`, so that PR's body closes every spec and ticket issue in the stack. Retitle it and rewrite its body to describe what the stack built, including any rename or reshape a later PR made.
+
 ## 6. Report
 
 When the PR changes how the website answers Markdown or HTML requests, probe its Vercel preview first, since only the preview runs the deployed function and serves the prerendered files:
