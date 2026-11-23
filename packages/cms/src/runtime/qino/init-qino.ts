@@ -46,7 +46,7 @@ export type QinoConfig = {
    */
   readonly incrementalEntries?: boolean;
   /**
-   * The site's origin, such as `"https://example.com"`. Agent Markdown makes
+   * The site's origin, such as `"https://example.com"`. Page Markdown makes
    * site-relative links absolute against it. Required by `pages`.
    */
   readonly siteUrl?: string;

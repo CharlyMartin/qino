@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import { QinoPrimitiveMarker } from "../../data/globals";
-import type { ListingSection } from "../../types/agent-markdown";
+import type { ListingSection } from "../../types/page-markdown";
 import { collectLlmsTxtSections } from "./collect-llms-txt-sections";
 
 function section(title: string) {

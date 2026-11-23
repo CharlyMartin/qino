@@ -35,7 +35,9 @@ None.
 Because views are ignored, the list can contain slugs that a filtering default view excludes, and [getEntry](/docs/api/collection/get-entry) throws for those. Use `getAllSlugs` for routes when the default view has no `filter`. Otherwise derive slugs from the viewed set:
 
 ```ts title="src/app/posts/[slug]/page.tsx"
-const slugs = (await postCollection.getEntries()).map((post) => post._meta.slug);
+const slugs = (await postCollection.getEntries()).map(
+  (post) => post._meta.slug,
+);
 ```
 
 ## Throws

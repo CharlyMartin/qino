@@ -7,13 +7,13 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
 import { initQino } from "../runtime/qino/init-qino";
-import type { PagePath } from "../types/pages";
+import type { ItemPageConfig, PagePath } from "../types/pages";
 import { afterFrontmatterBlock } from "./after-frontmatter-block";
 
 let tmp: string;
 
 beforeEach(async () => {
-  tmp = await fs.mkdtemp(nodePath.join(os.tmpdir(), "qino-agent-md-int-"));
+  tmp = await fs.mkdtemp(nodePath.join(os.tmpdir(), "qino-page-md-int-"));
   await fs.mkdir(nodePath.join(tmp, "posts"));
 });
 
@@ -164,7 +164,7 @@ describe("Markdown URLs of collection entries", () => {
     );
   });
 
-  test("need pages, like agent Markdown", async () => {
+  test("need pages, like page Markdown", async () => {
     const posts = initQino({
       contentFolder: tmp,
       mediaFolder: tmp,
@@ -175,12 +175,12 @@ describe("Markdown URLs of collection entries", () => {
       schema: z.object({}),
     });
     const message =
-      'Collection "posts" has no pages: declare them to get agent Markdown and Markdown URLs.';
+      'Collection "posts" has no pages: declare them to get page Markdown and Markdown URLs.';
 
     expect(() => posts.getMarkdownUrl("hello")).toThrow(message);
     expect(() => posts.getMarkdownUrl()).toThrow(message);
-    await expect(posts.getAgentMarkdown("hello")).rejects.toThrow(message);
-    await expect(posts.getAgentMarkdown()).rejects.toThrow(message);
+    await expect(posts.getPageMarkdown("hello")).rejects.toThrow(message);
+    await expect(posts.getPageMarkdown()).rejects.toThrow(message);
   });
 });
 
@@ -207,7 +207,7 @@ describe("siteUrl", () => {
   });
 });
 
-describe("agent Markdown for collection entries", () => {
+describe("page Markdown for collection entries", () => {
   test("makes the description's site-relative links absolute", async () => {
     await writePost(
       "linked",
@@ -215,7 +215,7 @@ describe("agent Markdown for collection entries", () => {
     );
     const { posts } = setup();
 
-    expect(afterFrontmatterBlock(await posts.getAgentMarkdown("linked"))).toBe(
+    expect(afterFrontmatterBlock(await posts.getPageMarkdown("linked"))).toBe(
       "# Linked\n\n> See [setup](https://example.com/setup),\n> then ![a chart](https://example.com/chart.png).\n\nSome text.\n",
     );
   });
@@ -227,7 +227,7 @@ describe("agent Markdown for collection entries", () => {
     );
     const { posts } = setup();
 
-    expect(afterFrontmatterBlock(await posts.getAgentMarkdown("defined"))).toBe(
+    expect(afterFrontmatterBlock(await posts.getPageMarkdown("defined"))).toBe(
       "[guide]: https://example.com/guide\n\n# Hello, world\n\nSee the [guide].\n",
     );
   });
@@ -256,7 +256,7 @@ describe("agent Markdown for collection entries", () => {
     );
     const { posts } = setup();
 
-    expect(afterFrontmatterBlock(await posts.getAgentMarkdown("links"))).toBe(
+    expect(afterFrontmatterBlock(await posts.getPageMarkdown("links"))).toBe(
       [
         "# Links",
         "",
@@ -284,7 +284,7 @@ describe("agent Markdown for collection entries", () => {
     const { posts } = setup();
 
     expect(
-      afterFrontmatterBlock(await posts.getAgentMarkdown("commented")),
+      afterFrontmatterBlock(await posts.getPageMarkdown("commented")),
     ).toBe("<!-- note -->\n\n# Own title\n\nBody.\n");
   });
 
@@ -305,7 +305,7 @@ describe("agent Markdown for collection entries", () => {
       pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" },
     });
 
-    expect(afterFrontmatterBlock(await docs.getAgentMarkdown("intro"))).toBe(
+    expect(afterFrontmatterBlock(await docs.getPageMarkdown("intro"))).toBe(
       'import { Note } from "./note";\n\n# Introduction\n\n<Note>See [the guide](https://example.com/docs/guide).</Note>\n',
     );
   });
@@ -317,7 +317,7 @@ describe("agent Markdown for collection entries", () => {
     );
     const { posts } = setup();
 
-    expect(afterFrontmatterBlock(await posts.getAgentMarkdown("multi"))).toBe(
+    expect(afterFrontmatterBlock(await posts.getPageMarkdown("multi"))).toBe(
       "# Two lines\n\n> First.\n>\n> # Not a heading\n\nBody.\n",
     );
   });
@@ -329,7 +329,7 @@ describe("agent Markdown for collection entries", () => {
     );
     const { posts } = setup();
 
-    expect(afterFrontmatterBlock(await posts.getAgentMarkdown("crlf"))).toBe(
+    expect(afterFrontmatterBlock(await posts.getPageMarkdown("crlf"))).toBe(
       "# CRLF\n\nFirst line.\nSecond line.\n",
     );
   });
@@ -351,7 +351,7 @@ describe("agent Markdown for collection entries", () => {
       pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" },
     });
 
-    expect(afterFrontmatterBlock(await docs.getAgentMarkdown("ids"))).toBe(
+    expect(afterFrontmatterBlock(await docs.getPageMarkdown("ids"))).toBe(
       "# Ids\n\n## Install {#install}\n\n<Card>\n[the guide](https://example.com/docs/guide)\n</Card>\n",
     );
   });
@@ -382,7 +382,7 @@ describe("agent Markdown for collection entries", () => {
       pages: { index: "/authors", entry: "/authors/{slug}", title: "Authors" },
     });
 
-    expect(await authors.getAgentMarkdown("jane")).toBe(
+    expect(await authors.getPageMarkdown("jane")).toBe(
       '---\ntitle: "Jane"\ndescription: "Writes the posts."\ncanonical: "https://example.com/authors/jane"\n---\n\n# Jane\n\n> Writes the posts.\n',
     );
   });
@@ -394,7 +394,7 @@ describe("agent Markdown for collection entries", () => {
       await fs.writeFile(nodePath.join(tmp, "secret.md"), "---\n---\n");
       const { posts } = setup();
 
-      expect(await posts.getAgentMarkdown(slug)).toBeNull();
+      expect(await posts.getPageMarkdown(slug)).toBeNull();
     },
   );
 
@@ -416,16 +416,16 @@ describe("agent Markdown for collection entries", () => {
       }),
     });
 
-    expect(await posts.getAgentMarkdown("draft")).toBeNull();
+    expect(await posts.getPageMarkdown("draft")).toBeNull();
     expect(
       afterFrontmatterBlock(
-        await posts.getAgentMarkdown("draft", { view: "all" }),
+        await posts.getPageMarkdown("draft", { view: "all" }),
       ),
     ).toBe("# Draft\n\nSoon.\n");
   });
 });
 
-describe("agent Markdown for a collection's index page", () => {
+describe("page Markdown for a collection's index page", () => {
   test("opens with the index page's title, then links each entry's Markdown URL with its description", async () => {
     await writePost(
       "hello",
@@ -434,7 +434,7 @@ describe("agent Markdown for a collection's index page", () => {
     await writePost("world", "---\ntitle: World\n---\n\nHi.\n");
     const { posts } = setup();
 
-    expect(afterFrontmatterBlock(await posts.getAgentMarkdown())).toBe(
+    expect(afterFrontmatterBlock(await posts.getPageMarkdown())).toBe(
       "# Blog\n\n- [Hello](https://example.com/blog/hello.md): The first post.\n- [World](https://example.com/blog/world.md)\n",
     );
   });
@@ -446,7 +446,7 @@ describe("agent Markdown for a collection's index page", () => {
     );
     const { posts } = setup();
 
-    expect(afterFrontmatterBlock(await posts.getAgentMarkdown())).toBe(
+    expect(afterFrontmatterBlock(await posts.getPageMarkdown())).toBe(
       "# Blog\n\n- [Linked](https://example.com/blog/linked.md): See [setup](https://example.com/setup).\n",
     );
   });
@@ -479,7 +479,7 @@ describe("agent Markdown for a collection's index page", () => {
       }),
     });
 
-    expect(afterFrontmatterBlock(await posts.getAgentMarkdown())).toBe(
+    expect(afterFrontmatterBlock(await posts.getPageMarkdown())).toBe(
       "# Blog\n\n- [New](https://example.com/blog/b.md)\n- [Old](https://example.com/blog/a.md)\n",
     );
   });
@@ -492,7 +492,7 @@ describe("agent Markdown for a collection's index page", () => {
     await writePost("untitled", "Hi.\n");
     const { posts } = setup();
 
-    expect(afterFrontmatterBlock(await posts.getAgentMarkdown())).toBe(
+    expect(afterFrontmatterBlock(await posts.getPageMarkdown())).toBe(
       "# Blog\n\n- [Arrays \\[part 1](https://example.com/blog/hello.md): Two lines.\n- [untitled](https://example.com/blog/untitled.md)\n",
     );
   });
@@ -500,7 +500,7 @@ describe("agent Markdown for a collection's index page", () => {
   test("is the heading alone when there are no entries", async () => {
     const { posts } = setup();
 
-    expect(afterFrontmatterBlock(await posts.getAgentMarkdown())).toBe(
+    expect(afterFrontmatterBlock(await posts.getPageMarkdown())).toBe(
       "# Blog\n",
     );
   });
@@ -509,7 +509,7 @@ describe("agent Markdown for a collection's index page", () => {
     await writePost("hello", "---\ntitle: Hello\n---\n");
     const { posts } = setup();
 
-    expect(await posts.getAgentMarkdown("")).toBeNull();
+    expect(await posts.getPageMarkdown("")).toBeNull();
   });
 });
 
@@ -552,7 +552,7 @@ function defineDocs() {
   });
 }
 
-function defineItem(file: `${string}.md`, page?: PagePath) {
+function defineItem(file: `${string}.md`, page?: PagePath | ItemPageConfig) {
   return initQino({
     contentFolder: tmp,
     mediaFolder: tmp,
@@ -584,7 +584,7 @@ describe("pages on trees", () => {
     );
   });
 
-  test("are needed for agent Markdown and Markdown URLs", async () => {
+  test("are needed for page Markdown and Markdown URLs", async () => {
     const docs = initQino({
       contentFolder: tmp,
       mediaFolder: tmp,
@@ -596,12 +596,12 @@ describe("pages on trees", () => {
       titleField: "label",
     });
     const message =
-      'Tree "docs" has no pages: declare them to get agent Markdown and Markdown URLs.';
+      'Tree "docs" has no pages: declare them to get page Markdown and Markdown URLs.';
 
     expect(() => docs.getMarkdownUrl("guide")).toThrow(message);
     expect(() => docs.getMarkdownUrl()).toThrow(message);
-    await expect(docs.getAgentMarkdown("guide")).rejects.toThrow(message);
-    await expect(docs.getAgentMarkdown()).rejects.toThrow(message);
+    await expect(docs.getPageMarkdown("guide")).rejects.toThrow(message);
+    await expect(docs.getPageMarkdown()).rejects.toThrow(message);
   });
 });
 
@@ -613,7 +613,7 @@ describe("Markdown URLs of tree entries", () => {
   });
 });
 
-describe("agent Markdown for tree entries", () => {
+describe("page Markdown for tree entries", () => {
   test("takes the title from the tree's titleField", async () => {
     await writeDoc(
       "guide",
@@ -625,12 +625,12 @@ describe("agent Markdown for tree entries", () => {
     );
     const docs = defineDocs();
 
-    expect(afterFrontmatterBlock(await docs.getAgentMarkdown("guide"))).toBe(
+    expect(afterFrontmatterBlock(await docs.getPageMarkdown("guide"))).toBe(
       "# Guide\n\n> Start here.\n\nRead [the CLI](https://example.com/docs/guide/cli).\n",
     );
-    expect(
-      afterFrontmatterBlock(await docs.getAgentMarkdown("guide/cli")),
-    ).toBe("# CLI\n\n> Commands.\n");
+    expect(afterFrontmatterBlock(await docs.getPageMarkdown("guide/cli"))).toBe(
+      "# CLI\n\n> Commands.\n",
+    );
   });
 
   test.each(["missing", "../secret", "guide/../guide"])(
@@ -646,12 +646,12 @@ describe("agent Markdown for tree entries", () => {
       );
       const docs = defineDocs();
 
-      expect(await docs.getAgentMarkdown(slug)).toBeNull();
+      expect(await docs.getPageMarkdown(slug)).toBeNull();
     },
   );
 });
 
-describe("agent Markdown for a tree's index page", () => {
+describe("page Markdown for a tree's index page", () => {
   test("gives each root node a section listing it and its descendants, in tree order", async () => {
     await writeDoc(
       "guide",
@@ -672,7 +672,7 @@ describe("agent Markdown for a tree's index page", () => {
     );
     const docs = defineDocs();
 
-    expect(afterFrontmatterBlock(await docs.getAgentMarkdown())).toBe(
+    expect(afterFrontmatterBlock(await docs.getPageMarkdown())).toBe(
       [
         "# Docs",
         "",
@@ -699,6 +699,15 @@ describe("page on items", () => {
     );
   });
 
+  test("checks the path of its object form as it checks a string", () => {
+    expect(() => defineItem("about.md", { path: "about" as PagePath })).toThrow(
+      'Item "about.md": page "about" must start with "/".',
+    );
+    expect(defineItem("about.md", { path: "/about" }).getMarkdownUrl()).toBe(
+      "https://example.com/about.md",
+    );
+  });
+
   test("needs a siteUrl", () => {
     const define = () =>
       initQino({ contentFolder: tmp, mediaFolder: tmp }).defineItem({
@@ -712,13 +721,13 @@ describe("page on items", () => {
     );
   });
 
-  test("is needed for agent Markdown and a Markdown URL", async () => {
+  test("is needed for page Markdown and a Markdown URL", async () => {
     const about = defineItem("about.md");
     const message =
-      'Item "about.md" has no page: declare it to get agent Markdown and a Markdown URL.';
+      'Item "about.md" has no page: declare it to get page Markdown and a Markdown URL.';
 
     expect(() => about.getMarkdownUrl()).toThrow(message);
-    await expect(about.getAgentMarkdown()).rejects.toThrow(message);
+    await expect(about.getPageMarkdown()).rejects.toThrow(message);
   });
 });
 
@@ -733,7 +742,7 @@ describe("Markdown URLs of items", () => {
   });
 });
 
-describe("agent Markdown for items", () => {
+describe("page Markdown for items", () => {
   test("falls back to the file name for the title", async () => {
     await fs.writeFile(
       nodePath.join(tmp, "about.md"),
@@ -746,26 +755,26 @@ describe("agent Markdown for items", () => {
 
     expect(
       afterFrontmatterBlock(
-        await defineItem("about.md", "/about").getAgentMarkdown(),
+        await defineItem("about.md", "/about").getPageMarkdown(),
       ),
     ).toBe("# About us\n\nSee [the team](https://example.com/team).\n");
     expect(
       afterFrontmatterBlock(
-        await defineItem("untitled.md", "/untitled").getAgentMarkdown(),
+        await defineItem("untitled.md", "/untitled").getPageMarkdown(),
       ),
     ).toBe("# untitled\n\nBody.\n");
   });
 });
 
 describe("frontmatter blocks", () => {
-  test("open an entry page's agent Markdown with its title, description and canonical URL, before the heading, the description and the body without its own frontmatter", async () => {
+  test("open an entry page's Markdown with its title, description and canonical URL, before the heading, the description and the body without its own frontmatter", async () => {
     await writePost(
       "hello",
       "---\ntitle: Hello\ndescription: A first post.\n---\n\nSome text.\n",
     );
     const { posts } = setup();
 
-    expect(await posts.getAgentMarkdown("hello")).toBe(
+    expect(await posts.getPageMarkdown("hello")).toBe(
       '---\ntitle: "Hello"\ndescription: "A first post."\ncanonical: "https://example.com/blog/hello"\n---\n\n# Hello\n\n> A first post.\n\nSome text.\n',
     );
   });
@@ -777,7 +786,7 @@ describe("frontmatter blocks", () => {
     );
     const { posts } = setup();
 
-    expect(await posts.getAgentMarkdown("titled")).toBe(
+    expect(await posts.getPageMarkdown("titled")).toBe(
       '---\ntitle: "Hello"\ndescription: "A first post."\ncanonical: "https://example.com/blog/titled"\n---\n\n# Hello, world\n\nSome text.\n',
     );
   });
@@ -786,7 +795,7 @@ describe("frontmatter blocks", () => {
     await writePost("headed", "# Hello, world\n\nSome text.\n");
     const { posts } = setup();
 
-    expect(await posts.getAgentMarkdown("headed")).toBe(
+    expect(await posts.getPageMarkdown("headed")).toBe(
       '---\ntitle: "headed"\ncanonical: "https://example.com/blog/headed"\n---\n\n# Hello, world\n\nSome text.\n',
     );
   });
@@ -795,7 +804,7 @@ describe("frontmatter blocks", () => {
     await writePost("untitled", "---\n---\n\nSome text.\n");
     const { posts } = setup();
 
-    expect(await posts.getAgentMarkdown("untitled")).toBe(
+    expect(await posts.getPageMarkdown("untitled")).toBe(
       '---\ntitle: "untitled"\ncanonical: "https://example.com/blog/untitled"\n---\n\n# untitled\n\nSome text.\n',
     );
   });
@@ -809,7 +818,7 @@ describe("frontmatter blocks", () => {
     );
     const { posts } = setup();
 
-    const markdown = (await posts.getAgentMarkdown("quoted")) ?? "";
+    const markdown = (await posts.getPageMarkdown("quoted")) ?? "";
     expect(markdown).toMatch(
       /^---\ntitle: "- Setup: \\"quick\\" #1 \\\\ done"\ndescription: "Two lines: both # kept\."\n/,
     );
@@ -824,7 +833,7 @@ describe("frontmatter blocks", () => {
     await writePost("hello", "---\ntitle: Hello\n---\n\nSome text.\n");
     const { posts } = setup();
 
-    expect(await posts.getAgentMarkdown()).toBe(
+    expect(await posts.getPageMarkdown()).toBe(
       '---\ntitle: "Blog"\ncanonical: "https://example.com/blog"\n---\n\n# Blog\n\n- [Hello](https://example.com/blog/hello.md)\n',
     );
   });
@@ -840,10 +849,10 @@ describe("frontmatter blocks", () => {
     );
     const docs = defineDocs();
 
-    expect(await docs.getAgentMarkdown("guide/cli")).toBe(
+    expect(await docs.getPageMarkdown("guide/cli")).toBe(
       '---\ntitle: "CLI"\ndescription: "Commands."\ncanonical: "https://example.com/docs/guide/cli"\n---\n\n# CLI\n\n> Commands.\n',
     );
-    expect(await docs.getAgentMarkdown()).toMatch(
+    expect(await docs.getPageMarkdown()).toMatch(
       /^---\ntitle: "Docs"\ncanonical: "https:\/\/example\.com\/docs"\n---\n\n# Docs\n\n## Guide\n/,
     );
   });
@@ -854,10 +863,10 @@ describe("frontmatter blocks", () => {
       "---\ntitle: About us\n---\n\nBody.\n",
     );
 
-    expect(await defineItem("about.md", "/about").getAgentMarkdown()).toBe(
+    expect(await defineItem("about.md", "/about").getPageMarkdown()).toBe(
       '---\ntitle: "About us"\ncanonical: "https://example.com/about"\n---\n\n# About us\n\nBody.\n',
     );
-    expect(await defineItem("about.md", "/").getAgentMarkdown()).toMatch(
+    expect(await defineItem("about.md", "/").getPageMarkdown()).toMatch(
       /^---\ntitle: "About us"\ncanonical: "https:\/\/example\.com\/"\n---\n/,
     );
   });

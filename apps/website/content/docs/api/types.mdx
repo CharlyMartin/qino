@@ -6,21 +6,21 @@ since: "0.1.0"
 
 `@qino/cms` exports these types:
 
-| Type                                                                                                                            | Purpose                                                                   |
-| ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| [`Infer`](/docs/api/types/infer)                                                                                                | Entry types of a primitive, per view                                      |
-| [`Collection`, `Tree`, `Item`](/docs/api/types/primitives)                                                                      | Return types of the three define functions                                |
-| [`CollectionEntryMeta`, `TreeEntryMeta`, `ItemEntryMeta`, `AnyEntry`](/docs/api/types/entry-meta)                               | The `_meta` shapes and the loosest entry type                             |
-| [`TreeNode`](/docs/api/types/tree-node)                                                                                         | Structural node returned by tree getters                                  |
-| [`PaginatedEntries`](/docs/api/collection/get-paginated-entries#returns)                                                        | The page `getPaginatedEntries` returns, with its totals                   |
-| [`QinoSlugRegistry`](/docs/api/types/slug-registry)                                                                             | Interface augmented by generated slug types                               |
-| [`MarkdownStats`](/docs/api/types/markdown-stats)                                                                               | The `_stats` field added by `markdown.stats`                              |
-| [`MarkdownToc`, `MarkdownTocHeading`](/docs/api/types/markdown-toc)                                                             | The `_toc` field added by `markdown.toc`, and one of its headings         |
-| [`MediaRule`, `MediaSize`, `MediaParse`, `MediaParseContext`](/docs/concepts/media)                                             | A `media` or `markdown.media` rule, to share rules between primitives     |
-| [`QinoImage`](/docs/api/types/qino-image)                                                                                       | An image field once read, shaped like Next's `StaticImageData`            |
-| [`RelationParse`, `RelationParseContext`](/docs/concepts/relations#custom-formats)                                              | A relation's `parse` callback, and what it receives                       |
-| [`MarkdownConfig`](/docs/api/collection#parameters)                                                                             | The `markdown` option                                                     |
-| [`AgentMarkdownComponent`, `AgentMarkdownComponentContext`, `AgentMarkdownPropValue`](/docs/api/types/agent-markdown-component) | A function in `agentMarkdown.components`, what it receives, and its props |
-| [`LoadAgentMarkdown`](/docs/api/negotiate-markdown#signature)                                                                   | The loader `negotiateMarkdown` takes                                      |
+| Type                                                                                                                        | Purpose                                                               |
+| --------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [`Infer`](/docs/api/types/infer)                                                                                            | Entry types of a primitive, per view                                  |
+| [`Collection`, `Tree`, `Item`](/docs/api/types/primitives)                                                                  | Return types of the three define functions                            |
+| [`CollectionEntryMeta`, `TreeEntryMeta`, `ItemEntryMeta`, `AnyEntry`](/docs/api/types/entry-meta)                           | The `_meta` shapes and the loosest entry type                         |
+| [`TreeNode`](/docs/api/types/tree-node)                                                                                     | Structural node returned by tree getters                              |
+| [`PaginatedEntries`](/docs/api/collection/get-paginated-entries#returns)                                                    | The page `getPaginatedEntries` returns, with its totals               |
+| [`QinoSlugRegistry`](/docs/api/types/slug-registry)                                                                         | Interface augmented by generated slug types                           |
+| [`MarkdownStats`](/docs/api/types/markdown-stats)                                                                           | The `_stats` field added by `markdown.stats`                          |
+| [`MarkdownToc`, `MarkdownTocHeading`](/docs/api/types/markdown-toc)                                                         | The `_toc` field added by `markdown.toc`, and one of its headings     |
+| [`MediaRule`, `MediaSize`, `MediaParse`, `MediaParseContext`](/docs/concepts/media)                                         | A `media` or `markdown.media` rule, to share rules between primitives |
+| [`QinoImage`](/docs/api/types/qino-image)                                                                                   | An image field once read, shaped like Next's `StaticImageData`        |
+| [`RelationParse`, `RelationParseContext`](/docs/concepts/relations#custom-formats)                                          | A relation's `parse` callback, and what it receives                   |
+| [`MarkdownConfig`](/docs/api/collection#parameters)                                                                         | The `markdown` option                                                 |
+| [`PageMarkdownComponent`, `PageMarkdownComponentContext`, `PageMarkdownPropValue`](/docs/api/types/page-markdown-component) | A function in `markdownComponents`, what it receives, and its props   |
+| [`LoadPageMarkdown`](/docs/api/negotiate-markdown#signature)                                                                | The loader `negotiateMarkdown` takes                                  |
 
 Other option shapes, such as the config passed to `initQino`, the relation depth, or getter options are not exported. They are documented inline on the function pages.

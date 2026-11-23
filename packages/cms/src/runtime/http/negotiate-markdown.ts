@@ -1,8 +1,8 @@
 import { prefersMarkdown } from "../../lib/http/prefers-markdown";
-import type { LoadAgentMarkdown } from "../../types/agent-markdown";
+import type { LoadPageMarkdown } from "../../types/page-markdown";
 
 /**
- * Answers a request that wants agent Markdown: its path is a Markdown URL,
+ * Answers a request that wants page Markdown: its path is a Markdown URL,
  * ending in `.md`, or its `Accept` header prefers `text/markdown` to HTML.
  * Resolves to `null`, without calling `load`, when the request wants HTML, so
  * the caller renders the page; it never answers 406. A `load` that resolves to
@@ -12,7 +12,7 @@ import type { LoadAgentMarkdown } from "../../types/agent-markdown";
  */
 export async function negotiateMarkdown(
   request: Request,
-  load: LoadAgentMarkdown,
+  load: LoadPageMarkdown,
 ): Promise<Response | null> {
   const url = new URL(request.url);
   const isMarkdownUrl = url.pathname.endsWith(".md");
@@ -20,14 +20,14 @@ export async function negotiateMarkdown(
     return null;
   }
 
-  const agentMarkdown = await load();
+  const pageMarkdown = await load();
   const llmsTxt = new URL("/llms.txt", url.origin);
   const body =
-    agentMarkdown ??
+    pageMarkdown ??
     `# Not found\n\nThis page doesn't exist. See [llms.txt](${llmsTxt}) for the pages that do.\n`;
 
   return new Response(request.method == "HEAD" ? null : body, {
-    status: agentMarkdown == null ? 404 : 200,
+    status: pageMarkdown == null ? 404 : 200,
     headers: {
       "Content-Type": "text/markdown; charset=utf-8",
       Vary: "Accept",

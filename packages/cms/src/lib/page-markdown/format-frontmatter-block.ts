@@ -14,7 +14,7 @@ type FormatFrontmatterBlockParams = {
 const UNSAFE_IN_YAML = /[\u007f-\u009f\ufffe\uffff]/g;
 
 /**
- * Agent Markdown's frontmatter block: `title`, `description` on one line when
+ * Page Markdown's frontmatter block: `title`, `description` on one line when
  * there is one, and `canonical`. Each value is a double-quoted YAML string,
  * escaped as JSON, which YAML reads the same way.
  */

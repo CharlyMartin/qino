@@ -1,8 +1,13 @@
-import type { PagePath, ResolvedItemPage } from "../../types/pages";
+import type {
+  ItemPageConfig,
+  PagePath,
+  ResolvedItemPage,
+} from "../../types/pages";
 import { describePagePathError } from "./describe-page-path-error";
 
 type ResolveItemPageParams = {
-  page: PagePath | undefined;
+  /** The page's path, or an object holding it. */
+  page: PagePath | ItemPageConfig | undefined;
   siteUrl: string | undefined;
   /** Names the item in messages, such as `Item "about.md"`. */
   owner: string;
@@ -10,7 +15,7 @@ type ResolveItemPageParams = {
 
 /**
  * Checks an item's `page` when the item is defined, so a bad path fails
- * before any link, and returns it with the `siteUrl` it needs.
+ * before any link, and returns its path with the `siteUrl` it needs.
  */
 export function resolveItemPage({
   page,
@@ -25,11 +30,13 @@ export function resolveItemPage({
     );
   }
 
-  const error = describePagePathError(page, {
+  // Both forms are checked, and named in messages, as `page`.
+  const path = typeof page == "object" ? page.path : page;
+  const error = describePagePathError(path, {
     label: "page",
     takesSlug: false,
   });
   if (error) throw new Error(`${owner}: ${error}`);
 
-  return { page, siteUrl } satisfies ResolvedItemPage;
+  return { page: path, siteUrl } satisfies ResolvedItemPage;
 }

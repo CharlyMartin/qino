@@ -5,9 +5,6 @@ import {
   QinoPrimitiveMarker,
   QinoPrimitives,
 } from "../../data/globals";
-import { buildAgentMarkdown } from "../../lib/agent-markdown/build-agent-markdown";
-import { buildIndexAgentMarkdown } from "../../lib/agent-markdown/build-index-agent-markdown";
-import { toListingLink } from "../../lib/agent-markdown/to-listing-link";
 import { unwrapSettled } from "../../lib/async/unwrap-settled";
 import type { DependencyCollector } from "../../lib/cache/create-dependency-collector";
 import { createFileCache } from "../../lib/cache/create-file-cache";
@@ -19,6 +16,9 @@ import { assertMediaConfig } from "../../lib/media/assert-media-config";
 import { resolveEntryMedia } from "../../lib/media/resolve-entry-media";
 import { buildEntryMeta } from "../../lib/meta/build-entry-meta";
 import { getEntrySlug } from "../../lib/meta/get-entry-slug";
+import { buildIndexPageMarkdown } from "../../lib/page-markdown/build-index-page-markdown";
+import { buildPageMarkdown } from "../../lib/page-markdown/build-page-markdown";
+import { toListingLink } from "../../lib/page-markdown/to-listing-link";
 import { requirePages } from "../../lib/pages/require-pages";
 import { resolvePages } from "../../lib/pages/resolve-pages";
 import { toPagesMarkdownUrl } from "../../lib/pages/to-pages-markdown-url";
@@ -36,7 +36,6 @@ import { applyView } from "../../lib/views/apply-view";
 import { assertNoRootViewSettings } from "../../lib/views/assert-no-root-view-settings";
 import { buildViews } from "../../lib/views/build-views";
 import { selectView } from "../../lib/views/select-view";
-import type { AgentMarkdownConfig } from "../../types/agent-markdown";
 import type {
   CollectionCloudConfig,
   DisplayEntryAsConfig,
@@ -62,6 +61,7 @@ import type {
   MediaConfig,
   TaggedRelations,
 } from "../../types/media";
+import type { PageMarkdownConfig } from "../../types/page-markdown";
 import type { PagesConfig } from "../../types/pages";
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
@@ -121,19 +121,21 @@ export type DefineCollectionParams<
   cloud?: NoInfer<CollectionCloudConfig<Schema>> &
     SaveEntryAsConfig<SaveEntryAs, Schema> &
     DisplayEntryAsConfig<DisplayEntryAs, Schema>;
-  /** Where the index page and entry pages live, for agent Markdown and links. */
-  pages?: PagesConfig;
-  /** Configures the entry pages' agent Markdown: how MDX components read. */
-  agentMarkdown?: NoInfer<
-    AgentMarkdownConfig<
-      ResolvedCollectionView<
-        Schema,
-        Ext,
-        TaggedRelations<Rels, Media, Stats, Toc>
+  /**
+   * Where the index page and entry pages live, for page Markdown and links,
+   * and how MDX components read in the pages' Markdown.
+   */
+  pages?: PagesConfig &
+    NoInfer<
+      PageMarkdownConfig<
+        ResolvedCollectionView<
+          Schema,
+          Ext,
+          TaggedRelations<Rels, Media, Stats, Toc>
+        >,
+        Ext
       >
-    >
-  > &
-    NoInfer<CheckMarkdownConfig<Ext>>;
+    >;
 } & RootViewSettings;
 
 export function defineCollection<
@@ -218,7 +220,7 @@ export function defineCollection<
           ...resolvedPages,
           owner,
           getListingSections,
-          getSectionLlmsTxt: () => buildIndexPageAgentMarkdown(),
+          getSectionLlmsTxt: () => readIndexPageMarkdown(),
           getLlmsFullDocuments,
         },
       }),
@@ -229,7 +231,7 @@ export function defineCollection<
     getPaginatedEntries,
     getAllSlugs,
     getEntry,
-    getAgentMarkdown,
+    getPageMarkdown,
     getMarkdownUrl,
   } as const satisfies Collection<
     S,
@@ -416,18 +418,18 @@ export function defineCollection<
     >;
   }
 
-  async function getAgentMarkdown(): Promise<string>;
-  async function getAgentMarkdown<
+  async function getPageMarkdown(): Promise<string>;
+  async function getPageMarkdown<
     Args extends ViewArguments<ConfiguredViews<Views>> = [],
   >(slug: Slug, ...args: Args): Promise<string | null>;
-  async function getAgentMarkdown(
+  async function getPageMarkdown(
     slug?: Slug,
     ...[options]: ViewArguments<ConfiguredViews<Views>>
   ) {
     const pages = requirePages(resolvedPages, { owner, option: "pages" });
     // Only a missing slug means the index page: `""` is a slug no entry has.
     if (typeof slug == "undefined") {
-      return buildIndexPageAgentMarkdown(toPagesUrl(pages));
+      return readIndexPageMarkdown(toPagesUrl(pages));
     }
 
     // Only a listed slug reads a file: a route param can't reach past the
@@ -437,7 +439,7 @@ export function defineCollection<
     const { entry, entryAsRead, isExcluded } = await readInView(slug, options);
     if (isExcluded) return null;
 
-    return buildEntryAgentMarkdown(entry, entryAsRead, toPagesUrl(pages, slug));
+    return buildEntryPageMarkdown(entry, entryAsRead, toPagesUrl(pages, slug));
   }
 
   // `llms-full.txt`'s documents: the index page's entries, in its order,
@@ -446,7 +448,7 @@ export function defineCollection<
     const entries = await getEntries();
     return Promise.all(
       entries.map(async (entry) =>
-        buildEntryAgentMarkdown(entry, await readEntry(getEntrySlug(entry))),
+        buildEntryPageMarkdown(entry, await readEntry(getEntrySlug(entry))),
       ),
     );
   }
@@ -454,19 +456,19 @@ export function defineCollection<
   // An entry page's: the heading from the entry through its view, and the
   // entry as read for the components. A `canonical` adds the frontmatter
   // block.
-  function buildEntryAgentMarkdown(
+  function buildEntryPageMarkdown(
     entry: unknown,
     entryAsRead: ResolvedCollectionView<S, Ext, TaggedRels>,
     canonical?: string,
   ) {
     const { siteUrl } = requirePages(resolvedPages, { owner, option: "pages" });
-    return buildAgentMarkdown({
+    return buildPageMarkdown({
       entry: entry as Record<string, unknown>,
       fallbackTitle: getEntrySlug(entryAsRead),
       extension,
       origin: siteUrl,
       replacement: {
-        components: params.agentMarkdown?.components,
+        components: params.pages?.markdownComponents,
         entry: entryAsRead,
       },
       canonical,
@@ -488,9 +490,9 @@ export function defineCollection<
 
   // The index page's. A `canonical` adds the frontmatter block, which its
   // section llms.txt leaves out.
-  async function buildIndexPageAgentMarkdown(canonical?: string) {
+  async function readIndexPageMarkdown(canonical?: string) {
     const { title } = requirePages(resolvedPages, { owner, option: "pages" });
-    return buildIndexAgentMarkdown({
+    return buildIndexPageMarkdown({
       title,
       links: await listLinks(),
       canonical,

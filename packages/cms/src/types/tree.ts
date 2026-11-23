@@ -114,16 +114,16 @@ export type Tree<
   getNextNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
   getPreviousNode(slug: SlugFor<Dir>): Promise<TreeNode | null>;
   /**
-   * The index page's agent Markdown: `# {pages.title}`, then a section per
+   * The index page's Markdown: `# {pages.title}`, then a section per
    * root node, linking the node and its descendants, in tree order, to their
    * Markdown URLs with their descriptions.
    */
-  getAgentMarkdown(): Promise<string>;
+  getPageMarkdown(): Promise<string>;
   /**
-   * An entry page's agent Markdown, or `null` when the slug names no node.
+   * An entry page's Markdown, or `null` when the slug names no node.
    * Takes any string, such as a route param.
    */
-  getAgentMarkdown(slug: Slug): Promise<string | null>;
+  getPageMarkdown(slug: Slug): Promise<string | null>;
   /**
    * The index page's Markdown URL: its URL on `siteUrl`, without a trailing
    * `/`, with `.md` appended, or `/index.md` at the site root.

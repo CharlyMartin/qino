@@ -15,12 +15,12 @@ describe("requirePages", () => {
     expect(() =>
       requirePages(undefined, { owner: 'Tree "docs"', option: "pages" }),
     ).toThrow(
-      'Tree "docs" has no pages: declare them to get agent Markdown and Markdown URLs.',
+      'Tree "docs" has no pages: declare them to get page Markdown and Markdown URLs.',
     );
     expect(() =>
       requirePages(undefined, { owner: 'Item "about.md"', option: "page" }),
     ).toThrow(
-      'Item "about.md" has no page: declare it to get agent Markdown and a Markdown URL.',
+      'Item "about.md" has no page: declare it to get page Markdown and a Markdown URL.',
     );
   });
 });

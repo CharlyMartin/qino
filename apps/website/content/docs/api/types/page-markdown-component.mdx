@@ -1,10 +1,10 @@
 ---
-title: AgentMarkdownComponent
-description: A function that turns an MDX component into Markdown for agents, set in `agentMarkdown.components`.
+title: PageMarkdownComponent
+description: A function whose output replaces an MDX component in page Markdown, set in `markdownComponents`.
 since: "0.25.0"
 ---
 
-MDX components mean nothing to an agent, so a primitive can map each component's name to a function that returns its Markdown. Set them in `agentMarkdown.components` on a Markdown or MDX collection, tree, or item. JSON primitives can't set it.
+MDX components mean nothing outside your site, so a primitive can map each component's name to a function that returns its Markdown. Set them in `markdownComponents`: in `pages` on a Markdown or MDX collection or tree, or in an item's `page: { path, markdownComponents }`. JSON primitives can't set it.
 
 ```ts title="qino/docs.ts"
 export const docsTree = qino.defineTree({
@@ -12,9 +12,11 @@ export const docsTree = qino.defineTree({
   extension: ".mdx",
   titleField: "title",
   schema: DocSchema,
-  pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" },
-  agentMarkdown: {
-    components: {
+  pages: {
+    index: "/docs",
+    entry: "/docs/{slug}",
+    title: "Docs",
+    markdownComponents: {
       // <Badge label="New" /> becomes its label in bold.
       Badge: ({ props }) => `**${props.label}**`,
       // It only styles its text, so agents get the text.
@@ -38,31 +40,31 @@ export const docsTree = qino.defineTree({
 
 ```ts title="@qino/cms"
 import type {
-  AgentMarkdownComponent,
-  AgentMarkdownComponentContext,
-  AgentMarkdownPropValue,
+  PageMarkdownComponent,
+  PageMarkdownComponentContext,
+  PageMarkdownPropValue,
 } from "@qino/cms";
 
-type AgentMarkdownComponent<Entry = unknown> = (
-  context: AgentMarkdownComponentContext<Entry>,
+type PageMarkdownComponent<Entry = unknown> = (
+  context: PageMarkdownComponentContext<Entry>,
 ) => string | null | Promise<string | null>;
 
-type AgentMarkdownComponentContext<Entry = unknown> = {
-  props: Record<string, AgentMarkdownPropValue>;
+type PageMarkdownComponentContext<Entry = unknown> = {
+  props: Record<string, PageMarkdownPropValue>;
   children: string;
   entry: Entry;
 };
 
-type AgentMarkdownPropValue =
+type PageMarkdownPropValue =
   | string
   | number
   | boolean
   | null
-  | Array<AgentMarkdownPropValue>
-  | { [key: string]: AgentMarkdownPropValue };
+  | Array<PageMarkdownPropValue>
+  | { [key: string]: PageMarkdownPropValue };
 ```
 
-Inside `agentMarkdown.components`, `entry` is typed as the primitive's entry, so the functions need no annotation.
+Inside `markdownComponents`, `entry` is typed as the primitive's entry, so the functions need no annotation.
 
 ## Context
 
@@ -86,4 +88,4 @@ A function that calls the primitive it belongs to, as `LinkGrid` reads `docsTree
 ## See also
 
 - [Agent-ready content](/docs/guide/agent-ready-content#mdx-components)
-- [getAgentMarkdown](/docs/api/collection/get-agent-markdown)
+- [getPageMarkdown](/docs/api/collection/get-page-markdown)

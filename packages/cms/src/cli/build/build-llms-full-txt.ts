@@ -4,7 +4,7 @@ import { parseLlmsTxtTemplate } from "./parse-llms-txt-template";
 type BuildLlmsFullTxtParams = {
   /** The `llms.txt` template, as read. */
   template: string;
-  /** The entry pages' agent Markdown, in order. */
+  /** The entry pages' Markdown, in order. */
   documents: Array<string>;
 };
 

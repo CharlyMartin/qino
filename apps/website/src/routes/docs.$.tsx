@@ -72,10 +72,10 @@ export const Route = createFileRoute("/docs/$")({
   },
   server: {
     handlers: {
-      // Agent Markdown at `/docs/<slug>.md`, or when `Accept` prefers it.
+      // Page Markdown at `/docs/<slug>.md`, or when `Accept` prefers it.
       GET: async ({ request, params, next }) =>
         (await negotiateMarkdown(request, () =>
-          docsTree.getAgentMarkdown(toEntrySlug(params._splat ?? "")),
+          docsTree.getPageMarkdown(toEntrySlug(params._splat ?? "")),
         )) ?? next(),
     },
   },

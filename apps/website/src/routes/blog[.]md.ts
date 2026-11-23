@@ -1,16 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { postCollection } from "../../qino/posts";
-import { serveIndexAgentMarkdown } from "../server/serve-index-agent-markdown";
+import { serveIndexPageMarkdown } from "../server/serve-index-page-markdown";
 
-// The blog index page's agent Markdown.
+// The blog index page's Markdown.
 export const Route = createFileRoute("/blog.md")({
   server: {
     handlers: {
       GET: ({ request }) =>
-        serveIndexAgentMarkdown(request, () =>
-          postCollection.getAgentMarkdown(),
-        ),
+        serveIndexPageMarkdown(request, () => postCollection.getPageMarkdown()),
     },
   },
 });

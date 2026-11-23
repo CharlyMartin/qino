@@ -1,4 +1,4 @@
-import type { ListingLink } from "../../types/agent-markdown";
+import type { ListingLink } from "../../types/page-markdown";
 
 /**
  * A listing's line for a link, as llmstxt.org lists them:

@@ -85,7 +85,7 @@ CI runs `pnpm install --frozen-lockfile`, then the root `pnpm check`, on every P
 
 - Different output for the same content: parsed Markdown/MDX, frontmatter values, glob matches, image metadata
 - What visitors see on the website: highlighting, headings, links, styles
-- Markdown formatting from a `prettier` bump: CI doesn't run `pnpm format:check`
+- Markdown formatting from a `prettier` bump outside `apps/website/content`: CI runs Prettier only there, through `pnpm format:content:check`
 - A `peerDependencies` range that changed what users must install
 
 Check the CI status in `statusCheckRollup`. If a check failed, read its log with `gh run view <run-id> --log-failed`. One failure is expected: `pnpm install` rejects versions younger than `minimumReleaseAge` (3 days, in `pnpm-workspace.yaml`). Dependabot's cooldown keeps version updates past it, but a fresh security update fails there; suggest adding the package to `minimumReleaseAgeExclude`.

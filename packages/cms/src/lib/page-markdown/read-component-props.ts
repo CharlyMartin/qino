@@ -1,4 +1,4 @@
-import type { MdxJsxElement } from "../../types/agent-markdown";
+import type { MdxJsxElement } from "../../types/page-markdown";
 import { readLiteralValue } from "./read-literal-value";
 
 /**

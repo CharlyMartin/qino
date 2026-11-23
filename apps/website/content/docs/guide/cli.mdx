@@ -153,11 +153,11 @@ A server that renders pages on request reads images from it when `mediaFolder` o
 
 Set `cli.build.llmsTxt` on [`initQino`](/docs/api/init-qino), and `build` also writes three files at the root of `mediaFolder`, from the [`llms.txt` template](/docs/guide/agent-ready-content#llmstxt):
 
-| File            | Content                                                                                                                           |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `llms.txt`      | The template, with a section of links for each primitive that declares pages                                                      |
-| `llms-full.txt` | The template's H1 and summary, then the agent Markdown of every entry page, one after another                                     |
-| `index.md`      | `llms.txt` after a frontmatter block, as the homepage's agent Markdown. Skipped when a page's Markdown URL is already `/index.md` |
+| File            | Content                                                                                                                     |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `llms.txt`      | The template, with a section of links for each primitive that declares pages                                                |
+| `llms-full.txt` | The template's H1 and summary, then the page Markdown of every entry page, one after another                                |
+| `index.md`      | `llms.txt` after a frontmatter block, as the homepage's Markdown. Skipped when a page's Markdown URL is already `/index.md` |
 
 ```ts title="qino/index.ts"
 export default initQino({
@@ -228,7 +228,7 @@ export default initQino({
 });
 ```
 
-A section llms.txt is the index page's agent Markdown without its frontmatter block, so it lists the same pages as the index page's Markdown URL. `llms.txt` links to each one under a single `## Sections` heading, in place of their sections, and keeps items' `## Pages`:
+A section llms.txt is the index page's Markdown without its frontmatter block, so it lists the same pages as the index page's Markdown URL. `llms.txt` links to each one under a single `## Sections` heading, in place of their sections, and keeps items' `## Pages`:
 
 ```md title="public/llms.txt"
 # Acme

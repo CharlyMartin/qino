@@ -4,7 +4,7 @@ import { docsTree } from "../../qino/docs";
 import { postCollection } from "../../qino/posts";
 
 test("a section landing keeps its intro, and its LinkGrid lists its pages with their Markdown URLs", async () => {
-  const markdown = await docsTree.getAgentMarkdown("guide");
+  const markdown = await docsTree.getPageMarkdown("guide");
 
   expect(markdown).toBe(
     [
@@ -34,7 +34,7 @@ test("a section landing keeps its intro, and its LinkGrid lists its pages with t
 });
 
 test("InstallBox becomes its npm command, install by default", async () => {
-  const markdown = await docsTree.getAgentMarkdown("guide/installation");
+  const markdown = await docsTree.getPageMarkdown("guide/installation");
 
   expect(markdown).toContain("```sh\nnpm install @qino/cms zod\n```");
   expect(markdown).toContain(
@@ -44,7 +44,7 @@ test("InstallBox becomes its npm command, install by default", async () => {
 });
 
 test("a blog post's InstallBox becomes the npm install command", async () => {
-  const markdown = await postCollection.getAgentMarkdown("hello-qino");
+  const markdown = await postCollection.getPageMarkdown("hello-qino");
 
   expect(markdown).toContain("```sh\nnpm install @qino/cms zod\n```");
   expect(markdown).not.toContain("<InstallBox");
@@ -62,11 +62,11 @@ test("every component a page keeps is listed as kept", async () => {
   const pages = await Promise.all([
     ...nodes.map(async ({ slug }) => ({
       url: docsTree.getMarkdownUrl(slug),
-      markdown: await docsTree.getAgentMarkdown(slug),
+      markdown: await docsTree.getPageMarkdown(slug),
     })),
     ...postSlugs.map(async (slug) => ({
       url: postCollection.getMarkdownUrl(slug),
-      markdown: await postCollection.getAgentMarkdown(slug),
+      markdown: await postCollection.getPageMarkdown(slug),
     })),
   ]);
 

@@ -9,9 +9,9 @@ import {
   LLMS_TXT_FILE_NAME,
   QinoPrimitiveMarker,
 } from "../../data/globals";
-import { formatListingSection } from "../../lib/agent-markdown/format-listing-section";
 import { isFile } from "../../lib/fs/is-file";
 import { readTextFile } from "../../lib/fs/read-text-file";
+import { formatListingSection } from "../../lib/page-markdown/format-listing-section";
 import { toMarkdownUrl } from "../../lib/pages/to-markdown-url";
 import { toPagesMarkdownUrl } from "../../lib/pages/to-pages-markdown-url";
 import type { QinoContext } from "../../runtime/qino/init-qino";

@@ -7,7 +7,7 @@
 # body.
 set -u
 cd "$(dirname "$0")/.." || exit 2
-markers=(contentFolder getAgentMarkdown "for the pages that do")
+markers=(contentFolder getPageMarkdown "for the pages that do")
 
 assets=()
 for dir in .output/public/assets .vercel/output/static/assets; do

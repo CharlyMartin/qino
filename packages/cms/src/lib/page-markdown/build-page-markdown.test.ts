@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
 
-import { buildAgentMarkdown } from "./build-agent-markdown";
+import { buildPageMarkdown } from "./build-page-markdown";
 
 const origin = "https://example.com";
 
-describe("buildAgentMarkdown", () => {
+describe("buildPageMarkdown", () => {
   test("opens with the title and description, then the body", async () => {
     const entry = {
       title: "Hello",
@@ -13,7 +13,7 @@ describe("buildAgentMarkdown", () => {
     };
 
     expect(
-      await buildAgentMarkdown({
+      await buildPageMarkdown({
         entry,
         fallbackTitle: "hello",
         extension: ".md",
@@ -32,7 +32,7 @@ describe("buildAgentMarkdown", () => {
     };
 
     expect(
-      await buildAgentMarkdown({
+      await buildPageMarkdown({
         entry,
         fallbackTitle: "hello",
         extension: ".md",
@@ -45,7 +45,7 @@ describe("buildAgentMarkdown", () => {
     const entry = { title: "Not this", label: "Guide", markdown: "Body.\n" };
 
     expect(
-      await buildAgentMarkdown({
+      await buildPageMarkdown({
         entry,
         titleField: "label",
         fallbackTitle: "guide",
@@ -60,7 +60,7 @@ describe("buildAgentMarkdown", () => {
     const components = { Next: () => "[Next](/next)" };
 
     expect(
-      await buildAgentMarkdown({
+      await buildPageMarkdown({
         entry,
         fallbackTitle: "hello",
         extension: ".mdx",
@@ -69,7 +69,7 @@ describe("buildAgentMarkdown", () => {
       }),
     ).toBe("# Hello\n\n[Next](https://example.com/next)\n");
     expect(
-      await buildAgentMarkdown({
+      await buildPageMarkdown({
         entry,
         fallbackTitle: "hello",
         extension: ".md",
@@ -83,7 +83,7 @@ describe("buildAgentMarkdown", () => {
     const entry = { title: "Jane", markdown: "Data, not a body." };
 
     expect(
-      await buildAgentMarkdown({
+      await buildPageMarkdown({
         entry,
         fallbackTitle: "jane",
         extension: ".json",
@@ -98,7 +98,7 @@ describe("buildAgentMarkdown", () => {
       const entry = { title, markdown: "Body.\n" };
 
       expect(
-        await buildAgentMarkdown({
+        await buildPageMarkdown({
           entry,
           fallbackTitle: "untitled",
           extension: ".md",
@@ -112,7 +112,7 @@ describe("buildAgentMarkdown", () => {
     const entry = { title: "Hello", description: "Some text.\n" };
 
     expect(
-      await buildAgentMarkdown({
+      await buildPageMarkdown({
         entry,
         fallbackTitle: "hello",
         extension: ".md",
@@ -127,7 +127,7 @@ describe("buildAgentMarkdown", () => {
       const entry = { title: "Hello", description };
 
       expect(
-        await buildAgentMarkdown({
+        await buildPageMarkdown({
           entry,
           fallbackTitle: "hello",
           extension: ".md",

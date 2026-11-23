@@ -6,8 +6,8 @@ type RequirePagesOptions = {
 };
 
 const MISSING = {
-  pages: "has no pages: declare them to get agent Markdown and Markdown URLs.",
-  page: "has no page: declare it to get agent Markdown and a Markdown URL.",
+  pages: "has no pages: declare them to get page Markdown and Markdown URLs.",
+  page: "has no page: declare it to get page Markdown and a Markdown URL.",
 };
 
 /** Returns a primitive's resolved pages, or throws when it declares none. */

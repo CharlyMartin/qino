@@ -1,6 +1,6 @@
 import type { Heading, RootContent } from "mdast";
 
-import { rendersNothing } from "../../lib/agent-markdown/renders-nothing";
+import { rendersNothing } from "../../lib/page-markdown/renders-nothing";
 
 /**
  * The `llms.txt` template's first top-level `h1`, and the `summary`: the

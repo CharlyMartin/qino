@@ -90,15 +90,15 @@ export type Collection<
     >
   >;
   /**
-   * The index page's agent Markdown: `# {pages.title}`, then a link to each
+   * The index page's Markdown: `# {pages.title}`, then a link to each
    * entry's Markdown URL with its description, in default-view order.
    */
-  getAgentMarkdown(): Promise<string>;
+  getPageMarkdown(): Promise<string>;
   /**
-   * An entry page's agent Markdown, or `null` when the slug is unknown or the
+   * An entry page's Markdown, or `null` when the slug is unknown or the
    * view excludes the entry. Takes any string, such as a route param.
    */
-  getAgentMarkdown<Args extends ViewArguments<Views> = []>(
+  getPageMarkdown<Args extends ViewArguments<Views> = []>(
     slug: Slug,
     ...args: Args
   ): Promise<string | null>;

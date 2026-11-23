@@ -2,7 +2,7 @@ import type {
   ComponentReplacement,
   MdxJsxElement,
   SourceRange,
-} from "../../types/agent-markdown";
+} from "../../types/page-markdown";
 import { parseMarkdownBody } from "../../utils/markdown/parse-markdown-body";
 import { absolutizeLinks } from "./absolutize-links";
 import { dedentLines } from "./dedent-lines";

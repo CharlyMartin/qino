@@ -55,7 +55,7 @@ Commit messages and PRs carry no `Co-Authored-By` trailers or "Generated with Cl
 
 ## 3. Review
 
-`code-review` reads committed work, so review after committing, against the base (step 5). Give its spec reviewer the scratchpad directory's path, and have it probe edge cases by running the code and name the probes it ran. A probe that has to sit in the repo to run is named `zz-probe-*`, which git ignores, and deleted afterwards. When the change reads or rewrites Markdown or MDX bodies, such as agent Markdown, the table of contents or stats, or parses an `Accept` header, have the spec reviewer also run the probes in `docs/agents/markdown-probes.md`. When the change alters how the website answers Markdown or HTML requests, have the spec reviewer also run `apps/website/scripts/probe-agent-markdown.sh --dev` against a dev server from `apps/website/scripts/dev-server.sh start`, and add a probe there for each case the change adds. When the change alters an app in `examples/*`, have the spec reviewer also check that its page under `apps/website/content/docs/examples/` still lists what the app covers. Give the spec reviewer the decisions the user took for this change, and the ticket's section of the "Decisions while implementing" comment, and have it name the spec and ticket lines they contradict.
+`code-review` reads committed work, so review after committing, against the base (step 5). Give its spec reviewer the scratchpad directory's path, and have it probe edge cases by running the code and name the probes it ran. A probe that has to sit in the repo to run is named `zz-probe-*`, which git ignores, and deleted afterwards. When the change reads or rewrites Markdown or MDX bodies, such as page Markdown, the table of contents or stats, or parses an `Accept` header, have the spec reviewer also run the probes in `docs/agents/markdown-probes.md`. When the change alters how the website answers Markdown or HTML requests, have the spec reviewer also run `apps/website/scripts/probe-page-markdown.sh --dev` against a dev server from `apps/website/scripts/dev-server.sh start`, and add a probe there for each case the change adds. When the change alters an app in `examples/*`, have the spec reviewer also check that its page under `apps/website/content/docs/examples/` still lists what the app covers. Give the spec reviewer the decisions the user took for this change, and the ticket's section of the "Decisions while implementing" comment, and have it name the spec and ticket lines they contradict.
 
 Review whatever `/implement`'s review didn't cover: the whole change for a bug fix, or the commits made after it other than the fixes for its findings, such as retro improvements. Skip this step when nothing is left.
 
@@ -90,12 +90,14 @@ The quoted heredoc keeps backticks in the body from running as shell commands.
 - `Closes #<n>` for each spec and ticket issue the PR resolves.
 - A one-line "Review" note when a review changed something worth knowing, or a finding was skipped that a reviewer might raise again.
 
+**Landing a stack:** when the user asks to land a ticket stack as one PR, squash-merge its PRs from the last to the first, each into its base, so the first PR holds the whole stack. Closing keywords fire only on merges into `main`, so that PR's body closes every spec and ticket issue in the stack. Retitle it and rewrite its body to describe what the stack built, including any rename or reshape a later PR made.
+
 ## 6. Report
 
 When the PR changes how the website answers Markdown or HTML requests, probe its Vercel preview first, since only the preview runs the deployed function and serves the prerendered files:
 
 1. Run `apps/website/scripts/preview-url.sh`, which waits for the pushed commit's deploy and prints the preview's URL.
-2. Run `apps/website/scripts/probe-agent-markdown.sh <url>`. When the ticket names scanner checks, also run `node apps/website/scripts/scan-agent-readiness.mjs <url> [path...]`.
+2. Run `apps/website/scripts/probe-page-markdown.sh <url>`. When the ticket names scanner checks, also run `node apps/website/scripts/scan-agent-readiness.mjs <url> [path...]`.
 3. Fix the failures the change causes. Each one left belongs to an open issue; name it.
 
 Then report the PR URL, the list of commits, the branch name, and the preview's probe and scanner results.
