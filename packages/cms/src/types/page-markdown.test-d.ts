@@ -58,6 +58,30 @@ describe("markdownComponents", () => {
     });
   });
 
+  test("receive the item's entry and return a string or null in its object page", () => {
+    defineItem({
+      file: "about.mdx",
+      schema: z.object({ name: z.string() }),
+      page: {
+        path: "/about",
+        markdownComponents: {
+          Name: ({ props, children, entry }) => {
+            expectTypeOf(props).toEqualTypeOf<
+              Record<string, PageMarkdownPropValue>
+            >();
+            expectTypeOf(children).toEqualTypeOf<string>();
+            expectTypeOf(entry.name).toEqualTypeOf<string>();
+            expectTypeOf(entry._meta.fileName).toEqualTypeOf<`${string}.mdx`>();
+            return entry.name;
+          },
+          Kept: async () => null,
+          // @ts-expect-error: a function returns Markdown or null
+          Count: () => 3,
+        },
+      },
+    });
+  });
+
   test("are accepted in a tree's pages and an item's page", () => {
     defineTree({
       directory: "docs",
@@ -118,6 +142,20 @@ describe("markdownComponents", () => {
       extension: ".mdx",
       pages: posts,
       // @ts-expect-error: components go in pages.markdownComponents
+      agentMarkdown: { components: {} },
+    });
+    defineTree({
+      directory: "docs",
+      schema: z.object({ label: z.string() }),
+      extension: ".mdx",
+      titleField: "label",
+      // @ts-expect-error: components go in pages.markdownComponents
+      agentMarkdown: { components: {} },
+    });
+    defineItem({
+      file: "about.mdx",
+      schema: z.object({}),
+      // @ts-expect-error: components go in page.markdownComponents
       agentMarkdown: { components: {} },
     });
   });

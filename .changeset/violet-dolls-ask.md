@@ -2,7 +2,7 @@
 "@qino/cms": minor
 ---
 
-Adds `markdownComponents` to the `pages` of collections and trees, to turn MDX components into Markdown in their page Markdown. Each function receives the component's literal `props`, its `children` already converted to Markdown, and the `entry` as read. It returns Markdown, or `null` to keep the component as written:
+Adds `markdownComponents` to the `pages` of collections and trees: functions, by component name, whose output replaces an MDX component in page Markdown. Each function receives the component's literal `props`, its `children` already converted to Markdown, and the `entry` as read. It returns Markdown, or `null` to keep the component as written:
 
 ```ts
 const docs = qino.defineTree({

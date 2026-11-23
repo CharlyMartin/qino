@@ -18,7 +18,7 @@ export type PagesConfig = {
   readonly llmsFull?: boolean;
 };
 
-/** An item's `page` as an object, for an item whose Markdown needs `markdownComponents`. */
+/** An item's `page` as an object: its path, beside the `markdownComponents` that `defineItem` adds. */
 export type ItemPageConfig = {
   /** The page's path, such as `"/about"`. */
   readonly path: PagePath;

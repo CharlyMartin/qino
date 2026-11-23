@@ -20,14 +20,14 @@ export async function negotiateMarkdown(
     return null;
   }
 
-  const markdown = await load();
+  const pageMarkdown = await load();
   const llmsTxt = new URL("/llms.txt", url.origin);
   const body =
-    markdown ??
+    pageMarkdown ??
     `# Not found\n\nThis page doesn't exist. See [llms.txt](${llmsTxt}) for the pages that do.\n`;
 
   return new Response(request.method == "HEAD" ? null : body, {
-    status: markdown == null ? 404 : 200,
+    status: pageMarkdown == null ? 404 : 200,
     headers: {
       "Content-Type": "text/markdown; charset=utf-8",
       Vary: "Accept",

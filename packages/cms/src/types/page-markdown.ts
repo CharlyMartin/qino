@@ -56,8 +56,9 @@ export type PageMarkdownComponents<Entry = unknown> = Readonly<
 /** How a primitive's page Markdown reads, declared with its pages. */
 export type PageMarkdownConfig<Entry, Ext> = {
   /**
-   * Replaces MDX components in the pages' Markdown, by name. A component
-   * missing here stays as written. JSON files have no body to replace them in.
+   * Functions, by component name, whose output replaces an MDX component in
+   * page Markdown. A component missing here stays as written. JSON files have
+   * no body to replace them in.
    */
   readonly markdownComponents?: PageMarkdownComponents<Entry> &
     CheckMarkdownConfig<Ext>;

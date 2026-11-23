@@ -13,7 +13,7 @@ import { afterFrontmatterBlock } from "./after-frontmatter-block";
 let tmp: string;
 
 beforeEach(async () => {
-  tmp = await fs.mkdtemp(nodePath.join(os.tmpdir(), "qino-agent-md-int-"));
+  tmp = await fs.mkdtemp(nodePath.join(os.tmpdir(), "qino-page-md-int-"));
   await fs.mkdir(nodePath.join(tmp, "posts"));
 });
 

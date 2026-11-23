@@ -26,7 +26,7 @@ export type MarkdownConfig<
   readonly media?: MediaRule | ReadonlyArray<MediaRule>;
 };
 
-/** Flags `markdown` on JSON files, which have no body. */
+/** Flags `markdown` and `markdownComponents` on JSON files, which have no body. */
 export type CheckMarkdownConfig<Ext> = [Ext] extends [MarkdownExtension]
   ? unknown
   : { readonly "JSON files have no Markdown body": Ext };
