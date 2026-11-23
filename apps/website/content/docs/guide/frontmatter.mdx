@@ -3,7 +3,7 @@ title: Frontmatter
 description: How YAML frontmatter is parsed and which values become which types.
 ---
 
-Markdown, MDX, and `.markdown` files may start with a YAML block delimited by `---` lines. qino parses it with [js-yaml](https://github.com/nodeca/js-yaml) using the YAML 1.2 core schema, then validates the result against your schema. The body is added afterwards as `markdown`, and the source as `raw`.
+Markdown, MDX, and `.markdown` files may start with a YAML block delimited by `---` lines. qino parses it with [js-yaml](https://github.com/nodeca/js-yaml) using the YAML 1.2 core schema, then validates the result against your schema. The body is added afterwards as `markdown`.
 
 ```md title="src/content/posts/hello-world.md"
 ---
@@ -67,7 +67,7 @@ The built-in `!!str`, `!!int`, `!!float`, `!!bool`, `!!null`, and `!!timestamp` 
 
 ## The body
 
-Everything after the closing `---` is added to the entry as `markdown`, a string, after validation. An empty body is an empty string. The whole file, frontmatter included, is also added untouched as `raw`. Neither reaches the schema, and declaring `markdown` or `raw` in frontmatter is an error. See [Schemas](/docs/concepts/schemas).
+Everything after the closing `---` is added to the entry as `markdown`, a string, after validation. An empty body is an empty string. It never reaches the schema, and declaring `markdown` in frontmatter is an error. See [Schemas](/docs/concepts/schemas).
 
 ## Camel case keys
 
