@@ -11,7 +11,7 @@ If the installed version is newer and an API here doesn't match, the live docs w
 
 qino is a flat-file CMS: content lives as `.md`, `.mdx`, `.markdown`, or `.json` files, definitions live in a `qino/` folder, and a `qino` CLI validates everything and generates slug types.
 
-**Done means:** `qino build` exits 0 and, in TypeScript projects, `tsc --noEmit` passes. If you made the site agent-ready, step 6's agent-ready probes pass too, apart from those it has you report. Keep going until all of these hold.
+**Done means:** `qino build` exits 0 and, in TypeScript projects, `tsc --noEmit` passes. If you made the site agent-ready, step 6's agent-ready probes pass too, apart from those the host recipe doesn't cover, which the report names. Keep going until all of these hold.
 
 Match the target project's code style (quotes, semicolons, import paths, validator).
 
@@ -191,17 +191,25 @@ If the app serves public pages, offer to serve them to AI agents as Markdown and
    });
    ```
 
-   `siteUrl` is the production origin that the site's canonical URLs use. Take it from the project (Next's `metadataBase`, a site constant, the sitemap config), or ask the user. Agents and scanners follow every link built on it, so it's never `localhost`, even though the Next.js example uses that. Keep `sections` unless a collection's or tree's index page is `/`, or two of them share one: with `sections`, either fails the build.
+   `siteUrl` is the production origin that the site's canonical URLs use. Take it from the project (Next's `metadataBase`, a site constant, the sitemap config). Where those only hold `localhost`, such as an env var's default, try the repo's homepage (`gh repo view --json homepageUrl`) or the host project's domains, then ask the user. Agents and scanners follow every link built on it, so it's never `localhost`, even though the Next.js example uses that. Next resolves a relative `<link rel="alternate">`, such as the homepage's `/index.md`, against `metadataBase`, while `getMarkdownUrl` returns absolute URLs on `siteUrl`: the homepage's link is right only once `metadataBase` is the production origin too.
 
-2. **Pages.** Give each collection and tree the app displays `pages`, with paths matching its routes: `pages: { index: "/blog", entry: "/blog/{slug}", title: "Blog" }`. Give each item that has a route of its own `page: "/about"`. Leave `/` to the `index.md` that `qino build` writes from `llms.txt`, which summarizes the site and links every section, rather than an item's page.
+   Keep `sections` unless a collection's or tree's index page is `/`, or two of them share one: with `sections`, either fails the build.
+
+2. **Pages.** Give each collection and tree the app displays `pages`, with paths matching its routes: `pages: { index: "/blog", entry: "/blog/{slug}", title: "Blog" }`. Give each item that has a route of its own `page: "/about"`. Leave `/` to the `index.md` that `qino build` writes from `llms.txt`, which summarizes the site and links every section, rather than an item's page. A collection the app shows on a single page, with no page per entry, such as JSON tools listed at `/uses`, can't declare `pages`, which needs an entry path: report it as not covered.
 
 3. **Titles and descriptions.** Page Markdown's frontmatter block, its heading and the `llms.txt` links read each entry's `title` (or the tree's `titleField`) and its `description`. If a collection's summary field has another name, such as `excerpt`, add `description` in its default view's `augment` and leave the content's frontmatter as it is. Trees read their files without views, so report a tree that has no `description`.
 
-4. **MDX components.** For each component the content uses, add a `pages.markdownComponents` entry that returns its Markdown. For example, `({ children }) => children` fits one that only styles text. An item takes the map in `page: { path, markdownComponents }`. A component without an entry reaches agents as raw JSX.
+   Items read both fields from their own file, as the schema outputs it: views and `augment` don't apply. An item without a `title` is titled with its file's basename, so `bio/long.md` becomes "long". Check both fields on each item with a `page`. Adding them means editing the content, and the schema too when it strips or rejects undeclared fields, so offer the edit to the user and make it once they agree.
+
+   Page Markdown holds only that block, the title, the description and the body. Data that lives only in other frontmatter fields, such as relations to roles, a stack or a team, never reaches agents, and no option adds it: report each page that loses some.
+
+4. **MDX components.** For each component the `.mdx` content uses, add a `pages.markdownComponents` entry that returns its Markdown. For example, `({ children }) => children` fits one that only styles text. An item takes the map in `page: { path, markdownComponents }`. A component without an entry reaches agents as raw JSX. JSX in a `.md` or `.markdown` body is plain text: it reaches agents as written, and `markdownComponents` type-checks there but never runs, so flag those files. Code spans and fenced code never need an entry.
 
 5. **Template.** Write `llms.md` in the content folder. It holds an H1 with the site's name and a one-line `>` summary, which become `index.md`'s frontmatter. Then comes a `## When to use` section naming the jobs the site or product fits and the ones it doesn't, and last a `## Optional` section for outside links. Draft it from the README and the homepage copy, and have the user approve it. It states their positioning, and its "When to use" is what scanners look for to tell agents when the site fits.
 
 6. **Routes.** Follow the host recipe for the framework: `/guide/agent-ready-content/next-js`, `/guide/agent-ready-content/tanstack-start`, or `/guide/agent-ready-content/nitro-on-vercel` for prerendered pages on Vercel. Each entry page and index page answers with `negotiateMarkdown` and `getPageMarkdown`, at its own URL and at its Markdown URL. For a framework without a recipe, call `negotiateMarkdown` in the server handlers of pages that render on request, and report prerendered pages as not covered.
+
+   A collection's `getPageMarkdown(slug)` reads through its default view. When entry pages are built from `getAllSlugs()` or another view, and the default view filters some of those entries out, pass the entry page's view, `getPageMarkdown(slug, { view })`, or those pages advertise a Markdown URL that 404s. `llms.txt`, `llms-full.txt` and the index page's Markdown still list only the default view's entries.
 
 7. **Advertise.** Add `<link rel="alternate" type="text/markdown">` to each page's head, with the URL from `getMarkdownUrl` (`/index.md` on the homepage). Add the matching `Link` header wherever the recipe sets headers, because scanners read the tag and the header separately. The homepage's `Link` header also names `</llms.txt>; rel="describedby"`.
 
@@ -227,6 +235,7 @@ curl -si http://localhost:3000<index>.md                                # the in
 curl -si -H "Accept: text/markdown" http://localhost:3000<entry>        # page Markdown, opening with ---
 curl -si http://localhost:3000<entry>.md                                # the same page Markdown
 curl -si -H "Accept: text/markdown" http://localhost:3000/no-such-page  # 404, text/markdown
+curl -si http://localhost:3000/no-such-page.md                          # 404, text/markdown
 ```
 
 A failing probe is a setup bug to fix, unless the host recipe doesn't cover that case, which you report. is-agentic scans only deployed sites and publishes each report at a public URL, so leave the scan to the user: once production serves the new files, suggest `npx is-agentic <domain>`. On a preview deploy, its check that `llms.txt` links resolve fails, because they point at `siteUrl`.
@@ -237,7 +246,7 @@ Report back:
 - the files and fields you made optional
 - anything you flagged and left alone
 - the parity-check result, if you migrated existing loaders
-- for an agent-ready site: the `siteUrl` and where it came from, whether the user approved `llms.md`, and each probe the host recipe can't meet
+- for an agent-ready site: the `siteUrl` and where it came from, whether the user approved `llms.md`, and the results of step 6's probes and the host recipe's, including `/` and the Markdown 404, naming each probe the recipe doesn't cover
 
 ## Quick reference
 
