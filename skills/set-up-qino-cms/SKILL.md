@@ -191,7 +191,7 @@ If the app serves public pages, offer to serve them to AI agents as Markdown and
    });
    ```
 
-   `siteUrl` is the production origin that the site's canonical URLs use. Take it from the project (Next's `metadataBase`, a site constant, the sitemap config). Where those only hold `localhost`, such as an env var's default, try the repo's homepage (`gh repo view --json homepageUrl`) or the host project's domains, then ask the user. Agents and scanners follow every link built on it, so it's never `localhost`, even though the Next.js example uses that. Next resolves a relative `<link rel="alternate">`, such as the homepage's `/index.md`, against `metadataBase`, while `getMarkdownUrl` returns absolute URLs on `siteUrl`: the homepage's link is right only once `metadataBase` is the production origin too.
+   `siteUrl` is the production origin that the site's canonical URLs use. Take it from the project (Next's `metadataBase`, a site constant, the sitemap config). Where those only hold `localhost`, such as an env var's default, try the repo's homepage (`gh repo view --json homepageUrl`) or the domains of the site's project on its host, such as Vercel, then ask the user. Agents and scanners follow every link built on it, so it's never `localhost`, even though the Next.js example uses that. Next resolves a relative `<link rel="alternate">`, such as the homepage's `/index.md`, against `metadataBase` when the project sets one, while `getMarkdownUrl` returns absolute URLs on `siteUrl`: a `metadataBase` that's set must be the production origin too.
 
    Keep `sections` unless a collection's or tree's index page is `/`, or two of them share one: with `sections`, either fails the build.
 
@@ -201,7 +201,7 @@ If the app serves public pages, offer to serve them to AI agents as Markdown and
 
    Items read both fields from their own file, as the schema outputs it: views and `augment` don't apply. An item without a `title` is titled with its file's basename, so `bio/long.md` becomes "long". Check both fields on each item with a `page`. Adding them means editing the content, and the schema too when it strips or rejects undeclared fields, so offer the edit to the user and make it once they agree.
 
-   Page Markdown holds only that block, the title, the description and the body. Data that lives only in other frontmatter fields, such as relations to roles, a stack or a team, never reaches agents, and no option adds it: report each page that loses some.
+   Page Markdown holds only that block, the title, the description and the body. Data that lives only in other frontmatter fields, such as relations to roles, a stack or a team, reaches agents only through a component in an `.mdx` body whose `markdownComponents` function reads it from `entry`, where relations are still slugs. Report each page that loses some.
 
 4. **MDX components.** For each component the `.mdx` content uses, add a `pages.markdownComponents` entry that returns its Markdown. For example, `({ children }) => children` fits one that only styles text. An item takes the map in `page: { path, markdownComponents }`. A component without an entry reaches agents as raw JSX. JSX in a `.md` or `.markdown` body is plain text: it reaches agents as written, and `markdownComponents` type-checks there but never runs, so flag those files. Code spans and fenced code never need an entry.
 
