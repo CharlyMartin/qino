@@ -8,6 +8,7 @@
 - Generates TypeScript types with the `qino build` CLI
 - Requires Node.js 22+ and, optionally, TypeScript 5.9+
 - Full documentation in one file: https://www.qino.works/llms-full.txt
+- Contact: hello@qino.works
 
 ## When to use
 

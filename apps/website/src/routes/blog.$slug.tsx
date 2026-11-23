@@ -52,11 +52,7 @@ export const Route = createFileRoute("/blog/$slug")({
             jobTitle: author.role,
             worksFor: { "@type": "Organization", name: author.company },
           },
-          publisher: {
-            "@type": "Organization",
-            name: site.name,
-            url: site.url,
-          },
+          publisher: { "@id": site.organizationId },
         },
       ],
     });

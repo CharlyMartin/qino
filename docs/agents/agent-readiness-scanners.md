@@ -28,10 +28,13 @@ npx is-agentic <domain> --json
 
 `https://is-agentic.com/scan/<domain>` shows the same report, and its HTML embeds every check, over a hundred, as escaped JSON: `{"id":"…","name":"…","tier":"…","bonus":…,"score":…,"status":"…","details":"…","recommendation":"…"}`. `status` is `pass`, `fail`, `warning` (partial credit) or `na` (didn't run). Its `tier` and `bonus` don't say whether the score counts a check, and its tiers aren't the API's. The scan script reads its checks from there.
 
-On a preview deploy, the report reflects production in two ways:
+`brand-search-accuracy` searches the brand with the leading JSON-LD `keywords` terms (it took two), whether or not the page shows them; a comma-separated string works. It passes when the domain ranks in the top 10, and its `details` name the searches it ran.
+
+On a preview deploy, three things skew the report:
 
 - **Sampling:** the preview's sitemap lists the production URLs, so the scan samples no inner page, and checks such as `content-no-js` pass on the homepage alone. Their `details` say so.
 - **Links:** links built on `siteUrl` point at production. Checks that follow them fail or warn for files the preview serves and production doesn't yet. `llms-txt-links-resolve` reports such links as not resolving, and `markdown-link-alternate` as answering HTML. Both pass once production serves the files, and their `details` name the production URLs.
+- **Search:** a preview isn't indexed, and Vercel sends it `X-Robots-Tag: noindex`, so `noindex-directives` and `agentic-search-specific` fail, and `brand-search-accuracy` never finds the host, though its `details` still name the terms it searched. `public-api` fails on previews too, for a reason its `details` don't give. Read these four checks' statuses on production's report.
 
 ## acceptmarkdown.com
 

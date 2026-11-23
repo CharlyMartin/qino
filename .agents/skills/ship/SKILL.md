@@ -11,13 +11,21 @@ Ship when the checks from AGENTS.md are green. If the change touches a published
 
 ## 1. Branch
 
-Work on a feature branch. If you're on `main`, create one named after the main change, in kebab case:
+Work on a feature branch. If you're on `main`, create one named after the main change, in kebab case. Branching from `HEAD` keeps any commits you made on `main`:
 
 ```sh
 git switch -c <type>/<short-slug>   # e.g. feat/tree-get-entries-ancestors
 ```
 
-In a **ticket stack** (one PR per ticket of a spec), each ticket gets its own branch, created from the previous ticket's branch, or from `main` once that branch's PR has merged.
+If you're on a branch whose PR has merged (`gh pr list --head <branch> --state merged --json number,headRefOid`), start from the latest `main` instead. When `git rev-parse HEAD` isn't the PR's `headRefOid`, the commits after it are follow-up work the merge left out: carry them over.
+
+```sh
+git fetch origin main
+git switch -c <type>/<short-slug> --no-track origin/main
+git cherry-pick <headRefOid>..<merged branch>   # only when HEAD isn't the PR's head
+```
+
+In a **ticket stack** (one PR per ticket of a spec), each ticket gets its own branch, created from the previous ticket's branch (`git switch -c <branch>` while on it), or from `main` once that branch's PR has merged.
 
 PRs are squash-merged, so a merge leaves the next branch carrying the previous ticket's original commits. Once the previous PR merges, move the next branch onto `main`:
 

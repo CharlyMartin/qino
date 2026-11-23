@@ -33,11 +33,7 @@ export const Route = createFileRoute("/blog/")({
           name: "qino blog",
           url: `${site.url}/blog`,
           description,
-          publisher: {
-            "@type": "Organization",
-            name: site.name,
-            url: site.url,
-          },
+          publisher: { "@id": site.organizationId },
         },
       ],
     }),
