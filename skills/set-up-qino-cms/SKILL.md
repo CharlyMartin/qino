@@ -131,16 +131,16 @@ If they decline, skip the folder and flag it.
 ### Inferring schemas
 
 - **Read every file**, not a sample. A field missing from some files becomes `.optional()`. One that's sometimes `null` becomes `.nullable()`.
-- **Markdown bodies:** model frontmatter only. qino adds `markdown` (body) and `raw` (source) to every Markdown entry after validation. Never declare them; it's a type error. Files without frontmatter get `z.object({})`.
+- **Markdown bodies:** model frontmatter only. qino adds the body as `markdown` to every Markdown entry after validation. Never declare it; it's a type error. Files without frontmatter get `z.object({})`.
 - **YAML is 1.2 core:** unquoted dates arrive as strings (use `z.string()` or `z.iso.date()`, never `z.date()`), and `yes`/`no` are strings. See `/guide/frontmatter`.
-- **Reserved keys:** a top-level `_meta`, or `markdown`/`raw` in Markdown frontmatter, is an error. Tell the user; don't rename them.
+- **Reserved keys:** a top-level `_meta`, or `markdown`/`_stats`/`_toc` in Markdown frontmatter, is an error. Tell the user; don't rename them.
 - **YAML syntax errors:** qino's parser is stricter than some older ones, so files that parsed before may fail (e.g. under-indented continuation lines). Show the file and error and propose a minimal whitespace or quoting fix. Apply it only with the user's agreement. If the error doesn't name the file, parse the folder's files one by one to find it.
 
 ### Existing schemas
 
 If the app already validates its content, reuse those schemas instead of inferring new ones. This avoids drift and keeps existing refinements and enums. Adapt them:
 
-- Remove the field that held the body, whatever its name. Never add `markdown` or `raw`: qino adds them after validation, and declaring them is an error.
+- Remove the field that held the body, whatever its name. Never add `markdown`: qino adds it after validation, and declaring it is an error.
 - Replace `z.date()` with an ISO string format, e.g. `z.iso.date()` or `z.iso.datetime()` (or the equivalent in other validators).
 
 ### Shared entities and relations
@@ -184,7 +184,7 @@ Look up each error message at https://www.qino.works/docs/api/errors. The ones s
 
 - `Tree: folder "<path>" is missing its sibling file…`: add the anchor file, or convert the `index.md` layout.
 - `Validation failed for <filePath>:`: make the field optional or fix its type. Don't edit content to fit the schema. YAML syntax errors are different; see "Inferring schemas".
-- `…fields reserved for qino cannot appear…`: `_meta`, `markdown`, or `raw` in frontmatter or schema output. Flag frontmatter conflicts to the user; drop them from schemas.
+- `…fields reserved for qino cannot appear…`: `_meta`, `markdown`, `_stats`, or `_toc` in frontmatter or schema output. Flag frontmatter conflicts to the user; drop them from schemas.
 - `Relation "<key>"…expected value under "<dir>/"…`: the value is a bare slug. Keep it as `z.string()`, or convert it to a path.
 
 Report back:

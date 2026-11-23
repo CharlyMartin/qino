@@ -82,19 +82,19 @@ describe("validate", () => {
         schema: z.object({
           title: z.string(),
           markdown: z.string(),
-          raw: z.string(),
+          _toc: z.array(z.string()),
           nested: z.object({ markdown: z.string() }),
         }),
         data,
         filePath: "/fixtures/post.md",
-        generatedFields: ["markdown", "raw"],
+        generatedFields: ["markdown", "_toc"],
       });
 
     expect(() => run({ title: "Hello", nested: {} })).toThrow(
-      "Fields added by qino after validation cannot be declared in the schema: markdown, raw.",
+      "Fields added by qino after validation cannot be declared in the schema: markdown, _toc.",
     );
     expect(() =>
-      run({ markdown: "", raw: "", nested: { markdown: "" } }),
+      run({ markdown: "", _toc: [], nested: { markdown: "" } }),
     ).toThrow(/^(?![\s\S]*added by qino)/);
     expect(() =>
       validate({

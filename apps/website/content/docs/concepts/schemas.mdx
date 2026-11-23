@@ -26,26 +26,22 @@ A file without frontmatter validates `{}`, so an empty schema like `z.object({})
 
 To reshape data, such as splitting a string or renaming keys, use your validator's transform. See [Transforming data](/docs/concepts/pipeline#transforming-data).
 
-## markdown and raw
+## markdown
 
-After validation, qino adds two strings to every Markdown entry, like it adds `_meta`:
-
-- `markdown`: the body, without frontmatter. An empty body is an empty string.
-- `raw`: the whole source file, frontmatter included, byte for byte.
+After validation, qino adds the body to every Markdown entry as `markdown`, a string without the frontmatter, like it adds `_meta`. An empty body is an empty string.
 
 ```ts title="Entry for hello-world.md"
 {
   title: "Hello",
   draft: false,
   markdown: "The body, without frontmatter.",
-  raw: "---\ntitle: Hello\ndraft: false\n---\nThe body, without frontmatter.",
   _meta: { slug: "hello-world", fileName: "hello-world.md", filePath: "/abs/path/posts/hello-world.md" },
 }
 ```
 
-Don't declare them in the schema; they never reach it, so strict objects work as-is. They are added before views run, so `augment`, `filter`, and `sort` can read them. To derive something from the body, use [`augment`](/docs/concepts/views). For word and character counts, set `markdown: { stats: true }` and qino adds a `_stats` field too. See [MarkdownStats](/docs/api/types/markdown-stats). For a table of contents, set `markdown.toc` and qino adds a `_toc` field. See [MarkdownToc](/docs/api/types/markdown-toc).
+Don't declare it in the schema: the schema never sees it, so strict objects work as-is. It is added before views run, so `augment`, `filter`, and `sort` can read it. To derive something from the body, use [`augment`](/docs/concepts/views). For word and character counts, set `markdown: { stats: true }` and qino adds a `_stats` field too. See [MarkdownStats](/docs/api/types/markdown-stats). For a table of contents, set `markdown.toc` and qino adds a `_toc` field. See [MarkdownToc](/docs/api/types/markdown-toc). For a page's Markdown to copy or serve, with a title heading and absolute links, use [getPageMarkdown](/docs/api/collection/get-page-markdown).
 
-In Markdown files, `markdown`, `raw`, `_stats`, and `_toc` are reserved at the top level of frontmatter, schema input, and schema output. Declaring them in a schema is a type error, and frontmatter or a transform that introduces them fails at runtime. Augment callbacks cannot add or replace `markdown` and `raw`, nor `_stats` when `markdown.stats` is on, nor `_toc` when `markdown.toc` is on. In JSON files, they are ordinary fields.
+In Markdown files, `markdown`, `_stats`, and `_toc` are reserved at the top level of frontmatter, schema input, and schema output. Declaring them in a schema is a type error, and frontmatter or a transform that introduces them fails at runtime. Augment callbacks cannot add or replace `markdown`, nor `_stats` when `markdown.stats` is on, nor `_toc` when `markdown.toc` is on. In JSON files, they are ordinary fields.
 
 ## Reserved: \_meta
 

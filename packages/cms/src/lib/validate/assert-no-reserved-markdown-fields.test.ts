@@ -9,16 +9,16 @@ describe("assertNoReservedMarkdownFields", () => {
       const filePath = `/entry${ext}`;
       expect(() =>
         assertNoReservedMarkdownFields(
-          { _meta: undefined, markdown: "override", raw: "override" },
+          { _meta: undefined, markdown: "override", _stats: {}, _toc: [] },
           filePath,
         ),
       ).toThrow(
-        `${filePath}: fields reserved for qino cannot appear in content or schema output: _meta, markdown, raw.`,
+        `${filePath}: fields reserved for qino cannot appear in content or schema output: _meta, markdown, _stats, _toc.`,
       );
     },
   );
 
-  test.each(["_meta", "markdown", "raw"])(
+  test.each(["_meta", "markdown", "_stats", "_toc"])(
     "checks own %s properties, including non-enumerable ones",
     (key) => {
       expect(() =>
@@ -42,7 +42,7 @@ describe("assertNoReservedMarkdownFields", () => {
   test("allows nested reserved names", () => {
     expect(() =>
       assertNoReservedMarkdownFields(
-        { nested: { _meta: {}, markdown: 42, raw: 42 } },
+        { nested: { _meta: {}, markdown: 42, _stats: 42, _toc: 42 } },
         "/entry.md",
       ),
     ).not.toThrow();
