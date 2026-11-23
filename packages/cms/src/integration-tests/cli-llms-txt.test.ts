@@ -238,6 +238,34 @@ test("build with sections writes a section llms.txt per tree and collection, and
   );
 }, 60_000);
 
+test("build replaces an MDX entry's components in llms-full.txt through pages.markdownComponents", async () => {
+  await createLlmsTxtProject(tmp, {
+    config,
+    files: {
+      "qino/docs.ts": `
+        import { z } from "zod";
+        import qino from "./index";
+        export const docs = qino.defineTree({
+          directory: "docs", extension: ".mdx", titleField: "label",
+          schema: z.object({ label: z.string(), description: z.string() }),
+          pages: {
+            index: "/docs", entry: "/docs/{slug}", title: "Docs",
+            markdownComponents: { Endpoint: ({ props }) => "GET " + props.path },
+          },
+        });
+      `,
+      "content/docs/api.mdx":
+        '---\nlabel: API\ndescription: Reference.\n---\n\n<Endpoint path="/entries" />\n',
+    },
+  });
+
+  await build();
+
+  expect(await readPublic("llms-full.txt")).toContain(
+    "# API\n\n> Reference.\n\nGET /entries\n",
+  );
+}, 60_000);
+
 test("build with sections fails for an index page at /, naming its primitive", async () => {
   await createLlmsTxtProject(tmp, {
     config: config.replace("llmsTxt: true", "llmsTxt: { sections: true }"),

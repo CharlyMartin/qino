@@ -118,15 +118,21 @@ export type DefineTreeParams<
   cloud?: NoInfer<TreeCloudConfig<Schema>> &
     SaveEntryAsConfig<SaveEntryAs, Schema> &
     DisplayEntryAsConfig<DisplayEntryAs, Schema>;
-  /** Where the index page and entry pages live, for page Markdown and links. */
-  pages?: PagesConfig;
-  /** Configures the entry pages' Markdown: how MDX components read. */
-  agentMarkdown?: NoInfer<
-    PageMarkdownConfig<
-      ResolvedTreeEntry<Schema, Ext, TaggedRelations<Rels, Media, Stats, Toc>>
-    >
-  > &
-    NoInfer<CheckMarkdownConfig<Ext>>;
+  /**
+   * Where the index page and entry pages live, for page Markdown and links,
+   * and how MDX components read in the pages' Markdown.
+   */
+  pages?: PagesConfig &
+    NoInfer<
+      PageMarkdownConfig<
+        ResolvedTreeEntry<
+          Schema,
+          Ext,
+          TaggedRelations<Rels, Media, Stats, Toc>
+        >,
+        Ext
+      >
+    >;
 } & RootViewSettings;
 
 export function defineTree<
@@ -431,7 +437,7 @@ export function defineTree<
       fallbackTitle: slug,
       extension,
       origin: siteUrl,
-      replacement: { components: params.agentMarkdown?.components, entry },
+      replacement: { components: params.pages?.markdownComponents, entry },
       canonical,
     });
   }

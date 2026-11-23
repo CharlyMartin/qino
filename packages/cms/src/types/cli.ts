@@ -35,7 +35,7 @@ export type BuildConfig = {
   /**
    * Makes `qino build` write three files at the root of `mediaFolder`:
    * `llms.txt`, the `llms.txt` template with a link section for each
-   * primitive that declares pages; `llms-full.txt`, every entry page's agent
+   * primitive that declares pages; `llms-full.txt`, every entry page's
    * Markdown without its frontmatter block; and `index.md`, `llms.txt` after
    * a frontmatter block. Needs `siteUrl`.
    */

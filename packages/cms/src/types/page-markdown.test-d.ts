@@ -10,14 +10,21 @@ const { defineCollection, defineItem, defineTree } = initQino({
   siteUrl: "https://example.com",
 });
 
-describe("agentMarkdown.components", () => {
+const posts = {
+  index: "/posts",
+  entry: "/posts/{slug}",
+  title: "Posts",
+} as const;
+
+describe("markdownComponents", () => {
   test("receive literal props, Markdown children and the entry as read", () => {
     defineCollection({
       directory: "posts",
       schema: z.object({ title: z.string() }),
       extension: ".mdx",
-      agentMarkdown: {
-        components: {
+      pages: {
+        ...posts,
+        markdownComponents: {
           Box: ({ props, children, entry }) => {
             expectTypeOf(props).toEqualTypeOf<
               Record<string, PageMarkdownPropValue>
@@ -37,8 +44,9 @@ describe("agentMarkdown.components", () => {
       directory: "posts",
       schema: z.object({}),
       extension: ".mdx",
-      agentMarkdown: {
-        components: {
+      pages: {
+        ...posts,
+        markdownComponents: {
           Text: () => "text",
           Kept: () => null,
           Async: async () => "text",
@@ -50,31 +58,66 @@ describe("agentMarkdown.components", () => {
     });
   });
 
-  test("are accepted on trees and items", () => {
+  test("are accepted in a tree's pages and an item's page", () => {
     defineTree({
       directory: "docs",
       schema: z.object({ label: z.string() }),
       extension: ".mdx",
       titleField: "label",
-      agentMarkdown: {
-        components: { Label: ({ entry }) => entry.label },
+      pages: {
+        index: "/docs",
+        entry: "/docs/{slug}",
+        title: "Docs",
+        markdownComponents: { Label: ({ entry }) => entry.label },
       },
     });
     defineItem({
       file: "about.mdx",
       schema: z.object({ name: z.string() }),
-      agentMarkdown: {
-        components: { Name: ({ entry }) => entry.name },
+      page: {
+        path: "/about",
+        markdownComponents: { Name: ({ entry }) => entry.name },
       },
     });
   });
 
-  test("are rejected on JSON files, which have no body", () => {
+  test("are rejected on JSON files, which have no body, though pages aren't", () => {
     defineCollection({
       directory: "authors",
       schema: z.object({}),
       extension: ".json",
-      // @ts-expect-error: JSON files have no Markdown body
+      pages: {
+        index: "/authors",
+        entry: "/authors/{slug}",
+        title: "Authors",
+        // @ts-expect-error: JSON files have no Markdown body
+        markdownComponents: {},
+      },
+    });
+    defineCollection({
+      directory: "authors",
+      schema: z.object({}),
+      extension: ".json",
+      pages: { index: "/authors", entry: "/authors/{slug}", title: "Authors" },
+    });
+    defineItem({
+      file: "site.json",
+      schema: z.object({}),
+      page: {
+        path: "/site",
+        // @ts-expect-error: JSON files have no Markdown body
+        markdownComponents: {},
+      },
+    });
+  });
+
+  test("replace the agentMarkdown option, which is gone", () => {
+    defineCollection({
+      directory: "posts",
+      schema: z.object({}),
+      extension: ".mdx",
+      pages: posts,
+      // @ts-expect-error: components go in pages.markdownComponents
       agentMarkdown: { components: {} },
     });
   });
@@ -85,9 +128,11 @@ describe("agentMarkdown.components", () => {
       schema: z.object({ label: z.string() }),
       extension: ".mdx",
       titleField: "label",
-      pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" },
-      agentMarkdown: {
-        components: {
+      pages: {
+        index: "/docs",
+        entry: "/docs/{slug}",
+        title: "Docs",
+        markdownComponents: {
           // Annotated: the function reads `docsTree`, whose type it's part of.
           LinkGrid: async ({ entry }): Promise<string> => {
             const node = await docsTree.getTree(entry._meta.slug);

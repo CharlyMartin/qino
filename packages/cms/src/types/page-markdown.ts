@@ -1,6 +1,7 @@
 import type { Nodes } from "mdast";
 
 import type { Awaitable } from "./augment";
+import type { CheckMarkdownConfig } from "./markdown-config";
 
 /** Returns a page's Markdown, or `null` when the page doesn't exist. */
 export type LoadPageMarkdown = () => string | null | Promise<string | null>;
@@ -52,10 +53,14 @@ export type PageMarkdownComponents<Entry = unknown> = Readonly<
   Record<string, PageMarkdownComponent<Entry>>
 >;
 
-/** Configures the page Markdown of a primitive's entry pages. */
-export type PageMarkdownConfig<Entry> = {
-  /** Replaces MDX components, by name. A component missing here stays as written. */
-  readonly components?: PageMarkdownComponents<Entry>;
+/** How a primitive's page Markdown reads, declared with its pages. */
+export type PageMarkdownConfig<Entry, Ext> = {
+  /**
+   * Replaces MDX components in the pages' Markdown, by name. A component
+   * missing here stays as written. JSON files have no body to replace them in.
+   */
+  readonly markdownComponents?: PageMarkdownComponents<Entry> &
+    CheckMarkdownConfig<Ext>;
 };
 
 /** The functions that replace an entry's MDX components, and the entry they receive. */

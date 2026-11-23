@@ -149,6 +149,17 @@ describe("pages on trees and items", () => {
     expectTypeOf(aboutItem.getMarkdownUrl()).toEqualTypeOf<string>();
   });
 
+  test("give items page Markdown with a page in its object form", () => {
+    const item = defineItem({
+      file: "about.mdx",
+      schema: z.object({}),
+      page: { path: "/about" },
+    });
+
+    expectTypeOf(item.getPageMarkdown()).toEqualTypeOf<Promise<string>>();
+    expectTypeOf(item.getMarkdownUrl()).toEqualTypeOf<string>();
+  });
+
   test("take page on items only", () => {
     defineCollection({
       directory: "notes",
@@ -165,6 +176,13 @@ describe("pages on trees and items", () => {
       // @ts-expect-error: trees take `pages`
       page: "/guides",
     });
+    defineCollection({
+      directory: "notes",
+      schema: z.object({}),
+      extension: ".mdx",
+      // @ts-expect-error: collections take `pages`
+      page: { path: "/notes" },
+    });
   });
 
   test("reject an item's page without a leading /", () => {
@@ -173,6 +191,12 @@ describe("pages on trees and items", () => {
       schema: z.object({}),
       // @ts-expect-error: the page starts with "/"
       page: "about",
+    });
+    defineItem({
+      file: "about.md",
+      schema: z.object({}),
+      // @ts-expect-error: the page starts with "/"
+      page: { path: "about" },
     });
   });
 });

@@ -15,9 +15,11 @@ export const docsTree = qino.defineTree({
   extension: ".mdx",
   titleField: "title",
   markdown: { toc: { upTo: "h3" } },
-  pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" },
-  agentMarkdown: {
-    components: {
+  pages: {
+    index: "/docs",
+    entry: "/docs/{slug}",
+    title: "Docs",
+    markdownComponents: {
       InstallBox: installBoxToMarkdown,
       // The page's children, as the rendered grid shows them. Annotated, as it
       // reads `docsTree`, whose type it's part of.

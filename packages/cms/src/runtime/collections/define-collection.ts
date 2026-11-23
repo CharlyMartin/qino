@@ -121,19 +121,21 @@ export type DefineCollectionParams<
   cloud?: NoInfer<CollectionCloudConfig<Schema>> &
     SaveEntryAsConfig<SaveEntryAs, Schema> &
     DisplayEntryAsConfig<DisplayEntryAs, Schema>;
-  /** Where the index page and entry pages live, for page Markdown and links. */
-  pages?: PagesConfig;
-  /** Configures the entry pages' Markdown: how MDX components read. */
-  agentMarkdown?: NoInfer<
-    PageMarkdownConfig<
-      ResolvedCollectionView<
-        Schema,
-        Ext,
-        TaggedRelations<Rels, Media, Stats, Toc>
+  /**
+   * Where the index page and entry pages live, for page Markdown and links,
+   * and how MDX components read in the pages' Markdown.
+   */
+  pages?: PagesConfig &
+    NoInfer<
+      PageMarkdownConfig<
+        ResolvedCollectionView<
+          Schema,
+          Ext,
+          TaggedRelations<Rels, Media, Stats, Toc>
+        >,
+        Ext
       >
-    >
-  > &
-    NoInfer<CheckMarkdownConfig<Ext>>;
+    >;
 } & RootViewSettings;
 
 export function defineCollection<
@@ -466,7 +468,7 @@ export function defineCollection<
       extension,
       origin: siteUrl,
       replacement: {
-        components: params.agentMarkdown?.components,
+        components: params.pages?.markdownComponents,
         entry: entryAsRead,
       },
       canonical,

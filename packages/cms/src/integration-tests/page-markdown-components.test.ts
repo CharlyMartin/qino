@@ -36,8 +36,12 @@ function defineDocs(components: PageMarkdownComponents) {
     directory: "docs",
     extension: ".mdx",
     schema: z.object({ title: z.string() }),
-    pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" },
-    agentMarkdown: { components },
+    pages: {
+      index: "/docs",
+      entry: "/docs/{slug}",
+      title: "Docs",
+      markdownComponents: components,
+    },
   });
 }
 
@@ -114,18 +118,20 @@ describe("MDX components in page Markdown", () => {
       directory: "docs",
       extension: ".mdx",
       schema: z.object({ title: z.string() }),
-      pages: { index: "/docs", entry: "/docs/{slug}", title: "Docs" },
-      views: (view) => ({
-        default: view({ augment: () => ({ description: "From augment." }) }),
-      }),
-      agentMarkdown: {
-        components: {
+      pages: {
+        index: "/docs",
+        entry: "/docs/{slug}",
+        title: "Docs",
+        markdownComponents: {
           Fields: async ({ entry }) => {
             await new Promise((resolve) => setTimeout(resolve, 1));
             return `${entry._meta.slug}: ${Object.keys(entry).includes("description")}`;
           },
         },
       },
+      views: (view) => ({
+        default: view({ augment: () => ({ description: "From augment." }) }),
+      }),
     });
 
     expect(afterFrontmatterBlock(await docs.getPageMarkdown("hello"))).toBe(
@@ -209,9 +215,11 @@ describe("MDX components on trees and items", () => {
       extension: ".mdx",
       schema: z.object({ label: z.string() }),
       titleField: "label",
-      pages: { index: "/guide", entry: "/guide/{slug}", title: "Guide" },
-      agentMarkdown: {
-        components: {
+      pages: {
+        index: "/guide",
+        entry: "/guide/{slug}",
+        title: "Guide",
+        markdownComponents: {
           LinkGrid: async ({ entry }): Promise<string> => {
             const node = await guide.getTree(entry._meta.slug);
             return node.children
@@ -239,8 +247,10 @@ describe("MDX components on trees and items", () => {
     }).defineItem({
       file: "about.mdx",
       schema: z.object({ name: z.string() }),
-      page: "/about",
-      agentMarkdown: { components: { Name: ({ entry }) => entry.name } },
+      page: {
+        path: "/about",
+        markdownComponents: { Name: ({ entry }) => entry.name },
+      },
     });
 
     expect(afterFrontmatterBlock(await about.getPageMarkdown())).toBe(

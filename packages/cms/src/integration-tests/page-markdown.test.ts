@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { z } from "zod";
 
 import { initQino } from "../runtime/qino/init-qino";
-import type { PagePath } from "../types/pages";
+import type { ItemPageConfig, PagePath } from "../types/pages";
 import { afterFrontmatterBlock } from "./after-frontmatter-block";
 
 let tmp: string;
@@ -552,7 +552,7 @@ function defineDocs() {
   });
 }
 
-function defineItem(file: `${string}.md`, page?: PagePath) {
+function defineItem(file: `${string}.md`, page?: PagePath | ItemPageConfig) {
   return initQino({
     contentFolder: tmp,
     mediaFolder: tmp,
@@ -696,6 +696,15 @@ describe("page on items", () => {
   test("takes no token", () => {
     expect(() => defineItem("about.md", "/{slug}")).toThrow(
       'Item "about.md": page "/{slug}" takes no token.',
+    );
+  });
+
+  test("checks the path of its object form as it checks a string", () => {
+    expect(() => defineItem("about.md", { path: "about" as PagePath })).toThrow(
+      'Item "about.md": page "about" must start with "/".',
+    );
+    expect(defineItem("about.md", { path: "/about" }).getMarkdownUrl()).toBe(
+      "https://example.com/about.md",
     );
   });
 

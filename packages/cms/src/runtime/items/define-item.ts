@@ -47,7 +47,7 @@ import type {
   TaggedRelations,
 } from "../../types/media";
 import type { PageMarkdownConfig } from "../../types/page-markdown";
-import type { PagePath } from "../../types/pages";
+import type { ItemPageConfig, PagePath } from "../../types/pages";
 import type { Relations } from "../../types/relations";
 import type { NoReservedSchemaFields } from "../../types/reserved-schema-fields";
 import type { ObjectSchema } from "../../types/schema";
@@ -93,19 +93,24 @@ export type DefineItemParams<
     >
   >;
   cloud?: NoInfer<ItemCloudConfig<Schema>>;
-  /** Where the item's entry page lives, such as `"/about"`, for page Markdown and links. */
-  page?: PagePath;
-  /** Configures the entry page's Markdown: how MDX components read. */
-  agentMarkdown?: NoInfer<
-    PageMarkdownConfig<
-      ResolvedItemView<
-        Schema,
-        ExtractItemExtension<F>,
-        TaggedRelations<Rels, Media, Stats, Toc>
-      >
-    >
-  > &
-    NoInfer<CheckMarkdownConfig<ExtractItemExtension<F>>>;
+  /**
+   * Where the item's page lives, such as `"/about"`, for page Markdown and
+   * links. `{ path, markdownComponents }` also sets how MDX components read
+   * in its Markdown.
+   */
+  page?:
+    | PagePath
+    | (ItemPageConfig &
+        NoInfer<
+          PageMarkdownConfig<
+            ResolvedItemView<
+              Schema,
+              ExtractItemExtension<F>,
+              TaggedRelations<Rels, Media, Stats, Toc>
+            >,
+            ExtractItemExtension<F>
+          >
+        >);
 } & RootViewSettings;
 
 export function defineItem<
@@ -249,6 +254,11 @@ export function defineItem<
   // `canonical` adds.
   async function getLlmsFullDocument(canonical?: string) {
     const { siteUrl } = requirePages(resolvedPage, { owner, option: "page" });
+    // With a page, `params.page` is its path or an object holding it.
+    const components =
+      typeof params.page == "object"
+        ? params.page.markdownComponents
+        : undefined;
     // Item views can't filter, so no view can exclude the entry.
     const entry = await readEntry();
     return buildPageMarkdown({
@@ -256,7 +266,7 @@ export function defineItem<
       fallbackTitle,
       extension,
       origin: siteUrl,
-      replacement: { components: params.agentMarkdown?.components, entry },
+      replacement: { components, entry },
       canonical,
     });
   }
