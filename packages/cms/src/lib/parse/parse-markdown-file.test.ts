@@ -37,10 +37,10 @@ describe("parseMarkdownFile", () => {
   });
 
   test("adds the body as `markdown` after validating frontmatter", () => {
-    const raw = ["---", "title: Hello", "---", "", "# Body"].join("\n");
+    const data = ["---", "title: Hello", "---", "", "# Body"].join("\n");
     const result = parseMarkdownFile({
       schema: z.object({ title: z.string() }),
-      data: raw,
+      data,
       filePath: "/fixtures/post.md",
       validatorFn: validate,
     });
@@ -172,11 +172,11 @@ describe("parseMarkdownFile", () => {
   });
 
   test("propagates validation errors with the supplied filePath", () => {
-    const raw = ["---", "title: 42", "---", "markdown"].join("\n");
+    const data = ["---", "title: 42", "---", "markdown"].join("\n");
     expect(() =>
       parseMarkdownFile({
         schema: z.object({ title: z.string() }),
-        data: raw,
+        data,
         filePath: "/fixtures/bad.md",
         validatorFn: validate,
       }),

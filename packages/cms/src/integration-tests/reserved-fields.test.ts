@@ -34,7 +34,7 @@ describe.each([".md", ".mdx", ".markdown", ".json"] as const)(
             title: "Hello",
             ...(source == "content" ? { [field]: "conflict" } : {}),
           };
-          const raw =
+          const contents =
             extension == ".json"
               ? JSON.stringify(data)
               : `---\n${Object.entries(data)
@@ -42,7 +42,7 @@ describe.each([".md", ".mdx", ".markdown", ".json"] as const)(
                   .join("\n")}\n---\n# Hello`;
           const file = `entries/hello${extension}` as const;
           const filePath = path.join(tmp, file);
-          await fs.writeFile(filePath, raw);
+          await fs.writeFile(filePath, contents);
           // Erase the schema type to exercise the JavaScript/runtime fallback.
           const schema: StandardSchemaV1<unknown, { title: string }> =
             source == "content"
@@ -76,7 +76,7 @@ describe.each([".md", ".mdx", ".markdown", ".json"] as const)(
   },
 );
 
-test("resolved Markdown targets retain their markdown", async () => {
+test("resolved Markdown targets retain their markdown, and get no raw", async () => {
   await fs.writeFile(
     path.join(tmp, "entries/hello.md"),
     "---\ntitle: Hello\n---\n# Hello",
@@ -182,6 +182,21 @@ test.each(["_meta", "markdown"])(
     );
   },
 );
+
+test("augmentation can add raw to Markdown entries", async () => {
+  await fs.writeFile(
+    path.join(tmp, "home.md"),
+    "---\ntitle: Hello\n---\n# Hello",
+  );
+  const item = initQino({ contentFolder: tmp, mediaFolder: tmp }).defineItem({
+    file: "home.md",
+    schema: z.object({ title: z.string() }),
+    views: (view) => ({
+      default: view({ augment: ({ markdown }) => ({ raw: markdown }) }),
+    }),
+  });
+  await expect(item.getEntry()).resolves.toMatchObject({ raw: "# Hello" });
+});
 
 test("JSON markdown and nested reserved names remain user fields", async () => {
   const data = {

@@ -69,6 +69,15 @@ test("lets Markdown schemas declare raw, which qino doesn't add", async () => {
   });
   // @ts-expect-error qino doesn't add the source file as raw.
   expectTypeOf((await plain.getEntry()).raw);
+
+  const augmented = qino.defineItem({
+    file: "augmented.md",
+    schema: z.object({ title: z.string() }),
+    views: (view) => ({
+      default: view({ augment: ({ markdown }) => ({ raw: markdown.length }) }),
+    }),
+  });
+  expectTypeOf((await augmented.getEntry()).raw).toEqualTypeOf<number>();
 });
 
 test("checks schema inputs, transformed outputs, and union branches", () => {
