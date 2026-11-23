@@ -52,11 +52,7 @@ export const Route = createFileRoute("/docs/$")({
           url: `${site.url}${path}`,
           image: `${site.url}${site.ogImage}`,
           author: { "@type": "Person", ...site.author },
-          publisher: {
-            "@type": "Organization",
-            name: site.name,
-            url: site.url,
-          },
+          publisher: { "@id": site.organizationId },
         },
         {
           "@type": "BreadcrumbList",

@@ -1,4 +1,5 @@
 import { cn } from "../../lib/cn";
+import { site } from "../../lib/site";
 import { ExternalLink } from "./external-link";
 
 type SiteFooterProps = {
@@ -15,6 +16,17 @@ export function SiteFooter({ fullWidth }: SiteFooterProps) {
       )}
     >
       <p>qino — MIT licensed</p>
+      {/* The root route's Organization JSON-LD marks these up. */}
+      <p>
+        {site.address.locality}, {site.address.country} ·{" "}
+        {/* Not ExternalLink: its `utm_source` would become a mail header. */}
+        <a
+          href={`mailto:${site.email}`}
+          className="text-foreground-3 underline underline-offset-4 transition-colors hover:text-foreground"
+        >
+          {site.email}
+        </a>
+      </p>
       <p>
         Node 22+ · TypeScript 5.9+ ·{" "}
         <ExternalLink href="https://standardschema.dev/">

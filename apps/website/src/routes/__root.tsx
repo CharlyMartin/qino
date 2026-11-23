@@ -13,6 +13,7 @@ import { toJsonLdScript } from "../lib/to-json-ld-script";
 import appCss from "../styles/app.css?url";
 
 const ogImage = new URL(site.ogImage, site.url).href;
+const logo = new URL(site.logo, site.url).href;
 
 export const Route = createRootRoute({
   head: () => ({
@@ -32,7 +33,7 @@ export const Route = createRootRoute({
     ],
     links: [
       { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
-      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+      { rel: "apple-touch-icon", href: site.logo },
       {
         rel: "preload",
         href: satoshi,
@@ -50,17 +51,34 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: appCss },
     ],
     scripts: [
+      // The footer shows the contact email and address on every page.
+      toJsonLdScript({
+        "@type": "Organization",
+        "@id": site.organizationId,
+        name: site.name,
+        url: site.url,
+        logo,
+        description: site.description,
+        founder: { "@type": "Person", ...site.author },
+        contactPoint: {
+          "@type": "ContactPoint",
+          email: site.email,
+          contactType: "customer support",
+        },
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: site.address.locality,
+          addressCountry: site.address.countryCode,
+        },
+        sameAs: [externalLinks.github, externalLinks.npm],
+      }),
       toJsonLdScript({
         "@type": "WebSite",
         name: site.name,
         url: site.url,
         description: site.description,
-        publisher: {
-          "@type": "Organization",
-          name: site.name,
-          url: site.url,
-          sameAs: [externalLinks.github, externalLinks.npm],
-        },
+        keywords: site.keywords.join(", "),
+        publisher: { "@id": site.organizationId },
       }),
     ],
   }),
