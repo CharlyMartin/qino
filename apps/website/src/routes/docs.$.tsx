@@ -89,7 +89,7 @@ function DocsPage() {
     title,
     description,
     since,
-    raw,
+    pageMarkdown,
     toc,
     mdx,
     previousNode,
@@ -111,7 +111,7 @@ function DocsPage() {
             <Text size="lead">{description}</Text>
             {isSectionLanding ? null : (
               <div className="flex flex-wrap gap-2">
-                <CopyMarkdownButton markdown={raw} />
+                <CopyMarkdownButton markdown={pageMarkdown} />
                 <ViewMarkdownLink slug={slug} />
               </div>
             )}
