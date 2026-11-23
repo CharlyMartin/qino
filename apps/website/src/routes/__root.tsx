@@ -51,7 +51,7 @@ export const Route = createRootRoute({
       { rel: "stylesheet", href: appCss },
     ],
     scripts: [
-      // The footer shows the contact email and address on every page.
+      // `SiteFooter` shows the contact email and address this marks up.
       toJsonLdScript({
         "@type": "Organization",
         "@id": site.organizationId,

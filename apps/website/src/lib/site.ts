@@ -13,8 +13,8 @@ export const site = {
   organizationId: `${url}/#organization`,
   email: "hello@qino.works",
   address: { locality: "Paris", country: "France", countryCode: "FR" },
-  // is-agentic searches the brand with the first keyword the homepage shows:
-  // the hero's "Type-safe content pipeline".
+  // is-agentic searches "qino" with a keyword the homepage also shows, so
+  // "content pipeline", which the hero's eyebrow shows, leads.
   keywords: [
     "content pipeline",
     "Markdown CMS",

@@ -17,6 +17,7 @@ type HeroProps = {
 export function Hero({ stats }: HeroProps) {
   return (
     <Section aria-labelledby="hero-heading" spacing="hero" align="center">
+      {/* `site.keywords` leads with "content pipeline" because this shows it. */}
       <Eyebrow tone="accent">Type-safe content pipeline</Eyebrow>
       <div className="mt-4">
         <HeroStats stats={stats} />

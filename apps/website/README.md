@@ -54,7 +54,12 @@ pick up a newer deployment. Other unknown URLs show a site-wide not-found page.
 SEO and LLM endpoints:
 
 - Each page sets a canonical URL, Open Graph/Twitter tags and JSON-LD through
-  `src/lib/get-page-head.ts`. The site URL lives in `src/lib/site.ts`.
+  `src/lib/get-page-head.ts`. The root route adds the site-wide JSON-LD on every
+  page: the Organization, with its contact point and address, and the WebSite. A
+  page's JSON-LD names the Organization as `publisher` by its `@id`,
+  `site.organizationId`, rather than repeating it.
+- `src/lib/site.ts` holds the site URL, the keywords, and the contact email and
+  address that `SiteFooter` shows.
 - The build writes `sitemap.xml`; `public/robots.txt` points to it.
 - `qino build` (the `prebuild` script) writes `public/llms.txt`,
   `public/llms-full.txt` and `public/index.md`, served at the homepage's Markdown
@@ -78,7 +83,8 @@ SEO and LLM endpoints:
   that names neither HTML nor `*/*`, which TanStack Start would answer with
   406, and turn a 404 into qino's Markdown 404 when the request wants Markdown.
 - `public/og.png` (1200×630), `public/favicon.svg` and `public/apple-touch-icon.png`
-  are referenced from the root route.
+  are referenced from the root route. `apple-touch-icon.png` (270×270) is also
+  the Organization's logo, so Google needs it at 112×112 or more.
 
 Checks:
 
