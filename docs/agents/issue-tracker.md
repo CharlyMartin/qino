@@ -32,7 +32,7 @@ GitHub shares one number space across issues and PRs, so a bare `#42` may be eit
 
 ## When a skill says "publish to the issue tracker"
 
-Create a GitHub issue.
+Create a GitHub issue. When an open issue already covers it, replace that issue's body instead (`gh issue edit <n> --body-file -`), keeping what it found, and swap its triage label for the one the skill applies.
 
 ## When a skill says "fetch the relevant ticket"
 

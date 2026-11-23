@@ -7,7 +7,7 @@
       "expected_output": "Claude creates a feature branch, makes a few logical Conventional Commits staged by path, pushes with upstream tracking, and opens a PR with a Conventional Commit title and a reviewer-facing description.",
       "files": [],
       "assertions": [
-        "The first command creates a new branch off `main`, like `git switch -c feat/...`, before any commit.",
+        "Before any commit, it creates a new branch off the latest `main`, like `git switch -c feat/... --no-track origin/main`.",
         "There are at least two commits, and the `packages/cms` source file is in the same commit as its test file.",
         "Every `git add` names explicit paths; there is no `git add -A` or `git add .`.",
         "Every commit subject follows Conventional Commits with a scope, such as `feat(cms):`, `docs(website):` or `feat(examples):`.",
