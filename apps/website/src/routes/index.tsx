@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import { AgentReadySection } from "@/components/marketing/agent-ready-section";
 import { AgentSection } from "@/components/marketing/agent-section";
 import { CliSection } from "@/components/marketing/cli-section";
 import { FileTypes } from "@/components/marketing/file-types";
@@ -93,6 +94,7 @@ function HomePage() {
         <PrimitivesSection />
         <RelationsSection snippet={relationsPosts} />
         <CliSection />
+        <AgentReadySection />
         <AgentSection />
       </main>
       <SiteFooter />
