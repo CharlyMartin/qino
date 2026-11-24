@@ -91,10 +91,10 @@ function HomePage() {
           query={pipelineQuery}
         />
         <FileTypes />
+        <AgentReadySection />
         <PrimitivesSection />
         <RelationsSection snippet={relationsPosts} />
         <CliSection />
-        <AgentReadySection />
         <AgentSection />
       </main>
       <SiteFooter />
