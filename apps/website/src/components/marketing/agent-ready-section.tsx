@@ -1,10 +1,10 @@
 import { ArrowRightIcon } from "@phosphor-icons/react/ssr";
 
 import { ButtonLink } from "./button-link";
-import { Eyebrow } from "./eyebrow";
 import { InlineCode } from "./inline-code";
 import { NegotiationSplit } from "./negotiation-split";
 import { Section } from "./section";
+import { SectionHeading } from "./section-heading";
 import { Text } from "./text";
 import { Title } from "./title";
 
@@ -48,23 +48,15 @@ const features = [
 export function AgentReadySection() {
   return (
     <Section aria-labelledby="agent-ready-heading">
-      <Eyebrow tone="accent">Agent-ready content</Eyebrow>
-      <div className="mt-4 max-w-2xl">
-        <Title id="agent-ready-heading">
-          Same URL. HTML for people, Markdown for agents.
-        </Title>
-      </div>
-      <div className="mt-5 max-w-xl">
-        <Text>
-          Agents read Markdown more reliably than HTML, and qino already holds
-          your content's source. Hand your route's request to{" "}
-          <InlineCode>negotiateMarkdown</InlineCode> and it handles content
-          negotiation: when the <InlineCode>Accept</InlineCode> header prefers
-          Markdown, the page's own URL answers with it. On a prerendered site, a
-          host rewrite does the same, with recipes for Next.js and Nitro on
-          Vercel.
-        </Text>
-      </div>
+      <SectionHeading
+        id="agent-ready-heading"
+        title="Same URL. HTML for people, Markdown for agents."
+      >
+        Hand your route's request to <InlineCode>negotiateMarkdown</InlineCode>,
+        and the page's own URL answers in Markdown when the{" "}
+        <InlineCode>Accept</InlineCode> header prefers it. Prerendered sites get
+        the same through a host rewrite.
+      </SectionHeading>
       <div className="mt-9">
         <NegotiationSplit />
       </div>
