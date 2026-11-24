@@ -22,11 +22,17 @@ const DOC_PAGE = "/docs/:slug([^.]+)";
 const nextConfig: NextConfig = {
   transpilePackages: ["@qino/cms"],
   // The route handlers under `/md` render on request, and read content then.
-  outputFileTracingIncludes: { "/md/**": ["./src/content/**/*"] },
-  // `beforeFiles` runs before prerendered pages, which would answer first.
+  // `/md` also reads `public/index.md`, the homepage's Markdown that
+  // `qino build` writes, so the deployed server needs it too.
+  outputFileTracingIncludes: {
+    "/md": ["./public/index.md"],
+    "/md/**": ["./src/content/**/*"],
+  },
   async rewrites() {
     return {
+      // `beforeFiles` runs before prerendered pages, which would answer first.
       beforeFiles: [
+        { source: "/", has: markdownFirstAccept, destination: "/md" },
         { source: "/posts.md", destination: "/md/posts" },
         { source: "/posts/:slug.md", destination: "/md/posts/:slug" },
         { source: "/docs.md", destination: "/md/docs" },
@@ -48,21 +54,40 @@ const nextConfig: NextConfig = {
           destination: "/md/docs/:slug",
         },
       ],
+      // `fallback` runs after pages, public files and dynamic routes, so it
+      // only matches paths nothing answers: Markdown requests for them get the
+      // Markdown 404.
+      fallback: [
+        { source: "/:path(.+\\.md)", destination: "/md/missing" },
+        {
+          source: "/:path*",
+          has: markdownFirstAccept,
+          destination: "/md/missing",
+        },
+      ],
     };
   },
   // Next sets an App Router page's `Vary` itself, so only `Link` is added.
   async headers() {
     return [
+      {
+        source: "/",
+        markdownUrl: "/index.md",
+        links: ['</llms.txt>; rel="describedby"'],
+      },
       { source: "/posts", markdownUrl: "/posts.md" },
       { source: POST_PAGE, markdownUrl: "/posts/:slug.md" },
       { source: "/docs", markdownUrl: "/docs.md" },
       { source: DOC_PAGE, markdownUrl: "/docs/:slug.md" },
-    ].map(({ source, markdownUrl }) => ({
+    ].map(({ source, markdownUrl, links = [] }) => ({
       source,
       headers: [
         {
           key: "Link",
-          value: `<${markdownUrl}>; rel="alternate"; type="text/markdown"`,
+          value: [
+            `<${markdownUrl}>; rel="alternate"; type="text/markdown"`,
+            ...links,
+          ].join(", "),
         },
       ],
     }));

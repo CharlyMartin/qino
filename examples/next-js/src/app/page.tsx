@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
 import { homeItem } from "../../qino/items/home";
+
+// `qino build` writes the homepage's Markdown to `public/index.md`.
+export const metadata: Metadata = {
+  alternates: { types: { "text/markdown": "/index.md" } },
+};
 
 export default async function Home() {
   const home = await homeItem.getEntry();
