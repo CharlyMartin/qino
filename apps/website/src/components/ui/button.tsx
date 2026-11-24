@@ -17,7 +17,8 @@ const buttonVariants = cva(
       size: {
         default: "gap-2 px-4 py-2.5 font-bold",
         sm: "gap-1.5 px-3 py-1.5 text-sm font-medium",
-        inline: "gap-1.5 p-0 text-sm font-medium",
+        // `font-sans` so a link set in mono text, such as a SpecRow note, keeps Satoshi.
+        inline: "gap-1.5 p-0 font-sans text-sm font-medium",
         block: "aspect-square h-full rounded-none",
       },
     },

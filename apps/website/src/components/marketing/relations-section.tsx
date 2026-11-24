@@ -2,7 +2,6 @@ import { ArrowRightIcon } from "@phosphor-icons/react/ssr";
 
 import { ButtonLink } from "./button-link";
 import { CodeBlock, type Snippet } from "./code-block";
-import { Eyebrow } from "./eyebrow";
 import { Section } from "./section";
 import { Text } from "./text";
 import { Title } from "./title";
@@ -16,12 +15,9 @@ export function RelationsSection({ snippet }: RelationsSectionProps) {
     <Section aria-labelledby="relations-heading">
       <div className="grid gap-6 lg:grid-cols-2 lg:items-center lg:gap-x-12 lg:gap-y-0">
         <div>
-          <Eyebrow tone="accent">Relations</Eyebrow>
-          <div className="mt-4">
-            <Title id="relations-heading">
-              qino makes your content a relational database.
-            </Title>
-          </div>
+          <Title id="relations-heading">
+            qino makes your content a relational database.
+          </Title>
           <div className="mt-5 max-w-md">
             <Text>
               Declare a relation and a frontmatter string becomes a typed
