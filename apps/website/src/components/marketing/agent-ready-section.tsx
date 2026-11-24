@@ -14,17 +14,19 @@ const features = [
     description: (
       <>
         Page Markdown comes from your content files, not from scraped HTML: a
-        frontmatter block with the title, description and canonical URL, then
-        the body. You decide what each MDX component turns into.
+        frontmatter block with the title, canonical URL and any description,
+        then the body. You decide what each MDX component turns into.
       </>
     ),
   },
   {
-    title: "A Markdown URL for every page",
+    title: "A Markdown URL for each page",
     description: (
       <>
-        <InlineCode>/blog/hello-world.md</InlineCode> always answers in
-        Markdown. An unknown page gets a Markdown 404 that points agents to{" "}
+        Each page you declare also has a Markdown URL, such as{" "}
+        <InlineCode>/blog/hello-world.md</InlineCode>. Your route answers it
+        through <InlineCode>negotiateMarkdown</InlineCode>, which turns an
+        unknown slug into a Markdown 404 that points agents to{" "}
         <InlineCode>llms.txt</InlineCode>.
       </>
     ),
@@ -36,8 +38,8 @@ const features = [
         <InlineCode>qino build</InlineCode> writes{" "}
         <InlineCode>llms.txt</InlineCode>,{" "}
         <InlineCode>llms-full.txt</InlineCode> and{" "}
-        <InlineCode>index.md</InlineCode> from a template you write, with a link
-        to every page you declare.
+        <InlineCode>index.md</InlineCode> from a template you write, adding
+        links built from the pages you declare.
       </>
     ),
   },
@@ -56,9 +58,11 @@ export function AgentReadySection() {
         <Text>
           Agents read Markdown more reliably than HTML, and qino already holds
           your content's source. Hand your route's request to{" "}
-          <InlineCode>negotiateMarkdown</InlineCode>: when its{" "}
-          <InlineCode>Accept</InlineCode> header prefers Markdown, the page's
-          own URL answers with it.
+          <InlineCode>negotiateMarkdown</InlineCode> and it handles content
+          negotiation: when the <InlineCode>Accept</InlineCode> header prefers
+          Markdown, the page's own URL answers with it. On a prerendered site, a
+          host rewrite does the same, with recipes for Next.js and Nitro on
+          Vercel.
         </Text>
       </div>
       <div className="mt-9">
