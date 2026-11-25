@@ -18,10 +18,11 @@ export function DialogContent({ children, ...props }: DialogContentProps) {
         {...props}
       >
         {children}
-        <div className="absolute top-3 right-3">
+        {/* Inset by the popup's padding, so the X sits on the content's top-right corner. */}
+        <div className="absolute top-5 right-5 flex md:top-7 md:right-7">
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            render={<Button variant="ghost" size="sm" />}
+            render={<Button variant="ghost" size="inline" />}
           >
             <XIcon className="size-5" aria-hidden="true" />
             <span className="sr-only">Close</span>
