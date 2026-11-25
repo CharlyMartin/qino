@@ -1,4 +1,5 @@
-// simple-icons carries no OpenAI marks, so Codex's comes from @lobehub/icons (MIT).
+// simple-icons carries no OpenAI marks, so Codex's comes from @lobehub/icons,
+// under the MIT licence in `codex-icon-license.txt`.
 export const codexIcon = {
   title: "Codex",
   slug: "codex",

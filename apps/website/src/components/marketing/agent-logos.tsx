@@ -9,7 +9,7 @@ import {
 import { codexIcon } from "@/lib/codex-icon";
 import { SimpleIcon } from "./simple-icon";
 
-const agents = [
+const agentIcons = [
   siClaude,
   codexIcon,
   siCursor,
@@ -24,10 +24,10 @@ export function AgentLogos() {
       aria-label="Agents"
       className="flex flex-wrap items-center gap-x-6 gap-y-4"
     >
-      {agents.map((agent) => (
-        <li key={agent.slug} title={agent.title}>
-          <SimpleIcon icon={agent} />
-          <span className="sr-only">{agent.title}</span>
+      {agentIcons.map((icon) => (
+        <li key={icon.slug} title={icon.title}>
+          <SimpleIcon icon={icon} />
+          <span className="sr-only">{icon.title}</span>
         </li>
       ))}
     </ul>
