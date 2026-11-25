@@ -1,0 +1,38 @@
+import { ArrowUpRightIcon } from "@phosphor-icons/react/ssr";
+
+import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
+import { DialogContent } from "@/components/ui/dialog-content";
+import { DialogDescription } from "@/components/ui/dialog-description";
+import { DialogTitle } from "@/components/ui/dialog-title";
+import { DialogTrigger } from "@/components/ui/dialog-trigger";
+import { externalLinks } from "@/lib/external-links";
+import { installPrompt } from "@/lib/install-prompt";
+import { AgentLogos } from "./agent-logos";
+import { ExternalButtonLink } from "./external-button-link";
+import { PromptBox } from "./prompt-box";
+
+export function InstallPromptDialog() {
+  return (
+    <Dialog>
+      <DialogTrigger render={<Button />}>View install prompt</DialogTrigger>
+      <DialogContent>
+        <div className="space-y-3">
+          <DialogTitle>Install with your agent.</DialogTitle>
+          <DialogDescription>
+            Copy this prompt into Claude Code, Codex, Cursor or any agent that
+            supports skills.
+          </DialogDescription>
+        </div>
+        <AgentLogos />
+        <PromptBox prompt={installPrompt} copyLabel="Copy install prompt" />
+        <div>
+          <ExternalButtonLink href={externalLinks.skill} variant="outline">
+            View on skills.sh
+            <ArrowUpRightIcon className="size-4" aria-hidden="true" />
+          </ExternalButtonLink>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
