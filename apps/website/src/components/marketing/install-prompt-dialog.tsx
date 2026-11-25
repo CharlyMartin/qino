@@ -1,4 +1,4 @@
-import { ArrowUpRightIcon } from "@phosphor-icons/react/ssr";
+import { ArrowRightIcon, ArrowUpRightIcon } from "@phosphor-icons/react/ssr";
 
 import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
@@ -9,6 +9,7 @@ import { DialogTrigger } from "@/components/ui/dialog-trigger";
 import { externalLinks } from "@/lib/external-links";
 import { installPrompt } from "@/lib/install-prompt";
 import { AgentLogos } from "./agent-logos";
+import { ButtonLink } from "./button-link";
 import { ExternalButtonLink } from "./external-button-link";
 import { PromptBox } from "./prompt-box";
 
@@ -26,7 +27,7 @@ export function InstallPromptDialog() {
         </div>
         <AgentLogos />
         <PromptBox prompt={installPrompt} copyLabel="Copy install prompt" />
-        <div>
+        <div className="flex flex-wrap gap-x-6 gap-y-3">
           <ExternalButtonLink
             href={externalLinks.skill}
             variant="ghost"
@@ -35,6 +36,10 @@ export function InstallPromptDialog() {
             View on skills.sh
             <ArrowUpRightIcon className="size-4" aria-hidden="true" />
           </ExternalButtonLink>
+          <ButtonLink to="/docs" variant="ghost" size="inline">
+            Read the docs
+            <ArrowRightIcon className="size-4" aria-hidden="true" />
+          </ButtonLink>
         </div>
       </DialogContent>
     </Dialog>
