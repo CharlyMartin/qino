@@ -34,9 +34,8 @@ export function Hero({ stats }: HeroProps) {
 
         <div className="max-w-xl md:mx-auto text-balance">
           <Text size="lead">
-            Point qino at your content folder and hand it a schema. You -{" "}
-            <Underline>and your agents</Underline> - get typed, validated
-            content. Nothing to deploy!
+            <Underline>You own</Underline> your website's content. qino works
+            with it. Nothing to deploy!
           </Text>
         </div>
 

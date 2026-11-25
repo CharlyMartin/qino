@@ -16,7 +16,7 @@ export function Pipeline({ files, define, query }: PipelineProps) {
         <div className="mx-auto max-w-7xl px-4 py-10 md:px-7 md:py-14 lg:px-8">
           <SectionHeading
             id="pipeline-heading"
-            title="qino is dead simple to set up"
+            title="qino takes minutes to set up"
           >
             qino works with what you already have: Markdown files in your repo,
             a TypeScript config, and your framework of choice.
