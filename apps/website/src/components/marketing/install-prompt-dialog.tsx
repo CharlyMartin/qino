@@ -27,7 +27,11 @@ export function InstallPromptDialog() {
         <AgentLogos />
         <PromptBox prompt={installPrompt} copyLabel="Copy install prompt" />
         <div>
-          <ExternalButtonLink href={externalLinks.skill} variant="outline">
+          <ExternalButtonLink
+            href={externalLinks.skill}
+            variant="ghost"
+            size="inline"
+          >
             View on skills.sh
             <ArrowUpRightIcon className="size-4" aria-hidden="true" />
           </ExternalButtonLink>
