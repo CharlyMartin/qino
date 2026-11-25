@@ -18,10 +18,11 @@ export function DialogContent({ children, ...props }: DialogContentProps) {
         {...props}
       >
         {children}
-        <div className="absolute top-3 right-3">
+        {/* Inset like the padding, as tall as DialogTitle's line: the X centers on the title. */}
+        <div className="absolute top-5 right-5 flex h-7.5 items-center md:top-7 md:right-7">
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            render={<Button variant="ghost" size="sm" />}
+            render={<Button variant="ghost" size="inline" />}
           >
             <XIcon className="size-5" aria-hidden="true" />
             <span className="sr-only">Close</span>
