@@ -1,0 +1,234 @@
+---
+title: "v0.25 is out: agent-ready content, from 56 to 81"
+description: Markdown for agents at every page's URL, llms.txt built from your content, and a 404 agents can recover from. qino.works went from 56 to 81 on is-agentic.
+published-on: "2026-11-25"
+author: "authors/charly.json"
+---
+
+qino 0.25 is out, and it's for your site's other readers: AI agents.
+
+I thought qino.works was ready for them. It runs on a modern stack, renders on the server, and already had an `llms.txt`. Then I ran it through [is-agentic](https://is-agentic.com), an agent-readiness scanner. It scored 56.
+
+One request showed why:
+
+```sh
+curl -i -H "Accept: text/markdown" https://www.qino.works/docs/guide/cli
+```
+
+The answer was HTML, without `Vary: Accept`. Blog posts had no Markdown at all. The docs had some, from routes I wrote by hand: a builder for `llms.txt`, and a regex for each MDX component. Every qino site would have had to write the same code again.
+
+qino already holds the source of every page, so it's the right place for this code. With 0.25, qino.works scores 81. Here's what changed, one step at a time.
+
+## Tell qino where your pages live
+
+qino never knew where an entry is shown, so it couldn't link to one. Now `initQino` takes your `siteUrl`, collections and trees take `pages`, and items take `page`:
+
+```ts title="qino/posts.ts"
+export const postCollection = qino.defineCollection({
+  directory: "posts",
+  extension: ".mdx",
+  schema,
+  pages: { index: "/blog", entry: "/blog/{slug}", title: "Blog" },
+});
+```
+
+qino uses these paths to build links, and never to route. Your framework keeps its routes.
+
+## Page Markdown, built from source
+
+`getPageMarkdown(slug)` returns an entry page as a standalone Markdown document. It's built from the content file, not converted back from the rendered HTML, so nothing gets lost along the way:
+
+```md title="https://www.qino.works/docs/guide/cli.md"
+---
+title: "CLI"
+description: "The qino command, what each subcommand checks, and how to wire it into a build."
+canonical: "https://www.qino.works/docs/guide/cli"
+---
+
+# CLI
+
+> The qino command, what each subcommand checks, and how to wire it into a build.
+
+`@qino/cms` installs a `qino` binary with three commands. There are no flags.
+```
+
+- The frontmatter block gives an agent the title, description and canonical URL without reading the body. The entry's own frontmatter, with its author slugs and flags, stays out.
+- Site-relative links and images become absolute on `siteUrl`, so the document still works once it's pasted into a context window.
+- Without a slug, `getPageMarkdown()` returns the index page: a listing that links each entry's Markdown URL.
+
+The frontmatter block came late. The first scan of a preview flagged it as missing, on is-agentic's `markdown-frontmatter` check, so it went in before the release.
+
+## MDX components become Markdown
+
+An MDX component means nothing to an agent. Each primitive's `pages` now takes a map of functions that turn a component into Markdown:
+
+```ts
+pages: {
+  index: "/blog",
+  entry: "/blog/{slug}",
+  title: "Blog",
+  markdownComponents: {
+    // <InstallBox package="@qino/cms" /> becomes a shell command.
+    InstallBox: ({ props }) =>
+      `\`\`\`sh\nnpm install ${props.package}\n\`\`\``,
+    // It only styles its text, so agents get the text.
+    Underline: ({ children }) => children,
+  },
+},
+```
+
+A function receives the component's literal props, its children already turned into Markdown, and the entry. It can be async, so the docs' `<LinkGrid />` queries the tree for the page's children. qino never runs an MDX expression, and a component missing from the map stays as written.
+
+That replaced the regexes on qino.works.
+
+## One URL, two readers
+
+`negotiateMarkdown` takes a Web `Request` and a function that loads the page's Markdown. It answers with Markdown when the path ends in `.md`, or when the `Accept` header prefers Markdown. Otherwise it returns `null`, and your route renders HTML as usual. Here's the blog post route on qino.works, which runs TanStack Start:
+
+```ts title="src/routes/blog.$slug.tsx"
+GET: async ({ request, params, next }) =>
+  (await negotiateMarkdown(request, () =>
+    postCollection.getPageMarkdown(toEntrySlug(params.slug)),
+  )) ?? next(),
+```
+
+`toEntrySlug` drops the `.md`, so one handler answers both the page's URL and its Markdown URL. The same page now answers both readers:
+
+```txt
+$ curl -i -H "Accept: text/markdown" https://www.qino.works/docs/guide/cli
+HTTP/2 200
+content-type: text/markdown; charset=utf-8
+vary: Accept
+link: </docs/guide/cli.md>; rel="alternate"; type="text/markdown"
+
+$ curl -i https://www.qino.works/docs/guide/cli
+HTTP/2 200
+content-type: text/html; charset=utf-8
+vary: Accept
+link: </docs/guide/cli.md>; rel="alternate"; type="text/markdown"
+```
+
+- `Vary: Accept` stops a cache from handing one reader the other's version. is-agentic checks it on `markdown-negotiation-vary`.
+- The `Link` header names the page's Markdown URL, from `getMarkdownUrl`. isitagentready checks it on `linkHeaders`.
+- qino never answers with a 406. A browser with an unusual `Accept` header still gets the page.
+
+On a prerendered site, the host serves the HTML file before your route runs. qino.works prerenders its docs and blog, so Vercel routes rewrite Markdown requests and add the headers. qino doesn't generate host config: the guide has recipes for [Next.js](/docs/guide/agent-ready-content/next-js), [TanStack Start](/docs/guide/agent-ready-content/tanstack-start) and [Nitro on Vercel](/docs/guide/agent-ready-content/nitro-on-vercel).
+
+## A 404 agents can recover from
+
+When the loader returns `null`, for an unknown slug or a draft the view leaves out, `negotiateMarkdown` answers with a Markdown 404 that points to `llms.txt`:
+
+```txt
+$ curl -i -H "Accept: text/markdown" https://www.qino.works/blog/no-such-post
+HTTP/2 404
+content-type: text/markdown; charset=utf-8
+
+# Not found
+
+This page doesn't exist. See [llms.txt](https://www.qino.works/llms.txt) for the pages that do.
+```
+
+is-agentic gave the old HTML 404 partial credit on `agent-friendly-404`. This one passes: "the strongest 404 contract", in its words.
+
+## llms.txt from a template
+
+qino.works had an `llms.txt` before, from my hand-written builder. Now `qino build` writes it, with `cli.build.llmsTxt` on:
+
+```ts title="qino/index.ts"
+export default initQino({
+  contentFolder: "content",
+  mediaFolder: "public",
+  siteUrl: "https://example.com",
+  cli: { build: { llmsTxt: true } },
+});
+```
+
+It starts from a template, `content/llms.md`, that holds what only you can write: a title, a summary, and a "When to use" section. That section tells agents when your product fits, and when to pick something else. It's what is-agentic's `agent-instruction` check looks for, and my old file didn't have one. qino adds the links, a section for each collection and tree, each pointing to a Markdown URL.
+
+The same build writes two more files:
+
+- **`llms-full.txt`:** every entry page's Markdown, for an agent that wants the whole site in one request.
+- **`index.md`:** the homepage's Markdown, so `/` answers agents too.
+
+On a large site, one `llms.txt` gets too long for an agent working in one area. With `llmsTxt: { sections: true }`, each collection and tree gets its own, at its index page's path, such as `/docs/llms.txt`, and the root file links to them. That passes is-agentic's `modular-llms-txt`, and qino.works's root `llms.txt` is now 25 lines.
+
+## Pages with text on them
+
+The last partial credit was on `content-no-js`. The scanner samples inner pages, and found `/docs/examples` nearly empty: a title, a description and a grid of links. Every docs landing page looked like that. They now open with an intro, and all 5 sampled pages pass.
+
+That one wasn't code. It was writing.
+
+## The scorecard
+
+| Check                       | Scanner        | Before  | 0.25   |
+| --------------------------- | -------------- | ------- | ------ |
+| `markdown-negotiation-vary` | is-agentic     | fails   | passes |
+| `agent-friendly-404`        | is-agentic     | partial | passes |
+| `agent-instruction`         | is-agentic     | fails   | passes |
+| `markdown-frontmatter`      | is-agentic     | fails   | passes |
+| `modular-llms-txt`          | is-agentic     | fails   | passes |
+| `content-no-js`             | is-agentic     | partial | passes |
+| `markdownNegotiation`       | isitagentready | fails   | passes |
+| `linkHeaders`               | isitagentready | fails   | passes |
+| `serves-markdown`           | acceptmarkdown | fails   | passes |
+| `varies-by-accept`          | acceptmarkdown | fails   | passes |
+
+is-agentic went from 56 to 81, and isitagentready rates qino.works 86%, level 3, "Agent-Readable". I [shared the scores on LinkedIn](https://www.linkedin.com/feed/update/urn:li:activity:7530963586572124160/). is-agentic doesn't count `markdown-frontmatter` and `modular-llms-txt` toward its score, but it reports them.
+
+Two smaller changes to qino.works went out the same week, outside qino: a `Content-Signal` line in `robots.txt`, and a complete Organization JSON-LD. The JSON-LD counts on is-agentic too, on `org-schema-completeness`.
+
+## What's left
+
+The score stops at 81 on six checks, and none of them is about content:
+
+| Check                     | Result  | What it wants                                                              |
+| ------------------------- | ------- | -------------------------------------------------------------------------- |
+| `openapi-spec`            | fails   | An OpenAPI spec                                                            |
+| `json-error-responses`    | fails   | An API that answers errors in JSON                                         |
+| `api-schema-analysis`     | fails   | An API schema                                                              |
+| `function-calling-compat` | fails   | API endpoints an agent can call                                            |
+| `brand-search-accuracy`   | partial | A top 10 rank for "qino Markdown CMS". It's #6 for "qino content pipeline" |
+| `trust-anchors`           | partial | Contact and Privacy pages                                                  |
+
+Most of the gap is an API that qino.works doesn't have: the first two checks alone are worth 20 points. The rest is search ranking and two pages the site doesn't have yet. None of these is qino's job: it stays in the content lane.
+
+Outside the score, two content checks don't pass. `agent-ua-markdown` wants Markdown for bot user agents that ask for HTML, and qino negotiates on `Accept`, not on who's asking. `llms-txt-links-resolve` warns because npm answers the scanner's request for the package page with a 403.
+
+## Upgrading
+
+0.25 is a minor release, with one breaking change. Everything else is opt-in:
+
+- **`raw` is gone from Markdown entries.** For the source file, read it from `_meta.filePath`. For a page's Markdown, such as for a "Copy page" button, use `getPageMarkdown`, which needs `pages` and a `siteUrl`:
+
+  ```diff
+  - const markdown = post.raw;
+  + const markdown = await posts.getPageMarkdown(post._meta.slug);
+  + const source = await fs.readFile(post._meta.filePath, "utf8");
+  ```
+
+- **Nothing else changes until you declare pages.** Agent-ready content needs a `siteUrl`, `pages` or `page` on each primitive that has pages, `cli.build.llmsTxt`, and a route that calls `negotiateMarkdown`. A prerendered site needs its host's rewrite too.
+- **Your agent can set it up.** The [`set-up-qino-cms` skill](https://www.skills.sh/charlymartin/qino/set-up-qino-cms) has a "Make it agent-ready" step. Update the skill, and ask your agent to make your qino site agent-ready. It probes the result with `curl` when it's done.
+
+## How I measured
+
+- The scanners: [is-agentic](https://is-agentic.com), [isitagentready](https://isitagentready.com) and [acceptmarkdown.com](https://acceptmarkdown.com), on production, `www.qino.works`.
+- Before: production, before agent-ready content shipped. `markdown-frontmatter`, `modular-llms-txt` and `content-no-js` come from the first scan of a preview, before the frontmatter block, section `llms.txt` files and docs intros existed.
+- After: is-agentic's scan of November 24, 2026, on 0.25.
+- The `curl` output is cut down to the status line and the headers that matter.
+
+## Try it
+
+<InstallBox />
+
+- [Agent-ready content](/docs/guide/agent-ready-content): the guide, with host recipes
+- [`negotiateMarkdown`](/docs/api/negotiate-markdown)
+- [`getPageMarkdown`](/docs/api/collection/get-page-markdown)
+- [Changelog](https://github.com/CharlyMartin/qino/blob/main/packages/cms/CHANGELOG.md)
+
+This post has a Markdown version too:
+
+```sh
+curl -H "Accept: text/markdown" https://www.qino.works/blog/qino-0-25
+```
+
+If you make your qino site agent-ready, I'd love to see its score.
