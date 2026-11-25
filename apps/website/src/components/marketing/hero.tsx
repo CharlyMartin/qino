@@ -33,7 +33,7 @@ export function Hero({ stats }: HeroProps) {
 
         <div className="max-w-xl md:mx-auto text-balance">
           <Text size="lead">
-            <Underline>You own</Underline> your website's content.
+            You <Underline>own your website's content</Underline>.
             <br />
             qino works with it. Nothing to deploy!
           </Text>
