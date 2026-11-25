@@ -35,7 +35,7 @@ export function Hero({ stats }: HeroProps) {
           <Text size="lead">
             You <Underline>own your website's content</Underline>.
             <br />
-            qino works with it. Nothing to deploy!
+            qino makes it type-safe.
           </Text>
         </div>
 
