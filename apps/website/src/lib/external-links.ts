@@ -5,4 +5,6 @@ export const externalLinks = {
     "https://github.com/CharlyMartin/qino/blob/main/packages/cms/CHANGELOG.md",
   npm: "https://www.npmjs.com/package/@qino/cms",
   skill: "https://www.skills.sh/charlymartin/qino/set-up-qino-cms",
+  skillFile:
+    "https://raw.githubusercontent.com/CharlyMartin/qino/main/skills/set-up-qino-cms/SKILL.md",
 } as const;

@@ -1,3 +1,3 @@
-import { getInstallCommands } from "./get-install-commands";
+import { externalLinks } from "./external-links";
 
-export const installPrompt = `Install the qino skill with \`${getInstallCommands("npm").skill}\`, then use it to set up qino in this project.`;
+export const installPrompt = `Set up the latest version of \`@qino/cms\` in this project. Follow the instructions in this skill: ${externalLinks.skillFile}`;

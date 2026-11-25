@@ -20,8 +20,8 @@ export function InstallPromptDialog() {
         <div className="space-y-3">
           <DialogTitle>Install with your agent.</DialogTitle>
           <DialogDescription>
-            Copy this prompt into Claude Code, Codex, Cursor or any agent that
-            supports skills.
+            Copy this prompt into Claude Code, Codex, Cursor or any coding
+            agent.
           </DialogDescription>
         </div>
         <AgentLogos />
