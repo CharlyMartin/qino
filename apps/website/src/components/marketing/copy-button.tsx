@@ -23,7 +23,7 @@ type CopyButtonProps = VariantProps<typeof copyIconVariants> & {
 const announcements = {
   idle: "",
   copied: "Copied",
-  error: "Could not copy. Select the command and copy it manually.",
+  error: "Could not copy. Select the text and copy it manually.",
 };
 
 export function CopyButton({ status, onCopy, label, size }: CopyButtonProps) {

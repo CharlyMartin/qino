@@ -1,10 +1,9 @@
-import { externalLinks } from "@/lib/external-links";
 import type { ProjectStats } from "@/types/project-stats";
 import { ButtonLink } from "./button-link";
-import { ExternalButtonLink } from "./external-button-link";
 import { Eyebrow } from "./eyebrow";
 import { HeroStats } from "./hero-stats";
 import { InstallBox } from "./install-box";
+import { InstallPromptDialog } from "./install-prompt-dialog";
 import { Section } from "./section";
 import { Text } from "./text";
 import { Title } from "./title";
@@ -34,16 +33,14 @@ export function Hero({ stats }: HeroProps) {
 
         <div className="max-w-xl md:mx-auto text-balance">
           <Text size="lead">
-            Point qino at your content folder and hand it a schema. You -{" "}
-            <Underline>and your agents</Underline> - get typed, validated
-            content. Nothing to deploy!
+            You <Underline>own your website's content</Underline>.
+            <br />
+            qino makes it type-safe.
           </Text>
         </div>
 
         <div className="flex flex-col gap-3 md:flex-row md:justify-center">
-          <ExternalButtonLink href={externalLinks.skill}>
-            Install with your agent
-          </ExternalButtonLink>
+          <InstallPromptDialog />
           <ButtonLink to="/cloud" variant="outline">
             Join the Cloud waitlist
           </ButtonLink>

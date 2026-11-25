@@ -64,10 +64,10 @@ function DocsIndexPage() {
           <InstallBox command={["install", "skill"]} />
         </div>
       </header>
-      <DocsWhatsNew releases={releases} />
       {sections.map((section) => (
         <DocsSection key={section.slug} {...section} />
       ))}
+      <DocsWhatsNew releases={releases} />
     </div>
   );
 }
