@@ -16,7 +16,7 @@ export function PromptBox({ prompt, copyLabel }: PromptBoxProps) {
         <Eyebrow>{status == "copied" ? "Prompt copied!" : "Prompt"}</Eyebrow>
         <CopyButton status={status} onCopy={copy} label={copyLabel} size="sm" />
       </div>
-      <p className="whitespace-pre-wrap wrap-anywhere px-3 py-4 font-mono text-sm text-foreground-2">
+      <p className="whitespace-pre-wrap wrap-anywhere px-3 py-4 font-mono text-code text-foreground-2">
         {prompt}
       </p>
     </div>
