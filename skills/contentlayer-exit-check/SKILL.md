@@ -1,6 +1,6 @@
 ---
 name: contentlayer-exit-check
-description: Use when a project still builds its content with Contentlayer (`contentlayer`, `next-contentlayer`, `contentlayer2`, `next-contentlayer2`), when asked what it takes to move off Contentlayer, to size a Contentlayer migration, or when a Next.js upgrade is blocked by Contentlayer. Read-only: produces a sized migration list to qino, changes nothing.
+description: "Use when a project still builds its content with Contentlayer (`contentlayer`, `next-contentlayer`, `contentlayer2`, `next-contentlayer2`), when asked what it takes to move off Contentlayer, to size a Contentlayer migration, or when a Next.js upgrade is blocked by Contentlayer. Read-only: produces a sized migration list to qino, changes nothing."
 ---
 
 # Contentlayer Exit Check
